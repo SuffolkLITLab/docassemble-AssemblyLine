@@ -1,0 +1,929 @@
+###############################################
+# This file holds the default questions for various object
+# types. Things like how to ask for a person's name
+---
+objects:
+  - interview_metadata: DADict.using(object_type=DADict.using(auto_gather=False, gathered=True), auto_gather=False, gathered=True)
+  - users: PeopleList.using(there_are_any=True)
+  - children: PeopleList
+  - defendants: PeopleList
+  - plaintiffs: PeopleList
+  - plaintiff: Individual
+  - other_parties: PeopleList
+  - witnesses: PeopleList
+  - docket_numbers: DAList
+  - caregivers: PeopleList
+  - guardians_ad_litem: PeopleList
+  - attorneys: PeopleList
+  - translators: PeopleList
+  - debt_collectors: PeopleList
+  - creditors: PeopleList
+  - trial_court: MACourt
+  - all_courts: MACourtList.using(courts=['housing_courts','bmc','district_courts','superior_courts','land_court', 'juvenile_courts', 'probate_and_family_courts','appeals_court'])  # this is for lookups
+---
+id: is the user the plaintiff or defendant?
+comment: |
+  This question is asked if the interview can be used by both
+  a Plaintiff and a Defendant.
+
+  Directly set the value of user_started_case if you know which role the user
+  plays in the litigation.
+
+  This question doesn't make sense if it's not a court case.
+question: |
+  % if al_form_type in ['starts_case','existing_case']:
+  Did you start this case, or are you responding to a case
+  that someone else started?
+  % elif al_form_type == 'appeal':
+  Did you start the case in the trial court, or did you respond
+  to a case that someone else started?
+  % else:
+  Did you file the first form in this dispute, or did you respond
+  to a form that someone else filed first?
+  % endif
+fields: 
+  - no label: user_ask_role
+    datatype: radio
+    choices:
+      - Starting a new case: plaintiff
+      - Responding to a case: defendant
+  - note: |
+      Okay, you are the **Plaintiff** or Petitioner in this case. The other 
+      side is the **Defendant** or Respondent.
+    show if:
+      variable: user_ask_role
+      is: "plaintiff"
+  - note: |
+      Okay, you are the **Defendant** or Respondent in this case. The other 
+      side is the **Plaintiff** or Petitioner.
+    show if:
+      variable: user_ask_role
+      is: "defendant"
+help:
+  label: |
+    How do I know?
+  content: |
+    If you are the first person to file a form in the case, you 
+    started the case. You are the "Plaintiff" or the "Petitioner."
+  
+    If you are responding to a case or court papers someone else filed, you
+    are the "Defendant" or the "Respondent."
+---
+code: |
+  if user_started_case:
+    plaintiffs = users
+    petitioners = users
+    defendants = other_parties
+    respondents = other_parties
+  else:
+    defendants = users
+    respondents = users
+    plaintiffs = other_parties
+    petitioners = other_parties
+---
+code: |
+  # If the interview author didn't specify and it's a "court" or "other" case, we just ask
+  user_started_case = user_ask_role == 'plaintiff'
+---
+code: |
+  # This will be considered after any code in the parent interview
+  # Most likely, user_started_case should be True for form types "other" and "out_of_court" but 
+  # we will let form author decide
+  if al_form_type in ['letter', 'starts_case']:
+    user_started_case = True 
+---
+id: is there an opposing party?
+question: |
+  % if al_form_type in ['starts_case','existing_case','appeal'] and user_started_case:
+  Is there a **defendant** or respondent in this case? 
+  % elif al_form_type in ['starts_case','existing_case','appeal']:
+  Is there a **plaintiff** or petitioner in this case?
+  % else:
+  Is there someone on the other side of your dispute?
+  % endif
+subquestion: |
+  % if al_form_type in ['starts_case','existing_case','appeal'] and user_started_case:
+  Answer yes if there is a person or organization you are suing or taking to court.
+  % elif al_form_type in ['starts_case','existing_case','appeal']:
+  You should be able to find out from the paperwork that told you to 
+  go to court.
+
+  Answer yes if someone else has sued you or is bringing you to court.
+  % endif
+yesno: other_parties.there_are_any
+---
+code: |
+  # If the form is a letter, it _always_ is addressed to someone.
+  if al_form_type == 'letter':
+    other_parties.there_are_any = True
+---
+id: your name
+question:  |
+  What is your name?
+fields:
+  - First Name: users[0].name.first
+  - Middle Name: users[0].name.middle
+    required: False
+  - Last Name: users[0].name.last
+  - Suffix: users[0].name.suffix
+    code: |
+      name_suffix()
+    required: False  
+---    
+id: any other users
+question: |
+  % if al_form_type in ['starts_case','existing_case','appeal']:
+  Is anyone else on your side of this case?
+  % else:
+  Is anyone else adding their name to this form with you?
+  % endif
+subquestion: |
+  % if len(users.elements) > 1:  
+  So far you have told us about ${comma_and_list(users.complete_elements())}.
+  % endif  
+yesno: users.there_is_another 
+---
+id: other users names
+question: |
+  % if al_form_type in ['starts_case','existing_case','appeal']:
+  What is the name of the ${ ordinal(i) } person who is part of the case with you?
+  % else:
+  What is the name of the ${ ordinal(i) } person is adding their name to this form
+  with you?
+  % endif
+fields:
+  - First Name: users[i].name.first
+  - Middle Name: users[i].name.middle
+    required: False
+  - Last Name: users[i].name.last
+    required: False
+  - Suffix: users[i].name.suffix
+    code: name_suffix()
+    required: False
+---
+id: birthdate question
+generic object: Individual
+question: |
+  When was ${x} born?
+fields:
+  - Birthdate: x.birthdate
+    datatype: date
+---
+id: your address
+question: |
+  What is your address?
+subquestion: |
+  Use an address where you can be contacted.
+fields:
+  - Street address: users[0].address.address
+    address autocomplete: True
+  - Unit: users[0].address.unit
+    required: False
+  - City: users[0].address.city
+  - State: users[0].address.state
+    code: |
+      states_list()
+    default: MA      
+  - Zip: users[0].address.zip
+    required: False
+---
+id: your contact information
+question: |
+  What is your contact information?
+subquestion: |
+  Include at least **one** way to reach you other than by mail.
+fields:  
+  - Mobile number: users[0].mobile_number
+    required: False
+  - Other phone number: users[0].phone_number
+    required: False
+  - Email address: users[0].email    
+    datatype: email
+    required: False
+  - Other ways to reach you: users[0].other_contact_method
+    input type: area
+    required: False
+    help: |
+      If you do not have a phone number or email, provide
+      specific contact instructions. For example, use a friend's phone number.
+      But the friend must be someone you can rely on to give you a
+      message.
+validation code: |
+  if (not showifdef('users[0].phone_number') and \
+      (not showifdef('users[0].mobile_number')) and \
+      (not showifdef('users[0].email')) and \
+      (not showifdef('users[0].other_contact_method'))):
+    validation_error(word("You need to provide at least one contact method."))
+# TODO: adjust this if the form is not a court form
+help: |
+  % if al_form_type in ['starts_case','existing_case','appeal']:
+  The court **must** be able to reach you. So you have to give them some way to do this.
+  
+  Some forms allow you to tell the court you need to keep your address, phone,
+  and email confidential, so that only court staff can see this information. 
+  % else:
+  It is important that the person or organization you deliver this form to
+  is able to contact you. Make sure to include at least one way to reach you
+  other than mail.
+  % endif
+---
+id: docket number
+question: |
+  What is the docket number for your case?
+fields:
+  - I don't know the docket number: dont_know_docket_number
+    datatype: yesno    
+  - no label: docket_number
+    hide if: dont_know_docket_number
+validation code: |
+  # This should be safe to 
+  if dont_know_docket_number:
+    docket_number = ''      
+---
+question: |
+  Do you have a docket number for this case?
+yesno: docket_numbers.there_are_any
+---
+id: docket numbers
+question: |
+  What is the docket number for this case?
+subquestion: |
+  If there are multiple docket numbers on this form, you can tap "${word("Add another")}"
+  to add more than one.
+list collect: True
+fields:
+  - no label: docket_numbers[i]
+    required: False
+---
+id: who will be on this form
+generic object: PeopleList
+question: |
+  Will this form include any ${noun_plural(x.object_name())}?
+yesno: x.there_are_any
+---
+id: any witnesses
+question: |
+  Do you need to list a witness for this form?
+yesno: witnesses.there_are_any
+---
+#id: witness name
+#question: |
+#  Name of ${ ordinal(i) } witness
+---
+id: another witness
+question: |
+  Do you need to add another witness?
+yesno: witnesses.there_is_another
+---
+id: name of individual
+generic object: Individual
+question: |
+  What is ${x.object_possessive('name')}?
+fields:
+  - First Name: x.name.first
+  - Middle Name: x.name.middle
+    required: False
+  - Last Name: x.name.last
+  - Suffix: x.name.suffix
+    required: False
+---
+id: children names without birthdate
+question: |
+  % if al_form_type in ['starts_case','existing_case','appeal']:
+  Names of children involved in this case
+  % else:
+  Names of children involved in this matter
+  % endif
+subquestion: |
+  Click "${word("Add another")}" to add more.
+list collect: True
+fields:
+  - First Name: children[i].name.first
+  - Middle Name: children[i].name.middle
+    required: False
+  - Last Name: children[i].name.last
+  - Suffix: children[i].name.suffix
+    required: False
+---
+
+---
+id: names of witnesses
+question: |
+  List the name of each witness below
+subquestion: |
+  Click "${word("Add another")}" to add more.
+list collect: True
+fields:
+  - First name: witnesses[i].name.first
+  - Middle name: witnesses[i].name.middle
+    required: False
+  - Last name: witnesses[i].name.last
+  - Suffix: witnesses[i].name.suffix
+    code: |
+      name_suffix()
+    required: False  
+---
+id: names of people
+generic object: PeopleList
+question: |
+  Please list all ${x.object_name()} below
+subquestion: |
+  Click "${word("Add another")}" to add more.
+list collect: True
+fields:
+  - First name: x[i].name.first
+  - Middle name: x[i].name.middle
+    required: False
+  - Last name: x[i].name.last
+  - Suffix: x[i].name.suffix
+    code: |
+      name_suffix()
+    required: False      
+---
+id: names of opposing parties
+question: |
+  % if users==plaintiffs:
+  Please list the name of each **defendant** or respondent in this
+  case below
+  % else:
+  Please list the name of each **plaintiff** or petitioner in this case below
+  % endif
+subquestion: |
+  Click "${word("Add another")}" to add more.
+list collect: 
+  enable: True
+  label: |
+    % if users==plaintiffs:
+    Defendant/Respondent ${i+1}    
+    % else:
+    Plaintiff/Petitioner ${i+1}
+    % endif
+fields:
+  - Are they a person, or a business?: other_parties[i].person_type
+    input type: radio
+    choices:
+      - Business or organization: business
+      - Person: individual
+  - First name: other_parties[i].name.first
+    show if:
+      variable: other_parties[i].person_type
+      is: "individual"
+  - Last name: other_parties[i].name.last
+    show if:
+      variable: other_parties[i].person_type      
+      is: "individual"
+  - Suffix: other_parties[i].name.suffix
+    code: |
+      name_suffix()
+    show if:
+      variable: other_parties[i].person_type      
+      is: "individual"
+    required: False      
+  - Name of organization or business: other_parties[i].name.first
+    show if:
+      variable: other_parties[i].person_type
+      is: business
+---
+id: persons address
+generic object: Individual
+question: |
+  What is ${ x.possessive('address') }?
+fields:
+  - Street address: x.address.address
+    address autocomplete: True
+  - Unit: x.address.unit
+    required: False
+  - City: x.address.city
+  - State: x.address.state
+    default: MA   
+    code: |
+      states_list()   
+  - Zip: x.address.zip
+    required: False
+---
+id: persons contact information
+generic object: Individual
+question: |
+  What is ${x}'s phone number?
+fields:
+  - Phone: x.phone_number
+---
+id: email
+generic object: Individual
+question: |
+  What is ${x}'s email address?
+fields:
+  - Email: x.email
+    datatype: email
+---
+id: persons signature
+generic object: Individual
+question: |
+  ${x}, please sign below
+signature: x.signature
+under: |
+  ${x}
+progress: 99  
+---
+id: signature date
+question: |
+  When do you plan to file these forms that we are working on?
+subquestion: |
+  We automatically answer "today" for you, below. You can change the date.
+fields: 
+  - Date: signature_date
+    datatype: date
+    default: ${today().format("yyyy-MM-dd")}
+---
+code: |
+  # It's not really necessary to default to asking the user
+  # what date to list on the form.  
+  signature_date = today()
+---
+generic object: Individual
+code: |
+  x.gender_female = x.gender == 'female'
+  x.gender_male = x.gender == 'male'
+  x.gender_other = ((x.gender != 'male') and (x.gender != 'female'))
+---
+id: gender
+generic object: Individual
+question: |
+  What is ${x.possessive('gender')}?
+subquestion: |
+  **Note**: Many forms require you to specify "Female" or "Male."
+  
+  If you answer something other than "Female" or "Male", we may not be able
+  to check any box on your form. This may delay your case.
+fields:
+  - no label: x.gender
+    choices:
+      - Female: female
+      - Male: male
+      - Non-binary: non-binary
+      - Prefer not to say: prefer-not-to-say
+      - Prefer to write in a different gender: self-described
+  - Gender: x.gender
+    show if:
+      variable: x.gender
+      is: "self-described"
+---
+id: interpreter
+comment: |
+  This question is required for the cover page we send to the court,
+  even if the form does not use it.
+question: |
+  Do you need an interpreter?
+subquestion: |
+  You have the right to an interpreter.
+
+  If there is a chance you may not understand everything that is said in English, or if other people may not be able to understand you, ask for an interpreter.
+
+  You do not have to speak only through the interpreter, but you may have one if you need one.
+fields:
+  - I need an interpreter: user_needs_interpreter
+    datatype: yesnoradio
+  - My preferred language is: user_preferred_language 
+    show if: user_needs_interpreter
+---
+continue button field: 
+---
+id: accept terms of use
+decoration: form-lineal
+question: |
+  ${interview_short_title}: CourtFormsOnline
+subquestion: |
+  % if form_approved_for_email_filing:
+  This website can be used to complete and deliver forms directly to the
+  court.
+  % else:
+  This website can be used to complete and download forms. You will
+  be responsible for delivering the form on your own.
+  % endif
+  
+  Step 1. Answer questions that will fill in your form for you.  
+  Step 2. Preview the completed form.  
+  % if form_approved_for_email_filing:  
+  Step 3. Send the form to the court using this secure website and save copies
+  for yourself for later reference.  
+  % else:
+  Step 3. Download and print the final form. You will need to deliver it
+  to the court on your own.
+  % endif
+    
+  Tap the {green words} in any screen for a definition or more information.
+  
+  % if chat_partners_available().help:
+  Live help is currently available in this interview. Click the speech bubble
+  (:comment-alt:) in the navigation bar to connect to a live advocate for help.
+  % endif
+
+fields:
+  - To continue, you must accept the [terms of use](https://courtformsonline.org/privacy/): acknowledged_information_use
+    datatype: checkboxes
+    none of the above: False    
+    minlength: 1
+    choices:
+      - I accept the terms of use.: accept_terms
+    validation messages:
+      minlength: |
+        You cannot continue unless you agree to the terms of use.        
+terms:
+  green words: |
+    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
+# TODO: we can make this include a badge with number of saved answers?
+right: |
+  % if user_has_saved_answers:
+  ${fa_icon("bell", color="primary", size="sm")}
+  Saved answers available!  
+  
+  ${action_button_html(url_action('load_answer'), icon="folder-open", label=word("View answers"), size="sm" )}
+  % endif    
+---
+id: affirmation and oath of no perjury
+question: |
+  Signing Under Oath
+subquestion: |
+  Your form must be signed "under penalties of perjury."
+  This means that it can be a crime if you lie on this form.
+fields:
+  - no label: users[i].states_above_true
+    datatype: checkboxes
+    minlength: 1
+    choices:
+      - I, ${user.familiar()}, promise that my answers on this form are the truth under penalties of perjury: states_true
+    validation messages:
+      minlength: |
+        You cannot keep going unless you did your best to tell the truth.
+########################################################################
+# Court selection
+---
+comment: |
+  We default to only searching the user's address.
+  
+  This is a reasonable default but you likely want to add
+  additional addresses. E.g., the opposing party's address,
+  the address where the incident took place. Especially
+  if this is a responsive case.
+code: |
+  addresses_to_search = [users[0].address]
+---
+comment: |
+  Ensure that addresses_to_search is the correct set of courts.
+  See above--it's defined to user's address by default
+code: |  
+  all_matches = all_courts.matching_courts(addresses_to_search, court_types=allowed_courts)
+---
+if: |
+  # this should only be reached if the user's address is out of state
+  not len(all_matches)
+sets:
+  - trial_court
+id: choose a court (no matching courts found)
+question: |
+  % if al_form_type == 'starts_case':
+  What court do you want to file in?
+  % elif al_form_type == 'appeal':
+  What is the name of the trial court your case was originally filed in?
+  % else:
+  What court is your case in?
+  % endif
+subquestion: |
+  % if not al_form_type == 'starts_case':
+  Look at your court paperwork. Match the name listed
+  there.
+  % endif
+fields:
+  - no label: trial_court
+    datatype: object
+    object labeler: |
+      lambda y: y.short_label()
+    choices: macourts.filter_courts(allowed_courts)    
+help: 
+  label: |
+    How do I pick a court?
+  content: |
+    ${ how_to_pick_court_help_template }
+---
+template: how_to_pick_court_help_template
+content: |
+  For some cases, you can choose your court.
+  % if al_form_type == 'starts_case':    
+  How do you know which court to choose?
+
+  Think about:
+
+  1. A court that has the resources and specialization to hear your case.
+  1. Choosing a court you can get to. You may need to appear in court several times.
+
+  % else:
+  Look carefully at your court paperwork. Choose the court that your case is already in.
+  The name in our list may include the city or town even if the name on your paperwork
+  does not.
+  % endif
+---
+if: |
+  len(all_matches)
+id: choose a court (courts matching provided address were found)
+question: |
+  % if al_form_type == 'starts_case':
+  What court do you want to file in?
+  % elif al_form_type == 'appeal':
+  What is the name of the trial court your case was originally filed in?
+  % else:
+  What court is your case in?
+  % endif
+subquestion: |
+  % if not al_form_type == 'starts_case':
+  Look at your court paperwork. Match the name listed
+  there.
+  % endif
+
+  % if len(all_matches) > 0:
+  Below is a map of the court(s) that serve
+  the address you gave us, ${comma_and_list([address.on_one_line() for address in addresses_to_search],comma_string='; ')}.
+  
+  ${map_of(combined_locations(all_matches))}
+  % endif
+fields:
+  - no label: trial_court
+    datatype: object_radio
+    choices: all_matches
+    none of the above: True
+    disable others: True
+    object labeler: |
+      lambda y: y.short_description()
+    show if: 
+      code: |
+        len(all_matches)      
+  - note: |
+      Does the list above look wrong? If your case was filed in
+      a court we didn't list, choose from the full list below.
+    show if: 
+      code: |
+        len(all_matches)
+  - no label: trial_court
+    datatype: object
+    object labeler: |
+      lambda y: y.short_label()
+    choices: all_courts.filter_courts(allowed_courts)    
+help: 
+  label: |
+    How do I pick a court?
+  content: |
+    ${ how_to_pick_court_help_template }
+#######################################################################
+# Signature stuff
+#######################################################################
+---
+code: |
+  signature_fields = ['users[0].signature']
+---
+id: signature choice
+decoration: file-signature
+question: |
+  Sign your forms
+subquestion: |
+  Your forms are almost ready. You need to sign them first.
+  
+  Use the mouse or touchpad on your computer or
+  sign with your finger on your phone. 
+   
+  You can send the forms to someone else to sign if you choose the "phone" option.
+field: signature_choice
+buttons:  
+  - Sign on my phone: phone
+    image: mobile-alt
+  - Sign on this computer: this device
+    image: desktop
+continue button field: saw_signature_choice
+script: |
+  <script>
+    $(".da-field-buttons > div > .btn-da-custom").last().after("<br>")
+    $(".da-field-buttons > div > .btn-da-custom").first().before("<br>")
+  </script>
+---
+comment: |
+  This block is shown when the user texts a link to sign a form
+id: signature wait screen
+question: |
+  % if defined('users[0].signature'):
+  Thank you for signing.
+  % else:
+  Sign on your phone
+  % endif
+subquestion: |
+  % if device() and device().is_pc:
+  % if defined('tenant.signature'):
+  Click ${word("next")}.
+  % else:
+  Click ${word("next")} on this screen once you have finished signing on your phone.
+  % endif
+  % else:
+  You have been asked to sign this PDF. Click to review it.    
+  ${form_to_sign}  
+  [Make changes](${url_action('review_all_sections')})
+
+  Click ${word("next")} on this screen when you're ready to sign.
+  % endif  
+field: signature_wait_screen
+decoration: file-signature
+---
+id: signature-phone
+question: |
+  Sign your forms
+fields:
+  - note: |
+      1. Open the camera app or barcode reader app on your phone.
+      2. Point it at the screen.
+      3. Click the link icon that appears on the camera screen.
+      4. Click ${word("next")} on your phone.
+      
+      <center>
+      ${interview_url_as_qr()}
+      </center>
+    show if: 
+      code: |
+        device() and device().is_pc
+  - Text me a link instead: text_link
+    datatype: yesnowide
+    show if: 
+      code: |
+        device() and device().is_pc
+  - label: Cell phone number
+    field: link_cell
+    show if: text_link
+    default: ${showifdef('users[0].phone_number')}
+  - note: |
+      Click ${word("next")} to add your signature.
+    show if: 
+      code: |
+        device() and not device().is_pc
+help: |
+  Many smartphones will automatically find the link on this screen when you use
+  the camera app. The link
+  may "float" up from the screen into a small icon you can tap.
+  If your phone does not do this, use the text option instead.
+continue button field: saw_signature_qrcode
+---
+id: signature phone followup
+question: |
+  Continue on the device you started the interview on
+subquestion: |
+  Thank you for signing. You can close this browser on your phone.
+  Keep going on the computer you started the interview on.
+field: signature_phone_followup  
+---
+template: interview_link
+content: |
+  Hi, ${ users[0] }  sent you a form from ${ al_app_name }. To sign the form,
+  tap the link below:  
+  ${interview_url()}
+#############################################################
+# Email to court
+---
+id: cover page instructions
+question: |
+  Special instructions for the cover page
+subquestion: |
+  Before we deliver your form, you can include instructions on the cover
+  page that will be sent to the clerk at ${trial_court}.
+  
+  For example, you may have special instructions about how and when to reach
+  you that you did not already include in the contact information section.
+  
+  The clerk _may_ print the cover page and include it in the public file.
+
+  Are there any instructions that you would like to give to the clerk that will
+  receive your forms?
+fields:
+  - Information for clerk: comments_to_clerk
+    datatype: area
+    rows: 4
+    required: False
+help:
+  label: |
+    What to include?
+  content: |
+    Include information that you want the clerk to know. The clerk is the person
+    who will receive your paperwork and put it in an official court file. The
+    clerk is not a decision maker on your case.
+
+    Do not include information that is meant for the judge or the other party.
+    Do not include information that is meant to be part of your official case.
+
+    There is a chance this information may end up in the public court file, so
+    do not include sensitive or private information.
+---
+need:
+  - comments_to_clerk
+  - package_version_number
+id: ready to email
+question: |
+  Final Review With Cover Page
+subquestion: |
+  
+  Below is your ${comma_and_list(download_titles)} document with the 
+  cover page that we will deliver to ${trial_court}.
+  
+  Click "Back" if you need to make any changes.  
+  Click "Send to court" to deliver it.
+  
+  Here is what the clerk at ${courts} will get:
+
+  ${ final_form_to_file }  
+  [:file-download: Download this form with cover page](${final_form_to_file.url_for(attachment=True)})
+
+  % if found_email:
+  We will deliver it securely. Please allow up to 15 minutes for the email to
+  arrive.
+  % else:
+  There was a problem delivering this to the ${trial_court}. We couldn't
+  locate the contact information for this court.
+  % endif
+ 
+  Press below to deliver the form.
+fields:
+  - Send me a copy: should_cc_user
+    datatype: yesno
+  - Email address: cc_email
+    datatype: email
+    show if: should_cc_user
+    default: ${users[0].email if defined('users[0].email') else ''}
+continue button field: ready_to_email
+continue button label: Send to court
+---
+need: sent_email_to_court
+id: email status
+question: |
+  % if email_success:
+  Your form will be sent momentarily.
+  % else:
+  Something went wrong delivering your form
+  % endif
+subquestion: |
+  % if email_success:
+  If you do not hear from the court in 1 business day, call the Trial Court’s
+  Emergency HelpLine 833-91-COURT (833-912-6878). 
+  
+  The Emergency HelpLine is open:  
+  8:30am - 4:30pm,   
+  Monday - Friday.  
+  % else:
+  Something went wrong delivering your form to the ${trial_court}.  
+  Try again later or call the Trial Court’s Emergency HelpLine 833-91-COURT (833-912-6878). 
+  
+  The Emergency HelpLine is open:  
+  8:30am - 4:30pm,  
+  Monday - Friday.  
+  % endif
+continue button field: email_status
+continue button label: Back to download screen
+---
+id: email to court
+template: email_to_court_template
+subject: |
+  MassAccess submission from ${users} intended for ${trial_court}
+content: |
+  At ${current_datetime().format_datetime()},
+  ${users} submitted the attached ${package_title} form(s).
+
+  &nbsp;        | &nbsp;
+  --------------|-----------
+  Date of email | ${current_datetime().format_datetime()}
+  Pages | ${num_package_pages }  
+  Preferred language | ${ user_preferred_language if user_needs_interpreter else 'English' }
+  Mobile phone | ${showifdef('users[0].mobile_number')}
+  Other phone | ${showifdef('users[0].phone_number')}
+  Email | ${showifdef('users[0].email')}
+  Contact details/other | ${showifdef('users[0].other_contact_method')}
+  
+  Comments for clerk: 
+  
+  ${ showifdef('comments_to_clerk')}
+  
+  Please contact ${users} in the next business day to
+  confirm that you received this message.
+---
+event: review_all_sections
+question: |
+  Review of your answers
+subquestion: |
+  
+  ${showifdef('form_to_sign')}
+
+  % if defined('form_delivery_complete'):
+  **Warning: your form has already been delivered.** Any changes you make
+  will _not_ be sent to the court.
+
+  % endif
+  Click a section to revisit the answers from that section.
+
+  % for section in section_links(nav):
+  * ${section}
+  % endfor
+  
+  Press "${word("Resume")}" to resume the
+  interview.
+buttons:
+  ${word("Resume")}: continue

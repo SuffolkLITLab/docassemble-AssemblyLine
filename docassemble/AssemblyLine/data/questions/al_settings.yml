@@ -1,0 +1,67 @@
+##########################
+# This file mostly holds placeholder values that will be overwritten
+# by individual interviews. Overriding is as simple as copying, altering
+# and writing in the value that you want.
+---
+code: |
+  # Set this to the name of your application
+  # Defaults to checking for a possible name from global docassemble config
+  al_app_name = get_config('appname', get_config('external hostname','CourtFormsOnline.org'))
+---
+id: set basic options
+mandatory: True
+code: |
+  # Set some variables that we need in all the interviews
+  multi_user = True
+  allow_cron = True
+  speak_text = True
+  set_live_help_status(availability='available', mode='help',partner_roles=['housing','family law'])
+---
+code: |
+  form_approved_for_email_filing = True # Default is that the form is e-filable
+---
+code: |
+  user_has_saved_answers = len(interview_list(filename=user_info().filename)[0]) > 1 if interview_list(filename=user_info().filename) else False
+---
+code: |
+  if len(other_parties):
+    set_parts(subtitle=str(users) + ' op. ' + str(other_parties))
+  else:
+    set_parts(subtitle=str(users))
+  update_answer_title = True
+---
+comment: |
+  This placeholder is used in the intro screen.
+  
+  In general, the title should follow the format
+  "Ask the court for..." or "Respond to a ..." with a short, plain language
+  description of what using the interview will accomplish.
+code: |
+  interview_short_title = "[PLACEHOLDER: Ask the court for a ...]"  
+---
+code: |
+  metadata_title = next(iter(interview_metadata.elements.values()),{}).get('title')
+  
+  # Check if the title was an actual text entry, or None
+  if metadata_title:
+    interview_short_title = "Ask the court for a " + metadata_title
+  else:
+    # This branch will happen for Docx where the interview_metadata dictionary
+    # was never defined.
+    interview_short_title = "[PLACEHOLDER: Ask the court for a ...]"  
+---
+imports:
+  - importlib
+  - docassemble.AssemblyLine # INSTALLED version of the package
+---
+code: |
+  try:
+    al_version = "AL-" + str(docassemble.AssemblyLine.__version__)
+  except:
+    al_version = ""
+---
+code: |
+  try:
+    package_version_number = str(importlib.import_module(user_info().package).__version__)
+  except:
+    package_version_number = "playground"    

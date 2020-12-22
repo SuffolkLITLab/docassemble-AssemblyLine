@@ -1,0 +1,23 @@
+---
+include:
+  - al_settings.yml
+  - al_code.yml
+  - ql_baseline.yml
+  - al_visual.yml
+---
+modules:
+  - docassemble.ALToolBox.misc
+  - .al_general
+#############################
+# Variables used in most interviews:
+# * trial_court
+# * all_courts
+# * allowed_courts
+
+###########################
+# Changes from MAVirtualCourt package
+# * renamed courts[0] trial_court
+# * added variable al_form_type: enum, "starts_case", "existing_case", "appeal", "letter", "out_of_court", "other"
+# * renamed user_role to user_started_case
+# * made courts an object, not list and renamed to trial_court; appellate courts should override
+# * replaced macourts variable with all_courts

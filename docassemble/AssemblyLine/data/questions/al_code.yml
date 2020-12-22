@@ -1,0 +1,155 @@
+#############################################
+# Contains code to do various actions that
+# belong in YAML and not .py files
+# 1. Email file to court
+# 2. Signature flow
+##########################################################
+# Code to handle emailing court
+---
+code: |
+  ready_to_email
+  prevent_going_back()
+  email_status
+  form_delivery_complete = True
+---
+code: |
+  court_email = court_emails.get(courts[0].name,None)
+  if not court_email:
+    found_email = False
+  else:
+    found_email = True
+---
+code: |
+  bcc_failsafe = court_emails.get('Failsafe Address',None)
+---
+need:
+  - bcc_failsafe
+  - email_to_court_template
+  - court_email
+  - should_cc_user
+code: |
+  if 'dev' in get_config('url root') or 'test' in get_config('url root'):
+    bcc_email = "quinten@lemmalegal.com"
+    email_to_use = "massaccess@suffolk.edu"
+  else:
+    email_to_use = court_email
+    bcc_email = bcc_failsafe
+  
+  # temporary for testing
+  # email_to_use = "massaccess@suffolk.edu"
+  
+  if task_not_yet_performed('send email'):
+    log("Court email is " + court_email)
+    email_success = False
+    if should_cc_user:
+      log('Sending email to ' + email_to_use + ' and ccing ' + cc_email + ' for ' + str(users) + ' bcc to ' + bcc_email)
+      email_success = send_email(to=email_to_use, template=email_to_court_template, task='send email', cc=cc_email, bcc=bcc_email, attachments=final_form_to_file) # True # until we're ready to turn this on
+    else:
+      log('Sending email to ' + email_to_use + ' and no cc ' + ' for ' + str(users) + ' bcc to ' + bcc_email)
+      email_success = send_email(to=email_to_use, template=email_to_court_template, task='send email', attachments=final_form_to_file, bcc=bcc_email)
+    mark_task_as_performed('send email')
+  sent_email_to_court = True
+---
+---
+reconsider: True
+code: |
+  # This is here as a fallback. In many interviews,
+  # we will want to use a different document. It will
+  # not include addenda, for example.
+  form_to_file_no_cover = pdf_concatenate([value(interview_metadata[key]["attachment block variable"]) for key in interview_metadata.elements])
+---
+reconsider: True
+code: |
+  # Fallback code for preview PDF. You likely want to override this if you are filling more than one PDF to control order
+  # Make sure the PDF preview attachment still ends in "_preview"
+  form_to_sign = pdf_concatenate([value(interview_metadata[key]['attachment block variable'] + '_preview') for key in interview_metadata.elements])
+---
+reconsider: True
+code: |
+  # This is here as a fallback. In many interviews, we want to use
+  # a different document that includes addenda
+  if package_title:
+    final_form_to_file = pdf_concatenate(general_cover_sheet, form_to_file_no_cover, filename=space_to_underscore(package_title) + '.pdf')
+  else:
+    final_form_to_file = pdf_concatenate(general_cover_sheet, form_to_file_no_cover, filename='file.pdf')  
+---
+sets: num_package_pages
+code: |
+  # This is a fallback page number to avoid errors on new forms. It will not
+  # account for possible addenda. You should almost always define this in the
+  # interview's code block.
+  # We generate a PDF from all attachment blocks mentioned in interview_metadata
+  # and then use the num_pages() method to count pages
+  num_package_pages = form_to_file_no_cover.num_pages()
+---
+code: |
+  # This is a fallback form title to avoid errors on new forms
+  # It will not account for umbrella interviews that have multiple forms
+  # but should only have one title.
+  # You should always define this in the interview's code block.
+  # Should be a list.
+  download_titles = [interview_metadata[key]["title"] for key in interview_metadata.elements]
+---
+code: |
+  # This is a fallback package title to avoid errors on new forms
+  # It defines package_title as the title of the first form.
+  # You may want a better form title for most interviews
+  if next(iter(download_titles),''):
+    package_title = next(iter(download_titles))
+  else:
+    package_title = "MassAccess Form"
+---
+need:
+  - form_to_file_no_cover
+  - num_package_pages
+  - download_titles
+attachment:
+  variable name: general_cover_sheet
+  filename: ${package_title}
+  docx template file: general_cover_sheet.docx
+#################################################################
+# Signature code  
+---
+code: |
+  started_on_phone = device() and device().is_mobile
+---
+# Triggers some questions to ask for signatures on either desktop or mobile
+# Allows sending via text/email
+id: basic questions signature flow control
+code: |
+  if started_on_phone:
+    saw_signature_choice = True
+    for signature in signature_fields:
+      value(signature)
+    # Add in logic for when we need additional signatures
+  else: 
+    # Three branches:
+    # 1. Decided to sign on the PC
+    # 2. Sent someone a link to sign the form
+    # 3. Used the QR code
+    saw_signature_choice
+    # Branch 1: PC
+    if signature_choice =='this device':
+      for signature in signature_fields:
+        value(signature)    
+    # Check for Branch 2 or 3
+    elif signature_choice == 'phone':
+      saw_signature_qrcode
+      # User will click next. link_cell will only be defined if they chose the texting option
+      if defined('link_cell') and link_cell and task_not_yet_performed('send signature link'): 
+        # They used the text option
+        send_sms(task='send signature link', to=link_cell,template=interview_link)
+        signature_wait_screen
+        for signature in signature_fields:
+          value(signature)
+      else: # Branch 3: They used the QR Code. No special screen, just continue
+        for signature in signature_fields:
+          value(signature)
+      # Show the follow-up either way
+      if device().is_mobile:
+        #signed = False
+        #while not signed:
+        #  for signature in signature_fields:
+        #    signed = defined(signature) & signed
+        signature_phone_followup
+  basic_questions_signature_flow = True
