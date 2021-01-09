@@ -1,20 +1,27 @@
 from docassemble.base.functions import comma_and_list, word, comma_list, url_action
 from docassemble.base.util import Address, Individual, DAList, Person, date_difference
 
-class AddressList(DAList):
+##########################################################
+# Base classes
+
+class ALAddress(Address):
+  # TODO: this class can be used to help handle international addresses
+  pass
+
+class ALAddressList(DAList):
   """Store a list of Address objects"""
   def init(self, *pargs, **kwargs):
-    super(AddressList, self).init(*pargs, **kwargs)
-    self.object_type = Address
+    super(ALAddressList, self).init(*pargs, **kwargs)
+    self.object_type = ALAddress
 
   def __str__(self):
     return comma_and_list([item.on_one_line() for item in self])
 
-class PeopleList(DAList):
+class ALPeopleList(DAList):
   """Used to represent a list of people. E.g., defendants, plaintiffs, children"""
   def init(self, *pargs, **kwargs):
-    super(PeopleList, self).init(*pargs, **kwargs)
-    self.object_type = VCIndividual
+    super(ALPeopleList, self).init(*pargs, **kwargs)
+    self.object_type = ALIndividual
 
   def names_and_addresses_on_one_line(self, comma_string='; '):
     """Returns the name of each person followed by their address, separated by a semicolon"""
@@ -26,19 +33,19 @@ class PeopleList(DAList):
   def familiar_or(self):
     return comma_and_list([person.name.familiar() for person in self],and_string=word("or"))
 
-class VCIndividual(Individual):
-  """Used to represent an Individual on the assembly line/virtual court project.
+class ALIndividual(Individual):
+  """Used to represent an Individual on the assembly line project.
   Two custom attributes are objects and so we need to initialize: `previous_addresses` 
   and `other_addresses`
   """
   def init(self, *pargs, **kwargs):
-    super(VCIndividual, self).init(*pargs, **kwargs)
+    super(ALIndividual, self).init(*pargs, **kwargs)
     # Initialize the attributes that are themselves objects. Requirement to work with Docassemble
     # See: https://docassemble.org/docs/objects.html#ownclassattributes
     if not hasattr(self, 'previous_addresses'):
-      self.initializeAttribute('previous_addresses', AddressList)
+      self.initializeAttribute('previous_addresses', ALAddressList)
     if not hasattr(self, 'other_addresses'):
-      self.initializeAttribute('other_addresses', AddressList)
+      self.initializeAttribute('other_addresses', ALAddressList)
 
   def phone_numbers(self):
     nums = []
@@ -49,6 +56,7 @@ class VCIndividual(Individual):
     return comma_list(nums)
   
   def merge_letters(self, new_letters):
+    # TODO: move to 209A package
     """If the Individual has a child_letters attribute, add the new letters to the existing list"""
     if hasattr(self, 'child_letters'):
       self.child_letters = filter_letters([new_letters, self.child_letters])
@@ -64,6 +72,39 @@ class VCIndividual(Individual):
     if dd.weeks > 2:
       return '%d weeks' % (int(dd.weeks),)
     return '%d days' % (int(dd.days),)
+  
+  # This design helps us translate the prompts for common fields just once
+  def name_fields(self, uses_parts=True):
+    """
+    Return suitable field prompts for a name. 
+    """
+    if uses_parts:
+      return [
+        {"label": self.first_name_label, "field": self.attr_name('name.first')},
+        {"label": self.middle_name_label, "field": self.attr_name('name.middle'), "required": False},
+        {"label": self.last_name_label, "field": self.attr_name("name.last")},
+        {"label": self.suffix_label, "field": self.attr_name("name.suffix"), "choices": name_suffix()}
+      ]
+    else:
+      # Note: we don't make use of the name.text field for simplicity
+      # TODO: this could be reconsidered`, but name.text tends to lead to developer error
+      return [
+        {"label": self.name_text}, "field": self.attr_name('name.first')}
+      ]
+ 
+  def address_fields(self, country=None, default_state=default_state):
+    """
+    Return field prompts for address.
+    """
+    # TODO: make this more flexible to work w/ homeless individuals and
+    # international addresses
+    return [
+      {"label": self.address_address_label, "address autocomplete": True, "field": self.attr_name('address.address')},
+      {"label": self.address_unit_label, "field": self.attr_name('address.unit'), "required": False},
+      {"label": self.address_city_label, "field": self.attr_name("address.city")},
+      {"label": self.address_state_label, "field": self.attr_name("address.state"), "choices": states_list(country=country)},
+      {"label": self.address_zip_label, "field": self.attr_name('address.zip'), "required": False},
+    ]
 
 def section_links(nav):
   """Returns a list of clickable navigation links without animation."""
@@ -74,7 +115,47 @@ def section_links(nav):
       section_link.append('[' + section[key] + '](' + url_action(key) + ')' )
 
   return section_link    
-	
+
+########################################################
+# Subject-specific classes
+
+class Landlord(ALIndividual):
+  pass
+
+class Tenant(ALIndividual):
+  pass
+
+class HousingAuthority(Landlord):
+  pass
+
+class Applicant(Tenant):
+  pass
+
+class Abuser(ALIndividual):
+  pass
+
+class Survivor(ALIndividual):
+  pass
+
+########################################################
+# Compatibility layer to help with migration
+
+# TODO: consider removing after packages migrated
+
+class VCIndividual(ALIndividual):
+  pass
+
+class AddressList(ALAddressList):
+  pass
+
+class PeopleList(ALPeopleList):
+  pass
+
+########################################################
+# Miscellaneous functions needed for baseline questions
+# These could go in toolbox but keeping here to reduce packages
+# needed for baseline running.
+
 def combined_locations(locations):
     """Accepts a list of locations, and combines locations that share a
     latitude/longitude in a way that makes a neater display in Google Maps.
