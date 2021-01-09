@@ -486,8 +486,6 @@ fields:
   - My preferred language is: user_preferred_language 
     show if: user_needs_interpreter
 ---
-continue button field: 
----
 id: accept terms of use
 decoration: form-lineal
 question: |
