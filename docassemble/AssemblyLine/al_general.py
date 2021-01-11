@@ -5,7 +5,8 @@ from docassemble.base.util import Address, Individual, DAList, Person, date_diff
 # Base classes
 
 class ALAddress(Address):
-  # TODO: this class can be used to help handle international addresses
+  # TODO: this class can be used to help handle international addresses in the future
+  # Most likely, ask for international address as just 3 unstructured lines
   pass
 
 class ALAddressList(DAList):
@@ -105,6 +106,11 @@ class ALIndividual(Individual):
       {"label": self.address_state_label, "field": self.attr_name("address.state"), "choices": states_list(country=country)},
       {"label": self.address_zip_label, "field": self.attr_name('address.zip'), "required": False},
     ]
+
+  def contact_fields(self):
+    """
+    Return field prompts for other contact info
+    """
 
 def section_links(nav):
   """Returns a list of clickable navigation links without animation."""

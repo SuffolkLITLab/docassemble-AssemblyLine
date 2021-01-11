@@ -210,22 +210,16 @@ fields:
     datatype: date
 ---
 id: your address
+sets:
+  - users[0].address.address
+  - users[0].address.city
 question: |
   What is your address?
 subquestion: |
   Use an address where you can be contacted.
 fields:
-  - Street address: users[0].address.address
-    address autocomplete: True
-  - Unit: users[0].address.unit
-    required: False
-  - City: users[0].address.city
-  - State: users[0].address.state
-    code: |
-      states_list()
-    default: MA      
-  - Zip: users[0].address.zip
-    required: False
+  - code: |
+      users[0].address_fields(default_state="MA")
 ---
 id: your contact information
 question: |
@@ -316,18 +310,20 @@ question: |
 yesno: witnesses.there_is_another
 ---
 id: name of ALIndividual
+sets:
+  - x.name.first
+  - x.name.last
 generic object: ALIndividual
 question: |
   What is ${x.object_possessive('name')}?
 fields:
-  - First Name: x.name.first
-  - Middle Name: x.name.middle
-    required: False
-  - Last Name: x.name.last
-  - Suffix: x.name.suffix
-    required: False
+  - code: |
+      x.name_fields()
 ---
 id: children names without birthdate
+sets:
+  - children[i].name.first
+  - children[i].name.last
 question: |
   % if al_form_type in ['starts_case','existing_case','appeal']:
   Names of children involved in this case
@@ -338,15 +334,14 @@ subquestion: |
   Click "${word("Add another")}" to add more.
 list collect: True
 fields:
-  - First Name: children[i].name.first
-  - Middle Name: children[i].name.middle
-    required: False
-  - Last Name: children[i].name.last
-  - Suffix: children[i].name.suffix
-    required: False
+  - code: |
+      children[i].name_fields()
 ---
 
 ---
+sets:
+  - witnesses[i].name.first
+  - witnesses[i].name.last
 id: names of witnesses
 question: |
   List the name of each witness below
@@ -354,16 +349,13 @@ subquestion: |
   Click "${word("Add another")}" to add more.
 list collect: True
 fields:
-  - First name: witnesses[i].name.first
-  - Middle name: witnesses[i].name.middle
-    required: False
-  - Last name: witnesses[i].name.last
-  - Suffix: witnesses[i].name.suffix
-    code: |
-      name_suffix()
-    required: False  
+  - code: |
+      witnesses[i].name_fields()
 ---
 id: names of people
+sets:
+  - x[i].name.first
+  - x[i].name.last
 generic object: ALPeopleList
 question: |
   Please list all ${x.object_name()} below
@@ -371,14 +363,8 @@ subquestion: |
   Click "${word("Add another")}" to add more.
 list collect: True
 fields:
-  - First name: x[i].name.first
-  - Middle name: x[i].name.middle
-    required: False
-  - Last name: x[i].name.last
-  - Suffix: x[i].name.suffix
-    code: |
-      name_suffix()
-    required: False      
+  - code: |
+      x[i].name_fields()
 ---
 id: names of opposing parties
 question: |
@@ -424,22 +410,16 @@ fields:
       variable: other_parties[i].person_type
       is: business
 ---
+sets:
+  - x.address.address
+  - x.address.city
 id: persons address
 generic object: ALIndividual
 question: |
   What is ${ x.possessive('address') }?
 fields:
-  - Street address: x.address.address
-    address autocomplete: True
-  - Unit: x.address.unit
-    required: False
-  - City: x.address.city
-  - State: x.address.state
-    default: MA   
-    code: |
-      states_list()   
-  - Zip: x.address.zip
-    required: False
+  - code: |
+      x.address_fields()
 ---
 id: persons contact information
 generic object: ALIndividual
