@@ -1,0 +1,14 @@
+---
+include:
+  - al_package.yml
+---
+mandatory: True
+code: |
+  end_screen
+---
+id: test end screen
+event: end_screen
+question: |
+  Hello, ${ users }
+subquestion: |
+  You live at ${ users[0].address_block() }

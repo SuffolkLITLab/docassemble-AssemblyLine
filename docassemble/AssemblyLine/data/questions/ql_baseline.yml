@@ -4,20 +4,20 @@
 ---
 objects:
   - interview_metadata: DADict.using(object_type=DADict.using(auto_gather=False, gathered=True), auto_gather=False, gathered=True)
-  - users: PeopleList.using(there_are_any=True)
-  - children: PeopleList
-  - defendants: PeopleList
-  - plaintiffs: PeopleList
-  - plaintiff: Individual
-  - other_parties: PeopleList
-  - witnesses: PeopleList
+  - users: ALPeopleList.using(there_are_any=True)
+  - children: ALPeopleList.using(ask_number=True)
+  - defendants: ALPeopleList
+  - plaintiffs: ALPeopleList
+  - plaintiff: ALIndividual
+  - other_parties: ALPeopleList
+  - witnesses: ALPeopleList.using(ask_number=True)
   - docket_numbers: DAList
-  - caregivers: PeopleList
-  - guardians_ad_litem: PeopleList
-  - attorneys: PeopleList
-  - translators: PeopleList
-  - debt_collectors: PeopleList
-  - creditors: PeopleList
+  - caregivers: ALPeopleList
+  - guardians_ad_litem: ALPeopleList
+  - attorneys: ALPeopleList
+  - translators: ALPeopleList
+  - debt_collectors: ALPeopleList
+  - creditors: ALPeopleList
   - trial_court: MACourt
   - all_courts: MACourtList.using(courts=['housing_courts','bmc','district_courts','superior_courts','land_court', 'juvenile_courts', 'probate_and_family_courts','appeals_court'])  # this is for lookups
 ---
@@ -116,19 +116,65 @@ code: |
   # If the form is a letter, it _always_ is addressed to someone.
   if al_form_type == 'letter':
     other_parties.there_are_any = True
+---    
+#######################################################
+# These small templates are used as labels for prompts.
+# This helps us keep questions consistent and translated just once
+---
+generic object: ALIndividual
+template: x.first_name_label
+content: |
+  First name
+---
+generic object: ALIndividual
+template: x.middle_name_label
+content: |
+  Middle name
+---
+generic object: ALIndividual
+template: x.last_name_label
+content: |
+  Last name
+---
+generic object: ALIndividual
+template: x.suffix_label
+content: |
+  Suffix
+---
+generic object: ALIndividual
+template: x.address_address_label
+content: |
+  Street address
+---
+generic object: ALIndividual
+template: x.address_unit_label
+content: |
+  Apartment
+---
+generic object: ALIndividual
+template: x.address_city_label
+content: |
+  City
+---
+generic object: ALIndividual
+template: x.address_state_label
+content: |
+  State
+---
+generic object: ALIndividual
+template: x.address_zip_label
+content: |
+  Zip or postal code
 ---
 id: your name
+sets:
+    - users[0].name.first
+    - users[0].name.last
 question:  |
   What is your name?
 fields:
-  - First Name: users[0].name.first
-  - Middle Name: users[0].name.middle
-    required: False
-  - Last Name: users[0].name.last
-  - Suffix: users[0].name.suffix
-    code: |
-      name_suffix()
-    required: False  
+  - code: |
+      users[0].name_fields()
 ---    
 id: any other users
 question: |
@@ -143,49 +189,41 @@ subquestion: |
   % endif  
 yesno: users.there_is_another 
 ---
+sets:
+  - users[i].name.first
+  - users[i].name.last
 id: other users names
 question: |
   % if al_form_type in ['starts_case','existing_case','appeal']:
   What is the name of the ${ ordinal(i) } person who is part of the case with you?
   % else:
-  What is the name of the ${ ordinal(i) } person is adding their name to this form
-  with you?
+  What is the name of the ${ ordinal(i) } person who is adding their name to
+  this form with you?
   % endif
 fields:
-  - First Name: users[i].name.first
-  - Middle Name: users[i].name.middle
-    required: False
-  - Last Name: users[i].name.last
-    required: False
-  - Suffix: users[i].name.suffix
-    code: name_suffix()
-    required: False
+  - code: |
+      users[i].name_fields()
 ---
 id: birthdate question
-generic object: Individual
+generic object: ALIndividual
 question: |
   When was ${x} born?
 fields:
   - Birthdate: x.birthdate
     datatype: date
 ---
+# TODO: consider removing default state
 id: your address
+sets:
+  - users[0].address.address
+  - users[0].address.city
 question: |
   What is your address?
 subquestion: |
   Use an address where you can be contacted.
 fields:
-  - Street address: users[0].address.address
-    address autocomplete: True
-  - Unit: users[0].address.unit
-    required: False
-  - City: users[0].address.city
-  - State: users[0].address.state
-    code: |
-      states_list()
-    default: MA      
-  - Zip: users[0].address.zip
-    required: False
+  - code: |
+      users[0].address_fields(default_state="MA")
 ---
 id: your contact information
 question: |
@@ -256,7 +294,7 @@ fields:
     required: False
 ---
 id: who will be on this form
-generic object: PeopleList
+generic object: ALPeopleList
 question: |
   Will this form include any ${noun_plural(x.object_name())}?
 yesno: x.there_are_any
@@ -275,141 +313,143 @@ question: |
   Do you need to add another witness?
 yesno: witnesses.there_is_another
 ---
-id: name of individual
-generic object: Individual
+id: name of ALIndividual
+sets:
+  - x.name.first
+  - x.name.last
+generic object: ALIndividual
 question: |
   What is ${x.object_possessive('name')}?
 fields:
-  - First Name: x.name.first
-  - Middle Name: x.name.middle
-    required: False
-  - Last Name: x.name.last
-  - Suffix: x.name.suffix
-    required: False
+  - code: |
+      x.name_fields()
 ---
-id: children names without birthdate
+id: how many children
+comment: |
+  This question is not likely to be used as-is, because the user
+  is likely to need to know which children to list on the form.
+  
+  That will be very context-specific.
 question: |
   % if al_form_type in ['starts_case','existing_case','appeal']:
-  Names of children involved in this case
+  How many children are involved in this case?
   % else:
-  Names of children involved in this matter
-  % endif
+  How many children are involved in this matter?
+  % endif  
+fields:
+  - no label: children.target_number
+    datatype: integer
+---
+id: children names without birthdate
+sets:
+  - children[i].name.first
+  - children[i].name.last
+question: |
+  Name of the ${ ordinal(i) } child
 subquestion: |
   Click "${word("Add another")}" to add more.
-list collect: True
 fields:
-  - First Name: children[i].name.first
-  - Middle Name: children[i].name.middle
-    required: False
-  - Last Name: children[i].name.last
-  - Suffix: children[i].name.suffix
-    required: False
+  - code: |
+      children[i].name_fields()
 ---
-
+id: how many witnesses
+question: |
+  How many witnesses are there?
+fields:
+  - no label: witnesses.target_number
+    datatype: integer
 ---
+sets:
+  - witnesses[i].name.first
+  - witnesses[i].name.last
 id: names of witnesses
 question: |
-  List the name of each witness below
-subquestion: |
-  Click "${word("Add another")}" to add more.
-list collect: True
+  Name of the ${ ordinal(i) } witness
 fields:
-  - First name: witnesses[i].name.first
-  - Middle name: witnesses[i].name.middle
-    required: False
-  - Last name: witnesses[i].name.last
-  - Suffix: witnesses[i].name.suffix
-    code: |
-      name_suffix()
-    required: False  
+  - code: |
+      witnesses[i].name_fields()
+---
+id: any other people
+question: |
+  Do you have any other ${ x.object_name() } to tell us about?
+yesno: x.there_is_another  
 ---
 id: names of people
-generic object: PeopleList
+sets:
+  - x[i].name.first
+  - x[i].name.last
+generic object: ALPeopleList
 question: |
-  Please list all ${x.object_name()} below
-subquestion: |
-  Click "${word("Add another")}" to add more.
-list collect: True
+  Name of your ${ ordinal(i) } ${x.object_name()}
 fields:
-  - First name: x[i].name.first
-  - Middle name: x[i].name.middle
-    required: False
-  - Last name: x[i].name.last
-  - Suffix: x[i].name.suffix
-    code: |
-      name_suffix()
-    required: False      
+  - code: |
+      x[i].name_fields()
+---
+id: any other opposing parties
+question: |
+  % if users==plaintiffs:
+  Is there any other **defendant** or respondent in this
+  matter?
+  % else:
+  Is there any other **plaintiff** or petitioner in this matter?
+  % endif
+yesno: other_parties.there_is_another  
 ---
 id: names of opposing parties
 question: |
   % if users==plaintiffs:
-  Please list the name of each **defendant** or respondent in this
-  case below
+  Name of ${ ordinal(i) } **defendant** or respondent in this
+  matter
   % else:
-  Please list the name of each **plaintiff** or petitioner in this case below
+  Name of ${ ordinal(i) } **plaintiff** or petitioner in this matter
   % endif
-subquestion: |
-  Click "${word("Add another")}" to add more.
-list collect: 
-  enable: True
-  label: |
-    % if users==plaintiffs:
-    Defendant/Respondent ${i+1}    
-    % else:
-    Plaintiff/Petitioner ${i+1}
-    % endif
 fields:
   - Are they a person, or a business?: other_parties[i].person_type
     input type: radio
     choices:
       - Business or organization: business
-      - Person: individual
+      - Person: ALIndividual
   - First name: other_parties[i].name.first
     show if:
       variable: other_parties[i].person_type
-      is: "individual"
+      is: "ALIndividual"
   - Last name: other_parties[i].name.last
     show if:
       variable: other_parties[i].person_type      
-      is: "individual"
+      is: "ALIndividual"
   - Suffix: other_parties[i].name.suffix
     code: |
       name_suffix()
     show if:
       variable: other_parties[i].person_type      
-      is: "individual"
+      is: "ALIndividual"
     required: False      
   - Name of organization or business: other_parties[i].name.first
     show if:
       variable: other_parties[i].person_type
       is: business
 ---
+# TODO: consider removing default state
+sets:
+  - x.address.address
+  - x.address.city
 id: persons address
-generic object: Individual
+generic object: ALIndividual
 question: |
   What is ${ x.possessive('address') }?
 fields:
-  - Street address: x.address.address
-    address autocomplete: True
-  - Unit: x.address.unit
-    required: False
-  - City: x.address.city
-  - State: x.address.state
-    default: MA   
-    code: |
-      states_list()   
-  - Zip: x.address.zip
-    required: False
+  - code: |
+      x.address_fields(default_state="MA")
 ---
 id: persons contact information
-generic object: Individual
+generic object: ALIndividual
 question: |
   What is ${x}'s phone number?
 fields:
   - Phone: x.phone_number
 ---
 id: email
-generic object: Individual
+generic object: ALIndividual
 question: |
   What is ${x}'s email address?
 fields:
@@ -417,7 +457,7 @@ fields:
     datatype: email
 ---
 id: persons signature
-generic object: Individual
+generic object: ALIndividual
 question: |
   ${x}, please sign below
 signature: x.signature
@@ -440,14 +480,14 @@ code: |
   # what date to list on the form.  
   signature_date = today()
 ---
-generic object: Individual
+generic object: ALIndividual
 code: |
   x.gender_female = x.gender == 'female'
   x.gender_male = x.gender == 'male'
   x.gender_other = ((x.gender != 'male') and (x.gender != 'female'))
 ---
 id: gender
-generic object: Individual
+generic object: ALIndividual
 question: |
   What is ${x.possessive('gender')}?
 subquestion: |
