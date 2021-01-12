@@ -5,12 +5,12 @@
 objects:
   - interview_metadata: DADict.using(object_type=DADict.using(auto_gather=False, gathered=True), auto_gather=False, gathered=True)
   - users: ALPeopleList.using(there_are_any=True)
-  - children: ALPeopleList
+  - children: ALPeopleList.using(ask_number=True)
   - defendants: ALPeopleList
   - plaintiffs: ALPeopleList
   - plaintiff: ALIndividual
   - other_parties: ALPeopleList
-  - witnesses: ALPeopleList
+  - witnesses: ALPeopleList.using(ask_number=True)
   - docket_numbers: DAList
   - caregivers: ALPeopleList
   - guardians_ad_litem: ALPeopleList
@@ -162,7 +162,7 @@ content: |
   State
 ---
 generic object: ALIndividual
-template: x.address_address_label
+template: x.address_zip_label
 content: |
   Zip or postal code
 ---
@@ -189,13 +189,16 @@ subquestion: |
   % endif  
 yesno: users.there_is_another 
 ---
+sets:
+  - users[i].name.first
+  - users[i].name.last
 id: other users names
 question: |
   % if al_form_type in ['starts_case','existing_case','appeal']:
   What is the name of the ${ ordinal(i) } person who is part of the case with you?
   % else:
-  What is the name of the ${ ordinal(i) } person is adding their name to this form
-  with you?
+  What is the name of the ${ ordinal(i) } person who is adding their name to
+  this form with you?
   % endif
 fields:
   - code: |
@@ -209,6 +212,7 @@ fields:
   - Birthdate: x.birthdate
     datatype: date
 ---
+# TODO: consider removing default state
 id: your address
 sets:
   - users[0].address.address
@@ -320,37 +324,55 @@ fields:
   - code: |
       x.name_fields()
 ---
+id: how many children
+comment: |
+  This question is not likely to be used as-is, because the user
+  is likely to need to know which children to list on the form.
+  
+  That will be very context-specific.
+question: |
+  % if al_form_type in ['starts_case','existing_case','appeal']:
+  How many children are involved in this case?
+  % else:
+  How many children are involved in this matter?
+  % endif  
+fields:
+  - no label: children.target_number
+    datatype: integer
+---
 id: children names without birthdate
 sets:
   - children[i].name.first
   - children[i].name.last
 question: |
-  % if al_form_type in ['starts_case','existing_case','appeal']:
-  Names of children involved in this case
-  % else:
-  Names of children involved in this matter
-  % endif
+  Name of the ${ ordinal(i) } child
 subquestion: |
   Click "${word("Add another")}" to add more.
-list collect: True
 fields:
   - code: |
       children[i].name_fields()
 ---
-
+id: how many witnesses
+question: |
+  How many witnesses are there?
+fields:
+  - no label: witnesses.target_number
+    datatype: integer
 ---
 sets:
   - witnesses[i].name.first
   - witnesses[i].name.last
 id: names of witnesses
 question: |
-  List the name of each witness below
-subquestion: |
-  Click "${word("Add another")}" to add more.
-list collect: True
+  Name of the ${ ordinal(i) } witness
 fields:
   - code: |
       witnesses[i].name_fields()
+---
+id: any other people
+question: |
+  Do you have any other ${ x.object_name() } to tell us about?
+yesno: x.there_is_another  
 ---
 id: names of people
 sets:
@@ -358,32 +380,29 @@ sets:
   - x[i].name.last
 generic object: ALPeopleList
 question: |
-  Please list all ${x.object_name()} below
-subquestion: |
-  Click "${word("Add another")}" to add more.
-list collect: True
+  Name of your ${ ordinal(i) } ${x.object_name()}
 fields:
   - code: |
       x[i].name_fields()
 ---
+id: any other opposing parties
+question: |
+  % if users==plaintiffs:
+  Is there any other **defendant** or respondent in this
+  matter?
+  % else:
+  Is there any other **plaintiff** or petitioner in this matter?
+  % endif
+yesno: other_parties.there_is_another  
+---
 id: names of opposing parties
 question: |
   % if users==plaintiffs:
-  Please list the name of each **defendant** or respondent in this
-  case below
+  Name of ${ ordinal(i) } **defendant** or respondent in this
+  matter
   % else:
-  Please list the name of each **plaintiff** or petitioner in this case below
+  Name of ${ ordinal(i) } **plaintiff** or petitioner in this matter
   % endif
-subquestion: |
-  Click "${word("Add another")}" to add more.
-list collect: 
-  enable: True
-  label: |
-    % if users==plaintiffs:
-    Defendant/Respondent ${i+1}    
-    % else:
-    Plaintiff/Petitioner ${i+1}
-    % endif
 fields:
   - Are they a person, or a business?: other_parties[i].person_type
     input type: radio
@@ -410,6 +429,7 @@ fields:
       variable: other_parties[i].person_type
       is: business
 ---
+# TODO: consider removing default state
 sets:
   - x.address.address
   - x.address.city
@@ -419,7 +439,7 @@ question: |
   What is ${ x.possessive('address') }?
 fields:
   - code: |
-      x.address_fields()
+      x.address_fields(default_state="MA")
 ---
 id: persons contact information
 generic object: ALIndividual

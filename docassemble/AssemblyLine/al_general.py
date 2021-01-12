@@ -1,5 +1,4 @@
-from docassemble.base.functions import comma_and_list, word, comma_list, url_action
-from docassemble.base.util import Address, Individual, DAList, Person, date_difference
+from docassemble.base.util import Address, Individual, DAList, date_difference, name_suffix, states_list, comma_and_list, word, comma_list, url_action
 
 ##########################################################
 # Base classes
@@ -84,16 +83,16 @@ class ALIndividual(Individual):
         {"label": self.first_name_label, "field": self.attr_name('name.first')},
         {"label": self.middle_name_label, "field": self.attr_name('name.middle'), "required": False},
         {"label": self.last_name_label, "field": self.attr_name("name.last")},
-        {"label": self.suffix_label, "field": self.attr_name("name.suffix"), "choices": name_suffix()}
+        {"label": self.suffix_label, "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False}
       ]
     else:
       # Note: we don't make use of the name.text field for simplicity
       # TODO: this could be reconsidered`, but name.text tends to lead to developer error
       return [
-        {"label": self.name_text}, "field": self.attr_name('name.first')}
+        {"label": self.name_text, "field": self.attr_name('name.first')}
       ]
  
-  def address_fields(self, country=None, default_state=default_state):
+  def address_fields(self, country_code=None, default_state=None):
     """
     Return field prompts for address.
     """
@@ -103,7 +102,7 @@ class ALIndividual(Individual):
       {"label": self.address_address_label, "address autocomplete": True, "field": self.attr_name('address.address')},
       {"label": self.address_unit_label, "field": self.attr_name('address.unit'), "required": False},
       {"label": self.address_city_label, "field": self.attr_name("address.city")},
-      {"label": self.address_state_label, "field": self.attr_name("address.state"), "choices": states_list(country=country)},
+      {"label": self.address_state_label, "field": self.attr_name("address.state"), "code": "states_list(country_code={})".format(country_code), "default": default_state},
       {"label": self.address_zip_label, "field": self.attr_name('address.zip'), "required": False},
     ]
 
@@ -162,27 +161,26 @@ class PeopleList(ALPeopleList):
 # These could go in toolbox but keeping here to reduce packages
 # needed for baseline running.
 
-def combined_locations(locations):
-    """Accepts a list of locations, and combines locations that share a
-    latitude/longitude in a way that makes a neater display in Google Maps.
-    Designed for MACourts class but may work for other objects that subclass DAObject.
-    Will not work for base Address class but should never be needed for that anyway
-    Rounds lat/longitude to 3 significant digits
-    """
+# This one is only used for 209A--should move there along with the combined_letters() method
+def filter_letters(letter_strings):
+  """Used to take a list of letters like ["A","ABC","AB"] and filter out any duplicate letters."""
+  # There is probably a cute one liner, but this is easy to follow and
+  # probably same speed
+  unique_letters = set()
+  if isinstance(letter_strings, str):
+    letter_strings = [letter_strings]
+  for string in letter_strings:
+    if string: # Catch possible None values
+      for letter in string:
+        unique_letters.add(letter)
+  try:
+    retval = ''.join(sorted(unique_letters))
+  except:
+    retval = ''
+  return retval
 
-    places = list()
+# Note: removed "combined_locations" because it is too tightly coupled to MACourts.py right now
 
-    for location in locations:
-        if isinstance(location, DAObject):
-            if not has_match(places,location):
-                places.append(MAPlace(location=location.location, address=copy.deepcopy(location.address), description = str(location)))
-            else:
-                for place in places:
-                    if match(place,location):
-                        if hasattr(place, 'description') and str(location) not in place.description:
-                            place.description += "  [NEWLINE]  " + str(location)
-    return places
-	
 def fa_icon(icon, color="primary", color_css=None, size="sm"):
   """
   Return HTML for a font-awesome icon of the specified size and color. You can reference

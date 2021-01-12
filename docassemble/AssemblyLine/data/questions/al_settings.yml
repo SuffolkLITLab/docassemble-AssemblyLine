@@ -21,6 +21,13 @@ code: |
   form_approved_for_email_filing = True # Default is that the form is e-filable
 ---
 code: |
+  # al_form_type can be one of:
+  # 1. Court-case types: 'starts_case','existing_case','appeal'
+  # 3. Letter: "letter"
+  # 4. Other: "other", "other_form"
+  al_form_type = "other" # We won't assume this is a court case
+---
+code: |
   user_has_saved_answers = len(interview_list(filename=user_info().filename)[0]) > 1 if interview_list(filename=user_info().filename) else False
 ---
 code: |

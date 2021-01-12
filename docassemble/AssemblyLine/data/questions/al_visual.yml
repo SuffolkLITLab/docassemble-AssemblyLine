@@ -1,3 +1,4 @@
+# TODO: come up with a nice-looking generic placeholder icon/label to go here
 metadata:
   title: |
     CourtFormsOnline: MassAccess
@@ -16,7 +17,7 @@ default screen parts:
   pre: |
     % if get_config('debug'):
     `id: ${ user_info().question_id }`  
-    `Package: ${ user_info().package } ${ package_version_number }; ${ mavc_version }`
+    `Package: ${ user_info().package } ${ package_version_number }; ${ al_version }`
     % endif
 ---
 features:
