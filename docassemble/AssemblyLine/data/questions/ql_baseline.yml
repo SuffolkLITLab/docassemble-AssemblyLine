@@ -631,6 +631,19 @@ right: |
   ${action_button_html(url_action('load_answer'), icon="folder-open", label=word("View answers"), size="sm" )}
   % endif    
 ---
+id: load saved answers
+event: load_answer
+# TODO: we can make this more capable interface to rename, copy, load from file, download, etc.
+question: |
+  You have saved answers available for this online form
+subquestion: |
+  % for interview in interview_list(filename=current_interview_url)[0]:
+  * ${'<a class="xyz" href="' + interview_url(i=current_interview_url, session=interview['session']) + '">' +  interview['title'] +  (' (' + interview.get("subtitle",'') + ')' if interview.get('subtitle') else '')  +"</a>" }  Last visited ${format_date(interview['modtime'])}, currently on page **${interview['dict'].get('_internal',{}).get('steps')}**
+  % endfor
+  
+  [View all of your saved online forms](${url_of('interviews')})
+
+---
 id: affirmation and oath of no perjury
 question: |
   Signing Under Oath
