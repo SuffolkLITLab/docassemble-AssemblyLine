@@ -7,3 +7,16 @@ platform.
 This is the run-time code that supports the interviews at https://courtformsonline.org
 
 This package supersedes [MAVirtualCourt](https://github.com/SuffolkLITLab/docassemble-MAVirtualCourt).
+
+# Migration
+
+* Remove any references to MAVirtualCourt. Add an include block like this at the top
+  of your interview YAML file
+
+```
+include:
+  - docassemble.AssemblyLine:al_package.yml
+  - docassemble.MassAccess:massaccess.yml
+```
+
+* Change references to `basic_questions_intro_screen` to `al_intro_screen`
