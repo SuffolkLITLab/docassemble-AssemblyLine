@@ -6,7 +6,7 @@ include:
   - al_visual.yml
 ---
 modules:
-  #- docassemble.ALToolBox.misc
+  - docassemble.ALToolbox.misc
   - .al_general
 #############################
 # Variables used in most interviews:

@@ -11,4 +11,6 @@ event: end_screen
 question: |
   Hello, ${ users }
 subquestion: |
-  You live at ${ users[0].address_block() }
+  You live at ${ users[0].address.on_one_line() }
+  
+  You have ${ len(children) } children, named ${ children.familiar() }
