@@ -13,7 +13,7 @@ code: |
   form_delivery_complete = True
 ---
 code: |
-  court_email = court_emails.get(courts[0].name,None)
+  court_email = court_emails.get(trial_court.name,None)
   if not court_email:
     found_email = False
   else:

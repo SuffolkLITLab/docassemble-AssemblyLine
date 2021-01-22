@@ -38,9 +38,12 @@ subquestion: |
   % if form_approved_for_email_filing:  
   Step 3. Email the form to the court using this secure website and save copies
   for yourself for later reference.  
-  % else:
+  % elif al_form_type in ['starts_case','existing_case','appeal']:
   Step 3. Download and print the final form. You will need to deliver it
   to the court on your own.
+  % else:
+  Step 3. Download and print the final form. You will need to deliver it 
+  on your own.
   % endif
   
   This site is not a lawyer. If you would like a lawyer, find [your local
@@ -933,7 +936,7 @@ subquestion: |
   Click "Back" if you need to make any changes.  
   Click "Send to court" to deliver it.
   
-  Here is what the clerk at ${courts} will get:
+  Here is what the clerk at ${trial_court} will get:
 
   ${ final_form_to_file }  
   [:file-download: Download this form with cover page](${final_form_to_file.url_for(attachment=True)})

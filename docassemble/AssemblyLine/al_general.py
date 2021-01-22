@@ -4,8 +4,10 @@ from docassemble.base.util import Address, Individual, DAList, date_difference, 
 # Base classes
 
 class ALAddress(Address):
-  # TODO: this class can be used to help handle international addresses in the future
-  # Most likely, ask for international address as just 3 unstructured lines
+  # Future-proofing TODO: this class can be used to help handle international addresses in the future.
+  # Most likely, ask for international address as just 3 unstructured lines. Key thing is
+  # the built-in address object requires some fields to be defined that we don't want to require of
+  # international addresses when you want to render it to text.
   pass
 
 class ALAddressList(DAList):
@@ -46,6 +48,8 @@ class ALIndividual(Individual):
       self.initializeAttribute('previous_addresses', ALAddressList)
     if not hasattr(self, 'other_addresses'):
       self.initializeAttribute('other_addresses', ALAddressList)
+    if not hasattr(self, 'mailing_address'):
+      self.initializeAttribute('mailing_address',ALAddress)
 
   def phone_numbers(self):
     nums = []
