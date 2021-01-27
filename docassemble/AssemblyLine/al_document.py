@@ -1,4 +1,4 @@
-from docassemble.base.util import DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template
 import re
 
 def label(dictionary):
@@ -23,6 +23,34 @@ def safeattr(object, key):
       return ''
   except:
     return ""
+  
+def html_safe_str( the_string ):
+  """
+  Return a string that can be used as an html class or id
+  """
+  return re.sub( r'[^A-Za-z0-9]+', '_', the_string )
+
+# TODO: probably move this into the method? It's only used once.
+def table_row( aldoc, key='final', view_icon="eye", download_icon="download" ):
+  """
+  Return a string of html that is one row of a table containing
+  the `.as_pdf()` contents of an AL object and its interaction buttons
+  """
+  pdf = aldoc.as_pdf(key=key)
+  
+  html = '\n\t<tr>'
+  # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
+  # TODO: Need to replace with proper CSS
+  html += '\n\t\t<td><strong>' + aldoc.title + '</strong>&nbsp;&nbsp;</td>'
+  html += '\n\t\t<td>'
+  html += action_button_html( pdf.url_for(), label=word("View"), icon=view_icon, color="secondary" )
+  html += '&nbsp;&nbsp;</td>'
+  html += '\n\t\t<td>'
+  html += action_button_html( pdf.url_for(attachment=True), label=word("Download"), icon=download_icon, color="primary" )
+  html += '</td>'
+  html += '\n\t</tr>'
+
+  return html
   
 class ALAddendumField(DAObject):
   """
@@ -431,28 +459,64 @@ class ALDocumentBundle(DAList):
     """
     return [document.as_pdf(key=key) for document in self]
   
-  def download_button_html(self, key='final'):
-    html = "<table>"
-    download = self.as_pdf(key=key)
-    html += "<tr>"
-    html += "<td>" + download.title + "</td>"
-    html += "<td>" + action_button_html(download.url_for(attachment=True), label="Download") + "</td>"
-    html += "<td>" + action_button_html(download.url_for(), label="View") + "</td>"
-    html += "</tr>"        
-    html += "</table>"
-    return html
+  def download_list_html(self, key='final', format='pdf', view=True):
+    """
+    Returns string of a table to display a list
+    of pdfs with 'view' and 'download' buttons.
+    """
+    # TODO: wire up the format and view keywords
+    # TODO: make icons configurable
+    html ='<table class="al_table" id="' + html_safe_str(self.instanceName) + '">'
     
-  
-  def download_buttons_html(self, key='final'):
-    html = "<table>"
-    for download in self.as_pdf_list(key=key):
-      html += "<tr>"
-      html += "<td>" + download.title + "</td>"
-      html += "<td>" + action_button_html(download.url_for(attachment=True), label="Download") + "</td>"
-      html += "<td>" + action_button_html(download.url_for(), label="View") + "</td>"
-      html += "</tr>"        
-    html += "</table>"
+    for doc in self:
+      html += table_row( doc, key )
+    
+    html += '\n</table>'
+    
+    # Discuss: Do we want a table with the ability to have a merged pdf row?
     return html
+  
+  def download_html(self, key='final', format='pdf', view=True):
+    """
+    Returns a string of a table to display all the docs
+    combined into one pdf with 'view' and 'download' buttons.
+    """
+    html ='<table class="al_table merged_docs" id="' + html_safe_str(self.instanceName) + '">'
+    html += table_row( self, key )
+    html += '\n</table>'
+    
+    return html
+  
+  def table_css(self):
+    """
+    Return the css styles for the view/download table.
+    This will be hard to develop with and it will be a bit
+    harder to override for developers using this module.
+    """
+    return '''<style>\n
+    .al_table_css_sibling + div thead {
+      display: none;
+    }
+
+    .al_table_css_sibling + div td {
+      padding: .3em;
+      vertical-align: text-top;
+    }
+    td.text-left:first-child {
+      width: 1em;
+      padding-left: .5em;
+    }
+    .al_table_css_sibling + div td.text-left + td.text-right {
+      width: 5em;
+    }
+    .al_table_css_sibling + div td.text-right {
+      width: 7em;
+    }
+
+    .al_table_css_sibling + div a {
+      margin: 0em;
+    }
+  </style>'''
     
 class ALDocumentBundleDict(DADict):
   """

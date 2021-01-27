@@ -8,6 +8,7 @@ include:
 modules:
   - docassemble.ALToolbox.misc
   - .al_general
+  - .al_document
 #############################
 # Variables used in most interviews:
 # * trial_court

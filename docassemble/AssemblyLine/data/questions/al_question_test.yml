@@ -11,6 +11,18 @@ event: end_screen
 question: |
   Hello, ${ users }
 subquestion: |
-  You live at ${ users[0].address.on_one_line() }
-  
-  You have ${ len(children) } children, named ${ children.familiar() }
+  #### Your files are ready to download below
+  ${ user_bundle.download_list_html() }
+---
+objects:
+  - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=False, enabled=True)
+---
+objects:
+  - user_bundle: ALDocumentBundle.using(elements=[dummy_template], filename="user_bundle.pdf", title="All forms to download for your records")
+---
+attachment:
+  variable name: dummy_template[i]
+  content: |
+    You live at ${ users[0].address.on_one_line() }
+
+    You have ${ len(children) } children, named ${ children.familiar() }

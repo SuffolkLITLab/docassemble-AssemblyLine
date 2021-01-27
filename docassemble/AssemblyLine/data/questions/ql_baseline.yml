@@ -18,8 +18,11 @@ objects:
   - translators: ALPeopleList
   - debt_collectors: ALPeopleList
   - creditors: ALPeopleList
-  - trial_court: MACourt
-  - all_courts: MACourtList.using(courts=['housing_courts','bmc','district_courts','superior_courts','land_court', 'juvenile_courts', 'probate_and_family_courts','appeals_court'])  # this is for lookups
+  - trial_court: DAEmpty
+  - all_courts: DAEmpty
+  - allowed_courts: DAEmpty
+  #- trial_court: MACourt
+  #- all_courts: MACourtList.using(courts=['housing_courts','bmc','district_courts','superior_courts','land_court', 'juvenile_courts', 'probate_and_family_courts','appeals_court'])  # this is for lookups
 ---
 ---
 id: basic questions intro screen
@@ -402,8 +405,6 @@ sets:
   - children[i].name.last
 question: |
   Name of the ${ ordinal(i) } child
-subquestion: |
-  Click "${word("Add another")}" to add more.
 fields:
   - code: |
       children[i].name_fields()
@@ -705,7 +706,7 @@ fields:
     datatype: object
     object labeler: |
       lambda y: y.short_label()
-    choices: macourts.filter_courts(allowed_courts)    
+    choices: all_courts.filter_courts(allowed_courts)    
 help: 
   label: |
     How do I pick a court?

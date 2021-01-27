@@ -50,6 +50,21 @@ code: |
     mark_task_as_performed('send email')
   sent_email_to_court = True
 ---
+##############################################################
+# new attachment handling code
+---
+objects:
+  - cover_page: ALDocument.using(title="Cover page", filename="cover_page", has_addendum=False)
+---
+# This is the *default* version of both objects as an example.
+# You will ALWAYS want to have your own version of these object blocks
+# in your own code.
+objects:
+  - court_bundle: ALDocumentBundle.using(elements=[cover_page], filename="court_forms.pdf", title="Forms to download and deliver to court")
+  - user_bundle: ALDocumentBundle
+
+##############################################################
+# Deprecated code for attachments -- will use ALDocument class now
 ---
 reconsider: True
 code: |
@@ -98,6 +113,10 @@ code: |
     package_title = next(iter(download_titles))
   else:
     package_title = "MassAccess Form"
+---
+attachment:
+  variable name: cover_page[i]
+  docx template file: general_cover_sheet.docx
 ---
 need:
   - form_to_file_no_cover
