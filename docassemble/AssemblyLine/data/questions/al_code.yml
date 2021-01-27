@@ -54,14 +54,14 @@ code: |
 # new attachment handling code
 ---
 objects:
-  - cover_page: ALDocument.using(title="Cover page", filename="cover_page", has_addendum=False)
+  - al_cover_page: ALDocument.using(title="Cover page", filename="cover_page", has_addendum=False)
 ---
 # This is the *default* version of both objects as an example.
 # You will ALWAYS want to have your own version of these object blocks
 # in your own code.
 objects:
-  - court_bundle: ALDocumentBundle.using(elements=[cover_page], filename="court_forms.pdf", title="Forms to download and deliver to court")
-  - user_bundle: ALDocumentBundle
+  - al_court_bundle: ALDocumentBundle.using(elements=[al_cover_page], filename="court_forms.pdf", title="Forms to download and deliver to court")
+  - al_user_bundle: ALDocumentBundle
 
 ##############################################################
 # Deprecated code for attachments -- will use ALDocument class now
