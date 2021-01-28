@@ -674,6 +674,8 @@ comment: |
   the address where the incident took place. Especially
   if this is a responsive case.
 code: |
+  # Force the address question to be asked if it hasn't been asked yet
+  users[0].address
   addresses_to_search = [users[0].address]
 ---
 comment: |
