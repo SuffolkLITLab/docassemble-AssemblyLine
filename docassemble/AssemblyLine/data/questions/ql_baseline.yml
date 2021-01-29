@@ -276,6 +276,7 @@ id: your address
 sets:
   - users[0].address.address
   - users[0].address.city
+  - users[0].address.zip
 question: |
   What is your address?
 subquestion: |
@@ -490,6 +491,7 @@ fields:
 sets:
   - x.address.address
   - x.address.city
+  - x.address.zip
 id: persons address
 generic object: ALIndividual
 question: |

@@ -43,7 +43,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
     return out
 
 setup(name='docassemble.AssemblyLine',
-      version='2.0.4',
+      version='2.0.4.1',
       description=('Runtime package that helps rapidly automate court forms, letters, and the like'),
       long_description='# Document Assembly Line - Runtime Code\r\n\r\nA jurisdiction-agnostic runtime package that supports rapidly automating forms\r\nwith a controlled style. Saves time over using just the base docassemble\r\nplatform.\r\n\r\nThis is the run-time code that supports the interviews at https://courtformsonline.org\r\n\r\nThis package supersedes [MAVirtualCourt](https://github.com/SuffolkLITLab/docassemble-MAVirtualCourt).\r\n\r\n# Migration\r\n\r\n* Remove any references to MAVirtualCourt. Add an include block like this at the top\r\n  of your interview YAML file\r\n\r\n```\r\ninclude:\r\n  - docassemble.AssemblyLine:al_package.yml\r\n  - docassemble.MassAccess:massaccess.yml\r\n```\r\n\r\n* Change references to `basic_questions_intro_screen` to `al_intro_screen`',
       long_description_content_type='text/markdown',
