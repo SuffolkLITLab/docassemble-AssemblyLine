@@ -675,7 +675,7 @@ comment: |
   if this is a responsive case.
 code: |
   # Force the address question to be asked if it hasn't been asked yet
-  users[0].address
+  users[0].address.address
   addresses_to_search = [users[0].address]
 ---
 comment: |
