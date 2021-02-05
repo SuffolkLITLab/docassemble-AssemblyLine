@@ -1,6 +1,10 @@
-function aldocument_send_action(event_name, wants_editable, email) {
-  da_action_perform(event_name, {wants_editable, email})
-  // var wants_edit = $("#al_wants_editable_'''+name+'''")[0].checked;
-  // var email = $("#al_doc_email_'''+name+'''")[0].value;
-  // action_perform("'''+event_name+'''", {wants_edit, email});
+/*
+ * given a docassemble event name, and text ID containing email address and whether
+ * or not user wants to send editable files, trigger docassemble event to
+ * email an ALDocumentBundle
+ */
+function aldocument_send_action(event_name, wants_editable_id, email_id) {
+  editable = $('#' + wants_editable_id)[0].checked
+  email = $('#' + email_id)[0].value
+  da_action_perform(event_name, {editable, email})
 };
