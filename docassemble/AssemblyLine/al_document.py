@@ -1,4 +1,4 @@
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument
 import re
 
 def label(dictionary):
@@ -487,36 +487,40 @@ class ALDocumentBundle(DAList):
     
     return html
   
+  def send_button_html(self, key='final'):
+    name = re.sub(r'[^A-Za-z0-9]+','_', self.instanceName)  # safe name for classes and ids
+    return '''
+  <div class="al_send_bundle '''+name+'''" id="al_send_bundle_'''+name+'''" name="al_send_bundle_'''+name+'''">
+  <div class="form-check">
+    <input class="form-check-input" type="checkbox" class="al_wants_editable" id="al_wants_editable_'''+name+'''">
+    <label class="al_wants_editable form-check-label" for="al_wants_editable_'''+name+'''">
+      I want the editable copy of the documents
+    </label>
+  </div>
+  
+  <span class="al_email_address '''+name+''' form-group row da-field-container da-field-container-datatype-email">
+    <label for="al_doc_email_'''+name+'''" class="al_doc_email col-form-label da-form-label datext-right">E-mail</label>
+    <span class="dafieldpart">
+      <input value="''' + (user_info().email if user_logged_in() else '') + '''" alt="Input box" class="form-control" type="email" name="al_doc_email_'''+name+'''" id="al_doc_email_'''+name+'''">
+    </span>
+  </span>'''+action_button_html('javascript:send_docs()', label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=("al_send_email_button_"+name))+'''
+  '''
+  
+  @property
+  def send_email_action(self):
+    pass
+  
+  def send_email(self):
+    pass
+  
+  # I don't think this was actually ever used
   def table_css(self):
     """
     Return the css styles for the view/download table.
     This will be hard to develop with and it will be a bit
     harder to override for developers using this module.
     """
-    return '''<style>\n
-    .al_table_css_sibling + div thead {
-      display: none;
-    }
-
-    .al_table_css_sibling + div td {
-      padding: .3em;
-      vertical-align: text-top;
-    }
-    td.text-left:first-child {
-      width: 1em;
-      padding-left: .5em;
-    }
-    .al_table_css_sibling + div td.text-left + td.text-right {
-      width: 5em;
-    }
-    .al_table_css_sibling + div td.text-right {
-      width: 7em;
-    }
-
-    .al_table_css_sibling + div a {
-      margin: 0em;
-    }
-  </style>'''
+    return ""
     
 class ALDocumentBundleDict(DADict):
   """

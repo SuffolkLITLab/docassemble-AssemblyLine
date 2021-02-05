@@ -1,0 +1,37 @@
+/* Email button */
+.al_email_address, .al_email_address label, .al_email_address input {
+  display: inline-block;
+  width: unset;
+  margin: unset;
+}
+.al_send_button {
+  display: inline-block;
+}
+.al_send_editable {
+  display: block;
+  width: 100%;
+}
+
+/* Download buttons */
+.al_table_css_sibling + div thead {
+  display: none;
+}
+
+.al_table_css_sibling + div td {
+  padding: .3em;
+  vertical-align: text-top;
+}
+td.text-left:first-child {
+  width: 1em;
+  padding-left: .5em;
+}
+.al_table_css_sibling + div td.text-left + td.text-right {
+  width: 5em;
+}
+.al_table_css_sibling + div td.text-right {
+  width: 7em;
+}
+
+.al_table_css_sibling + div a {
+  margin: 0em;
+}
