@@ -427,6 +427,7 @@ fields:
   - code: |
       witnesses[i].name_fields()
 ---
+generic object: ALPeopleList
 id: any other people
 question: |
   Do you have any other ${ x.object_name() } to tell us about?
