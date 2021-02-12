@@ -516,6 +516,19 @@ fields:
   - Email: x.email
     datatype: email
 ---
+id: attorney id number
+question: |
+  What is ${ attorneys[i].possessive('ID number') }?
+fields:
+  - BBO: attorneys[i].id_number
+help: 
+  label: |
+    ID?
+  content: |
+    In some jurisdictions, attorneys will have an identification number. 
+    For example, in Massachusetts, all attorneys have a BBO (Board of 
+    Bar Overseers) number that is 6 digits long. 
+---
 id: persons signature
 generic object: ALIndividual
 question: |
