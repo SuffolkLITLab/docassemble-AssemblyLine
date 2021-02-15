@@ -522,14 +522,14 @@ class ALDocumentBundle(DAList):
     """
     self.send_email(action_argument('email'), action_argument('wants_edit'))
   
-  def send_email(self, to:any=None, key:str='final', wants_editable:bool=False, template=None, **kwargs):
+  def send_email(self, to:any=None, key:str='final', editable:bool=False, template=None, **kwargs):
     """
     Send an email with the current bundle as a single flat pdf or as editable documents.
     Can be used the same as https://docassemble.org/docs/functions.html#send_email with 
     two optional additional params.
     
     keyword arguments:
-    @param [wants_editable] {bool} - Optional. User wants the editable docs. Default: False
+    @param [editable] {bool} - Optional. User wants the editable docs. Default: False
     @param [key] {string} - Optional. Which version of the doc. Default: 'final'
     @param to {string} - Same as da send_email `to` - email address(es) or objects with such.
     @param template {object} - Same as da `send_email` `template` variable.
@@ -538,10 +538,10 @@ class ALDocumentBundle(DAList):
     if not template:
       template = self.send_email_template
     
-    if wants_editable:
-      send_email(to=to, template=template, attachments=self.as_editable_list(key=key), **kwargs)
+    if editable:
+      return send_email(to=to, template=template, attachments=self.as_editable_list(key=key), **kwargs)
     else:
-      send_email(to=to, template=template, attachments=self.as_pdf(key=key), **kwargs)
+      return send_email(to=to, template=template, attachments=self.as_pdf(key=key), **kwargs)
       
   # I don't think this was actually ever used
   def table_css(self):
