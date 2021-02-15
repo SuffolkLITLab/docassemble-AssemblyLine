@@ -1,0 +1,90 @@
+/* Email button */
+.al_email_address, .al_email_address label, .al_email_address input {
+  display: inline-block;
+  width: unset;
+  margin: unset;
+}
+.al_send_button {
+  display: inline-block;
+}
+.al_send_editable {
+  display: block;
+  width: 100%;
+}
+
+/* Download buttons */
+.al_table_css_sibling + div thead {
+  display: none;
+}
+
+.al_table_css_sibling + div td {
+  padding: .3em;
+  vertical-align: text-top;
+}
+td.text-left:first-child {
+  width: 1em;
+  padding-left: .5em;
+}
+.al_table_css_sibling + div td.text-left + td.text-right {
+  width: 5em;
+}
+.al_table_css_sibling + div td.text-right {
+  width: 7em;
+}
+
+.al_table_css_sibling + div a {
+  margin: 0em;
+}
+
+/* BW hotfixes 2/9/2021 */
+
+.da-subquestion .btn {
+  min-width: 120px;
+}
+.da-subquestion .daquestionbackbutton {
+  background-color: #eee;
+}
+
+#al_doc_email_header {
+  margin: 1rem 0;
+}
+
+#al_user_bundle {
+  margin: 0.5rem 0;
+}
+
+#al_user_bundle a.btn-darevisit {
+  margin-bottom: 0;
+}
+
+#al_user_bundle a.btn {
+  position: relative;
+  float: right;
+  margin: 0.5rem 0;
+}
+
+#al_user_bundle a.btn:nth-child(1) {
+  margin-bottom: 0;
+}
+
+#al_user_bundle td div {
+  min-width: 320px;
+}
+
+#al_send_bundle_al_user_bundle .form-check-container {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0.5rem 0 5px 0;
+}
+
+.al_email_container {
+  display: flex;
+}
+.al_email_container > span {
+  display: flex;
+  flex: 1;
+}
+.al_email_container > span > input {
+  flex: 1;
+  margin: 0 10px;
+}

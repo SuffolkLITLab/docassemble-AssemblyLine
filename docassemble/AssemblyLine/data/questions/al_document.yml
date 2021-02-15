@@ -1,0 +1,33 @@
+---
+features:
+  javascript:
+    - aldocument.js
+  css:
+    - aldocument.css
+---
+# This must be in Docassemble YAML due to limits in how Docassemble
+# searches for events. It also somewhat safer to limit the scope of what
+# events can be triggered by JS
+generic object: ALDocumentBundle
+event: x.send_email_action_event
+code: |
+  email_success = x.send_email(to=action_argument('email'), editable=action_argument('editable'), template=action_argument('template'))
+  if email_success:
+    # Exact phrase below is in Docassemble's words dictionary
+    log(word('E-mail was sent to') + ' ' + action_argument('email') ,'success')
+  else:
+    # E-mail failed is not in the default Docassemble words dictionary
+    log(word('E-mail failed'), 'error')
+---
+generic object: ALDocumentBundle
+template: x.send_email_template
+# TODO: there may be a better default than "metadata_title".
+# In general, we could improve this template
+subject: |
+  % if len(x) > 1:
+  Your "${ metadata_title}" document from ${ al_app_name } is ready
+  % else:
+  Your "${ metadata_title }" documents from ${ al_app_name } are ready
+  % endif
+content: |
+  Please find the document for ${ users } attached.

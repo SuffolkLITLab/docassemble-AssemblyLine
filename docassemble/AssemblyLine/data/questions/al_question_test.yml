@@ -4,8 +4,11 @@ include:
 ---
 mandatory: True
 code: |
+  # basic_questions_signature_flow
+  al_user_bundle
   end_screen
 ---
+need: al_user_bundle
 id: test end screen
 event: end_screen
 question: |
@@ -13,6 +16,8 @@ question: |
 subquestion: |
   #### Your files are ready to download below
   ${ al_user_bundle.download_list_html() }
+  
+  ${ al_user_bundle.send_button_html() }
 ---
 objects:
   - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=False, enabled=True)
@@ -20,9 +25,19 @@ objects:
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template], filename="user_bundle.pdf", title="All forms to download for your records")
 ---
+code: |
+  # This is used in the subject of the email template when someone
+  # emails from ending screen.
+  metadata_title = "AssemblyLine Question Test"
+---
 attachment:
   variable name: dummy_template[i]
   content: |
     You live at ${ users[0].address.on_one_line() }
 
-    You have ${ len(children) } children, named ${ children.familiar() }
+    You have { len(children) } children, named { children.familiar() }
+    
+    Signed,
+#    % if i == 'final':
+#    ${ users[0].signature }
+#    % endif

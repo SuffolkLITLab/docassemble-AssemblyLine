@@ -1,4 +1,4 @@
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email
 import re
 
 def label(dictionary):
@@ -41,13 +41,10 @@ def table_row( aldoc, key='final', view_icon="eye", download_icon="download" ):
   html = '\n\t<tr>'
   # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
   # TODO: Need to replace with proper CSS
-  html += '\n\t\t<td><strong>' + aldoc.title + '</strong>&nbsp;&nbsp;</td>'
+  html += '\n\t\t<td><div><strong>' + aldoc.title + '</strong></div></td>'
   html += '\n\t\t<td>'
-  html += action_button_html( pdf.url_for(), label=word("View"), icon=view_icon, color="secondary" )
-  html += '&nbsp;&nbsp;</td>'
-  html += '\n\t\t<td>'
-  html += action_button_html( pdf.url_for(attachment=True), label=word("Download"), icon=download_icon, color="primary" )
-  html += '</td>'
+  html += action_button_html( pdf.url_for(), label=word("View"), size="md", icon=view_icon, color="secondary" )
+  html += action_button_html( pdf.url_for(attachment=True), size="md", label=word("Download"), icon=download_icon, color="primary" )
   html += '\n\t</tr>'
 
   return html
@@ -459,6 +456,17 @@ class ALDocumentBundle(DAList):
     """
     return [document.as_pdf(key=key) for document in self]
   
+  def as_editable_list(self, key='final'):
+    """
+    Return a flat list of the editable versions of the docs in this bundle.
+    Not yet tested with editable PDFs.
+    """
+    docs = self.as_flat_list(key=key)
+    editable = []
+    for doc in docs:
+      editable.append(doc.docx if hasattr(doc, 'docx') else doc.pdf)
+    return editable  
+  
   def download_list_html(self, key='final', format='pdf', view=True):
     """
     Returns string of a table to display a list
@@ -487,36 +495,63 @@ class ALDocumentBundle(DAList):
     
     return html
   
+  def send_button_html(self, key='final'):
+    name = re.sub(r'[^A-Za-z0-9]+','_', self.instanceName)  # safe name for classes and ids
+    al_wants_editable_input_id = 'al_wants_editable_' + name
+    al_email_input_id = 'al_doc_email_' + name
+    al_send_button_id = "al_send_email_button_"+name
+    
+    javascript_string = "javascript:aldocument_send_action('" + \
+      self.attr_name('send_email_action_event') + \
+      "','" + al_wants_editable_input_id + "','" + \
+      al_email_input_id + "')"
+    
+    return '''
+  <div class="al_send_bundle '''+name+'''" id="al_send_bundle_'''+name+'''" name="al_send_bundle_'''+name+'''">
+  <h4 id="al_doc_email_header">Get a copy of the documents in email</h4>  
+  <div class="al_email_container">
+  <span class="al_email_address '''+name+''' form-group row da-field-container da-field-container-datatype-email">
+    <label for="'''+al_email_input_id+'''" class="al_doc_email col-form-label da-form-label datext-right">Email</label>
+    <input value="''' + (user_info().email if user_logged_in() else '') + '''" alt="Input box" class="form-control" type="email" name="'''+al_email_input_id+'''" id="'''+al_email_input_id+'''">
+  </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n" + '''
+    </div>
+    <div class="form-check-container"><div class="form-check">
+    <input class="form-check-input" type="checkbox" class="al_wants_editable" id="'''+al_wants_editable_input_id+'''">
+    <label class="al_wants_editable form-check-label" for="'''+al_wants_editable_input_id+'''">'''\
+      + word("Include an editable copy") + '''
+    </label>
+  </div></div>
+  '''
+    
+  def send_email(self, to:any=None, key:str='final', editable:bool=False, template=None, **kwargs):
+    """
+    Send an email with the current bundle as a single flat pdf or as editable documents.
+    Can be used the same as https://docassemble.org/docs/functions.html#send_email with 
+    two optional additional params.
+    
+    keyword arguments:
+    @param [editable] {bool} - Optional. User wants the editable docs. Default: False
+    @param [key] {string} - Optional. Which version of the doc. Default: 'final'
+    @param to {string} - Same as da send_email `to` - email address(es) or objects with such.
+    @param template {object} - Same as da `send_email` `template` variable.
+    @param * {*} - Any other parameters you'd send to a da `send_email` function
+    """
+    if not template:
+      template = self.send_email_template
+    
+    if editable:
+      return send_email(to=to, template=template, attachments=self.as_editable_list(key=key), **kwargs)
+    else:
+      return send_email(to=to, template=template, attachments=self.as_pdf(key=key), **kwargs)
+      
+  # I don't think this was actually ever used
   def table_css(self):
     """
     Return the css styles for the view/download table.
     This will be hard to develop with and it will be a bit
     harder to override for developers using this module.
     """
-    return '''<style>\n
-    .al_table_css_sibling + div thead {
-      display: none;
-    }
-
-    .al_table_css_sibling + div td {
-      padding: .3em;
-      vertical-align: text-top;
-    }
-    td.text-left:first-child {
-      width: 1em;
-      padding-left: .5em;
-    }
-    .al_table_css_sibling + div td.text-left + td.text-right {
-      width: 5em;
-    }
-    .al_table_css_sibling + div td.text-right {
-      width: 7em;
-    }
-
-    .al_table_css_sibling + div a {
-      margin: 0em;
-    }
-  </style>'''
+    return ""
     
 class ALDocumentBundleDict(DADict):
   """
