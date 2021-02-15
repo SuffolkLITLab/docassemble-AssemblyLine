@@ -532,9 +532,9 @@ class ALDocumentBundle(DAList):
       template = self.send_email_template
     
     if editable:
-      send_email(to=to, template=template, attachments=self.as_editable_list(key=key), **kwargs)
+      return send_email(to=to, template=template, attachments=self.as_editable_list(key=key), **kwargs)
     else:
-      send_email(to=to, template=template, attachments=self.as_pdf(key=key), **kwargs)
+      return send_email(to=to, template=template, attachments=self.as_pdf(key=key), **kwargs)
       
   # I don't think this was actually ever used
   def table_css(self):
