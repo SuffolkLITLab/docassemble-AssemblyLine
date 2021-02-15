@@ -2,8 +2,9 @@
 include:
   - al_settings.yml
   - al_code.yml
-  - ql_baseline.yml
   - al_visual.yml
+  - al_email.yml
+  - ql_baseline.yml
 ---
 modules:
   - docassemble.ALToolbox.misc

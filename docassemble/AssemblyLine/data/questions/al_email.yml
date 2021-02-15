@@ -1,0 +1,20 @@
+---
+# This must be in Docassemble YAML due to limits in how Docassemble
+# searches for events. It also somewhat safer to limit the scope of what
+# events can be triggered by JS
+generic object: ALDocumentBundle
+event: x.send_email_action_event
+code: |
+  x.send_email(to=action_argument('email'), editable=action_argument('editable'))
+  log('Message sent','success')
+---
+generic object: ALDocumentBundle
+template: x.send_email_template
+subject: |
+  % if len(x) > 1:
+  Your "${ metadata_title}" document from ${ al_app_name } is ready
+  % else:
+  Your "${ metadata_title }" documents from ${ al_app_name } are ready
+  % endif
+content: |
+  Please find the document for ${ users } attached.

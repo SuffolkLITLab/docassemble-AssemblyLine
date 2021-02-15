@@ -1,4 +1,5 @@
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email
+
 import re
 
 def label(dictionary):
@@ -513,25 +514,15 @@ class ALDocumentBundle(DAList):
       <input value="''' + (user_info().email if user_logged_in() else '') + '''" alt="Input box" class="form-control" type="email" name="'''+al_email_input_id+'''" id="'''+al_email_input_id+'''">
     </span>
   </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n"
-  
-  @property
-  def send_email_action_event(self):
-    """
-    This represents the Docassemble event used to trigger sending an email.
-    It has no parameters because an event can't accept parameters.
-    action_argument is the workaround.
-    @property allows Python to trigger this when it's called without ().
-    """
-    self.send_email(action_argument('email'), action_argument('wants_edit'))
-  
-  def send_email(self, to:any=None, key:str='final', wants_editable:bool=False, template=None, **kwargs):
+    
+  def send_email(self, to:any=None, key:str='final', editable:bool=False, template=None, **kwargs):
     """
     Send an email with the current bundle as a single flat pdf or as editable documents.
     Can be used the same as https://docassemble.org/docs/functions.html#send_email with 
     two optional additional params.
     
     keyword arguments:
-    @param [wants_editable] {bool} - Optional. User wants the editable docs. Default: False
+    @param [editable] {bool} - Optional. User wants the editable docs. Default: False
     @param [key] {string} - Optional. Which version of the doc. Default: 'final'
     @param to {string} - Same as da send_email `to` - email address(es) or objects with such.
     @param template {object} - Same as da `send_email` `template` variable.
@@ -540,7 +531,7 @@ class ALDocumentBundle(DAList):
     if not template:
       template = self.send_email_template
     
-    if wants_editable:
+    if editable:
       send_email(to=to, template=template, attachments=self.as_editable_list(key=key), **kwargs)
     else:
       send_email(to=to, template=template, attachments=self.as_pdf(key=key), **kwargs)
