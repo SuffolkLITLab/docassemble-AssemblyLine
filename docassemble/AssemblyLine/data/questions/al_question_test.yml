@@ -17,8 +17,6 @@ subquestion: |
   #### Your files are ready to download below
   ${ al_user_bundle.download_list_html() }
   
-  [Click a link](${ url_action('al_user_bundle.send_email_action_event', editable=True, email="qsteenhuis@suffolk.edu") })
-  
   ${ al_user_bundle.send_button_html() }
 ---
 objects:
@@ -26,6 +24,11 @@ objects:
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template], filename="user_bundle.pdf", title="All forms to download for your records")
+---
+code: |
+  # This is used in the subject of the email template when someone
+  # emails from ending screen.
+  metadata_title = "AssemblyLine Question Test"
 ---
 attachment:
   variable name: dummy_template[i]
@@ -38,15 +41,3 @@ attachment:
 #    % if i == 'final':
 #    ${ users[0].signature }
 #    % endif
----
-generic object: ALDocumentBundle
-template: x.send_email_template
-subject: |
-  Subject
-content: |
-  Here is your email
----
-#generic object: ALDocumentBundle
-#event: x.send_email_action_event
-#code: |
-#  message("Hello")

@@ -21,6 +21,8 @@ code: |
 ---
 generic object: ALDocumentBundle
 template: x.send_email_template
+# TODO: there may be a better default than "metadata_title".
+# In general, we could improve this template
 subject: |
   % if len(x) > 1:
   Your "${ metadata_title}" document from ${ al_app_name } is ready

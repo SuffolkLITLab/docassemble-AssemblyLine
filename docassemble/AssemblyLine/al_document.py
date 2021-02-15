@@ -1,4 +1,4 @@
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email
 import re
 
 def label(dictionary):
@@ -456,6 +456,17 @@ class ALDocumentBundle(DAList):
     """
     return [document.as_pdf(key=key) for document in self]
   
+  def as_editable_list(self, key='final'):
+    """
+    Return a flat list of the editable versions of the docs in this bundle.
+    Not yet tested with editable PDFs.
+    """
+    docs = self.as_flat_list(key=key)
+    editable = []
+    for doc in docs:
+      editable.append(doc.docx if hasattr(doc, 'docx') else doc.pdf)
+    return editable  
+  
   def download_list_html(self, key='final', format='pdf', view=True):
     """
     Returns string of a table to display a list
@@ -511,17 +522,7 @@ class ALDocumentBundle(DAList):
     </label>
   </div></div>
   '''
-  
-  @property
-  def send_email_action_event(self):
-    """
-    This represents the Docassemble event used to trigger sending an email.
-    It has no parameters because an event can't accept parameters.
-    action_argument is the workaround.
-    @property allows Python to trigger this when it's called without ().
-    """
-    self.send_email(action_argument('email'), action_argument('wants_edit'))
-  
+    
   def send_email(self, to:any=None, key:str='final', editable:bool=False, template=None, **kwargs):
     """
     Send an email with the current bundle as a single flat pdf or as editable documents.
