@@ -3,7 +3,7 @@ include:
   - al_settings.yml
   - al_code.yml
   - al_visual.yml
-  - al_email.yml
+  - al_document.yml
   - ql_baseline.yml
 ---
 modules:
