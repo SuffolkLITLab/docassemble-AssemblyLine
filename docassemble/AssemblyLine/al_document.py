@@ -1,5 +1,4 @@
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email
-
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument
 import re
 
 def label(dictionary):
@@ -42,13 +41,10 @@ def table_row( aldoc, key='final', view_icon="eye", download_icon="download" ):
   html = '\n\t<tr>'
   # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
   # TODO: Need to replace with proper CSS
-  html += '\n\t\t<td><strong>' + aldoc.title + '</strong>&nbsp;&nbsp;</td>'
+  html += '\n\t\t<td><div><strong>' + aldoc.title + '</strong></div></td>'
   html += '\n\t\t<td>'
-  html += action_button_html( pdf.url_for(), label=word("View"), icon=view_icon, color="secondary" )
-  html += '&nbsp;&nbsp;</td>'
-  html += '\n\t\t<td>'
-  html += action_button_html( pdf.url_for(attachment=True), label=word("Download"), icon=download_icon, color="primary" )
-  html += '</td>'
+  html += action_button_html( pdf.url_for(), label=word("View"), size="md", icon=view_icon, color="secondary" )
+  html += action_button_html( pdf.url_for(attachment=True), size="md", label=word("Download"), icon=download_icon, color="primary" )
   html += '\n\t</tr>'
 
   return html
@@ -501,28 +497,39 @@ class ALDocumentBundle(DAList):
     
     return '''
   <div class="al_send_bundle '''+name+'''" id="al_send_bundle_'''+name+'''" name="al_send_bundle_'''+name+'''">
-  <div class="form-check">
+  <h4 id="al_doc_email_header">Get a copy of the documents in email</h4>  
+  <div class="al_email_container">
+  <span class="al_email_address '''+name+''' form-group row da-field-container da-field-container-datatype-email">
+    <label for="'''+al_email_input_id+'''" class="al_doc_email col-form-label da-form-label datext-right">Email</label>
+    <input value="''' + (user_info().email if user_logged_in() else '') + '''" alt="Input box" class="form-control" type="email" name="'''+al_email_input_id+'''" id="'''+al_email_input_id+'''">
+  </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n" + '''
+    </div>
+    <div class="form-check-container"><div class="form-check">
     <input class="form-check-input" type="checkbox" class="al_wants_editable" id="'''+al_wants_editable_input_id+'''">
     <label class="al_wants_editable form-check-label" for="'''+al_wants_editable_input_id+'''">'''\
-      + word("I want the editable copy of the documents") + '''
+      + word("Include an editable copy") + '''
     </label>
-  </div>
+  </div></div>
+  '''
   
-  <span class="al_email_address '''+name+''' form-group row da-field-container da-field-container-datatype-email">
-    <label for="'''+al_email_input_id+'''" class="al_doc_email col-form-label da-form-label datext-right">E-mail</label>
-    <span class="dafieldpart">
-      <input value="''' + (user_info().email if user_logged_in() else '') + '''" alt="Input box" class="form-control" type="email" name="'''+al_email_input_id+'''" id="'''+al_email_input_id+'''">
-    </span>
-  </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n"
-    
-  def send_email(self, to:any=None, key:str='final', editable:bool=False, template=None, **kwargs):
+  @property
+  def send_email_action_event(self):
+    """
+    This represents the Docassemble event used to trigger sending an email.
+    It has no parameters because an event can't accept parameters.
+    action_argument is the workaround.
+    @property allows Python to trigger this when it's called without ().
+    """
+    self.send_email(action_argument('email'), action_argument('wants_edit'))
+  
+  def send_email(self, to:any=None, key:str='final', wants_editable:bool=False, template=None, **kwargs):
     """
     Send an email with the current bundle as a single flat pdf or as editable documents.
     Can be used the same as https://docassemble.org/docs/functions.html#send_email with 
     two optional additional params.
     
     keyword arguments:
-    @param [editable] {bool} - Optional. User wants the editable docs. Default: False
+    @param [wants_editable] {bool} - Optional. User wants the editable docs. Default: False
     @param [key] {string} - Optional. Which version of the doc. Default: 'final'
     @param to {string} - Same as da send_email `to` - email address(es) or objects with such.
     @param template {object} - Same as da `send_email` `template` variable.
@@ -531,7 +538,7 @@ class ALDocumentBundle(DAList):
     if not template:
       template = self.send_email_template
     
-    if editable:
+    if wants_editable:
       send_email(to=to, template=template, attachments=self.as_editable_list(key=key), **kwargs)
     else:
       send_email(to=to, template=template, attachments=self.as_pdf(key=key), **kwargs)
