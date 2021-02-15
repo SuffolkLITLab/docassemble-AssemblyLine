@@ -4,9 +4,23 @@ include:
 ---
 mandatory: True
 code: |
-  # basic_questions_signature_flow
   al_user_bundle
+  users.gather()
+  users[0].address.address
+  children.gather()
+  preview_screen
+  basic_questions_signature_flow
   end_screen
+---
+id: preview
+continue button field: preview_screen
+question: |
+  The preview copy of your form is ready
+subquestion: |
+  Take a look at the files below. When you are ready, click "next"
+  to continue and add your signature.
+  
+  ${ al_user_bundle.as_pdf(key='preview') }
 ---
 need: al_user_bundle
 id: test end screen
@@ -35,9 +49,11 @@ attachment:
   content: |
     You live at ${ users[0].address.on_one_line() }
 
-    You have { len(children) } children, named { children.familiar() }
+    You have ${ len(children) } children, named ${ children.familiar() }
     
     Signed,
-#    % if i == 'final':
-#    ${ users[0].signature }
-#    % endif
+    % if i == 'final':
+    ${ users[0].signature }
+    % else:
+    [Sign here]
+    % endif
