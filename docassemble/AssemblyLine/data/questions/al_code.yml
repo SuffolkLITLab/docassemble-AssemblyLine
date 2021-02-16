@@ -172,3 +172,19 @@ code: |
         #    signed = defined(signature) & signed
         signature_phone_followup
   basic_questions_signature_flow = True
+---
+code: |
+  # If the author hasn't explicitly defined it in the interview_order block,
+  # define user_role to be either "defendant" or "plaintiff",
+  # either by checking interview_metadata or asking the user.
+  # The only valid values for user_role are "plaintiff" and "defendant".
+  
+  # We will check for the "typical_role" key.  
+  # Some older wizarded code doesn't define `typical_role`, so fall back
+  # to "unknown" if the key is not present.
+  # first_form is the first entry in interview_metadata
+  if not first_form.get("typical_role", 'unknown') == 'unknown':
+    user_role = first_form.get("typical_role")
+  else:
+    # If the user role was set to "unknown" at the time wizard run
+    user_role = user_ask_role
