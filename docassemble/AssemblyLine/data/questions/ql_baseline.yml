@@ -1093,3 +1093,8 @@ help:
   
     If you are responding to a case or court papers someone else filed, you
     are the "Defendant" or the "Respondent."
+---
+code: |
+  # Every form has a user, at least as our default. You can override this
+  # by adding your own question or code later in the file
+  users.there_are_any = True
