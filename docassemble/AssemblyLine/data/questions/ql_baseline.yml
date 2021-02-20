@@ -6,8 +6,8 @@ objects:
   - interview_metadata: DADict.using(object_type=DADict.using(auto_gather=False, gathered=True), auto_gather=False, gathered=True)
   - users: ALPeopleList.using(there_are_any=True)
   - children: ALPeopleList.using(ask_number=True)
-  - defendants: ALPeopleList
-  - plaintiffs: ALPeopleList
+  #- defendants: ALPeopleList
+  #- plaintiffs: ALPeopleList
   - plaintiff: ALIndividual
   - other_parties: ALPeopleList
   - witnesses: ALPeopleList.using(ask_number=True)
