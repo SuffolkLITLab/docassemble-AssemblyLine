@@ -381,11 +381,11 @@ class ALDocument(DADict):
     """
     Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
     """
-    if self[key].info.get('filename','').endswith('.docx'):
+    try:
       the_file = docx_concatenate(self.as_list(key=key))
       the_file.title = self.title
       return the_file
-    else:
+    except:
       return self.as_pdf(key=key)
 
   def as_list(self, key='final'):
