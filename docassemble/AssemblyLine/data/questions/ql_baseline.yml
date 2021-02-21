@@ -225,6 +225,11 @@ template: x.address_zip_label
 content: |
   Zip or postal code
 ---
+generic object: ALIndividual
+template: x.address_country_label
+content: |
+  Country
+---
 id: your name
 sets:
     - users[0].name.first

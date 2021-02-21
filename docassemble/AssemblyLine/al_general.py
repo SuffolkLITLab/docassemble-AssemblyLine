@@ -110,7 +110,7 @@ class ALIndividual(Individual):
       {"label": self.address_zip_label, "field": self.attr_name('address.zip'), "required": False},
     ]
     if show_country:
-      fields.append({"label": self.address_country_label, "field": self.attr_name("address.country"), "required": False, "code": "countries_list()", "default": country_code})
+      fields.append({"label": self.address_country_label, "field": self.attr_name("address.country"), "required": False, "code": "countries_list()", "default": country_code, "datatype": "combobox"})
     return fields      
 
   def contact_fields(self):
