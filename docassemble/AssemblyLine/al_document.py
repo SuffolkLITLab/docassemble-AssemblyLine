@@ -1,4 +1,4 @@
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate
 import re
 
 def label(dictionary):
@@ -30,13 +30,14 @@ def html_safe_str( the_string ):
   """
   return re.sub( r'[^A-Za-z0-9]+', '_', the_string )
 
-# TODO: probably move this into the method? It's only used once.
-def table_row( aldoc, key='final', view_icon="eye", download_icon="download" ):
+def table_row( aldoc, key='final', view_icon="eye", download_icon="download", format="pdf" ):
   """
   Return a string of html that is one row of a table containing
   the `.as_pdf()` contents of an AL object and its interaction buttons
   """
   pdf = aldoc.as_pdf(key=key)
+  if format=="docx":
+    docx = aldoc.as_docx(key=key)
   
   html = '\n\t<tr>'
   # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
@@ -44,7 +45,11 @@ def table_row( aldoc, key='final', view_icon="eye", download_icon="download" ):
   html += '\n\t\t<td><div><strong>' + aldoc.title + '</strong></div></td>'
   html += '\n\t\t<td>'
   html += action_button_html( pdf.url_for(), label=word("View"), size="md", icon=view_icon, color="secondary" )
-  html += action_button_html( pdf.url_for(attachment=True), size="md", label=word("Download"), icon=download_icon, color="primary" )
+  if format=="docx":
+    html += action_button_html( docx.url_for(attachment=True), size="md", label=word("Download"), icon=download_icon, color="primary" )
+  else:
+    html += action_button_html( pdf.url_for(attachment=True), size="md", label=word("Download"), icon=download_icon, color="primary" )
+
   html += '\n\t</tr>'
 
   return html
@@ -371,6 +376,17 @@ class ALDocument(DADict):
     pdf = pdf_concatenate(self.as_list(key=key), filename=self.filename + ending)
     pdf.title = self.title
     return pdf
+  
+  def as_docx(self, key='final'):
+    """
+    Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
+    """
+    if self[key].info.get('filename','').endswith('.docx'):
+      the_file = docx_concatenate(self.as_list(key=key))
+      the_file.title = self.title
+      return the_file
+    else:
+      return self.as_pdf(key=key)
 
   def as_list(self, key='final'):
     if self.has_addendum and self.has_overflow():
@@ -477,7 +493,7 @@ class ALDocumentBundle(DAList):
     html ='<table class="al_table" id="' + html_safe_str(self.instanceName) + '">'
     
     for doc in self:
-      html += table_row( doc, key )
+      html += table_row( doc, key=key, format=format )
     
     html += '\n</table>'
     
@@ -490,7 +506,7 @@ class ALDocumentBundle(DAList):
     combined into one pdf with 'view' and 'download' buttons.
     """
     html ='<table class="al_table merged_docs" id="' + html_safe_str(self.instanceName) + '">'
-    html += table_row( self, key )
+    html += table_row( self, key=key, format=format )
     html += '\n</table>'
     
     return html
