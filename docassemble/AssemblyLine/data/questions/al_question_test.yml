@@ -1,0 +1,65 @@
+---
+include:
+  - al_package.yml
+---
+mandatory: True
+code: |
+  al_user_bundle
+  users.gather()
+  users[0].address.address
+  children.gather()
+  preview_screen
+  basic_questions_signature_flow
+  end_screen
+---
+id: preview
+continue button field: preview_screen
+question: |
+  The preview copy of your form is ready
+subquestion: |
+  Take a look at the files below. When you are ready, click "next"
+  to continue and add your signature.
+  
+  ${ al_user_bundle.as_pdf(key='preview') }
+---
+need: al_user_bundle
+id: test end screen
+event: end_screen
+question: |
+  Hello, ${ users }
+subquestion: |
+  #### Your files are ready to download below
+  ${ al_user_bundle.download_list_html(format="docx") }
+  
+  ${ al_user_bundle.send_button_html() }
+---
+objects:
+  - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=False, enabled=True)
+  - word_template: ALDocument.using(title="Word Template", filename="word_template", has_addendum=False, enabled=True)  
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template], filename="user_bundle.pdf", title="All forms to download for your records")
+---
+code: |
+  # This is used in the subject of the email template when someone
+  # emails from ending screen.
+  metadata_title = "AssemblyLine Question Test"
+---
+attachment:
+  variable name: dummy_template[i]
+  content: |
+    You live at ${ users[0].address.on_one_line() }
+
+    You have ${ len(children) } children, named ${ children.familiar() }
+    
+    Signed,
+    % if i == 'final':
+    ${ users[0].signature }
+    % else:
+    [Sign here]
+    % endif
+---
+attachment: 
+  variable name: word_template[i]
+  docx template file: sample_word_template.docx
+  filename: sample_word_template.docx

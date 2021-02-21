@@ -2,12 +2,14 @@
 include:
   - al_settings.yml
   - al_code.yml
-  - ql_baseline.yml
   - al_visual.yml
+  - al_document.yml
+  - ql_baseline.yml
 ---
 modules:
-  - docassemble.ALToolBox.misc
+  - docassemble.ALToolbox.misc
   - .al_general
+  - .al_document
 #############################
 # Variables used in most interviews:
 # * trial_court

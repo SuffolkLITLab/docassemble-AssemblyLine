@@ -13,7 +13,7 @@ code: |
   form_delivery_complete = True
 ---
 code: |
-  court_email = court_emails.get(courts[0].name,None)
+  court_email = court_emails.get(trial_court.name,None)
   if not court_email:
     found_email = False
   else:
@@ -50,6 +50,21 @@ code: |
     mark_task_as_performed('send email')
   sent_email_to_court = True
 ---
+##############################################################
+# new attachment handling code
+---
+objects:
+  - al_cover_page: ALDocument.using(title="Cover page", filename="cover_page", has_addendum=False)
+---
+# This is the *default* version of both objects as an example.
+# You will ALWAYS want to have your own version of these object blocks
+# in your own code.
+objects:
+  - al_court_bundle: ALDocumentBundle.using(elements=[al_cover_page], filename="court_forms.pdf", title="Forms to download and deliver to court")
+  - al_user_bundle: ALDocumentBundle
+
+##############################################################
+# Deprecated code for attachments -- will use ALDocument class now
 ---
 reconsider: True
 code: |
@@ -98,6 +113,10 @@ code: |
     package_title = next(iter(download_titles))
   else:
     package_title = "MassAccess Form"
+---
+attachment:
+  variable name: cover_page[i]
+  docx template file: general_cover_sheet.docx
 ---
 need:
   - form_to_file_no_cover
@@ -153,3 +172,19 @@ code: |
         #    signed = defined(signature) & signed
         signature_phone_followup
   basic_questions_signature_flow = True
+---
+code: |
+  # If the author hasn't explicitly defined it in the interview_order block,
+  # define user_role to be either "defendant" or "plaintiff",
+  # either by checking interview_metadata or asking the user.
+  # The only valid values for user_role are "plaintiff" and "defendant".
+  
+  # We will check for the "typical_role" key.  
+  # Some older wizarded code doesn't define `typical_role`, so fall back
+  # to "unknown" if the key is not present.
+  # first_form is the first entry in interview_metadata
+  if not first_form.get("typical_role", 'unknown') == 'unknown':
+    user_role = first_form.get("typical_role")
+  else:
+    # If the user role was set to "unknown" at the time wizard run
+    user_role = user_ask_role
