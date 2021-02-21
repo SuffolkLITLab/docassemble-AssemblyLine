@@ -96,19 +96,22 @@ class ALIndividual(Individual):
         {"label": self.name_text, "field": self.attr_name('name.first')}
       ]
  
-  def address_fields(self, country_code=None, default_state=None):
+  def address_fields(self, country_code="US", default_state=None, show_country=True):
     """
     Return field prompts for address.
     """
     # TODO: make this more flexible to work w/ homeless individuals and
     # international addresses
-    return [
+    fields = [
       {"label": self.address_address_label, "address autocomplete": True, "field": self.attr_name('address.address')},
       {"label": self.address_unit_label, "field": self.attr_name('address.unit'), "required": False},
       {"label": self.address_city_label, "field": self.attr_name("address.city")},
       {"label": self.address_state_label, "field": self.attr_name("address.state"), "code": "states_list(country_code={})".format(country_code), "default": default_state},
       {"label": self.address_zip_label, "field": self.attr_name('address.zip'), "required": False},
     ]
+    if show_country:
+      fields.append({"label": self.address_country_label, "field": self.attr_name("address.country"), "required": False, "code": "countries_list()", "default": country_code})
+    return fields      
 
   def contact_fields(self):
     """
