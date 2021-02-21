@@ -29,15 +29,16 @@ question: |
   Hello, ${ users }
 subquestion: |
   #### Your files are ready to download below
-  ${ al_user_bundle.download_list_html() }
+  ${ al_user_bundle.download_list_html(format="docx") }
   
   ${ al_user_bundle.send_button_html() }
 ---
 objects:
   - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=False, enabled=True)
+  - word_template: ALDocument.using(title="Word Template", filename="word_template", has_addendum=False, enabled=True)  
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template], filename="user_bundle.pdf", title="All forms to download for your records")
+  - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template], filename="user_bundle.pdf", title="All forms to download for your records")
 ---
 code: |
   # This is used in the subject of the email template when someone
@@ -57,3 +58,8 @@ attachment:
     % else:
     [Sign here]
     % endif
+---
+attachment: 
+  variable name: word_template[i]
+  docx template file: sample_word_template.docx
+  filename: sample_word_template.docx
