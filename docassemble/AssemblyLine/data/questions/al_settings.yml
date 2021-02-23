@@ -8,6 +8,9 @@ code: |
   # Defaults to checking for a possible name from global docassemble config
   al_app_name = get_config('appname', get_config('external hostname','CourtFormsOnline.org'))
 ---
+features:
+  navigation: True  
+---
 id: set basic options
 mandatory: True
 code: |
