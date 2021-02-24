@@ -9,7 +9,8 @@ code: |
   al_app_name = get_config('appname', get_config('external hostname','CourtFormsOnline.org'))
 ---
 features:
-  navigation: True  
+  navigation: True 
+  cache documents: False
 ---
 id: set basic options
 mandatory: True
