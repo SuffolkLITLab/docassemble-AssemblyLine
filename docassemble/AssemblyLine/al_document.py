@@ -1,4 +1,4 @@
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider
 import re
 
 def label(dictionary):
@@ -30,14 +30,14 @@ def html_safe_str( the_string ):
   """
   return re.sub( r'[^A-Za-z0-9]+', '_', the_string )
 
-def table_row( aldoc, key='final', view_icon="eye", download_icon="download", format="pdf" ):
+def table_row( aldoc, key='final', view_icon="eye", download_icon="download", format="pdf", refresh=True ):
   """
   Return a string of html that is one row of a table containing
   the `.as_pdf()` contents of an AL object and its interaction buttons
   """
-  pdf = aldoc.as_pdf(key=key)
+  pdf = aldoc.as_pdf(key=key, refresh=refresh)
   if format=="docx":
-    docx = aldoc.as_docx(key=key)
+    docx = aldoc.as_docx(key=key, refresh=refresh)
   
   html = '\n\t<tr>'
   # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
@@ -368,27 +368,37 @@ class ALDocument(DADict):
     if not hasattr(self, 'default_overflow_message'):
       self.default_overflow_message = ''
  
-  def as_pdf(self, key='final'):
+  def as_pdf(self, key='final', refresh=True):
     if self.filename.endswith('.pdf'):
       ending = ''
     else:
       ending = '.pdf'
-    pdf = pdf_concatenate(self.as_list(key=key), filename=self.filename + ending)
+    pdf = pdf_concatenate(self.as_list(key=key, refresh=refresh), filename=self.filename + ending)
     pdf.title = self.title
     return pdf
   
-  def as_docx(self, key='final'):
+  def as_docx(self, key='final', refresh=True):
     """
     Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
     """
     try:
-      the_file = docx_concatenate(self.as_list(key=key))
+      the_file = docx_concatenate(self.as_list(key=key, refresh=refresh))
       the_file.title = self.title
       return the_file
     except:
       return self.as_pdf(key=key)
 
-  def as_list(self, key='final'):
+  def as_list(self, key='final', refresh=True):
+    """
+    Returns a list of the document and its addendum, if any.
+    Specify refresh=True if you want to generate the attachment new each time.
+    This behavior is the default.
+    """
+    if refresh:
+      if key in self.elements:
+        reconsider(self.instanceName + '["' + key + '"]')
+      if hasattr(self, 'addendum'):
+        reconsider(self.attr_name('addendum'))
     if self.has_addendum and self.has_overflow():
       return [self[key], self.addendum]
     else:
@@ -437,19 +447,19 @@ class ALDocumentBundle(DAList):
     self.gathered=True
     # self.initializeAttribute('templates', ALBundleList)
     
-  def as_pdf(self, key='final'):
+  def as_pdf(self, key='final', refresh=True):
     if self.filename.endswith('.pdf'):
       ending = ''
     else:
       ending = '.pdf'
-    pdf = pdf_concatenate(self.as_flat_list(key=key), filename=self.filename + ending)
+    pdf = pdf_concatenate(self.as_flat_list(key=key, refresh=refresh), filename=self.filename + ending)
     pdf.title = self.title
     return pdf
   
-  def preview(self):
-    return self.as_pdf(key='preview')
+  def preview(self, refresh=True):
+    return self.as_pdf(key='preview', refresh=refresh)
   
-  def as_flat_list(self, key='final'):
+  def as_flat_list(self, key='final', refresh=True):
     """
     Returns the nested bundle as a single flat list.
     """
@@ -460,30 +470,30 @@ class ALDocumentBundle(DAList):
     flat_list = []
     for document in self:
       if isinstance(document, ALDocumentBundle):
-        flat_list.extend(document.as_list(key=key))
+        flat_list.extend(document.as_list(key=key, refresh=refresh))
       elif document.enabled: # base case
-        flat_list.extend(document.as_list(key=key))
+        flat_list.extend(document.as_list(key=key, refresh=refresh))
                          
     return flat_list
  
-  def as_pdf_list(self, key='final'):
+  def as_pdf_list(self, key='final', refresh=True):
     """
     Returns the nested bundles as a list of PDFs that is only one level deep.
     """
-    return [document.as_pdf(key=key) for document in self]
+    return [document.as_pdf(key=key, refresh=True) for document in self]
   
-  def as_editable_list(self, key='final'):
+  def as_editable_list(self, key='final', refresh=True):
     """
     Return a flat list of the editable versions of the docs in this bundle.
     Not yet tested with editable PDFs.
     """
-    docs = self.as_flat_list(key=key)
+    docs = self.as_flat_list(key=key, refresh=refresh)
     editable = []
     for doc in docs:
       editable.append(doc.docx if hasattr(doc, 'docx') else doc.pdf)
     return editable  
   
-  def download_list_html(self, key='final', format='pdf', view=True):
+  def download_list_html(self, key='final', format='pdf', view=True, refresh=True):
     """
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
@@ -493,20 +503,20 @@ class ALDocumentBundle(DAList):
     html ='<table class="al_table" id="' + html_safe_str(self.instanceName) + '">'
     
     for doc in self:
-      html += table_row( doc, key=key, format=format )
+      html += table_row( doc, key=key, format=format, refresh=True )
     
     html += '\n</table>'
     
     # Discuss: Do we want a table with the ability to have a merged pdf row?
     return html
   
-  def download_html(self, key='final', format='pdf', view=True):
+  def download_html(self, key='final', format='pdf', view=True, refresh=True):
     """
     Returns a string of a table to display all the docs
     combined into one pdf with 'view' and 'download' buttons.
     """
     html ='<table class="al_table merged_docs" id="' + html_safe_str(self.instanceName) + '">'
-    html += table_row( self, key=key, format=format )
+    html += table_row( self, key=key, format=format, refresh=True )
     html += '\n</table>'
     
     return html

@@ -20,7 +20,9 @@ subquestion: |
   Take a look at the files below. When you are ready, click "next"
   to continue and add your signature.
   
-  ${ al_user_bundle.as_pdf(key='preview') }
+  ${ al_user_bundle.as_pdf(key='preview', refresh=True) }
+  
+  [Edit](${url_action('users[0].name.first')})
 ---
 need: al_user_bundle
 id: test end screen
