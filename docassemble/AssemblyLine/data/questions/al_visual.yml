@@ -18,6 +18,7 @@ default screen parts:
     % if get_config('debug'):
     `id: ${ user_info().question_id }`  
     `Package: ${ user_info().package } ${ package_version_number }; ${ al_version }`
+    <div data-variable="${ encode_name(user_info().variable) }" id="sought_variable" aria-hidden="true" style="display: none;"></div>
     % endif
 ---
 features:
