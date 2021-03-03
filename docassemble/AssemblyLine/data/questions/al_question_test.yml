@@ -2,9 +2,6 @@
 include:
   - al_package.yml
 ---
-objects:
-  - your_children_past_benefits: DADict.using(object_type=DAObject)
----
 mandatory: True
 code: |
   al_user_bundle
