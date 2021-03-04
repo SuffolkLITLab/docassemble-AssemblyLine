@@ -24,7 +24,7 @@ def safeattr(object, key):
   except:
     return ""
   
-def html_safe_str( the_string ):
+def html_safe_str(the_string) -> str:
   """
   Return a string that can be used as an html class or id
   """
@@ -464,23 +464,22 @@ class ALDocumentBundle(DAList):
     Returns the nested bundle as a single flat list.
     """
     # Iterate through the list of self.templates
-    # If this is a simple document node, check if this individual template is enabled.
-    # Otherwise, call the bundle's as_list() method to show all enabled templates.
     # Unpack the list of documents at each step so this can be concatenated into a single list
     flat_list = []
     for document in self:
       if isinstance(document, ALDocumentBundle):
+        # call the bundle's as_list() method to show all enabled templates.
         flat_list.extend(document.as_list(key=key, refresh=refresh))
+      # This is a simple document node; check if this individual template is enabled.
       elif document.enabled: # base case
         flat_list.extend(document.as_list(key=key, refresh=refresh))
-                         
     return flat_list
  
   def as_pdf_list(self, key='final', refresh=True):
     """
     Returns the nested bundles as a list of PDFs that is only one level deep.
     """
-    return [document.as_pdf(key=key, refresh=True) for document in self]
+    return [doc.as_pdf(key=key, refresh=True) for doc in self if isinstance(doc, ALDocumentBundle) or doc.enabled]
   
   def as_editable_list(self, key='final', refresh=True):
     """
@@ -493,7 +492,7 @@ class ALDocumentBundle(DAList):
       editable.append(doc.docx if hasattr(doc, 'docx') else doc.pdf)
     return editable  
   
-  def download_list_html(self, key='final', format='pdf', view=True, refresh=True):
+  def download_list_html(self, key='final', format='pdf', view=True, refresh=True) -> str:
     """
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
@@ -503,16 +502,18 @@ class ALDocumentBundle(DAList):
     html ='<table class="al_table" id="' + html_safe_str(self.instanceName) + '">'
     
     for doc in self:
-      html += table_row( doc, key=key, format=format, refresh=True )
+      if doc.enabled:
+        html += table_row(doc, key=key, format=format, refresh=True)
     
     html += '\n</table>'
     
     # Discuss: Do we want a table with the ability to have a merged pdf row?
     return html
   
-  def download_html(self, key='final', format='pdf', view=True, refresh=True):
+  def download_html(self, key: str ='final', format: str ='pdf',
+                    view:bool=True, refresh:bool=True) -> str:
     """
-    Returns a string of a table to display all the docs
+    Returns an HTML string of a table to display all the docs
     combined into one pdf with 'view' and 'download' buttons.
     """
     html ='<table class="al_table merged_docs" id="' + html_safe_str(self.instanceName) + '">'
