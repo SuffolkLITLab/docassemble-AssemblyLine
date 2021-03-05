@@ -11,6 +11,7 @@ code: |
 features:
   navigation: True 
   cache documents: False
+  css: al_general.css
 ---
 id: set basic options
 mandatory: True
