@@ -9,6 +9,10 @@ metadata:
     <img src="/packagestatic/docassemble.MAVirtualCourt/mass_icon.png" class="ma_icon" alt="MA State Icon"><div class="title">CourtFormsOnline: MassAccess</div>
   exit url: https://courtformsonline.org
 ---
+features:
+  javascript:
+    - al_audio.js
+---
 default screen parts:
   continue button label: |
     Next
