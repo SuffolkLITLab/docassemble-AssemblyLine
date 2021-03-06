@@ -12,6 +12,8 @@ metadata:
 features:
   javascript:
     - al_audio.js
+  css:
+    - al_audio.css
 ---
 default screen parts:
   continue button label: |
