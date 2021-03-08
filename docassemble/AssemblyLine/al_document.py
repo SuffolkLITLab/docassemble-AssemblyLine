@@ -474,6 +474,18 @@ class ALDocumentBundle(DAList):
       elif document.enabled: # base case
         flat_list.extend(document.as_list(key=key, refresh=refresh))
     return flat_list
+
+  def get_titles(self, key='final') -> List[str]:
+    """
+    Gets all of titles of the documents in a list
+    """
+    flat_list = []
+    for document in self:
+      if isinsance(document, ALDocumentBundle):
+        flat_list.extend(document.get_titles(key=key))
+      elif document.enabled:
+        flat_list.extend(document.title)
+    return flat_list
  
   def as_pdf_list(self, key='final', refresh=True):
     """

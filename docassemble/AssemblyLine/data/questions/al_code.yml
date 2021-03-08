@@ -62,22 +62,15 @@ objects:
 objects:
   - al_court_bundle: ALDocumentBundle.using(elements=[al_cover_page], filename="court_forms.pdf", title="Forms to download and deliver to court")
   - al_user_bundle: ALDocumentBundle
-
-##############################################################
-# Deprecated code for attachments -- will use ALDocument class now
 ---
 reconsider: True
 code: |
-  # This is here as a fallback. In many interviews,
-  # we will want to use a different document. It will
-  # not include addenda, for example.
-  form_to_file_no_cover = pdf_concatenate([value(interview_metadata[key]["attachment block variable"]) for key in interview_metadata.elements])
+  form_to_file_no_cover = al_court_bundle.as_pdf('final') 
 ---
 reconsider: True
 code: |
   # Fallback code for preview PDF. You likely want to override this if you are filling more than one PDF to control order
-  # Make sure the PDF preview attachment still ends in "_preview"
-  form_to_sign = pdf_concatenate([value(interview_metadata[key]['attachment block variable'] + '_preview') for key in interview_metadata.elements])
+  form_to_sign = al_court_bundle.as_pdf('preview') 
 ---
 reconsider: True
 code: |
@@ -98,12 +91,9 @@ code: |
   num_package_pages = form_to_file_no_cover.num_pages()
 ---
 code: |
-  # This is a fallback form title to avoid errors on new forms
-  # It will not account for umbrella interviews that have multiple forms
-  # but should only have one title.
-  # You should always define this in the interview's code block.
+  # You can define this in the interview's code block.
   # Should be a list.
-  download_titles = [interview_metadata[key]["title"] for key in interview_metadata.elements]
+  download_titles = al_court_bundle.get_titles()
 ---
 code: |
   # This is a fallback package title to avoid errors on new forms
