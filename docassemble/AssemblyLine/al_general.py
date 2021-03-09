@@ -78,22 +78,42 @@ class ALIndividual(Individual):
     return '%d days' % (int(dd.days),)
   
   # This design helps us translate the prompts for common fields just once
-  def name_fields(self, uses_parts=True):
+  def name_fields(self, person_or_business:str = 'person'):
     """
-    Return suitable field prompts for a name. 
+    Return suitable field prompts for a name. If `uses_parts` is None, adds the 
+    proper "show ifs" and uses both the parts and the single entry
     """
-    if uses_parts:
+    if person_or_business == 'person':
       return [
         {"label": self.first_name_label, "field": self.attr_name('name.first')},
         {"label": self.middle_name_label, "field": self.attr_name('name.middle'), "required": False},
         {"label": self.last_name_label, "field": self.attr_name("name.last")},
         {"label": self.suffix_label, "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False}
       ]
-    else:
+    elif person_or_business == 'business':
       # Note: we don't make use of the name.text field for simplicity
       # TODO: this could be reconsidered`, but name.text tends to lead to developer error
       return [
-        {"label": self.name_text, "field": self.attr_name('name.first')}
+        {"label": self.business_name_text, "field": self.attr_name('name.first')}
+      ]
+    else:
+      show_if_indiv = {"variable": self.attr_name("person_type"), "is": "ALIndividual"}
+      show_if_business = {"variable": self.attr_name("person_type"), "is": "business"}
+      return [
+        {"label": self.person_type_label, "field": self.attr_name('person_type'),
+         "choices": [{"ALIndividual": "Person"}, {"business": "Business or organization"}], "required": True},
+        # Individual questions
+        {"label": self.first_name_label, "field": self.attr_name('name.first'),
+         "show if": show_if_indiv},
+        {"label": self.middle_name_label, "field": self.attr_name('name.middle'), "required": False,
+         "show if": show_if_indiv},
+        {"label": self.last_name_label, "field": self.attr_name("name.last"),
+         "show if": show_if_indiv},
+        {"label": self.suffix_label, "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False,
+         "show if": show_if_indiv},
+        # Business names
+        {"label": self.business_name_label, "field": self.attr_name('name.first'),
+         "show if": show_if_business} 
       ]
  
   def address_fields(self, country_code="US", default_state=None, show_country=False):
