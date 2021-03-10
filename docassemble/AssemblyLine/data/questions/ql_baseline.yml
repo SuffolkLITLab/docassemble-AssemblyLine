@@ -469,6 +469,8 @@ question: |
   % endif
 yesno: other_parties.there_is_another  
 ---
+sets:
+  - other_parties[i].name.first
 id: names of opposing parties
 question: |
   % if users==plaintiffs:
@@ -479,7 +481,7 @@ question: |
   % endif
 fields:
   - code: |
-    other_parties[i].name_fields(person_or_business='unsure')
+      other_parties[i].name_fields(person_or_business='unsure')
 ---
 # TODO: consider removing default state
 sets:

@@ -5,6 +5,7 @@ include:
 mandatory: True
 code: |
   al_user_bundle
+  other_parties.gather()
   users.gather()
   users[0].address.address
   children.gather()

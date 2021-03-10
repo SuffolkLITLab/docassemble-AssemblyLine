@@ -101,7 +101,7 @@ class ALIndividual(Individual):
       show_if_business = {"variable": self.attr_name("person_type"), "is": "business"}
       return [
         {"label": self.person_type_label, "field": self.attr_name('person_type'),
-         "choices": [{"ALIndividual": "Person"}, {"business": "Business or organization"}], "required": True},
+         "choices": [{"Person": "ALIndividual"}, {"Business or organization": "business"}], "required": True},
         # Individual questions
         {"label": self.first_name_label, "field": self.attr_name('name.first'),
          "show if": show_if_indiv},
