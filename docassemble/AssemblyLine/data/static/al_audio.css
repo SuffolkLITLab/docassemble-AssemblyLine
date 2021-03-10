@@ -1,3 +1,4 @@
-button.media-action {
-  width: 3em;
+/* Only include this style if custom audio element is present */
+.daaudiovideo-control.al_custom_media_controls ~ form .da-page-header {
+  margin: 20px 0 20px;
 }

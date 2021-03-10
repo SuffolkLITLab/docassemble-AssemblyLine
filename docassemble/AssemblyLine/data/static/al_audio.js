@@ -16,10 +16,10 @@ al_js.audio_minimal_controls = function( audio_node, id ) {
   audio_node.removeAttribute('controls');
   audio_node.style.display = 'none';
   var $audio_container = $($('.daaudiovideo-control')[0]);
-  var audio_controls = $(
-    '<div id="' + id + '" class="input-group">' +
+  $audio_container.addClass( 'al_custom_media_controls' );
+  $('<div id="' + id + '" class="btn-group">' +
         audio_contents_html +
-    '</div>').appendTo( $audio_container );
+  '</div>').appendTo( $audio_container );
   
   // Start of all the right selectors
   var id_s = '#' + id + ' ';
@@ -57,37 +57,36 @@ al_js.audio_minimal_controls = function( audio_node, id ) {
     $(id_s + '.pause').first().attr('aria-hidden', 'true').hide();
   });
   
-  // Seems to bottom out at 0 as far as user interaction is concerned
-  $(id_s +'.volume-down').first().on('click', function(){ audio_node.volume -= 0.1 });
-  $(id_s + '.volume-up').first().on('click', function(){ audio_node.volume += 0.1 });
-  
 };  // Ends al_js.audio_minimal_controls()
 
 // The DOM structure for every AL audio element with custom controls
 var audio_contents_html = '\
-  <div class="input-group-prepend">\
-    <span class="input-group-text">\
-      <i class="fas fa-volume-up"></i><span>&nbsp;Listen</span>\
-    </span>\
-  </div>\
-  <div class="input-group-append">\
-    <button class="media-action play btn btn-outline-secondary">\
-      <i class="fas fa-play"></i>\
-    </button>\
-    <button class="media-action restart btn btn-outline-secondary">\
-      <i class="fas fa-undo"></i>\
-    </button>\
-    <button class="media-action pause btn btn-outline-secondary">\
-      <i class="fas fa-pause"></i>\
-    </button>\
-    <button class="media-action stop btn btn-outline-secondary">\
-      <i class="fas fa-stop"></i>\
-    </button>\
-    <button class="media-action volume-down btn btn-outline-secondary">\
-      <i class="fas fa-volume-down"></i>\
-    </button>\
-    <button class="media-action volume-up btn btn-outline-secondary">\
-      <i class="fas fa-volume-up"></i>\
-    </button>\
-  </div>\
+  <button class="media-action play btn btn-sm btn-outline-secondary">\
+    <i class="fas fa-volume-up"></i><span>&nbsp;Listen&nbsp;</span>\
+    <i class="fas fa-play"></i>\
+  </button>\
+  <button class="media-action restart btn btn-sm btn-outline-secondary">\
+    <i class="fas fa-volume-up"></i><span>&nbsp;Listen&nbsp;</span>\
+    <i class="fas fa-undo"></i>\
+  </button>\
+  <button class="media-action pause btn btn-sm btn-outline-secondary">\
+    <i class="fas fa-volume-up"></i><span>&nbsp;Listen&nbsp;</span>\
+    <i class="fas fa-pause"></i>\
+  </button>\
+  <button class="media-action stop btn btn-sm btn-outline-secondary">\
+    <i class="fas fa-stop"></i>\
+  </button>\
 ';
+
+/* A start on volume functionality:
+  <button class="media-action volume-down btn btn-sm btn-outline-secondary">\
+    <i class="fas fa-volume-down"></i>\
+  </button>\
+  <button class="media-action volume-up btn btn-sm btn-outline-secondary">\
+    <i class="fas fa-volume-up"></i>\
+  </button>\
+  
+  // Seems to bottom out at 0 as far as user interaction is concerned
+  $(id_s +'.volume-down').first().on('click', function(){ audio_node.volume -= 0.1 });
+  $(id_s + '.volume-up').first().on('click', function(){ audio_node.volume += 0.1 });
+*/
