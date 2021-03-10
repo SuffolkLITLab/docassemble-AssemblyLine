@@ -23,6 +23,10 @@ default screen parts:
 ---
 features:
   small screen navigation: False
+  javascript:
+    - al_audio.js
+  css:
+    - al_audio.css
 ---
 features:
   question help button: True
