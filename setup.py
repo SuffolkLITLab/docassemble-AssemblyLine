@@ -53,10 +53,7 @@ setup(name='docassemble.AssemblyLine',
       url='https://courtformsonline.org',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=[
-          # TODO(brycew): uncomment when ALToolbox is on pypi
-          #'docassemble.ALToolbox'
-      ],
+      install_requires=[],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/AssemblyLine/', package='docassemble.AssemblyLine'),
      )

@@ -2,8 +2,14 @@
 include:
   - al_package.yml
 ---
+modules:
+  - docassemble.base.util
+  - docassemble.base.core
+  - docassemble.base.functions
+---
 mandatory: True
 code: |
+  temp
   al_user_bundle
   other_parties.gather()
   users.gather()
@@ -11,7 +17,23 @@ code: |
   children.gather()
   preview_screen
   basic_questions_signature_flow
-  end_screen
+  email_status
+---
+code: |
+  dev_email_to_use = 'bwilley@suffolk.edu'
+  dev_bcc_email = ''
+---
+code: |
+  court_emails = {'my court': 'bryce.steven.willey@gmail.com'}
+---
+code: |
+  trial_court = DAObject() 
+  trial_court.name = 'my court'
+---
+continue button field: temp
+question: |
+  Test: ${ get_config('url root') }, will send to count: ${ will_send_to_real_court() }: ${ url_of('root', _external=True)}
+
 ---
 id: preview
 continue button field: preview_screen
@@ -42,6 +64,7 @@ objects:
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template], filename="user_bundle.pdf", title="All forms to download for your records")
+  - al_court_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template], filename='court_bundle.pdf', title='All forms to send to the court')
 ---
 code: |
   # This is used in the subject of the email template when someone
