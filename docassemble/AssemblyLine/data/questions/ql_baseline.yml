@@ -842,7 +842,7 @@ subquestion: |
   % endif
   % else:
   You have been asked to sign this PDF. Click to review it.    
-  ${form_to_sign}  
+  ${al_court_bundle.as_pdf('preview')}  
   [Make changes](${url_action('review_all_sections')})
 
   Click ${word("next")} on this screen when you're ready to sign.
@@ -1007,7 +1007,7 @@ subject: |
   MassAccess submission from ${users} intended for ${trial_court}
 content: |
   At ${current_datetime().format_datetime()},
-  ${users} submitted the attached ${package_title} form(s).
+  ${users} submitted the attached ${al_court_bundle.title} form(s).
 
   &nbsp;        | &nbsp;
   --------------|-----------
@@ -1031,7 +1031,7 @@ question: |
   Review of your answers
 subquestion: |
   
-  ${showifdef('form_to_sign')}
+  ${showifdef('al_court_bundle')}
 
   % if defined('form_delivery_complete'):
   **Warning: your form has already been delivered.** Any changes you make

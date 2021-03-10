@@ -1,5 +1,6 @@
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider
 import re
+from typing import List
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider
 
 def label(dictionary):
   try:
@@ -481,12 +482,22 @@ class ALDocumentBundle(DAList):
     """
     flat_list = []
     for document in self:
-      if isinsance(document, ALDocumentBundle):
+      if isinstance(document, ALDocumentBundle):
         flat_list.extend(document.get_titles(key=key))
       elif document.enabled:
-        flat_list.extend(document.title)
+        flat_list.append(document.title)
     return flat_list
- 
+
+  def get_num_pages(self, key='final') -> int:
+    """Gets the number of pages in all of the PDFs, with addenda"""
+    pages = 0
+    for document in self:
+      if isinstance(document, ALDocumentBundle):
+        pages += document.get_num_pages(key=key)
+      elif document.enabled:
+        pages += document.get_num_pages(key=key)
+    return pages
+
   def as_pdf_list(self, key='final', refresh=True):
     """
     Returns the nested bundles as a list of PDFs that is only one level deep.

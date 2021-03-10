@@ -190,6 +190,10 @@ class PeopleList(ALPeopleList):
 # These could go in toolbox but keeping here to reduce packages
 # needed for baseline running.
 
+def will_send_to_real_court():
+  """Dev or root needs to be in the URL root: can change in the config file"""
+  return not ('dev' in get_config('url root') or 'test' in get_config('url root'))
+
 # This one is only used for 209A--should move there along with the combined_letters() method
 def filter_letters(letter_strings):
   """Used to take a list of letters like ["A","ABC","AB"] and filter out any duplicate letters."""

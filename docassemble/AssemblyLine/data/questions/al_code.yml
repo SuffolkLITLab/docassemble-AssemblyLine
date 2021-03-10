@@ -28,12 +28,12 @@ need:
   - court_email
   - should_cc_user
 code: |
-  if 'dev' in get_config('url root') or 'test' in get_config('url root'):
-    bcc_email = "quinten@lemmalegal.com"
-    email_to_use = "massaccess@suffolk.edu"
-  else:
+  if will_send_to_real_court(): 
     email_to_use = court_email
     bcc_email = bcc_failsafe
+  else:
+    email_to_use = "massaccess@suffolk.edu"
+    bcc_email = "quinten@lemmalegal.com"
   
   # temporary for testing
   # email_to_use = "massaccess@suffolk.edu"
@@ -54,68 +54,39 @@ code: |
 # new attachment handling code
 ---
 objects:
-  - al_cover_page: ALDocument.using(title="Cover page", filename="cover_page", has_addendum=False)
+  - al_cover_page: ALDocument.using(title="Cover page", filename="cover_page", has_addendum=False, enabled=True)
 ---
 # This is the *default* version of both objects as an example.
 # You will ALWAYS want to have your own version of these object blocks
 # in your own code.
 objects:
-  - al_court_bundle: ALDocumentBundle.using(elements=[al_cover_page], filename="court_forms.pdf", title="Forms to download and deliver to court")
+  - al_court_bundle: ALDocumentBundle.using(filename="court_forms.pdf", title="Forms to download and deliver to court")
   - al_user_bundle: ALDocumentBundle
 ---
-reconsider: True
 code: |
-  form_to_file_no_cover = al_court_bundle.as_pdf('final') 
+  al_court_bundle.insert(0, al_cover_sheet)
 ---
 reconsider: True
 code: |
-  # Fallback code for preview PDF. You likely want to override this if you are filling more than one PDF to control order
-  form_to_sign = al_court_bundle.as_pdf('preview') 
----
-reconsider: True
-code: |
-  # This is here as a fallback. In many interviews, we want to use
-  # a different document that includes addenda
-  if package_title:
-    final_form_to_file = pdf_concatenate(general_cover_sheet, form_to_file_no_cover, filename=space_to_underscore(package_title) + '.pdf')
-  else:
-    final_form_to_file = pdf_concatenate(general_cover_sheet, form_to_file_no_cover, filename='file.pdf')  
+  final_form_to_file = al_court_bundle.as_pdf('final') 
 ---
 sets: num_package_pages
 code: |
   # This is a fallback page number to avoid errors on new forms. It will not
-  # account for possible addenda. You should almost always define this in the
-  # interview's code block.
-  # We generate a PDF from all attachment blocks mentioned in interview_metadata
-  # and then use the num_pages() method to count pages
-  num_package_pages = form_to_file_no_cover.num_pages()
+  # account for possible addenda. 
+  # TODO(brycew): figure out a better way to estimate the number of pages, 
+  # including addendum, without generating a full file
+  num_package_pages = al_court_bundle.as_pdf(key='preview').num_pages()
 ---
 code: |
   # You can define this in the interview's code block.
   # Should be a list.
   download_titles = al_court_bundle.get_titles()
 ---
-code: |
-  # This is a fallback package title to avoid errors on new forms
-  # It defines package_title as the title of the first form.
-  # You may want a better form title for most interviews
-  if next(iter(download_titles),''):
-    package_title = next(iter(download_titles))
-  else:
-    package_title = "MassAccess Form"
----
 attachment:
   variable name: cover_page[i]
   docx template file: general_cover_sheet.docx
 ---
-need:
-  - form_to_file_no_cover
-  - num_package_pages
-  - download_titles
-attachment:
-  variable name: general_cover_sheet
-  filename: ${package_title}
-  docx template file: general_cover_sheet.docx
 #################################################################
 # Signature code  
 ---
