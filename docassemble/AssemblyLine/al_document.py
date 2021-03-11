@@ -488,16 +488,6 @@ class ALDocumentBundle(DAList):
         flat_list.append(document.title)
     return flat_list
 
-  def get_num_pages(self, key='final') -> int:
-    """Gets the number of pages in all of the PDFs, with addenda"""
-    pages = 0
-    for document in self:
-      if isinstance(document, ALDocumentBundle):
-        pages += document.get_num_pages(key=key)
-      elif document.enabled:
-        pages += document.get_num_pages(key=key)
-    return pages
-
   def as_pdf_list(self, key='final', refresh=True):
     """
     Returns the nested bundles as a list of PDFs that is only one level deep.

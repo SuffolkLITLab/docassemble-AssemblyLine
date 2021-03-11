@@ -78,11 +78,10 @@ objects:
 ---
 sets: al_num_package_pages
 code: |
-  # This is a fallback page number to avoid errors on new forms. It will not
-  # account for possible addenda. 
-  # TODO(brycew): figure out a better way to estimate the number of pages, 
+  # Gets the number of pages, plus the first cover page
+  # TODO(brycew): figure out a better way to estimate the number of pages,
   # including addendum, without generating a full file
-  al_num_package_pages = al_court_bundle.as_pdf(key='preview').num_pages()
+  al_num_package_pages = al_court_bundle.as_pdf(key='preview').num_pages() + 1
 ---
 code: |
   # You can define this in the interview's code block.
