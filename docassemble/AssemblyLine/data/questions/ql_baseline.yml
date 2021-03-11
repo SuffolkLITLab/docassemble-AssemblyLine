@@ -201,6 +201,16 @@ content: |
   Suffix
 ---
 generic object: ALIndividual
+template: x.person_type_label
+content: |
+  Is this a person, or a business?
+---
+generic object: ALIndividual
+template: x.business_name_label
+content: |
+  Name of organization or business
+---
+generic object: ALIndividual
 template: x.address_address_label
 content: |
   Street address
@@ -459,6 +469,8 @@ question: |
   % endif
 yesno: other_parties.there_is_another  
 ---
+sets:
+  - other_parties[i].name.first
 id: names of opposing parties
 question: |
   % if users==plaintiffs:
@@ -468,30 +480,8 @@ question: |
   Name of ${ ordinal(i) } **plaintiff** or petitioner in this matter
   % endif
 fields:
-  - Are they a person, or a business?: other_parties[i].person_type
-    input type: radio
-    choices:
-      - Business or organization: business
-      - Person: ALIndividual
-  - First name: other_parties[i].name.first
-    show if:
-      variable: other_parties[i].person_type
-      is: "ALIndividual"
-  - Last name: other_parties[i].name.last
-    show if:
-      variable: other_parties[i].person_type      
-      is: "ALIndividual"
-  - Suffix: other_parties[i].name.suffix
-    code: |
-      name_suffix()
-    show if:
-      variable: other_parties[i].person_type      
-      is: "ALIndividual"
-    required: False      
-  - Name of organization or business: other_parties[i].name.first
-    show if:
-      variable: other_parties[i].person_type
-      is: business
+  - code: |
+      other_parties[i].name_fields(person_or_business='unsure')
 ---
 # TODO: consider removing default state
 sets:
