@@ -102,7 +102,7 @@ class ALIndividual(Individual):
       return [
         {"label": self.person_type_label, "field": self.attr_name('person_type'),
          "choices": [{"Person": "ALIndividual"}, {"Business or organization": "business"}], 
-         "input type": radio, "required": True},
+         "input type": "radio", "required": True},
         # Individual questions
         {"label": self.first_name_label, "field": self.attr_name('name.first'),
          "show if": show_if_indiv},
