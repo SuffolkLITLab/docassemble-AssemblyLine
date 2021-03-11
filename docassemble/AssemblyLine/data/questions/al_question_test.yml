@@ -23,13 +23,6 @@ code: |
   dev_email_to_use = 'bwilley@suffolk.edu'
   dev_bcc_email = ''
 ---
-code: |
-  court_emails = {'my court': 'bryce.steven.willey@gmail.com'}
----
-code: |
-  trial_court = DAObject() 
-  trial_court.name = 'my court'
----
 continue button field: temp
 question: |
   Test: ${ get_config('url root') }, will send to count: ${ will_send_to_real_court() }: ${ url_of('root', _external=True)}

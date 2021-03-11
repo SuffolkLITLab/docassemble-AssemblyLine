@@ -36,7 +36,7 @@ need:
   - dev_bcc_email
   - should_cc_user
 code: |
-  if will_send_to_real_court():  
+  if will_send_to_real_court():
     email_to_use = court_email
     bcc_email = bcc_failsafe
   else:
