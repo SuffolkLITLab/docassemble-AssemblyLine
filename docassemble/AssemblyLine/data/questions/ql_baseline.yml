@@ -936,6 +936,9 @@ help:
     There is a chance this information may end up in the public court file, so
     do not include sensitive or private information.
 ---
+code: |
+  all_final_forms_combined = al_final_form_to_file.as_pdf(key='final')
+---
 need:
   - comments_to_clerk
   - package_version_number
@@ -944,7 +947,7 @@ question: |
   Final Review With Cover Page
 subquestion: |
   
-  Below is your ${comma_and_list(download_titles)} document with the 
+  Below is your ${comma_and_list(al_download_titles)} document with the 
   cover page that we will deliver to ${trial_court}.
   
   Click "Back" if you need to make any changes.  
@@ -952,8 +955,8 @@ subquestion: |
   
   Here is what the clerk at ${trial_court} will get:
 
-  ${ final_form_to_file }  
-  [:file-download: Download this form with cover page](${final_form_to_file.url_for(attachment=True)})
+  ${ all_final_forms_combined }  
+  [:file-download: Download this form with cover page](${all_final_forms_combined.url_for(attachment=True)})
 
   % if found_email:
   We will deliver it securely. Please allow up to 15 minutes for the email to
@@ -1012,7 +1015,7 @@ content: |
   &nbsp;        | &nbsp;
   --------------|-----------
   Date of email | ${current_datetime().format_datetime()}
-  Pages | ${num_package_pages }  
+  Pages | ${al_num_package_pages }  
   Preferred language | ${ user_preferred_language if user_needs_interpreter else 'English' }
   Mobile phone | ${showifdef('users[0].mobile_number')}
   Other phone | ${showifdef('users[0].phone_number')}

@@ -368,7 +368,7 @@ class ALDocument(DADict):
     self.initializeAttribute('overflow_fields',ALAddendumFieldDict)
     if not hasattr(self, 'default_overflow_message'):
       self.default_overflow_message = ''
- 
+
   def as_pdf(self, key='final', refresh=True):
     if self.filename.endswith('.pdf'):
       ending = ''
@@ -469,8 +469,8 @@ class ALDocumentBundle(DAList):
     flat_list = []
     for document in self:
       if isinstance(document, ALDocumentBundle):
-        # call the bundle's as_list() method to show all enabled templates.
-        flat_list.extend(document.as_list(key=key, refresh=refresh))
+        # call the bundle's as_flat_list() method to show all enabled templates.
+        flat_list.extend(document.as_flat_list(key=key, refresh=refresh))
       # This is a simple document node; check if this individual template is enabled.
       elif document.enabled: # base case
         flat_list.extend(document.as_list(key=key, refresh=refresh))

@@ -45,16 +45,18 @@ code: |
   
   # temporary for testing
   # email_to_use = "massaccess@suffolk.edu"
-  
+
   if task_not_yet_performed('send email'):
     log("Court email is " + court_email)
     email_success = False
     if should_cc_user:
       log('Sending email to ' + email_to_use + ' and ccing ' + cc_email + ' for ' + str(users) + ' bcc to ' + bcc_email)
-      email_success = send_email(to=email_to_use, template=email_to_court_template, task='send email', cc=cc_email, bcc=bcc_email, attachments=final_form_to_file) # True # until we're ready to turn this on
+      email_success = send_email(to=email_to_use, template=email_to_court_template, task='send email', 
+                                 cc=cc_email, bcc=bcc_email, attachments=al_final_form_to_file.as_pdf_list(key='final'))
     else:
       log('Sending email to ' + email_to_use + ' and no cc ' + ' for ' + str(users) + ' bcc to ' + bcc_email)
-      email_success = send_email(to=email_to_use, template=email_to_court_template, task='send email', attachments=final_form_to_file, bcc=bcc_email)
+      email_success = send_email(to=email_to_use, template=email_to_court_template, task='send email', 
+                                 attachments=al_final_form_to_file.as_pdf_list(key='final'), bcc=bcc_email)
     mark_task_as_performed('send email')
   sent_email_to_court = True
 ---
@@ -71,28 +73,24 @@ objects:
   - al_court_bundle: ALDocumentBundle.using(filename="court_forms.pdf", title="Forms to download and deliver to court")
   - al_user_bundle: ALDocumentBundle
 ---
-code: |
-  al_court_bundle.insert(0, al_cover_sheet)
+objects:
+  - al_final_form_to_file: ALDocumentBundle.using(elements=[al_cover_page, al_court_bundle], filename=al_court_bundle.filename, title=al_court_bundle.title)
 ---
-reconsider: True
-code: |
-  final_form_to_file = al_court_bundle.as_pdf('final') 
----
-sets: num_package_pages
+sets: al_num_package_pages
 code: |
   # This is a fallback page number to avoid errors on new forms. It will not
   # account for possible addenda. 
   # TODO(brycew): figure out a better way to estimate the number of pages, 
   # including addendum, without generating a full file
-  num_package_pages = al_court_bundle.as_pdf(key='preview').num_pages()
+  al_num_package_pages = al_court_bundle.as_pdf(key='preview').num_pages()
 ---
 code: |
   # You can define this in the interview's code block.
   # Should be a list.
-  download_titles = al_court_bundle.get_titles()
+  al_download_titles = al_court_bundle.get_titles()
 ---
 attachment:
-  variable name: cover_page[i]
+  variable name: al_cover_page[i]
   docx template file: general_cover_sheet.docx
 ---
 #################################################################
