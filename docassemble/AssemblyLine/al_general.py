@@ -1,4 +1,4 @@
-from docassemble.base.util import Address, Individual, DAList, date_difference, name_suffix, states_list, comma_and_list, word, comma_list, url_action
+from docassemble.base.util import Address, Individual, DAList, date_difference, name_suffix, states_list, comma_and_list, word, comma_list, url_action, get_config
 
 ##########################################################
 # Base classes
@@ -189,6 +189,12 @@ class PeopleList(ALPeopleList):
 # Miscellaneous functions needed for baseline questions
 # These could go in toolbox but keeping here to reduce packages
 # needed for baseline running.
+
+def will_send_to_real_court():
+  """Dev or root needs to be in the URL root: can change in the config file"""
+  return not ('dev' in get_config('url root') or 
+              'test' in get_config('url root') or
+              'localhost' in get_config('url root'))
 
 # This one is only used for 209A--should move there along with the combined_letters() method
 def filter_letters(letter_strings):

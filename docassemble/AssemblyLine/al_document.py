@@ -1,5 +1,6 @@
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider
 import re
+from typing import List
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider
 
 def label(dictionary):
   try:
@@ -367,7 +368,7 @@ class ALDocument(DADict):
     self.initializeAttribute('overflow_fields',ALAddendumFieldDict)
     if not hasattr(self, 'default_overflow_message'):
       self.default_overflow_message = ''
- 
+
   def as_pdf(self, key='final', refresh=True):
     if self.filename.endswith('.pdf'):
       ending = ''
@@ -468,13 +469,25 @@ class ALDocumentBundle(DAList):
     flat_list = []
     for document in self:
       if isinstance(document, ALDocumentBundle):
-        # call the bundle's as_list() method to show all enabled templates.
-        flat_list.extend(document.as_list(key=key, refresh=refresh))
+        # call the bundle's as_flat_list() method to show all enabled templates.
+        flat_list.extend(document.as_flat_list(key=key, refresh=refresh))
       # This is a simple document node; check if this individual template is enabled.
       elif document.enabled: # base case
         flat_list.extend(document.as_list(key=key, refresh=refresh))
     return flat_list
- 
+
+  def get_titles(self, key='final') -> List[str]:
+    """
+    Gets all of titles of the documents in a list
+    """
+    flat_list = []
+    for document in self:
+      if isinstance(document, ALDocumentBundle):
+        flat_list.extend(document.get_titles(key=key))
+      elif document.enabled:
+        flat_list.append(document.title)
+    return flat_list
+
   def as_pdf_list(self, key='final', refresh=True):
     """
     Returns the nested bundles as a list of PDFs that is only one level deep.
