@@ -11,6 +11,10 @@ var al_js = {};
 al_js.audio_minimal_controls = function( audio_node, id ) {
   /* Create the custom controls for this specific audio element
   * and give the new controls container the requested `id` tag. */
+  if (!audio_node) {
+    // Some screens, like the signature screen, don't have screen readers.
+    return;
+  }
   
   // Hide the normal controls and show the new controls
   audio_node.removeAttribute('controls');
