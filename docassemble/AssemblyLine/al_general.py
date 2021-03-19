@@ -51,7 +51,13 @@ class ALIndividual(Individual):
     if not hasattr(self, 'mailing_address'):
       self.initializeAttribute('mailing_address',ALAddress)
 
-  def phone_numbers(self):
+  def signature_if_final(self, i: str):
+    if i == 'final':
+      return self.signature
+    else:
+      return ''
+
+  def phone_numbers(self) -> str:
     nums = []
     if hasattr(self, 'mobile_number') and self.mobile_number:
       nums.append(self.mobile_number + ' (cell)')
