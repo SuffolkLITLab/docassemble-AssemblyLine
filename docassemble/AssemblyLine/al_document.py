@@ -1,5 +1,5 @@
 import re
-from typing import List, Union
+from typing import Any, Dict, List, Union
 from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude
 
 __all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALDocumentBundleDict','safeattr','label','key']
@@ -83,7 +83,7 @@ class ALAddendumField(DAObject):
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
 
-  def overflow_value(self, preserve_newlines:bool=False, input_width:int=80, overflow_message:str = ""):
+  def overflow_value(self, preserve_newlines:bool=False, input_width:int=80, overflow_message:str=""):
     """
     Try to return just the portion of the variable (list-like object or string)
     that is not contained in the safe_value().
@@ -114,21 +114,21 @@ class ALAddendumField(DAObject):
     # Do not subtract length of overflow message if this is a list of objects instead of a string
     return self.value_if_defined()[self.overflow_trigger:]
 
-  def max_lines(self, input_width=80, overflow_message_length=0):
+  def max_lines(self, input_width:int=80, overflow_message_length=0) -> int:
     """
     Estimate the number of rows in the field in the output document.
     """
     return int(max(self.overflow_trigger-overflow_message_length,0) / input_width) + 1
-        
-  def value(self):    
+
+  def value(self) -> Any:
     """
     Return the full value, disregarding overflow. Could be useful in addendum
     if you want to show the whole value without making user flip back/forth between multiple
     pages.
     """
     return self.value_if_defined()
-    
-  def safe_value(self, overflow_message = "", input_width=80, preserve_newlines=False):
+
+  def safe_value(self, overflow_message:str="", input_width:int=80, preserve_newlines:bool=False):
     """
     Try to return just the portion of the variable
     that is _shorter than_ the overflow trigger. Otherwise, return empty string.
@@ -187,8 +187,8 @@ class ALAddendumField(DAObject):
     else:
       # We can't slice objects that are not lists or strings
       return value
-      
-  def value_if_defined(self):
+
+  def value_if_defined(self) -> Any:
     """
     Return the value of the field if it is defined, otherwise return an empty string.
     Addendum should never trigger docassemble's variable gathering.
@@ -199,8 +199,8 @@ class ALAddendumField(DAObject):
   
   def __str__(self):
     return str(self.value_if_defined())
-    
-  def columns(self, skip_empty_attributes:bool=True, skip_attributes:set = {'complete'} )->list:
+
+  def columns(self, skip_empty_attributes:bool=True, skip_attributes:set = {'complete'} ) -> list:
     """
     Return a list of the columns in this object.
     
@@ -226,7 +226,7 @@ class ALAddendumField(DAObject):
       # None means the value has no meaningful columns we can extract
 
 
-  def type(self):
+  def type(self) -> str:
     """
     list | object_list | other
     """
@@ -237,19 +237,19 @@ class ALAddendumField(DAObject):
       return "list"
     return "other"                         
 
-  def is_list(self):
+  def is_list(self) -> bool:
     """
     Identify whether the field is a list, whether of objects/dictionaries or just plain variables.
     """
     return self.type() == 'object_list' or self.type() == 'list'
-      
-  def is_object_list(self):
+
+  def is_object_list(self) -> bool:
     """
     Identify whether the field represents a list of either dictionaries or objects.
     """
     return self.type() == 'object_list'
-  
-  def overflow_markdown(self):
+
+  def overflow_markdown(self) -> str:
     """
     Return a formatted markdown table or bulleted list representing the values in the list.
     
@@ -294,9 +294,9 @@ class ALAddendumField(DAObject):
         rows += "|".join(row_values)
       rows += "\n"
 
-    return header + rows      
-  
-  def overflow_docx(self, path="docassemble.ALDocumentDict:data/templates/addendum_table.docx"):
+    return header + rows
+
+  def overflow_docx(self, path:str="docassemble.ALDocumentDict:data/templates/addendum_table.docx"):
     """
     Light wrapper around insert_docx_template() that inserts a formatted table into a docx
     file. If the object in the list is a plain string/int, it returns a bulleted list.
@@ -409,6 +409,7 @@ class ALDocument(DADict):
   has_addendum: bool
   addendum: DAFileCollection
   overflow_fields: ALAddendumFieldDict
+  default_overflow_message: str
   cache: DALazyAttribute # stores cached DAFile output with a per-screen load lifetime
   
   def init(self, *pargs, **kwargs):
@@ -420,7 +421,7 @@ class ALDocument(DADict):
       self.has_addendum = False
     self.initializeAttribute('cache', DALazyAttribute)
 
-  def as_pdf(self, key='final', refresh=True):
+  def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
     # Trigger some stuff up front to avoid idempotency problems
     filename = self.filename
     self.title
@@ -461,9 +462,9 @@ class ALDocument(DADict):
     else:
       log_if_debug('Storing main file only ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
       setattr(self.cache, safe_key, main_doc)
-      return main_doc  
-  
-  def as_docx(self, key='final', refresh=True):
+      return main_doc
+
+  def as_docx(self, key:str='final', refresh:bool=True) -> DAFile:
     """
     Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
     """
@@ -490,17 +491,17 @@ class ALDocument(DADict):
         return [self[key], self.addendum]
       else:
         return [self[key]]
-  
-  def need_addendum(self):
+
+  def need_addendum(self) -> bool:
     return hasattr(self, 'has_addendum') and self.has_addendum and self.has_overflow()
-    
-  def has_overflow(self):
+
+  def has_overflow(self) -> bool:
     return len(self.overflow()) > 0
   
   def overflow(self):
     return self.overflow_fields.overflow()
-    
-  def safe_value(self, field_name, overflow_message=None, preserve_newlines=False, input_width=80):
+
+  def safe_value(self, field_name:str, overflow_message:str=None, preserve_newlines:bool=False, input_width:int=80):
     """
     Shortcut syntax for accessing the "safe" (shorter than overflow trigger)
     value of a field that we have specified as needing an addendum.
@@ -509,7 +510,7 @@ class ALDocument(DADict):
       overflow_message = self.default_overflow_message
     return self.overflow_fields[field_name].safe_value(overflow_message=overflow_message, preserve_newlines=preserve_newlines, input_width=input_width)
 
-  def overflow_value(self, field_name:str, overflow_message=None, preserve_newlines=False, input_width=80):
+  def overflow_value(self, field_name:str, overflow_message:str=None, preserve_newlines:bool=False, input_width:int=80):
     """
     Shortcut syntax for accessing the "overflow" value (amount that exceeds overflow trigger)
     for the given field as a string.
@@ -580,11 +581,11 @@ class ALDocumentBundle(DAList):
     pdf.title = self.title
     setattr(self.cache, safe_key, pdf)
     return pdf
-  
-  def preview(self, refresh=True):
+
+  def preview(self, refresh:bool=True) -> DAFile:
     return self.as_pdf(key='preview', refresh=refresh)
-  
-  def enabled_documents(self):
+
+  def enabled_documents(self) -> List[Any]:
     """
     Returns the enabled documents
     """
@@ -634,9 +635,9 @@ class ALDocumentBundle(DAList):
     editable = []
     for doc in docs:
       editable.append(doc.docx if hasattr(doc, 'docx') else doc.pdf)
-    return editable  
-  
-  def download_list_html(self, key='final', format='pdf', view=True, refresh=True) -> str:
+    return editable
+
+  def download_list_html(self, key:str='final', format:str='pdf', view:bool=True, refresh:bool=True) -> str:
     """
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
@@ -663,8 +664,8 @@ class ALDocumentBundle(DAList):
     
     # Discuss: Do we want a table with the ability to have a merged pdf row?
     return html
-  
-  def download_html(self, key: str ='final', format: str ='pdf',
+
+  def download_html(self, key:str ='final', format:str ='pdf',
                     view:bool=True, refresh:bool=True) -> str:
     """
     Returns an HTML string of a table to display all the docs
@@ -716,8 +717,8 @@ class ALDocumentBundle(DAList):
   '''
     return_str += "</div>"
     return return_str
-    
-  def send_email(self, to:any=None, key:str='final', editable:bool=False, template=None, **kwargs):
+
+  def send_email(self, to:any=None, key:str='final', editable:bool=False, template:any=None, **kwargs) -> bool:
     """
     Send an email with the current bundle as a single flat pdf or as editable documents.
     Can be used the same as https://docassemble.org/docs/functions.html#send_email with 
@@ -767,14 +768,14 @@ class ALDocumentBundleDict(DADict):
     if not hasattr(self, 'auto_gather'):
       self.auto_gather=False
 
-  def preview(self, format='PDF', bundle='user_bundle'):
+  def preview(self, format:str='PDF', bundle:str='user_bundle') -> DAFile:
     """
     Create a copy of the document as a single PDF that is suitable for a preview version of the 
     document (before signature is added).
     """
     return self[bundle].as_pdf(key='preview', format=format)
-  
-  def as_attachment(self, format='PDF', bundle='court_bundle'):
+
+  def as_attachment(self, format:str='PDF', bundle:str='court_bundle') -> List[DAFile]:
     """
     Return a list of PDF-ified documents, suitable to make an attachment to send_mail.
     """
