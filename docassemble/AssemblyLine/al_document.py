@@ -1,43 +1,21 @@
 import re
-from typing import List
+from typing import Any, Dict, List
 from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider
 
-def label(dictionary):
-  try:
-    return list(dictionary.items())[0][1]
-  except:
-    return ''
-  
-def key(dictionary):
-  try:
-    return list(dictionary.items())[0][1]
-  except:
-    return ''
-
-def safeattr(object, key):
-  try:
-    if isinstance(object, dict) or isinstance(object, DADict):
-      return str(object.get(key,''))
-    elif isinstance(object, DAObject):      
-      return str(getattr(object, key))
-    else:
-      return ''
-  except:
-    return ""
-  
-def html_safe_str(the_string) -> str:
+def html_safe_str(the_string: str) -> str:
   """
   Return a string that can be used as an html class or id
   """
   return re.sub( r'[^A-Za-z0-9]+', '_', the_string )
 
-def table_row( aldoc, key='final', view_icon="eye", download_icon="download", format="pdf", refresh=True ):
+def table_row(aldoc, key:str='final', view_icon:str="eye",
+              download_icon:str="download", format:str="pdf", refresh:bool=True) -> str:
   """
   Return a string of html that is one row of a table containing
   the `.as_pdf()` contents of an AL object and its interaction buttons
   """
   pdf = aldoc.as_pdf(key=key, refresh=refresh)
-  if format=="docx":
+  if format == "docx":
     docx = aldoc.as_docx(key=key, refresh=refresh)
   
   html = '\n\t<tr>'
@@ -71,10 +49,13 @@ class ALAddendumField(DAObject):
     - headers->dict(attribute: display label for table)
     - field_style->"list"|"table"|"string" (optional: defaults to "string")
   """
+  field_name: str
+  overflow_trigger: int
+
   def init(self, *pargs, **kwargs):
     super(ALAddendumField, self).init(*pargs, **kwargs)
 
-  def overflow_value(self, preserve_newlines=False, input_width=80, overflow_message = ""):
+  def overflow_value(self, preserve_newlines:bool=False, input_width:int=80, overflow_message:str= ""):
     """
     Try to return just the portion of the variable (list-like object or string)
     that exceeds the overflow trigger. Otherwise, return empty string.
@@ -82,7 +63,7 @@ class ALAddendumField(DAObject):
     If newlines are preserved, we will use a heuristic to estimate line breaks instead
     of using absolute character limit.
     """
-    last_char = max(len(self.safe_value(overflow_message = overflow_message, input_width=input_width, preserve_newlines=True)) - (max(len(overflow_message)-1,0)), 0)   
+    last_char = max(len(self.safe_value(overflow_message = overflow_message, input_width=input_width, preserve_newlines=True)) - (max(len(overflow_message)-1,0)), 0)
     
     if preserve_newlines and isinstance(self.value_if_defined(),str):
       # start where the safe value ends
@@ -93,13 +74,13 @@ class ALAddendumField(DAObject):
     
     return self.value_if_defined()[self.overflow_trigger:]
 
-  def max_lines(self, input_width=80, overflow_message_length=0):
+  def max_lines(self, input_width=80, overflow_message_length=0) -> int:
     """
     Estimate the number of rows in the field in the output document.
     """
     return int(max(self.overflow_trigger-overflow_message_length,0) / input_width) + 1
         
-  def value(self):    
+  def value(self) -> Any:    
     """
     Return the full value, disregarding overflow. Could be useful in addendum
     if you want to show the whole value without making user flip back/forth between multiple
@@ -167,7 +148,7 @@ class ALAddendumField(DAObject):
       # We can't slice objects that are not lists or strings
       return value
       
-  def value_if_defined(self):
+  def value_if_defined(self) -> Any:
     """
     Return the value of the field if it is defined, otherwise return an empty string.
     Addendum should never trigger docassemble's variable gathering.
@@ -200,7 +181,7 @@ class ALAddendumField(DAObject):
       # None means the value has no meaningful columns we can extract
 
 
-  def type(self):
+  def type(self) -> str:
     """
     list | object_list | other
     """
@@ -211,19 +192,19 @@ class ALAddendumField(DAObject):
       return "list"
     return "other"                         
 
-  def is_list(self):
+  def is_list(self) -> bool:
     """
     Identify whether the field is a list, whether of objects/dictionaries or just plain variables.
     """
     return self.type() == 'object_list' or self.type() == 'list'
       
-  def is_object_list(self):
+  def is_object_list(self) -> bool:
     """
     Identify whether the field represents a list of either dictionaries or objects.
     """
     return self.type() == 'object_list'
   
-  def overflow_markdown(self):
+  def overflow_markdown(self) -> str:
     """
     Return a formatted markdown table or bulleted list representing the values in the list.
     
@@ -301,7 +282,7 @@ class ALAddendumFieldDict(DAOrderedDict):
     if not hasattr(self, 'style'):
       self.style = 'overflow_only'
     if hasattr(self, 'data'):
-      self.from_list(data)
+      self.from_list(self.data)
       del self.data      
   
   def initializeObject(self, *pargs, **kwargs):
@@ -363,13 +344,18 @@ class ALDocument(DADict):
     - overflow_fields
   
   """
+  filename: str
+  title: str
+  enabled: bool
+  has_addendum: bool
+
   def init(self, *pargs, **kwargs):
     super(ALDocument, self).init(*pargs, **kwargs)
     self.initializeAttribute('overflow_fields',ALAddendumFieldDict)
     if not hasattr(self, 'default_overflow_message'):
       self.default_overflow_message = ''
 
-  def as_pdf(self, key='final', refresh=True):
+  def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
     if self.filename.endswith('.pdf'):
       ending = ''
     else:
@@ -378,7 +364,7 @@ class ALDocument(DADict):
     pdf.title = self.title
     return pdf
   
-  def as_docx(self, key='final', refresh=True):
+  def as_docx(self, key:str='final', refresh:bool=True) -> DAFile:
     """
     Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
     """
@@ -389,7 +375,7 @@ class ALDocument(DADict):
     except:
       return self.as_pdf(key=key)
 
-  def as_list(self, key='final', refresh=True):
+  def as_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
     Returns a list of the document and its addendum, if any.
     Specify refresh=True if you want to generate the attachment new each time.
@@ -405,7 +391,7 @@ class ALDocument(DADict):
     else:
       return [self[key]]
     
-  def has_overflow(self):
+  def has_overflow(self) -> bool:
     return len(self.overflow()) > 0
   
   def overflow(self):
@@ -442,13 +428,17 @@ class ALDocumentBundle(DAList):
     - title
   optional attribute: enabled
   """
+  filename: str
+  title: str
+  enabled: bool
+
   def init(self, *pargs, **kwargs):
     super(ALDocumentBundle, self).init(*pargs, **kwargs)
     self.auto_gather=False
     self.gathered=True
     # self.initializeAttribute('templates', ALBundleList)
     
-  def as_pdf(self, key='final', refresh=True):
+  def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
     if self.filename.endswith('.pdf'):
       ending = ''
     else:
@@ -457,10 +447,10 @@ class ALDocumentBundle(DAList):
     pdf.title = self.title
     return pdf
   
-  def preview(self, refresh=True):
+  def preview(self, refresh:bool=True) -> DAFile:
     return self.as_pdf(key='preview', refresh=refresh)
   
-  def as_flat_list(self, key='final', refresh=True):
+  def as_flat_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
     Returns the nested bundle as a single flat list.
     """
@@ -476,7 +466,7 @@ class ALDocumentBundle(DAList):
         flat_list.extend(document.as_list(key=key, refresh=refresh))
     return flat_list
 
-  def get_titles(self, key='final') -> List[str]:
+  def get_titles(self, key:str='final') -> List[str]:
     """
     Gets all of titles of the documents in a list
     """
@@ -488,13 +478,13 @@ class ALDocumentBundle(DAList):
         flat_list.append(document.title)
     return flat_list
 
-  def as_pdf_list(self, key='final', refresh=True):
+  def as_pdf_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
     Returns the nested bundles as a list of PDFs that is only one level deep.
     """
     return [doc.as_pdf(key=key, refresh=True) for doc in self if isinstance(doc, ALDocumentBundle) or doc.enabled]
   
-  def as_editable_list(self, key='final', refresh=True):
+  def as_editable_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
     Return a flat list of the editable versions of the docs in this bundle.
     Not yet tested with editable PDFs.
@@ -505,7 +495,7 @@ class ALDocumentBundle(DAList):
       editable.append(doc.docx if hasattr(doc, 'docx') else doc.pdf)
     return editable  
   
-  def download_list_html(self, key='final', format='pdf', view=True, refresh=True) -> str:
+  def download_list_html(self, key:str='final', format:str='pdf', view:bool=True, refresh:bool=True) -> str:
     """
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
@@ -523,7 +513,7 @@ class ALDocumentBundle(DAList):
     # Discuss: Do we want a table with the ability to have a merged pdf row?
     return html
   
-  def download_html(self, key: str ='final', format: str ='pdf',
+  def download_html(self, key:str ='final', format:str ='pdf',
                     view:bool=True, refresh:bool=True) -> str:
     """
     Returns an HTML string of a table to display all the docs
@@ -535,7 +525,7 @@ class ALDocumentBundle(DAList):
     
     return html
   
-  def send_button_html(self, key='final'):
+  def send_button_html(self, key:str='final') -> str:
     name = re.sub(r'[^A-Za-z0-9]+','_', self.instanceName)  # safe name for classes and ids
     al_wants_editable_input_id = 'al_wants_editable_' + name
     al_email_input_id = 'al_doc_email_' + name
@@ -563,16 +553,16 @@ class ALDocumentBundle(DAList):
   </div></div>
   '''
     
-  def send_email(self, to:any=None, key:str='final', editable:bool=False, template=None, **kwargs):
+  def send_email(self, to:any=None, key:str='final', editable:bool=False, template:any=None, **kwargs) -> bool:
     """
     Send an email with the current bundle as a single flat pdf or as editable documents.
     Can be used the same as https://docassemble.org/docs/functions.html#send_email with 
     two optional additional params.
     
     keyword arguments:
-    @param [editable] {bool} - Optional. User wants the editable docs. Default: False
-    @param [key] {string} - Optional. Which version of the doc. Default: 'final'
     @param to {string} - Same as da send_email `to` - email address(es) or objects with such.
+    @param [key] {string} - Optional. Which version of the doc. Default: 'final'
+    @param [editable] {bool} - Optional. User wants the editable docs. Default: False
     @param template {object} - Same as da `send_email` `template` variable.
     @param * {*} - Any other parameters you'd send to a da `send_email` function
     """
@@ -584,15 +574,7 @@ class ALDocumentBundle(DAList):
     else:
       return send_email(to=to, template=template, attachments=self.as_pdf(key=key), **kwargs)
       
-  # I don't think this was actually ever used
-  def table_css(self):
-    """
-    Return the css styles for the view/download table.
-    This will be hard to develop with and it will be a bit
-    harder to override for developers using this module.
-    """
-    return ""
-    
+
 class ALDocumentBundleDict(DADict):
   """
   A dictionary with named bundles of ALDocuments.
@@ -613,14 +595,14 @@ class ALDocumentBundleDict(DADict):
     if not hasattr(self, 'auto_gather'):
       self.auto_gather=False
 
-  def preview(format='PDF', bundle='user_bundle'):
+  def preview(self, format:str='PDF', bundle:str='user_bundle') -> DAFile:
     """
     Create a copy of the document as a single PDF that is suitable for a preview version of the 
     document (before signature is added).
     """
     return self[bundle].as_pdf(key='preview', format=format)
   
-  def as_attachment(format='PDF', bundle='court_bundle'):
+  def as_attachment(self, format:str='PDF', bundle:str='court_bundle') -> List[DAFile]:
     """
     Return a list of PDF-ified documents, suitable to make an attachment to send_mail.
     """
