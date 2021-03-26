@@ -100,14 +100,14 @@ class ALIndividual(Individual):
       # Note: we don't make use of the name.text field for simplicity
       # TODO: this could be reconsidered`, but name.text tends to lead to developer error
       return [
-        {"label": self.business_name_text, "field": self.attr_name('name.first')}
+        {"label": self.business_name_label, "field": self.attr_name('name.first')}
       ]
     else:
       show_if_indiv = {"variable": self.attr_name("person_type"), "is": "ALIndividual"}
       show_if_business = {"variable": self.attr_name("person_type"), "is": "business"}
       return [
         {"label": self.person_type_label, "field": self.attr_name('person_type'),
-         "choices": [{"Person": "ALIndividual"}, {"Business or organization": "business"}], 
+         "choices": [{self.individual_choice_label: "ALIndividual"}, {self.business_choice_label: "business"}],
          "input type": "radio", "required": True},
         # Individual questions
         {"label": self.first_name_label, "field": self.attr_name('name.first'),
@@ -145,6 +145,7 @@ class ALIndividual(Individual):
     """
     Return field prompts for other contact info
     """
+    pass
 
 def section_links(nav):
   """Returns a list of clickable navigation links without animation."""
