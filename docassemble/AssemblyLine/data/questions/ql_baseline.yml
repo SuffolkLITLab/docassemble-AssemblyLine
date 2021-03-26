@@ -21,9 +21,10 @@ objects:
   - trial_court: DAEmpty
   - all_courts: DAEmpty
   - allowed_courts: DAEmpty
+  # Support old interviews that use `courts`
+  - courts: DAList.using(auto_gather=False, target_number=1, gathered=True)
   #- trial_court: MACourt
   #- all_courts: MACourtList.using(courts=['housing_courts','bmc','district_courts','superior_courts','land_court', 'juvenile_courts', 'probate_and_family_courts','appeals_court'])  # this is for lookups
----
 ---
 id: basic questions intro screen
 decoration: form-lineal
@@ -694,6 +695,10 @@ comment: |
   See above--it's defined to user's address by default
 code: |  
   all_matches = all_courts.matching_courts(addresses_to_search, court_types=allowed_courts)
+---
+# Support og interviews that were built with `courts` instead of `trial_court`
+code: |
+  courts[0] = trial_court
 ---
 if: |
   # this should only be reached if the user's address is out of state
