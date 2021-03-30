@@ -680,30 +680,13 @@ code: |
 template: how_to_pick_court_help_template
 content: |
   For some cases, you can choose your court.
-  % if user_role=='plaintiff':    
+  % if al_form_type == 'starts_case':  
   How do you know which court to choose?
   
-  The District Court and Superior Court are all courts that can hear
-  any type of case. Housing, Probate and Family and Juvenile Court are
-    **specialist** courts that hear one kind of case.
-  They have judges with special training as well as special 
-  resources available.
+  Think about:
   
-  Different courts can make different kinds of decisions. Not every court
-  can give you every kind of help. For example, you can only
-  ask for visitation in the Probate and Family Court. Only
-  the Housing Court or Superior Court can hear discrimination
-  cases.
-  
-  Depending on where you live, different courts may be further or closer to
-  your address. There are many district courts all over the state,
-  but each county has only one or a few Superior Courts or specialty
-  courts.
-  
-  Choosing a court means thinking about what kind of help you need, as well
-  as which court you can get transportation to on the day of your hearing.
-  
-  Only you know the right choice.
+  1. A court that has the resources and specialization to hear your case.
+  1. Choosing a court you can get to. You may need to appear in court several times.
   
   % else:
   If you are responding to a case someone else filed, you may not
