@@ -6,8 +6,6 @@ objects:
   - interview_metadata: DADict.using(object_type=DADict.using(auto_gather=False, gathered=True), auto_gather=False, gathered=True)
   - users: ALPeopleList.using(there_are_any=True)
   - children: ALPeopleList.using(ask_number=True)
-  #- defendants: ALPeopleList
-  #- plaintiffs: ALPeopleList
   - plaintiff: ALIndividual
   - other_parties: ALPeopleList
   - witnesses: ALPeopleList.using(ask_number=True)
@@ -18,13 +16,10 @@ objects:
   - translators: ALPeopleList
   - debt_collectors: ALPeopleList
   - creditors: ALPeopleList
-  - trial_court: DAEmpty
-  - all_courts: DAEmpty
   - allowed_courts: DAEmpty
   # Support old interviews that use `courts`
   - courts: DAList.using(auto_gather=False, target_number=1, gathered=True)
-  #- trial_court: MACourt
-  #- all_courts: MACourtList.using(courts=['housing_courts','bmc','district_courts','superior_courts','land_court', 'juvenile_courts', 'probate_and_family_courts','appeals_court'])  # this is for lookups
+  - trial_court_address: Address
 ---
 id: basic questions intro screen
 decoration: form-lineal
@@ -678,79 +673,28 @@ fields:
 ########################################################################
 # Court selection
 ---
-comment: |
-  We default to only searching the user's address.
-  
-  This is a reasonable default but you likely want to add
-  additional addresses. E.g., the opposing party's address,
-  the address where the incident took place. Especially
-  if this is a responsive case.
-code: |
-  # Force the address question to be asked if it hasn't been asked yet
-  users[0].address.address
-  addresses_to_search = [users[0].address]
----
-comment: |
-  Ensure that addresses_to_search is the correct set of courts.
-  See above--it's defined to user's address by default
-code: |  
-  all_matches = all_courts.matching_courts(addresses_to_search, court_types=allowed_courts)
----
 # Support og interviews that were built with `courts` instead of `trial_court`
 code: |
   courts[0] = trial_court
 ---
-if: |
-  # this should only be reached if the user's address is out of state
-  not len(all_matches)
-sets:
-  - trial_court
-id: choose a court (no matching courts found)
-question: |
-  % if al_form_type == 'starts_case':
-  What court do you want to file in?
-  % elif al_form_type == 'appeal':
-  What is the name of the trial court your case was originally filed in?
-  % else:
-  What court is your case in?
-  % endif
-subquestion: |
-  % if not al_form_type == 'starts_case':
-  Look at your court paperwork. Match the name listed
-  there.
-  % endif
-fields:
-  - no label: trial_court
-    datatype: object
-    object labeler: |
-      lambda y: y.short_label()
-    choices: all_courts.filter_courts(allowed_courts)    
-help: 
-  label: |
-    How do I pick a court?
-  content: |
-    ${ how_to_pick_court_help_template }
----
 template: how_to_pick_court_help_template
 content: |
   For some cases, you can choose your court.
-  % if al_form_type == 'starts_case':    
+  % if al_form_type == 'starts_case':  
   How do you know which court to choose?
-
+  
   Think about:
-
+  
   1. A court that has the resources and specialization to hear your case.
   1. Choosing a court you can get to. You may need to appear in court several times.
-
+  
   % else:
-  Look carefully at your court paperwork. Choose the court that your case is already in.
-  The name in our list may include the city or town even if the name on your paperwork
-  does not.
+  If you are responding to a case someone else filed, you may not
+  get to choose your court. Select the court that is already
+  listed on your court paperwork.
   % endif
 ---
-if: |
-  len(all_matches)
-id: choose a court (courts matching provided address were found)
+id: choose a court
 question: |
   % if al_form_type == 'starts_case':
   What court do you want to file in?
@@ -761,43 +705,40 @@ question: |
   % endif
 subquestion: |
   % if not al_form_type == 'starts_case':
-  Look at your court paperwork. Match the name listed
-  there.
-  % endif
-
-  % if len(all_matches) > 0:
-  Below is a map of the court(s) that serve
-  the address you gave us, ${comma_and_list([address.on_one_line() for address in addresses_to_search],comma_string='; ')}.
-  
-  ${map_of(combined_locations(all_matches))}
+  Look at your court paperwork. Match the name listed there.
   % endif
 fields:
-  - no label: trial_court
-    datatype: object_radio
-    choices: all_matches
-    none of the above: True
-    disable others: True
-    object labeler: |
-      lambda y: y.short_description()
-    show if: 
-      code: |
-        len(all_matches)      
-  - note: |
-      Does the list above look wrong? If your case was filed in
-      a court we didn't list, choose from the full list below.
-    show if: 
-      code: |
-        len(all_matches)
-  - no label: trial_court
-    datatype: object
-    object labeler: |
-      lambda y: y.short_label()
-    choices: all_courts.filter_courts(allowed_courts)    
+  - Name: trial_court_name
+  - Address: trial_court_address.address
+    address autocomplete: True
+    required: False
+  - Suite: trial_court_address.unit
+    required: False
+  - City: trial_court_address.city
+    required: False
+  - State: trial_court_address.state
+    required: False
+  - Postal code: trial_court_address.zip    
+    required: False
 help: 
   label: |
     How do I pick a court?
   content: |
     ${ how_to_pick_court_help_template }
+---
+depends on:
+  - trial_court_name
+  - trial_court_address.address
+need:
+  - trial_court_name
+  - trial_court_address.address
+code: |
+  # We do this in a code block so referencing just `trial_court` in interview
+  # order block is good enough to trigger the question `id: choose a court`
+  trial_court = ALCourt('trial_court')
+  trial_court.name = trial_court_name
+  trial_court.address = trial_court_address
+---  
 #######################################################################
 # Signature stuff
 #######################################################################

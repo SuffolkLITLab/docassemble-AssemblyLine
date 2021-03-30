@@ -9,24 +9,14 @@ modules:
 ---
 mandatory: True
 code: |
-  temp
   al_user_bundle
   other_parties.gather()
   users.gather()
   users[0].address.address
+  trial_court
   children.gather()
   preview_screen
   basic_questions_signature_flow
-  email_status
----
-code: |
-  dev_email_to_use = 'bwilley@suffolk.edu'
-  dev_bcc_email = ''
----
-continue button field: temp
-question: |
-  Test: ${ get_config('url root') }, will send to count: ${ will_send_to_real_court() }: ${ url_of('root', _external=True)}
-
 ---
 id: preview
 continue button field: preview_screen

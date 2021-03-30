@@ -20,3 +20,4 @@ include:
 ```
 
 * Change references to `basic_questions_intro_screen` to `al_intro_screen`
+* Change references to `courts[0]` to trial_court
