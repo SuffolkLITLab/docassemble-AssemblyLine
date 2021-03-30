@@ -47,7 +47,7 @@ code: |
   # email_to_use = "massaccess@suffolk.edu"
 
   if task_not_yet_performed('send email'):
-    log("Court email is " + court_email)
+    log("Court email is ".format(court_email))
     email_success = False
     if should_cc_user:
       log('Sending email to ' + email_to_use + ' and ccing ' + cc_email + ' for ' + str(users) + ' bcc to ' + bcc_email)
