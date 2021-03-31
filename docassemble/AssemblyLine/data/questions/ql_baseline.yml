@@ -204,7 +204,17 @@ content: |
 generic object: ALIndividual
 template: x.business_name_label
 content: |
-  Name of organization or business
+  Name of business or organization
+---
+generic object: ALIndividual
+template: x.individual_choice_label
+content: |
+  Person
+---
+generic object: ALIndividual
+template: x.business_choice_label
+content: |
+  Business or organization
 ---
 generic object: ALIndividual
 template: x.address_address_label
