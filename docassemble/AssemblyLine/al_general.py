@@ -91,23 +91,26 @@ class ALIndividual(Individual):
     """
     if person_or_business == 'person':
       return [
-        {"label": self.first_name_label, "field": self.attr_name('name.first')},
-        {"label": self.middle_name_label, "field": self.attr_name('name.middle'), "required": False},
-        {"label": self.last_name_label, "field": self.attr_name("name.last")},
-        {"label": self.suffix_label, "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False}
+        {"label": str(self.first_name_label), "field": self.attr_name('name.first')},
+        {"label": str(self.middle_name_label), "field": self.attr_name('name.middle'), "required": False},
+        {"label": str(self.last_name_label), "field": self.attr_name("name.last")},
+        {"label": str(self.suffix_label), "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False}
       ]
     elif person_or_business == 'business':
       # Note: we don't make use of the name.text field for simplicity
       # TODO: this could be reconsidered`, but name.text tends to lead to developer error
       return [
-        {"label": self.business_name_label, "field": self.attr_name('name.first')}
+        {"label": str(self.business_name_label), "field": self.attr_name('name.first')}
       ]
     else:
+      # Note: the labels are template block objects: if they are keys,
+      # they should be converted to strings first
       show_if_indiv = {"variable": self.attr_name("person_type"), "is": "ALIndividual"}
       show_if_business = {"variable": self.attr_name("person_type"), "is": "business"}
       return [
-        {"label": self.person_type_label, "field": self.attr_name('person_type'),
-         "choices": [{self.individual_choice_label: "ALIndividual"}, {self.business_choice_label: "business"}],
+        {"label": str(self.person_type_label), "field": self.attr_name('person_type'),
+         "choices": [{str(self.individual_choice_label): "ALIndividual"},
+                     {str(self.business_choice_label): "business"}],
          "input type": "radio", "required": True},
         # Individual questions
         {"label": self.first_name_label, "field": self.attr_name('name.first'),
