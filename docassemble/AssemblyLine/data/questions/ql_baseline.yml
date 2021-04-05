@@ -669,17 +669,20 @@ id: affirmation and oath of no perjury
 question: |
   Signing Under Oath
 subquestion: |
-  Your form must be signed "under penalties of perjury."
-  This means that it can be a crime if you lie on this form.
+  Your form must be signed under oath.
+  That means everything you say must be true as far as you know.
+  You may be punished by a judge if you intentionally
+  say something that is not true.
 fields:
   - no label: users[i].states_above_true
     datatype: checkboxes
     minlength: 1
     choices:
-      - I, ${user.familiar()}, promise that my answers on this form are the truth under penalties of perjury: states_true
+      - I affirm that the answers I have given are true, under the pains and penalties of perjury: states_true
     validation messages:
       minlength: |
         You cannot keep going unless you did your best to tell the truth.
+---        
 ########################################################################
 # Court selection
 ---
