@@ -1,10 +1,14 @@
 import re
-from typing import List
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config
+from typing import List, Union
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore
 
 __all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALDocumentBundleDict']
 
 DEBUG_MODE = get_config('debug',False)
+
+def log_if_debug(text:str)->None:
+  if DEBUG_MODE:
+    log(text)
 
 def label(dictionary):
   try:
@@ -35,26 +39,20 @@ def html_safe_str(the_string) -> str:
   """
   return re.sub( r'[^A-Za-z0-9]+', '_', the_string )
 
-def table_row( aldoc, key='final', view_icon="eye", download_icon="download", format="pdf", refresh=True ):
+def table_row( title, view_file:DAFile, download_file:DAFile=None, view_icon:str="eye", download_icon:str="download") -> str:
   """
   Return a string of html that is one row of a table containing
   the `.as_pdf()` contents of an AL object and its interaction buttons
   """
-  
-  pdf = aldoc.as_pdf(key=key, refresh=refresh)
-  if format=="docx":
-    docx = aldoc.as_docx(key=key, refresh=refresh)
-  
+  if not download_file:
+    download_file = view_file
   html = '\n\t<tr>'
   # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
   # TODO: Need to replace with proper CSS
-  html += '\n\t\t<td><div><strong>' + aldoc.title + '</strong></div></td>'
+  html += '\n\t\t<td><div><strong>' + title + '</strong></div></td>'
   html += '\n\t\t<td>'
-  html += action_button_html( pdf.url_for(), label=word("View"), size="md", icon=view_icon, color="secondary" )
-  if format=="docx":
-    html += action_button_html( docx.url_for(attachment=True), size="md", label=word("Download"), icon=download_icon, color="primary" )
-  else:
-    html += action_button_html( pdf.url_for(attachment=True), size="md", label=word("Download"), icon=download_icon, color="primary" )
+  html += action_button_html( view_file.url_for(), label=word("View"), size="md", icon=view_icon, color="secondary" )
+  html += action_button_html( download_file.url_for(attachment=True), size="md", label=word("Download"), icon=download_icon, color="primary" )
 
   html += '\n\t</tr>'
 
@@ -368,6 +366,14 @@ class ALDocument(DADict):
     - overflow_fields
   
   """
+  filename: str
+  title: str
+  enabled: bool
+  has_addendum: bool
+  addendum: DAFileCollection
+  overflow_fields: ALAddendumFieldDict
+
+  cached_attr = '_bundle_cache_' + space_to_underscore(key)
   def init(self, *pargs, **kwargs):
     super(ALDocument, self).init(*pargs, **kwargs)
     self.initializeAttribute('overflow_fields',ALAddendumFieldDict)
@@ -381,11 +387,20 @@ class ALDocument(DADict):
     if not filename.endswith('.pdf'):
       filename += '.pdf'
     
-    if DEBUG_MODE:
-        log('Converting to PDF ' + str(self.title))
-        
-    return self[key].pdf        
-        
+    log_if_debug('Converting to PDF ' + str(self.title))        
+
+    cached_attr = '_cache_' + space_to_underscore(key)
+    if refresh and hasattr(self, cached_attr):
+      log_if_debug('reconsidering ' + self.title)
+      # Reconsider removes the attribute, but only once per screen load
+      reconsider(self.attr_name(cached_attr))
+      if hasattr(self, cached_attr):
+        log_if_debug(self.title + ' is still cached after reconsider!!!!!!!!')
+  
+    if hasattr(self, cached_attr):
+      log_if_debug('Looking up cached version of ' + self.title)
+      return getattr(self, cached_attr)
+
     if refresh:
       main_doc = self.getitem_fresh(key)
     else:
@@ -405,8 +420,10 @@ class ALDocument(DADict):
         addendum_doc = addendum_doc.pdf
       concatenated = pdf_concatenate(main_doc, addendum_doc, filename=filename)
       concatenated.title = self.title
+      setattr(self, cached_attr, concatenated)
       return concatenated
     else:
+      setattr(self, cached_attr, main_doc)
       return main_doc  
   
   def as_docx(self, key='final', refresh=True):
@@ -477,19 +494,37 @@ class ALDocumentBundle(DAList):
     - title
   optional attribute: enabled
   """
+
+  filename:str
+  title: str
+  elements:List[ALDocument] # or ALDocumentBundle
+  _bundle_cache:DAFile
+
   def init(self, *pargs, **kwargs):
     super(ALDocumentBundle, self).init(*pargs, **kwargs)
     self.auto_gather=False
     self.gathered=True
-    # self.initializeAttribute('templates', ALBundleList)
     
-  def as_pdf(self, key='final', refresh=True):
+  def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
+    cached_attr = '_bundle_cache_' + space_to_underscore(key)
+    if refresh and hasattr(self, cached_attr):
+      log_if_debug('reconsidering ' + self.title)
+      # Reconsider removes the attribute, but only once per screen load
+      reconsider(self.attr_name(cached_attr))
+      if hasattr(self, cached_attr):
+        log_if_debug(self.title + ' is still cached after reconsider!!!!!!!!')
+    
+    if hasattr(self, cached_attr):
+      log_if_debug('Looking up cached version of ' + self.title)
+      return getattr(self, cached_attr)
+
     if self.filename.endswith('.pdf'):
       ending = ''
     else:
       ending = '.pdf'
     pdf = pdf_concatenate(self.as_flat_list(key=key, refresh=refresh), filename=self.filename + ending)
     pdf.title = self.title
+    setattr(self, cached_attr, pdf)
     return pdf
   
   def preview(self, refresh=True):
@@ -545,14 +580,24 @@ class ALDocumentBundle(DAList):
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
     """
+    # Trigger some variables up top to avoid idempotency issues
+    for doc in self:
+      if doc.enabled:
+        doc.title
+        if format == 'pdf':
+          doc.as_pdf(key=key, refresh=refresh) # Generate cached file for this session
+
     # TODO: wire up the format and view keywords
     # TODO: make icons configurable
     html ='<table class="al_table" id="' + html_safe_str(self.instanceName) + '">'
-    
+      
     for doc in self:
       if doc.enabled:
-        html += table_row(doc, key=key, format=format, refresh=True)
-    
+        the_file = doc.as_pdf() # should trigger cache
+        if format=='docx':
+          html += table_row(doc.title, the_file, download_file=doc.as_docx(key=key), refresh=True)
+        else:          
+          html += table_row(doc.title, the_file, download_file=the_file, refresh=True)
     html += '\n</table>'
     
     # Discuss: Do we want a table with the ability to have a merged pdf row?
@@ -639,23 +684,23 @@ class ALDocumentBundleDict(DADict):
   different scenarios.
   """
   def init(self, *pargs, **kwargs):
-    super(ALBundleList, self).init(*pargs, **kwargs)
+    super(ALDocumentBundleDict, self).init(*pargs, **kwargs)
     self.auto_gather=False
     self.gathered=True
-    self.object_type = ALBundle
+    self.object_type = ALDocumentBundle
     if not hasattr(self, 'gathered'):
       self.gathered = True
     if not hasattr(self, 'auto_gather'):
       self.auto_gather=False
 
-  def preview(format='PDF', bundle='user_bundle'):
+  def preview(self, format='PDF', bundle='user_bundle'):
     """
     Create a copy of the document as a single PDF that is suitable for a preview version of the 
     document (before signature is added).
     """
     return self[bundle].as_pdf(key='preview', format=format)
   
-  def as_attachment(format='PDF', bundle='court_bundle'):
+  def as_attachment(self, format='PDF', bundle='court_bundle'):
     """
     Return a list of PDF-ified documents, suitable to make an attachment to send_mail.
     """
