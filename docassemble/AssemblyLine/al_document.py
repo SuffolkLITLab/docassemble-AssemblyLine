@@ -1,6 +1,10 @@
 import re
 from typing import List
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config
+
+__all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALDocumentBundleDict']
+
+DEBUG_MODE = get_config('debug',False)
 
 def label(dictionary):
   try:
@@ -36,6 +40,7 @@ def table_row( aldoc, key='final', view_icon="eye", download_icon="download", fo
   Return a string of html that is one row of a table containing
   the `.as_pdf()` contents of an AL object and its interaction buttons
   """
+  
   pdf = aldoc.as_pdf(key=key, refresh=refresh)
   if format=="docx":
     docx = aldoc.as_docx(key=key, refresh=refresh)
@@ -370,13 +375,39 @@ class ALDocument(DADict):
       self.default_overflow_message = ''
 
   def as_pdf(self, key='final', refresh=True):
-    if self.filename.endswith('.pdf'):
-      ending = ''
+    # Trigger some stuff up front to avoid idempotency problems
+    filename = self.filename
+    self.title
+    if not filename.endswith('.pdf'):
+      filename += '.pdf'
+    
+    if DEBUG_MODE:
+        log('Converting to PDF ' + str(self.title))
+        
+    return self[key].pdf        
+        
+    if refresh:
+      main_doc = self.getitem_fresh(key)
     else:
-      ending = '.pdf'
-    pdf = pdf_concatenate(self.as_list(key=key, refresh=refresh), filename=self.filename + ending)
-    pdf.title = self.title
-    return pdf
+      main_doc = self.elements[key]
+      
+    if isinstance(main_doc, DAFileCollection):
+      main_doc = main_doc.pdf
+      main_doc.title = self.title
+      main_doc.filename = filename # Not sure if this works?
+    
+    if self.need_addendum():
+      if refresh:
+        addendum_doc = self.getattr_fresh('addendum')
+      else:
+        addendum_doc = self.addendum
+      if isinstance(main_doc, DAFileCollection):
+        addendum_doc = addendum_doc.pdf
+      concatenated = pdf_concatenate(main_doc, addendum_doc, filename=filename)
+      concatenated.title = self.title
+      return concatenated
+    else:
+      return main_doc  
   
   def as_docx(self, key='final', refresh=True):
     """
@@ -396,14 +427,18 @@ class ALDocument(DADict):
     This behavior is the default.
     """
     if refresh:
-      if key in self.elements:
-        reconsider(self.instanceName + '["' + key + '"]')
-      if hasattr(self, 'addendum'):
-        reconsider(self.attr_name('addendum'))
-    if self.has_addendum and self.has_overflow():
-      return [self[key], self.addendum]
+      if self.has_addendum and self.has_overflow():
+        return [self.getitem_fresh(key), self.getattr_fresh('addendum')]
+      else:
+        return [self.getitem_fresh(key)]
     else:
-      return [self[key]]
+      if self.has_addendum and self.has_overflow():
+        return [self[key], self.addendum]
+      else:
+        return [self[key]]
+  
+  def need_addendum(self):
+    return hasattr(self, 'addendum') and self.has_addendum and self.has_overflow()
     
   def has_overflow(self):
     return len(self.overflow()) > 0

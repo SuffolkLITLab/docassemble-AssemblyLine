@@ -17,6 +17,7 @@ code: |
   children.gather()
   preview_screen
   basic_questions_signature_flow
+  end_screen
 ---
 id: preview
 continue button field: preview_screen
