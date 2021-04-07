@@ -399,6 +399,7 @@ class ALDocument(DADict):
     # Trigger some stuff up front to avoid idempotency problems
     filename = self.filename
     self.title
+    self.need_addendum()
     if not filename.endswith('.pdf'):
       filename += '.pdf'
     
@@ -466,7 +467,7 @@ class ALDocument(DADict):
         return [self[key]]
   
   def need_addendum(self):
-    return hasattr(self, 'addendum') and self.has_addendum and self.has_overflow()
+    return hasattr(self, 'has_addendum') and self.has_addendum and self.has_overflow()
     
   def has_overflow(self):
     return len(self.overflow()) > 0
