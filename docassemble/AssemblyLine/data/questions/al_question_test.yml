@@ -22,7 +22,7 @@ code: |
 # I would just use `audio_test`, but I think this may be expanded.
 # For example, it may also be used to test the 'escape' button, etc.
 id: test behavior of some features
-field: feature_tests_1
+continue button field: feature_tests_1
 question: |
   Page to test certain features
 subquestion: |
