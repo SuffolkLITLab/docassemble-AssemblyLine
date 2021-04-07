@@ -304,7 +304,7 @@ class ALAddendumFieldDict(DAOrderedDict):
     if not hasattr(self, 'style'):
       self.style = 'overflow_only'
     if hasattr(self, 'data'):
-      self.from_list(data)
+      self.from_list(self.data)
       del self.data      
   
   def initializeObject(self, *pargs, **kwargs):
@@ -338,7 +338,21 @@ class ALAddendumFieldDict(DAOrderedDict):
   #def defined_sections(self):
   #  if self.style == 'overflow_only':    
   #    return [section for section in self.elements if len(section.defined_fields(style=self.style))]
-  
+
+class DALazyAttribute(DAObject):
+  """
+  A DAObject with attributes that are reconsidered on every page load. Useful for
+  caching information on a per-page load basis.
+
+  Takes advantage of the way that objects are pickled in Docassemble by overriding the
+  __getstate__ method Pickle uses.
+  """
+  def __getstate__(self):
+      if hasattr(self, 'instanceName'):
+          return dict(instanceName=self.instanceName)
+      else:
+          return dict()
+
 class ALDocument(DADict):
   """
   An opinionated collection of typically three attachment blocks:
@@ -372,13 +386,14 @@ class ALDocument(DADict):
   has_addendum: bool
   addendum: DAFileCollection
   overflow_fields: ALAddendumFieldDict
+  cache: DALazyAttribute # stores cached DAFile output with a per-screen load lifetime
 
-  cached_attr = '_bundle_cache_' + space_to_underscore(key)
   def init(self, *pargs, **kwargs):
     super(ALDocument, self).init(*pargs, **kwargs)
     self.initializeAttribute('overflow_fields',ALAddendumFieldDict)
     if not hasattr(self, 'default_overflow_message'):
       self.default_overflow_message = ''
+    self.initializeAttribute('cache', DALazyAttribute)
 
   def as_pdf(self, key='final', refresh=True):
     # Trigger some stuff up front to avoid idempotency problems
@@ -387,20 +402,14 @@ class ALDocument(DADict):
     if not filename.endswith('.pdf'):
       filename += '.pdf'
     
-    log_if_debug('Converting to PDF ' + str(self.title))        
+    safe_key = space_to_underscore(key)
 
-    cached_attr = '_cache_' + space_to_underscore(key)
-    if refresh and hasattr(self, cached_attr):
-      log_if_debug('reconsidering ' + self.title)
-      # Reconsider removes the attribute, but only once per screen load
-      reconsider(self.attr_name(cached_attr))
-      if hasattr(self, cached_attr):
-        log_if_debug(self.title + ' is still cached after reconsider!!!!!!!!')
+    log_if_debug('Calling the as_pdf() method for ' + str(self.title))        
+
+    if hasattr(self.cache, safe_key):
+      log_if_debug('Returning cached version of ' + self.title)
+      return getattr(self.cache,  safe_key)
   
-    if hasattr(self, cached_attr):
-      log_if_debug('Looking up cached version of ' + self.title)
-      return getattr(self, cached_attr)
-
     if refresh:
       main_doc = self.getitem_fresh(key)
     else:
@@ -420,10 +429,12 @@ class ALDocument(DADict):
         addendum_doc = addendum_doc.pdf
       concatenated = pdf_concatenate(main_doc, addendum_doc, filename=filename)
       concatenated.title = self.title
-      setattr(self, cached_attr, concatenated)
+      log_if_debug('Storing main file and addendum for ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
+      setattr(self.cache,  safe_key, concatenated)
       return concatenated
     else:
-      setattr(self, cached_attr, main_doc)
+      log_if_debug('Storing main file only ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
+      setattr(self.cache, safe_key, main_doc)
       return main_doc  
   
   def as_docx(self, key='final', refresh=True):
@@ -498,51 +509,64 @@ class ALDocumentBundle(DAList):
   filename:str
   title: str
   elements:List[ALDocument] # or ALDocumentBundle
-  _bundle_cache:DAFile
+  cache: DALazyAttribute # stores cached DAFile output with a per-screen load lifetime
+  enabled:bool # optional
 
   def init(self, *pargs, **kwargs):
     super(ALDocumentBundle, self).init(*pargs, **kwargs)
     self.auto_gather=False
     self.gathered=True
+    self.initializeAttribute('cache', DALazyAttribute)
     
   def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
-    cached_attr = '_bundle_cache_' + space_to_underscore(key)
-    if refresh and hasattr(self, cached_attr):
-      log_if_debug('reconsidering ' + self.title)
-      # Reconsider removes the attribute, but only once per screen load
-      reconsider(self.attr_name(cached_attr))
-      if hasattr(self, cached_attr):
-        log_if_debug(self.title + ' is still cached after reconsider!!!!!!!!')
-    
-    if hasattr(self, cached_attr):
-      log_if_debug('Looking up cached version of ' + self.title)
-      return getattr(self, cached_attr)
+    safe_key = space_to_underscore(key)
+
+    log_if_debug('Calling the as_pdf() method for bundle ' + str(self.title))
+
+    if hasattr(self.cache, safe_key):
+      log_if_debug('Returning cached version of bundle ' + self.title)
+      return getattr(self.cache,  safe_key)
 
     if self.filename.endswith('.pdf'):
       ending = ''
     else:
       ending = '.pdf'
-    pdf = pdf_concatenate(self.as_flat_list(key=key, refresh=refresh), filename=self.filename + ending)
+    files = self.enabled_documents()
+    if len(files) == 1:
+      # This case is simplest--no PDF concatenation needed
+      log_if_debug('Storing bundle for just one document ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
+      pdf = files[0].as_pdf(key=key, refresh=refresh)
+      pdf.title = self.title
+    else:
+      log_if_debug('Storing bundle ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
+      pdf = pdf_concatenate([document.as_pdf(key=key, refresh=refresh) for document in files], filename=self.filename + ending)
     pdf.title = self.title
-    setattr(self, cached_attr, pdf)
+    setattr(self.cache, safe_key, pdf)
     return pdf
   
   def preview(self, refresh=True):
     return self.as_pdf(key='preview', refresh=refresh)
   
+  def enabled_documents(self):
+    """
+    Returns the enabled documents
+    """
+    return [document for document in self.elements if document.enabled]
+
   def as_flat_list(self, key='final', refresh=True):
     """
-    Returns the nested bundle as a single flat list.
+    Returns the nested bundle as a single flat list. This could be the preferred way to deliver forms to the
+    court, e.g.--one file per court form/cover letter.
     """
     # Iterate through the list of self.templates
     # Unpack the list of documents at each step so this can be concatenated into a single list
     flat_list = []
-    for document in self:
+    for document in self.enabled_documents():
       if isinstance(document, ALDocumentBundle):
         # call the bundle's as_flat_list() method to show all enabled templates.
         flat_list.extend(document.as_flat_list(key=key, refresh=refresh))
       # This is a simple document node; check if this individual template is enabled.
-      elif document.enabled: # base case
+      else: # base case
         flat_list.extend(document.as_list(key=key, refresh=refresh))
     return flat_list
 
@@ -595,9 +619,9 @@ class ALDocumentBundle(DAList):
       if doc.enabled:
         the_file = doc.as_pdf() # should trigger cache
         if format=='docx':
-          html += table_row(doc.title, the_file, download_file=doc.as_docx(key=key), refresh=True)
+          html += table_row(doc.title, the_file, download_file=doc.as_docx(key=key))
         else:          
-          html += table_row(doc.title, the_file, download_file=the_file, refresh=True)
+          html += table_row(doc.title, the_file, download_file=the_file)
     html += '\n</table>'
     
     # Discuss: Do we want a table with the ability to have a merged pdf row?
@@ -609,8 +633,9 @@ class ALDocumentBundle(DAList):
     Returns an HTML string of a table to display all the docs
     combined into one pdf with 'view' and 'download' buttons.
     """
+    the_file = self.as_pdf(key=key)
     html ='<table class="al_table merged_docs" id="' + html_safe_str(self.instanceName) + '">'
-    html += table_row( self, key=key, format=format, refresh=True )
+    html += table_row( self.title, the_file, download_file=the_file )
     html += '\n</table>'
     
     return html
