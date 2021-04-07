@@ -1,5 +1,14 @@
 $(document).on('daPageLoad', function() {
-  al_js.audio_minimal_controls( $('.daaudio-control')[0], 'page_reader_substitute' );
+  var $audio_nodes = $('.daaudio-control');
+  var id_count = 1;
+  for ( var audio_node of $audio_nodes ) {
+    (function () {
+      console.log( audio_node.constructor.name );
+      al_js.replace_with_audio_minimal_controls( audio_node, 'page_reader_substitute_' + id_count );
+    })();
+    id_count++;
+  }
+  
 });
 
 var al_js = {};
@@ -8,7 +17,7 @@ var al_js = {};
 // TODO: Show user the audio still needs to load:
 // - https://stackoverflow.com/questions/9337300/html5-audio-load-event,
 // - https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/play
-al_js.audio_minimal_controls = function( audio_node, id ) {
+al_js.replace_with_audio_minimal_controls = function( audio_node, id ) {
   /* Create the custom controls for this specific audio element
   * and give the new controls container the requested `id` tag. */
   if (!audio_node) {
@@ -19,7 +28,7 @@ al_js.audio_minimal_controls = function( audio_node, id ) {
   // Hide the normal controls and show the new controls
   audio_node.removeAttribute('controls');
   audio_node.style.display = 'none';
-  var $audio_container = $($('.daaudiovideo-control')[0]);
+  var $audio_container = $($(audio_node).closest('.daaudiovideo-control'));
   $audio_container.addClass( 'al_custom_media_controls' );
   $('<div id="' + id + '" class="btn-group">' +
         audio_contents_html +

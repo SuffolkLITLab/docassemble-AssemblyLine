@@ -9,6 +9,7 @@ modules:
 ---
 mandatory: True
 code: |
+  feature_tests_1
   al_user_bundle
   other_parties.gather()
   users.gather()
@@ -17,6 +18,20 @@ code: |
   children.gather()
   preview_screen
   basic_questions_signature_flow
+---
+# I would just use `audio_test`, but I think this may be expanded.
+# For example, it may also be used to test the 'escape' button, etc.
+id: test behavior of some features
+field: feature_tests_1
+question: |
+  Page to test certain features
+subquestion: |
+  Currently testing:
+  
+  - Custom audio element reading behavior is correct
+  - Custom audio element shows on both regular screen and on help screen
+help: |
+  Show help screen
 ---
 id: preview
 continue button field: preview_screen
