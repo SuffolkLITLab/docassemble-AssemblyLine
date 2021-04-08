@@ -5,7 +5,6 @@ $(document).on('daPageLoad', function() {
     al_js.replace_with_audio_minimal_controls( audio_node, 'page_reader_substitute_' + id_count );
     id_count++;
   }
-  
 });
 
 var al_js = {};
