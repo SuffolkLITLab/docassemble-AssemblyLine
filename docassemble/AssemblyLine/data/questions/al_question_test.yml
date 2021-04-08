@@ -19,15 +19,15 @@ code: |
   preview_screen
   basic_questions_signature_flow
 ---
+# Page to test certain features
+# Reduced text for ease of testing custom audio element
+# Currently testing:
+# - Custom audio element reading behavior is correct
+# - Custom audio element reading behavior is correct
 id: test behavior of some features
 continue button field: feature_tests_1
 question: |
-  Page to test certain features
-subquestion: |
-  Currently testing:
-  
-  - Custom audio element reading behavior is correct
-  - Custom audio element shows on both regular screen and on help screen
+  Features test 1
 help: |
   Show help screen
 ---
