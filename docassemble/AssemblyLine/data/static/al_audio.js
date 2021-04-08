@@ -59,13 +59,16 @@ al_js.replace_with_audio_minimal_controls = function( audio_node, id ) {
     $(id_s + '.pause').first().attr('aria-hidden', 'true').hide();
   });
   
-  $(id_s + '.stop').first().on( 'click', function() {  // restart & stop
+  var stop_and_reset = function () {
     audio_node.pause();
     audio_node.currentTime = 0;
     $(id_s + '.restart').first().attr('aria-hidden', 'false').show();
     $(id_s + '.play').first().attr('aria-hidden', 'true').hide();
     $(id_s + '.pause').first().attr('aria-hidden', 'true').hide();
-  });
+  }
+  
+  $(id_s + '.stop').first().on( 'click', stop_and_reset );
+  $(audio_node).on( 'ended', stop_and_reset );
   
 };  // Ends al_js.audio_minimal_controls()
 
