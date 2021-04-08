@@ -88,6 +88,15 @@ code: |
   # Should be a list.
   al_download_titles = al_court_bundle.get_titles()
 ---
+code: |
+  # This is a fallback package title to avoid errors on new forms
+  # It defines package_title as the title of the first form.
+  # You may want a better form title for most interviews
+  if next(iter(al_download_titles),''):
+    package_title = next(iter(al_download_titles))
+  else:
+    package_title = "Court Form"
+---
 attachment:
   variable name: al_cover_page[i]
   docx template file: general_cover_sheet.docx
