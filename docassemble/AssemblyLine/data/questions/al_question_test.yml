@@ -19,8 +19,6 @@ code: |
   preview_screen
   basic_questions_signature_flow
 ---
-# I would just use `audio_test`, but I think this may be expanded.
-# For example, it may also be used to test the 'escape' button, etc.
 id: test behavior of some features
 continue button field: feature_tests_1
 question: |
