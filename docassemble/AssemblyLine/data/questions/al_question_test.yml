@@ -9,6 +9,7 @@ modules:
 ---
 mandatory: True
 code: |
+  al_intro_screen
   feature_tests_1
   al_user_bundle
   other_parties.gather()

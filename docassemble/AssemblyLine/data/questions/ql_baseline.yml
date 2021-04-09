@@ -76,6 +76,11 @@ right: |
   ${action_button_html(url_action('load_answer'), icon="folder-open", label=word("View answers"), size="sm" )}
   % endif    
 ---
+##### Backwards compatibility #####
+code: |
+  al_intro_screen
+  basic_questions_intro_screen = True
+---
 id: is the user the plaintiff or defendant?
 comment: |
   This question is asked if the interview can be used by both
