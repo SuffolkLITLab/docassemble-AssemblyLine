@@ -22,7 +22,7 @@ code: |
   set_live_help_status(availability='available', mode='help',partner_roles=['housing','family law'])
 ---
 code: |
-  form_approved_for_email_filing = True # Default is that the form is e-filable
+  form_approved_for_email_filing = False # Default is that the form is not e-filable
 ---
 code: |
   # al_form_type can be one of:
