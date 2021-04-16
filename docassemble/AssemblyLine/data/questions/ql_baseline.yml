@@ -529,6 +529,12 @@ question: |
   % endif
 yesno: other_parties.there_is_another  
 ---
+# AssemblyLine: To override this value, copy this block into your file and
+# change 'unsure' to either 'person' or 'business'.
+generic object: ALIndividual
+code: |
+  x.person_type = 'unsure'
+---
 sets:
   - other_parties[i].name.first
 id: names of opposing parties
@@ -541,7 +547,7 @@ question: |
   % endif
 fields:
   - code: |
-      other_parties[i].name_fields(person_or_business='unsure')
+      other_parties[i].name_fields(person_or_business=other_parties[i].person_type)
 ---
 # TODO: consider removing default state
 # BUT: could be helpful to model how to set a default state
