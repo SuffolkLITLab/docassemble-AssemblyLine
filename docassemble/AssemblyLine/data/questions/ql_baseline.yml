@@ -495,8 +495,8 @@ yesno: x.there_is_another
 ---
 id: name of the first person
 sets:
-  - x[0].name.first
-  - x[0].name.last
+  - x[i].name.first
+  - x[i].name.last
 generic object: ALPeopleList
 question: |
   % if hasattr(x, 'ask_number') and x.ask_number and x.target_number == 1:
