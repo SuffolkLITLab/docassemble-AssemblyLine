@@ -495,18 +495,18 @@ yesno: x.there_is_another
 ---
 id: name of the first person
 sets:
-  - x[i].name.first
-  - x[i].name.last
+  - x[0].name.first
+  - x[0].name.last
 generic object: ALPeopleList
 question: |
   % if hasattr(x, 'ask_number') and x.ask_number and x.target_number == 1:
   Name of ${ noun_plural(x.object_name(),1) }
   % else:
-  Name of your ${ ordinal(i) } ${ noun_plural(x.object_name(),1) }
+  Name of your first ${ noun_plural(x.object_name(),1) }
   % endif
 fields:
   - code: |
-      x[i].name_fields()
+      x[0].name_fields()
 ---
 id: names of people
 sets:

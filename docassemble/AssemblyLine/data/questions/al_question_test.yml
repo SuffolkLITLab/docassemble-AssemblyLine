@@ -8,14 +8,14 @@ modules:
   - docassemble.base.functions
 ---
 objects:
-  - people: ALPeopleList.using(target_number=1, ask_number=True)
+  - chiropractors: ALPeopleList.using(target_number=1, ask_number=True)
 ---
 mandatory: True
 code: |
   al_intro_screen
   feature_tests_1
   al_user_bundle
-  people.gather()
+  chiropractors.gather()
   other_parties.gather()
   users.gather()
   users[0].address.address
