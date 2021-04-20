@@ -367,7 +367,7 @@ class ALDocument(DADict):
     super(ALDocument, self).init(*pargs, **kwargs)
     self.initializeAttribute('overflow_fields',ALAddendumFieldDict)
     if not hasattr(self, 'default_overflow_message'):
-      self.default_overflow_message = ''
+      self.default_overflow_message = '...'
 
   def as_pdf(self, key='final', refresh=True):
     if self.filename.endswith('.pdf'):
