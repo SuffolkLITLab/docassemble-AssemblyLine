@@ -1,6 +1,6 @@
 import re
 from typing import List
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, LatitudeLongitude
 
 def label(dictionary):
   try:
@@ -18,12 +18,15 @@ def safeattr(object, key):
   try:
     if isinstance(object, dict) or isinstance(object, DADict):
       return str(object.get(key,''))
-    elif isinstance(object, DAObject):      
+    elif isinstance(object, DAObject):
+      # `location` is not an attribute people usually want shown in the table of people's attributes
+      if key == 'location':
+        return ''
       return str(getattr(object, key))
     else:
       return ''
   except:
-    return ""
+    return ''
   
 def html_safe_str(the_string) -> str:
   """
@@ -179,9 +182,11 @@ class ALAddendumField(DAObject):
   def __str__(self):
     return str(self.value_if_defined())
     
-  def columns(self):
+  def columns(self, skip_empty_attributes:bool=True, skip_attributes:set = {'complete'} )->list:
     """
     Return a list of the columns in this object.
+    
+    By default, skip empty attributes and the `complete` attribute.
     """
     if hasattr(self, 'headers'):
       return self.headers
@@ -194,7 +199,10 @@ class ALAddendumField(DAObject):
           return list([{key:key} for key in first_value.keys()])
         elif isinstance(first_value, DAObject):
           attr_to_ignore = {'has_nonrandom_instance_name','instanceName','attrList'}
-          return [{key:key} for key in list( set(first_value.__dict__.keys()) - attr_to_ignore )]
+          if skip_empty_attributes:
+            return [{key:key} for key in list( set(first_value.__dict__.keys()) - set(skip_attributes) - attr_to_ignore ) if safeattr(first_value, key)]
+          else:
+            return [{key:key} for key in list( set(first_value.__dict__.keys()) - set(skip_attributes) - attr_to_ignore )]
       except:
         return None
       # None means the value has no meaningful columns we can extract
