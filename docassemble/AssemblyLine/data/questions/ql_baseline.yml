@@ -1110,3 +1110,18 @@ code: |
   # Every form has a user, at least as our default. You can override this
   # by adding your own question or code later in the file
   users.there_are_any = True
+---
+code: |
+  # This default overflow message is only used in the constructor for ALDocument
+  al_default_overflow_message = " [See addendum]"
+---
+# You can override this addendum with a custom one
+generic object: ALDocument
+attachment:
+  variable name: x.addendum
+  docx template file: al_basic_addendum.docx
+---
+generic object: ALAddendumField
+code: |
+  x.label = x.field_name.capitalize().replace("_", " ")
+

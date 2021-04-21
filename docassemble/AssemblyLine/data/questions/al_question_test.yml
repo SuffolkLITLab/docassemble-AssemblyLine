@@ -9,6 +9,7 @@ modules:
 ---
 objects:
   - chiropractors: ALPeopleList.using(target_number=1, ask_number=True)
+  - children: ALPeopleList.using(ask_number=True, complete_attribute="complete")
 ---
 mandatory: True
 code: |
@@ -23,6 +24,11 @@ code: |
   children.gather()
   preview_screen
   basic_questions_signature_flow
+---
+code: |
+  children[i].name.first
+  children[i].birthdate
+  children[i].complete=True
 ---
 # Page to test certain features
 # Reduced text for ease of testing custom audio element
@@ -60,7 +66,7 @@ subquestion: |
   ${ al_user_bundle.send_button_html() }
 ---
 objects:
-  - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=False, enabled=True)
+  - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=True, enabled=True)
   - word_template: ALDocument.using(title="Word Template", filename="word_template", has_addendum=False, enabled=True)  
 ---
 objects:
@@ -72,12 +78,26 @@ code: |
   # emails from ending screen.
   metadata_title = "AssemblyLine Question Test"
 ---
+code: |
+  dummy_template.overflow_fields['children'].overflow_trigger = 2
+  dummy_template.overflow_fields.gathered = True
+---
 attachment:
   variable name: dummy_template[i]
   content: |
     You live at ${ users[0].address.on_one_line() }
 
     You have ${ len(children) } children, named ${ children.familiar() }
+    
+    % if len(children):
+    Here is some information about your first 2 children:
+
+    Name | Age
+    -----|----
+    % for child in dummy_template.safe_value('children'):
+    ${ child } | ${ child.age_in_years() }
+    % endfor
+    % endif
     
     Signed,
     % if i == 'final':
