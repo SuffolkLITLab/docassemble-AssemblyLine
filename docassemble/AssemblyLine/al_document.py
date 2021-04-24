@@ -2,6 +2,8 @@ import re
 from typing import List
 from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, LatitudeLongitude
 
+__all__ = ['ALAddendumField','ALAddendumFieldDict','ALDocument','ALDocumentBundle','ALDocumentBundleDict','safeattr','label','key']
+
 def label(dictionary):
   try:
     return list(dictionary.items())[0][1]
