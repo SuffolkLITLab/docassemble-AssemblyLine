@@ -8,7 +8,21 @@ class ALAddress(Address):
   # Most likely, ask for international address as just 3 unstructured lines. Key thing is
   # the built-in address object requires some fields to be defined that we don't want to require of
   # international addresses when you want to render it to text.
-  pass
+
+  def address_fields(self, country_code="US", default_state=None, show_country=False):
+
+    fields = [
+      {"label": self.address_label, "address autocomplete": True, "field": self.attr_name('address')},
+      {"label": self.unit_label, "field": self.attr_name('unit'), "required": False},
+      {"label": self.city_label, "field": self.attr_name("city")},
+      {"label": self.state_label, "field": self.attr_name("state"), "code": "states_list(country_code='{}')".format(country_code), "default": default_state},
+      {"label": self.zip_label, "field": self.attr_name('zip'), "required": False},
+    ]
+    if show_country:
+      fields.append({"label": self.country_label, "field": self.attr_name("address.country"), "required": False, "code": "countries_list()", "default": country_code})
+      # NOTE: using , "datatype": "combobox" might be nice but does not play together well w/ address autocomplete
+    return fields      
+    
 
 class ALAddressList(DAList):
   """Store a list of Address objects"""
@@ -44,6 +58,10 @@ class ALIndividual(Individual):
     super(ALIndividual, self).init(*pargs, **kwargs)
     # Initialize the attributes that are themselves objects. Requirement to work with Docassemble
     # See: https://docassemble.org/docs/objects.html#ownclassattributes
+    
+    # NOTE: this stops you from passing the address to the constructor
+    self.reInitializeAttribute('address',ALAddress)
+    
     if not hasattr(self, 'previous_addresses'):
       self.initializeAttribute('previous_addresses', ALAddressList)
     if not hasattr(self, 'other_addresses'):
@@ -130,20 +148,10 @@ class ALIndividual(Individual):
     """
     Return field prompts for address.
     """
-    # TODO: make this more flexible to work w/ homeless individuals and
+    # TODO make this more flexible to work w/ homeless individuals and
     # international addresses
-    fields = [
-      {"label": self.address_address_label, "address autocomplete": True, "field": self.attr_name('address.address')},
-      {"label": self.address_unit_label, "field": self.attr_name('address.unit'), "required": False},
-      {"label": self.address_city_label, "field": self.attr_name("address.city")},
-      {"label": self.address_state_label, "field": self.attr_name("address.state"), "code": "states_list(country_code='{}')".format(country_code), "default": default_state},
-      {"label": self.address_zip_label, "field": self.attr_name('address.zip'), "required": False},
-    ]
-    if show_country:
-      fields.append({"label": self.address_country_label, "field": self.attr_name("address.country"), "required": False, "code": "countries_list()", "default": country_code})
-      # NOTE: using , "datatype": "combobox" might be nice but does not play together well w/ address autocomplete
-    return fields      
-
+    return self.address.address_fields(country_code=country_code, default_state=default_state, show_country=show_country)
+  
   def contact_fields(self):
     """
     Return field prompts for other contact info
