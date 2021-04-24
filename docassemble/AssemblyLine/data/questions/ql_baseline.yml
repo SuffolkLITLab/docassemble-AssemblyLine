@@ -221,33 +221,33 @@ template: x.business_choice_label
 content: |
   Business or organization
 ---
-generic object: ALIndividual
-template: x.address_address_label
+generic object: ALAddress
+template: x.address_label
 content: |
   Street address
 ---
-generic object: ALIndividual
-template: x.address_unit_label
+generic object: ALAddress
+template: x.unit_label
 content: |
   Apartment
 ---
-generic object: ALIndividual
-template: x.address_city_label
+generic object: ALAddress
+template: x.city_label
 content: |
   City
 ---
-generic object: ALIndividual
-template: x.address_state_label
+generic object: ALAddress
+template: x.state_label
 content: |
   State
 ---
-generic object: ALIndividual
-template: x.address_zip_label
+generic object: ALAddress
+template: x.zip_label
 content: |
   Zip or postal code
 ---
-generic object: ALIndividual
-template: x.address_country_label
+generic object: ALAddress
+template: x.country_label
 content: |
   Country
 ---
