@@ -13,7 +13,6 @@ objects:
 ---
 mandatory: True
 code: |
-  end_screen
   al_intro_screen
   feature_tests_1
   al_user_bundle
@@ -25,6 +24,7 @@ code: |
   children.gather()
   preview_screen
   basic_questions_signature_flow
+  end_screen
 ---
 code: |
   children[i].name.first
