@@ -152,6 +152,40 @@ class ALIndividual(Individual):
     # international addresses
     return self.address.address_fields(country_code=country_code, default_state=default_state, show_country=show_country)
   
+  def gender_fields(self, show_help=False):
+    """
+    Return a standard gender input with "self described" option.
+    """
+    choices = [
+        {self.gender_female_label: 'female'},
+        {self.gender_male_label: 'male'},
+        {self.gender_nonbinary_label: 'nonbinary'},
+        {self.gender_prefer_not_to_say_label: 'prefer-not-to-say'},
+        {self.gender_prefer_self_described_label: 'self-described'},
+    ]
+    self_described_input = {"label": self.gender_self_described_label,
+                            "field": self.attr_name('gender'),
+                            "show if": {"variable": self.attr_name('gender'),
+                                        "is": 'self-described'},
+                           }
+    if show_help:
+      return [
+        {"label": self.gender_label,
+         "field": self.attr_name('gender'),
+         "choices": choices,
+         "help": self.gender_help_text
+        },
+        self_described_input
+      ]
+    else:
+      return [
+        {"label": self.gender_label,
+         "field": self.attr_name('gender'),
+         "choices": choices,
+        },
+        self_described_input
+      ]
+              
   def contact_fields(self):
     """
     Return field prompts for other contact info
