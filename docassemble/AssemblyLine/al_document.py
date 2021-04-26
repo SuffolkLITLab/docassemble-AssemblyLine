@@ -545,7 +545,14 @@ class ALDocumentBundle(DAList):
     
     return html
   
-  def send_button_html(self, key='final'):
+  def send_button_html(self, key:str='final', show_editable_checkbox:bool = True)->str:
+    """
+    Generate HTML for an input box and button that allows someone to send
+    the bundle to the specified email address.
+    
+    Optionally, display a checkbox that allows someone to decide whether or not to
+    include an editable (Word) copy of the file, iff it is available.
+    """
     name = re.sub(r'[^A-Za-z0-9]+','_', self.instanceName)  # safe name for classes and ids
     al_wants_editable_input_id = 'al_wants_editable_' + name
     al_email_input_id = 'al_doc_email_' + name
@@ -556,7 +563,7 @@ class ALDocumentBundle(DAList):
       "','" + al_wants_editable_input_id + "','" + \
       al_email_input_id + "')"
     
-    return '''
+    return_str = '''
   <div class="al_send_bundle '''+name+'''" id="al_send_bundle_'''+name+'''" name="al_send_bundle_'''+name+'''">
   <h4 id="al_doc_email_header">Get a copy of the documents in email</h4>  
   <div class="al_email_container">
@@ -565,13 +572,18 @@ class ALDocumentBundle(DAList):
     <input value="''' + (user_info().email if user_logged_in() else '') + '''" alt="Input box" class="form-control" type="email" name="'''+al_email_input_id+'''" id="'''+al_email_input_id+'''">
   </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n" + '''
     </div>
+    '''
+    if show_editable_checkbox:
+      return_str += '''
     <div class="form-check-container"><div class="form-check">
-    <input class="form-check-input" type="checkbox" class="al_wants_editable" id="'''+al_wants_editable_input_id+'''">
+    <input class="form-check-input" type="checkbox" class="al_wants_editable" id="'''+al_wants_editable_input_id+'''">      
     <label class="al_wants_editable form-check-label" for="'''+al_wants_editable_input_id+'''">'''\
       + word("Include an editable copy") + '''
     </label>
-  </div></div>
+  </div>
   '''
+    return_str += "</div>"
+    return return_str
     
   def send_email(self, to:any=None, key:str='final', editable:bool=False, template=None, **kwargs):
     """

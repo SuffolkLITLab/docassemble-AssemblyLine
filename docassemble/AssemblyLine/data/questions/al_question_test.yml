@@ -13,6 +13,7 @@ objects:
 ---
 mandatory: True
 code: |
+  end_screen
   al_intro_screen
   feature_tests_1
   al_user_bundle
@@ -63,7 +64,7 @@ subquestion: |
   #### Your files are ready to download below
   ${ al_user_bundle.download_list_html(format="docx") }
   
-  ${ al_user_bundle.send_button_html() }
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 ---
 objects:
   - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=True, enabled=True)
