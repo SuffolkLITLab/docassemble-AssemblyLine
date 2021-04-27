@@ -430,6 +430,13 @@ class ALDocument(DADict):
       overflow_message = self.default_overflow_message
     return self.overflow_fields[field_name].safe_value(overflow_message=overflow_message, preserve_newlines=preserve_newlines)
 
+  def overflow_value(self, field_name:str):
+    """
+    Shortcut syntax for accessing the "overflow" value (amount that exceeds overflow trigger)
+    for the given field as a string.
+    """
+    return self.overflow_fields[field_name].overflow_value()
+  
 class ALDocumentBundle(DAList):
   """
   DAList of ALDocuments or nested ALDocumentBundles.
