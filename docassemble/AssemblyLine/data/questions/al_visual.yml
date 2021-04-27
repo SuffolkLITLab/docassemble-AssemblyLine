@@ -14,6 +14,8 @@ default screen parts:
     Next
   back button label: |
     Undo
+  corner back button label: |
+    Undo
   pre: |
     % if get_config('debug'):
     `id: ${ user_info().question_id }`  

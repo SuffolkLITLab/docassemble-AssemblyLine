@@ -76,6 +76,11 @@ right: |
   ${action_button_html(url_action('load_answer'), icon="folder-open", label=word("View answers"), size="sm" )}
   % endif    
 ---
+##### Backwards compatibility #####
+code: |
+  al_intro_screen
+  basic_questions_intro_screen = True
+---
 id: is the user the plaintiff or defendant?
 comment: |
   This question is asked if the interview can be used by both
@@ -216,33 +221,33 @@ template: x.business_choice_label
 content: |
   Business or organization
 ---
-generic object: ALIndividual
-template: x.address_address_label
+generic object: ALAddress
+template: x.address_label
 content: |
   Street address
 ---
-generic object: ALIndividual
-template: x.address_unit_label
+generic object: ALAddress
+template: x.unit_label
 content: |
   Apartment
 ---
-generic object: ALIndividual
-template: x.address_city_label
+generic object: ALAddress
+template: x.city_label
 content: |
   City
 ---
-generic object: ALIndividual
-template: x.address_state_label
+generic object: ALAddress
+template: x.state_label
 content: |
   State
 ---
-generic object: ALIndividual
-template: x.address_zip_label
+generic object: ALAddress
+template: x.zip_label
 content: |
   Zip or postal code
 ---
-generic object: ALIndividual
-template: x.address_country_label
+generic object: ALAddress
+template: x.country_label
 content: |
   Country
 ---
@@ -413,37 +418,71 @@ comment: |
   That will be very context-specific.
 question: |
   % if al_form_type in ['starts_case','existing_case','appeal']:
-  How many children are involved in this case?
+  Are any children involved in this case?
   % else:
-  How many children are involved in this matter?
+  Are any children involved in this matter?
   % endif  
 fields:
-  - no label: children.target_number
+  - no label: children.there_are_any
+    datatype: yesnoradio
+  - How many?: children.target_number
     datatype: integer
+    show if: children.there_are_any
+validation code: |
+  if not children.there_are_any:
+    children.target_number = 0
 ---
+# Customize this question if you know whose children they are in your interview!
+# this is just a very generic way to ask.
+id: children names without birthdate
+sets:
+  - children[0].name.first
+  - children[0].name.last
+question: |
+  % if hasattr(children, 'ask_number') and children.ask_number and children.target_number == 1:
+  Child's name
+  % else:
+  Name of first child
+  % endif
+fields:
+  - code: |
+      children[0].name_fields()
+---
+# Customize this question if you know whose children they are in your interview!
+# this is just a very generic way to ask.
 id: children names without birthdate
 sets:
   - children[i].name.first
   - children[i].name.last
 question: |
-  Name of the ${ ordinal(i) } child
+  Name of ${ ordinal(i) } child
 fields:
   - code: |
       children[i].name_fields()
 ---
 id: how many witnesses
 question: |
-  How many witnesses are there?
+  Do you have any witnesses?
 fields:
+  - no label: witnesses.there_are_any
+    datatype: yesnoradio
   - no label: witnesses.target_number
     datatype: integer
+    show if: witnesses.there_are_any
+validation code: |
+  if not witnesses.there_are_any:
+    witnesses.target_number = 0
 ---
 sets:
   - witnesses[i].name.first
   - witnesses[i].name.last
 id: names of witnesses
 question: |
+  % if hasattr(witnesses, 'ask_number') and witnesses.ask_number and witnesses.target_number == 1:
+  Witness name
+  % else:
   Name of the ${ ordinal(i) } witness
+  % endif
 fields:
   - code: |
       witnesses[i].name_fields()
@@ -451,8 +490,23 @@ fields:
 generic object: ALPeopleList
 id: any other people
 question: |
-  Do you have any other ${ x.object_name() } to tell us about?
+  Do you have any other ${ noun_plural(x.object_name()) } to tell us about?
 yesno: x.there_is_another  
+---
+id: name of the first person
+sets:
+  - x[0].name.first
+  - x[0].name.last
+generic object: ALPeopleList
+question: |
+  % if hasattr(x, 'ask_number') and x.ask_number and x.target_number == 1:
+  Name of ${ noun_plural(x.object_name(),1) }
+  % else:
+  Name of your first ${ noun_plural(x.object_name(),1) }
+  % endif
+fields:
+  - code: |
+      x[0].name_fields()
 ---
 id: names of people
 sets:
@@ -460,7 +514,7 @@ sets:
   - x[i].name.last
 generic object: ALPeopleList
 question: |
-  Name of your ${ ordinal(i) } ${x.object_name()}
+  Name of the ${ ordinal(i) } ${ noun_plural(x.object_name(), 1) }
 fields:
   - code: |
       x[i].name_fields()
@@ -490,6 +544,7 @@ fields:
       other_parties[i].name_fields(person_or_business='unsure')
 ---
 # TODO: consider removing default state
+# BUT: could be helpful to model how to set a default state
 sets:
   - x.address.address
   - x.address.city
@@ -1055,3 +1110,18 @@ code: |
   # Every form has a user, at least as our default. You can override this
   # by adding your own question or code later in the file
   users.there_are_any = True
+---
+code: |
+  # This default overflow message is only used in the constructor for ALDocument
+  al_default_overflow_message = " [See addendum]"
+---
+# You can override this addendum with a custom one
+generic object: ALDocument
+attachment:
+  variable name: x.addendum
+  docx template file: al_basic_addendum.docx
+---
+generic object: ALAddendumField
+code: |
+  x.label = x.field_name.capitalize().replace("_", " ")
+

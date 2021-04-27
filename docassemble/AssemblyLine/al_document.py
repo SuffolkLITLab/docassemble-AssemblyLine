@@ -1,8 +1,8 @@
 import re
 from typing import List, Union
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude
 
-__all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALDocumentBundleDict']
+__all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALDocumentBundleDict','safeattr','label','key']
 
 DEBUG_MODE = get_config('debug',False)
 
@@ -26,12 +26,15 @@ def safeattr(object, key):
   try:
     if isinstance(object, dict) or isinstance(object, DADict):
       return str(object.get(key,''))
-    elif isinstance(object, DAObject):      
+    elif isinstance(object, DAObject):
+      # `location` is not an attribute people usually want shown in the table of people's attributes
+      if key == 'location':
+        return ''
       return str(getattr(object, key))
     else:
       return ''
   except:
-    return ""
+    return ''
   
 def html_safe_str(the_string) -> str:
   """
@@ -182,9 +185,11 @@ class ALAddendumField(DAObject):
   def __str__(self):
     return str(self.value_if_defined())
     
-  def columns(self):
+  def columns(self, skip_empty_attributes:bool=True, skip_attributes:set = {'complete'} )->list:
     """
     Return a list of the columns in this object.
+    
+    By default, skip empty attributes and the `complete` attribute.
     """
     if hasattr(self, 'headers'):
       return self.headers
@@ -197,7 +202,10 @@ class ALAddendumField(DAObject):
           return list([{key:key} for key in first_value.keys()])
         elif isinstance(first_value, DAObject):
           attr_to_ignore = {'has_nonrandom_instance_name','instanceName','attrList'}
-          return [{key:key} for key in list( set(first_value.__dict__.keys()) - attr_to_ignore )]
+          if skip_empty_attributes:
+            return [{key:key} for key in list( set(first_value.__dict__.keys()) - set(skip_attributes) - attr_to_ignore ) if safeattr(first_value, key)]
+          else:
+            return [{key:key} for key in list( set(first_value.__dict__.keys()) - set(skip_attributes) - attr_to_ignore )]
       except:
         return None
       # None means the value has no meaningful columns we can extract
@@ -392,7 +400,7 @@ class ALDocument(DADict):
     super(ALDocument, self).init(*pargs, **kwargs)
     self.initializeAttribute('overflow_fields',ALAddendumFieldDict)
     if not hasattr(self, 'default_overflow_message'):
-      self.default_overflow_message = ''
+      self.default_overflow_message = '...'
     self.initializeAttribute('cache', DALazyAttribute)
 
   def as_pdf(self, key='final', refresh=True):
@@ -641,7 +649,14 @@ class ALDocumentBundle(DAList):
     
     return html
   
-  def send_button_html(self, key='final'):
+  def send_button_html(self, key:str='final', show_editable_checkbox:bool = True)->str:
+    """
+    Generate HTML for an input box and button that allows someone to send
+    the bundle to the specified email address.
+    
+    Optionally, display a checkbox that allows someone to decide whether or not to
+    include an editable (Word) copy of the file, iff it is available.
+    """
     name = re.sub(r'[^A-Za-z0-9]+','_', self.instanceName)  # safe name for classes and ids
     al_wants_editable_input_id = 'al_wants_editable_' + name
     al_email_input_id = 'al_doc_email_' + name
@@ -652,7 +667,7 @@ class ALDocumentBundle(DAList):
       "','" + al_wants_editable_input_id + "','" + \
       al_email_input_id + "')"
     
-    return '''
+    return_str = '''
   <div class="al_send_bundle '''+name+'''" id="al_send_bundle_'''+name+'''" name="al_send_bundle_'''+name+'''">
   <h4 id="al_doc_email_header">Get a copy of the documents in email</h4>  
   <div class="al_email_container">
@@ -661,13 +676,18 @@ class ALDocumentBundle(DAList):
     <input value="''' + (user_info().email if user_logged_in() else '') + '''" alt="Input box" class="form-control" type="email" name="'''+al_email_input_id+'''" id="'''+al_email_input_id+'''">
   </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n" + '''
     </div>
+    '''
+    if show_editable_checkbox:
+      return_str += '''
     <div class="form-check-container"><div class="form-check">
-    <input class="form-check-input" type="checkbox" class="al_wants_editable" id="'''+al_wants_editable_input_id+'''">
+    <input class="form-check-input" type="checkbox" class="al_wants_editable" id="'''+al_wants_editable_input_id+'''">      
     <label class="al_wants_editable form-check-label" for="'''+al_wants_editable_input_id+'''">'''\
       + word("Include an editable copy") + '''
     </label>
-  </div></div>
+  </div>
   '''
+    return_str += "</div>"
+    return return_str
     
   def send_email(self, to:any=None, key:str='final', editable:bool=False, template=None, **kwargs):
     """
