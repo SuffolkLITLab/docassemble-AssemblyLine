@@ -236,6 +236,55 @@ template: x.city_label
 content: |
   City
 ---
+generic object: ALIndividual
+template: x.gender_label
+content: |
+  Gender
+---
+generic object: ALIndividual
+template: x.gender_female_label
+content: |
+  Female
+---
+generic object: ALIndividual
+template: x.gender_male_label
+content: |
+  Male
+---
+# Arbitrarily selected most common hyphenation as of April 2021.
+# Note that this usage is still evolving.
+# https://nonbinary.wiki/wiki/Nonbinary_Wiki:Style_guide#Nonbinary,_non-binary,_or_non_binary?
+generic object: ALIndividual
+template: x.gender_nonbinary_label
+content: |
+  Nonbinary
+---
+generic object: ALIndividual
+template: x.gender_prefer_not_to_say_label
+content: |
+  Prefer not to say
+---
+generic object: ALIndividual
+template: x.gender_prefer_self_described_label
+content: |
+  Prefer to write something else
+---
+generic object: ALIndividual
+template: x.gender_self_described_label
+content: |
+  Self-described gender
+---
+generic object: ALIndividual
+template: x.gender_help_text
+content: |
+  Some forms require you to select either "Male" or "Female". If you do not select
+  "Male" or "Female", your form may include an empty checkbox.
+---
+generic object: ALIndividual
+template: x.gender_female_label
+content: |
+  Female
+---
 generic object: ALAddress
 template: x.state_label
 content: |
@@ -615,27 +664,15 @@ code: |
   x.gender_male = x.gender == 'male'
   x.gender_other = ((x.gender != 'male') and (x.gender != 'female'))
 ---
+sets:
+  - x.gender
 id: gender
 generic object: ALIndividual
 question: |
   What is ${x.possessive('gender')}?
-subquestion: |
-  **Note**: Many forms require you to specify "Female" or "Male."
-  
-  If you answer something other than "Female" or "Male", we may not be able
-  to check any box on your form. This may delay your case.
 fields:
-  - no label: x.gender
-    choices:
-      - Female: female
-      - Male: male
-      - Non-binary: non-binary
-      - Prefer not to say: prefer-not-to-say
-      - Prefer to write in a different gender: self-described
-  - Gender: x.gender
-    show if:
-      variable: x.gender
-      is: "self-described"
+  - code: |
+      x.gender_fields(show_help=True)
 ---
 id: interpreter
 comment: |
@@ -646,9 +683,12 @@ question: |
 subquestion: |
   You have the right to an interpreter.
 
-  If there is a chance you may not understand everything that is said in English, or if other people may not be able to understand you, ask for an interpreter.
+  If there is a chance you may not understand everything that is said in 
+  English, or if other people may not be able to understand you, ask for an 
+  interpreter.
 
-  You do not have to speak only through the interpreter, but you may have one if you need one.
+  You do not have to speak only through the interpreter, but you may have one 
+  if you need one.
 fields:
   - I need an interpreter: user_needs_interpreter
     datatype: yesnoradio
@@ -1124,4 +1164,3 @@ attachment:
 generic object: ALAddendumField
 code: |
   x.label = x.field_name.capitalize().replace("_", " ")
-

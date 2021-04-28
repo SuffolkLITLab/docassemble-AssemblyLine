@@ -19,6 +19,7 @@ code: |
   chiropractors.gather()
   other_parties.gather()
   users.gather()
+  users[0].gender  
   users[0].address.address
   trial_court
   children.gather()
