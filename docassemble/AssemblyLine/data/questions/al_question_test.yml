@@ -13,6 +13,8 @@ objects:
 ---
 mandatory: True
 code: |
+  # big_text_field
+  # debug_safe_value
   al_intro_screen
   test_label_functions
   feature_tests_1
@@ -23,6 +25,7 @@ code: |
   users[0].gender  
   users[0].address.address
   trial_court
+  big_text_field  
   children.gather()
   preview_screen
   basic_questions_signature_flow
@@ -79,8 +82,30 @@ subquestion: |
   
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 ---
+question: |
+  Try a big text field
+subquestion: |
+  Try more than 200 characters to trigger addendum.
+fields:
+  - Write something: big_text_field
+    datatype: area
+---
+continue button field: debug_safe_value
+question: |
+  Test
+subquestion: |
+  #### Safe
+  
+  > ${ dummy_template.safe_value('big_text_field', preserve_newlines=True) }
+  
+  #### Overflow
+  
+  > ${ dummy_template.overflow_value('big_text_field', preserve_newlines=True) }
+  
+---
 objects:
-  - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=True, enabled=True)
+  # Dummy template will use the generic addendum
+  - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=True, enabled=True, default_overflow_message=" [See addendum]")
   - word_template: ALDocument.using(title="Word Template", filename="word_template", has_addendum=False, enabled=True)  
 ---
 objects:
@@ -93,6 +118,7 @@ code: |
   metadata_title = "AssemblyLine Question Test"
 ---
 code: |
+  dummy_template.overflow_fields['big_text_field'].overflow_trigger = 200
   dummy_template.overflow_fields['children'].overflow_trigger = 2
   dummy_template.overflow_fields.gathered = True
 ---
@@ -102,7 +128,11 @@ attachment:
     You live at ${ users[0].address.on_one_line() }
 
     You have ${ len(children) } children, named ${ children.familiar() }
+
+    Here is the safe value of "big_text_field":
     
+    > ${ dummy_template.safe_value('big_text_field') }
+
     % if len(children):
     Here is some information about your first 2 children:
 

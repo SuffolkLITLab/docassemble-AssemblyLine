@@ -79,23 +79,31 @@ class ALAddendumField(DAObject):
   def init(self, *pargs, **kwargs):
     super(ALAddendumField, self).init(*pargs, **kwargs)
 
-  def overflow_value(self, preserve_newlines=False, input_width=80, overflow_message = ""):
+  def overflow_value(self, preserve_newlines:bool=False, input_width:int=80, overflow_message:str = ""):
     """
     Try to return just the portion of the variable (list-like object or string)
-    that exceeds the overflow trigger. Otherwise, return empty string.
-    
-    If newlines are preserved, we will use a heuristic to estimate line breaks instead
-    of using absolute character limit.
+    that is not contained in the safe_value().
     """
-    last_char = max(len(self.safe_value(overflow_message = overflow_message, input_width=input_width, preserve_newlines=True)) - (max(len(overflow_message)-1,0)), 0)   
+    # Overflow value is the value that starts at the end of the safe value.
+    safe_text = self.safe_value(overflow_message = overflow_message, input_width=input_width, preserve_newlines=preserve_newlines)
+    original_value = self.value_if_defined()
+    if isinstance(safe_text,str):
+      # Always get rid of double newlines, for consistency with safe_value.
+      value_to_process = re.sub(r"[\r\n]+|\r+|\n+",r"\n",original_value).rstrip()    
+      if safe_text == value_to_process: # no overflow
+        return ""
+      # If this is a string, the safe value will include an overflow message. Delete
+      # the overflow message from the length of the safe value to get the starting character.
+      # Note: if preserve newlines is False:
+      #   1. All single and double newlines are replaced with a space
+      #   2. Character count will adjust to reflect double-newlines being replaced with one char.
+      # If preserve newlines is True:
+      #   1. We replace all double newlines with \n.
+      #   2. Character count will adjust to reflect double-newlines being replaced with one char.
+      overflow_start = max(len(safe_text) - len(overflow_message), 0)
+      return value_to_process[overflow_start:]
     
-    if preserve_newlines and isinstance(self.value_if_defined(),str):
-      # start where the safe value ends
-      return self.value_if_defined()[last_char:]
-      
-    if isinstance(self.value_if_defined(),str):
-      return self.value_if_defined()[last_char:]
-    
+    # Do not subtract length of overflow message if this is a list of objects instead of a string
     return self.value_if_defined()[self.overflow_trigger:]
 
   def max_lines(self, input_width=80, overflow_message_length=0):
@@ -421,21 +429,25 @@ class ALDocument(DADict):
   def overflow(self):
     return self.overflow_fields.overflow()
     
-  def safe_value(self, field_name, overflow_message=None, preserve_newlines=False):
+  def safe_value(self, field_name, overflow_message=None, preserve_newlines=False, input_width=80):
     """
     Shortcut syntax for accessing the "safe" (shorter than overflow trigger)
     value of a field that we have specified as needing an addendum.
     """
     if overflow_message is None:
       overflow_message = self.default_overflow_message
-    return self.overflow_fields[field_name].safe_value(overflow_message=overflow_message, preserve_newlines=preserve_newlines)
+    return self.overflow_fields[field_name].safe_value(overflow_message=overflow_message, preserve_newlines=preserve_newlines, input_width=input_width)
 
-  def overflow_value(self, field_name:str):
+  def overflow_value(self, field_name:str, overflow_message=None, preserve_newlines=False, input_width=80):
     """
     Shortcut syntax for accessing the "overflow" value (amount that exceeds overflow trigger)
     for the given field as a string.
+    
+    Should mirror the "safe_value" for the same field.
     """
-    return self.overflow_fields[field_name].overflow_value()
+    if overflow_message is None:
+      overflow_message = self.default_overflow_message    
+    return self.overflow_fields[field_name].overflow_value(overflow_message=overflow_message, preserve_newlines=preserve_newlines, input_width=input_width)
   
 class ALDocumentBundle(DAList):
   """
