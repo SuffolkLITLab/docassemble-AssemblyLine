@@ -1151,9 +1151,9 @@ code: |
   # by adding your own question or code later in the file
   users.there_are_any = True
 ---
+generic object: ALDocument
 code: |
-  # This default overflow message is only used in the constructor for ALDocument
-  al_default_overflow_message = " [See addendum]"
+  x.default_overflow_message = "..."
 ---
 # You can override this addendum with a custom one
 generic object: ALDocument
