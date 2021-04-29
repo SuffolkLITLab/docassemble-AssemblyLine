@@ -14,6 +14,7 @@ objects:
 mandatory: True
 code: |
   al_intro_screen
+  test_label_functions
   feature_tests_1
   al_user_bundle
   chiropractors.gather()
@@ -26,6 +27,17 @@ code: |
   preview_screen
   basic_questions_signature_flow
   end_screen
+---
+question: |
+  Test
+fields:
+  - code: |
+      users[0].name_fields()
+  - code: |
+      users[0].gender_fields()
+  - code: |
+      users[0].address_fields()
+continue button field: test_label_functions
 ---
 code: |
   children[i].name.first

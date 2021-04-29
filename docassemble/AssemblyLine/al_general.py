@@ -12,11 +12,11 @@ class ALAddress(Address):
   def address_fields(self, country_code="US", default_state=None, show_country=False):
 
     fields = [
-      {"label": self.address_label, "address autocomplete": True, "field": self.attr_name('address')},
-      {"label": self.unit_label, "field": self.attr_name('unit'), "required": False},
-      {"label": self.city_label, "field": self.attr_name("city")},
-      {"label": self.state_label, "field": self.attr_name("state"), "code": "states_list(country_code='{}')".format(country_code), "default": default_state},
-      {"label": self.zip_label, "field": self.attr_name('zip'), "required": False},
+      {"label": str(self.address_label), "address autocomplete": True, "field": self.attr_name('address')},
+      {"label": str(self.unit_label), "field": self.attr_name('unit'), "required": False},
+      {"label": str(self.city_label), "field": self.attr_name("city")},
+      {"label": str(self.state_label), "field": self.attr_name("state"), "code": "states_list(country_code='{}')".format(country_code), "default": default_state},
+      {"label": str(self.zip_label), "field": self.attr_name('zip'), "required": False},
     ]
     if show_country:
       fields.append({"label": self.country_label, "field": self.attr_name("address.country"), "required": False, "code": "countries_list()", "default": country_code})
@@ -131,16 +131,16 @@ class ALIndividual(Individual):
                      {str(self.business_choice_label): "business"}],
          "input type": "radio", "required": True},
         # Individual questions
-        {"label": self.first_name_label, "field": self.attr_name('name.first'),
+        {"label": str(self.first_name_label), "field": self.attr_name('name.first'),
          "show if": show_if_indiv},
-        {"label": self.middle_name_label, "field": self.attr_name('name.middle'), "required": False,
+        {"label": str(self.middle_name_label), "field": self.attr_name('name.middle'), "required": False,
          "show if": show_if_indiv},
-        {"label": self.last_name_label, "field": self.attr_name("name.last"),
+        {"label": str(self.last_name_label), "field": self.attr_name("name.last"),
          "show if": show_if_indiv},
-        {"label": self.suffix_label, "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False,
+        {"label": str(self.suffix_label), "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False,
          "show if": show_if_indiv},
         # Business names
-        {"label": self.business_name_label, "field": self.attr_name('name.first'),
+        {"label": str(self.business_name_label), "field": self.attr_name('name.first'),
          "show if": show_if_business} 
       ]
  
@@ -157,23 +157,23 @@ class ALIndividual(Individual):
     Return a standard gender input with "self described" option.
     """
     choices = [
-        {self.gender_female_label: 'female'},
-        {self.gender_male_label: 'male'},
-        {self.gender_nonbinary_label: 'nonbinary'},
-        {self.gender_prefer_not_to_say_label: 'prefer-not-to-say'},
-        {self.gender_prefer_self_described_label: 'self-described'},
+        {str(self.gender_female_label): 'female'},
+        {str(self.gender_male_label): 'male'},
+        {str(self.gender_nonbinary_label): 'nonbinary'},
+        {str(self.gender_prefer_not_to_say_label): 'prefer-not-to-say'},
+        {str(self.gender_prefer_self_described_label): 'self-described'},
     ]
-    self_described_input = {"label": self.gender_self_described_label,
+    self_described_input = {"label": str(self.gender_self_described_label),
                             "field": self.attr_name('gender'),
                             "show if": {"variable": self.attr_name('gender'),
                                         "is": 'self-described'},
                            }
     if show_help:
       return [
-        {"label": self.gender_label,
+        {"label": str(self.gender_label),
          "field": self.attr_name('gender'),
          "choices": choices,
-         "help": self.gender_help_text
+         "help": str(self.gender_help_text)
         },
         self_described_input
       ]
