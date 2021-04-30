@@ -66,8 +66,10 @@ question: |
 subquestion: |
   Take a look at the files below. When you are ready, click "next"
   to continue and add your signature.
+    
+  ${ dummy_template.as_pdf(key='preview') }
   
-  ${ al_user_bundle.as_pdf(key='preview', refresh=True) }
+  ${ al_user_bundle.as_pdf(key='preview') }
   
   [Edit](${url_action('users[0].name.first')})
 ---
@@ -78,7 +80,7 @@ question: |
   Hello, ${ users }
 subquestion: |
   #### Your files are ready to download below
-  ${ al_user_bundle.download_list_html(format="docx") }
+  ${ al_user_bundle.download_list_html() }
   
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
 ---
