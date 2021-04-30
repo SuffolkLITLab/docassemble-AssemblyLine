@@ -4,7 +4,7 @@ from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, D
 
 __all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALDocumentBundleDict','safeattr','label','key']
 
-DEBUG_MODE = get_config('debug',False)
+DEBUG_MODE = get_config('debug')
 
 def log_if_debug(text:str)->None:
   if DEBUG_MODE:
@@ -44,8 +44,8 @@ def html_safe_str(the_string) -> str:
 
 def table_row( title, view_file:DAFile, download_file:DAFile=None, view_icon:str="eye", download_icon:str="download") -> str:
   """
-  Return a string of html that is one row of a table containing
-  the `.as_pdf()` contents of an AL object and its interaction buttons
+  Uses the provided DAFile/DAFileCollection objects to build the row of a table in HTML format that allows
+  you to both view and download an ALDocument.
   """
   if not download_file:
     download_file = view_file
@@ -78,7 +78,7 @@ class ALAddendumField(DAObject):
     - field_style->"list"|"table"|"string" (optional: defaults to "string")
   """
   def init(self, *pargs, **kwargs):
-    super(ALAddendumField, self).init(*pargs, **kwargs)
+    super().init(*pargs, **kwargs)
 
   def overflow_value(self, preserve_newlines=False, input_width=80, overflow_message = ""):
     """
@@ -522,7 +522,7 @@ class ALDocumentBundle(DAList):
   enabled:bool # optional
 
   def init(self, *pargs, **kwargs):
-    super(ALDocumentBundle, self).init(*pargs, **kwargs)
+    super().init(*pargs, **kwargs)
     self.auto_gather=False
     self.gathered=True
     self.initializeAttribute('cache', DALazyAttribute)
@@ -542,7 +542,7 @@ class ALDocumentBundle(DAList):
       ending = '.pdf'
     files = self.enabled_documents()
     if len(files) == 1:
-      # This case is simplest--no PDF concatenation needed
+      # This case is simplest--we do not need to process the document at this level
       log_if_debug('Storing bundle for just one document ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
       pdf = files[0].as_pdf(key=key, refresh=refresh)
       pdf.title = self.title
@@ -730,7 +730,7 @@ class ALDocumentBundleDict(DADict):
   different scenarios.
   """
   def init(self, *pargs, **kwargs):
-    super(ALDocumentBundleDict, self).init(*pargs, **kwargs)
+    super().init(*pargs, **kwargs)
     self.auto_gather=False
     self.gathered=True
     self.object_type = ALDocumentBundle
