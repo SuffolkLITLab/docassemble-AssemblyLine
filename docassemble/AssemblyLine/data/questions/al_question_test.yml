@@ -82,7 +82,7 @@ subquestion: |
   #### Your files are ready to download below
   ${ al_user_bundle.download_list_html() }
   
-  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
 ---
 question: |
   Try a big text field
