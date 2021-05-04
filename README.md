@@ -57,3 +57,13 @@ attachment:
       - "user_signature": ${ users[0].signature_if_final(i) }
       - "signature_date": ${ signature_date }
 ```
+
+It is very common to have a *contingent* document in ALDocument. If your document is contingent, remove the `enabled=True` from the object declaration, and use
+some other method to "turn on" the attachment.
+
+E.g.,
+
+```
+code: |
+  CRA_Motion_to_Dismiss_attachment.enabled = condition1 and condition2
+```
