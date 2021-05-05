@@ -77,6 +77,9 @@ class ALAddendumField(DAObject):
     - headers->dict(attribute: display label for table)
     - field_style->"list"|"table"|"string" (optional: defaults to "string")
   """
+  field_name:str
+  overflow_trigger: Union[int, bool]
+
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
 
@@ -85,7 +88,11 @@ class ALAddendumField(DAObject):
     Try to return just the portion of the variable (list-like object or string)
     that is not contained in the safe_value().
     """
-    # Overflow value is the value that starts at the end of the safe value.
+    # Handle a Boolean overflow first
+    if isinstance(self.overflow_trigger, bool) and self.overflow_trigger:
+      return self.value()
+
+    # If trigger is not a boolean value, overflow value is the value that starts at the end of the safe value.
     safe_text = self.safe_value(overflow_message = overflow_message, input_width=input_width, preserve_newlines=preserve_newlines)
     original_value = self.value_if_defined()
     if isinstance(safe_text,str):
