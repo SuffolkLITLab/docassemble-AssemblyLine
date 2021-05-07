@@ -396,7 +396,7 @@ class ALDocument(DADict):
     - filename: name used for output PDF
     - title: display name for the output PDF
     - enabled
-    - has_addendum: set to False if the document never has overflow, like for a DOCX template
+    - has_addendum: The default value is False. Set to False if the document never has overflow, like for a DOCX template.
   
   Optional attribute:
     - addendum: an attachment block
@@ -410,12 +410,14 @@ class ALDocument(DADict):
   addendum: DAFileCollection
   overflow_fields: ALAddendumFieldDict
   cache: DALazyAttribute # stores cached DAFile output with a per-screen load lifetime
-
+  
   def init(self, *pargs, **kwargs):
     super(ALDocument, self).init(*pargs, **kwargs)
     self.initializeAttribute('overflow_fields',ALAddendumFieldDict)
     if not hasattr(self, 'default_overflow_message'):
       self.default_overflow_message = '...'
+    if not hasattr(self, 'has_addendum'):
+      self.has_addendum = False
     self.initializeAttribute('cache', DALazyAttribute)
 
   def as_pdf(self, key='final', refresh=True):

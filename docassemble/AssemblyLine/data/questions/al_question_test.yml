@@ -108,7 +108,8 @@ subquestion: |
 objects:
   # Dummy template will use the generic addendum
   - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=True, enabled=True, default_overflow_message=" [See addendum]")
-  - word_template: ALDocument.using(title="Word Template", filename="word_template", has_addendum=False, enabled=True)  
+  # `has_addendum` should be taken care of by a default attr
+  - word_template: ALDocument.using(title="Word Template", filename="word_template", enabled=True)  
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template], filename="user_bundle.pdf", title="All forms to download for your records")
