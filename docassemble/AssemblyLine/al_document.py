@@ -396,7 +396,7 @@ class ALDocument(DADict):
     - filename: name used for output PDF
     - title: display name for the output PDF
     - enabled
-    - has_addendum: The default value is False. Set to False if the document never has overflow, like for a DOCX template.
+    - has_addendum: The default value is False. Set to True if the document has overflow, like for a DOCX template.
   
   Optional attribute:
     - addendum: an attachment block
