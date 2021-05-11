@@ -24,6 +24,7 @@ code: |
   users.gather()
   users[0].gender  
   users[0].address.address
+  users[0].mailing_address.address
   trial_court
   big_text_field  
   children.gather()

@@ -360,6 +360,29 @@ fields:
   - code: |
       users[0].address_fields(default_state="MA")
 ---
+id: your mailing address
+sets:
+  - users[0].mailing_address.address
+  - users[0].mailing_address.city
+  - users[0].mailing_address.zip
+question: |
+  What is your mailing address?
+fields:
+  - code: |
+      users[0].mailing_address.address_fields()
+---
+generic object: ALIndividual
+id: any mailing address
+sets:
+  - x.mailing_address.address
+  - x.mailing_address.city
+  - x.mailing_address.zip
+question: |
+  What is ${x}'s mailing address?
+fields:
+  - code: |
+      x.mailing_address.address_fields()
+---
 id: your contact information
 question: |
   What is your contact information?
