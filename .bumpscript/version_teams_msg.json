@@ -1,0 +1,46 @@
+{
+	"@type": "MessageCard",
+	"@context": "https://schema.org/extensions",
+	"summary": "Assembly Line Version released",
+	"themeColor": "0078D7",
+	"title": "Assembly Line Version {{version}} released", 
+	"sections": [
+		{
+			"activityTitle": "Version {{version}}",
+			"activityImage": "https://avatars.githubusercontent.com/u/33028765?s=200&v=4", 
+			"facts": [
+				{
+					"name": "Repository:",
+					"value": "SuffolkLITLab/docassemble-AssemblyLine"
+				},
+				{
+					"name": "Tag",
+					"value": "v{{version}}"
+				}
+			],
+			"text": "" 
+		}
+	],
+	"potentialAction": [
+        {
+            "@type": "OpenUri",
+            "name": "See Changelog",
+            "targets": [
+                {
+                    "os": "default",
+                    "uri": "https://github.com/SuffolkLITLab/docassemble-AssemblyLine/blob/v{{version}}/CHANGELOG.md#v{{version}}"
+                }
+            ]
+        },
+		{
+			"@type": "OpenUri",
+			"name": "View in GitHub",
+			"targets": [
+				{
+					"os": "default",
+					"uri": "http://github.com/SuffolkLITLab/docassemble-AssemblyLine/releases/tag/v{{version}}"
+				}
+			]
+		}
+	]
+}
