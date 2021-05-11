@@ -34,7 +34,7 @@ features:
   question help button: True
   question back button: True
   progress bar: True
-  css: colors.css  
+  css: styles.css  
 ---
 code: |
   send_icon = "envelope"

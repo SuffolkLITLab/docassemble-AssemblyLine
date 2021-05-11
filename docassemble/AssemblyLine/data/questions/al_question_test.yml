@@ -69,6 +69,8 @@ id: test behavior of some features
 continue button field: feature_tests_1
 question: |
   Features test 1
+subquestion: |  
+  [FILE test_screen_shot.png]
 help: |
   Show help screen
 ---
