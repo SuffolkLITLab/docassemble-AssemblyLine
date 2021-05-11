@@ -20,6 +20,10 @@ fi
 git push 
 git push --tags
 sed -e s/{{version}}/$new_version/g .bumpscript/version_teams_msg.json > /tmp/teams_msg_to_send.json
+
+# Setup this solution using: https://stackoverflow.com/a/65759554
+# The JSON was built using: https://messagecardplayground.azurewebsites.net/, 
+# and https://docs.microsoft.com/en-us/outlook/actionable-messages/message-card-reference
 curl -H "Content-Type:application/json" -d "@/tmp/teams_msg_to_send.json" $teams_bump_webhook
 rm "/tmp/teams_msg_to_send.json"
 
