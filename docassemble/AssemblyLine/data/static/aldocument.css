@@ -37,10 +37,12 @@ td.text-left:first-child {
 }
 
 /* BW hotfixes 2/9/2021 */
-
-.da-subquestion .btn {
-  min-width: 120px;
-}
+/* LY 5/2021 Add media requirement to skip it for horizontal alignment mobile mode */
+@media only screen and (min-width: 700px) {
+  .da-subquestion .btn {
+    min-width: 120px;
+  }
+} 
 .da-subquestion .daquestionbackbutton {
   background-color: #eee;
 }
@@ -56,35 +58,51 @@ td.text-left:first-child {
 #al_user_bundle a.btn-darevisit {
   margin-bottom: 0;
 }
-
+/* LY 5/2021 Align buttons horizontally */
 #al_user_bundle a.btn {
   position: relative;
-  float: right;
-  margin: 0.5rem 0;
+  margin: 0.1rem;
+  /*float: right;
+  margin: 0.5rem 0; */
 }
 
 #al_user_bundle a.btn:nth-child(1) {
   margin-bottom: 0;
+  margin-left:0.5rem;
 }
 
 #al_user_bundle td div {
   min-width: 320px;
 }
-
+/* LY 5/2021 Remove flex rules for horizontal alignment*/
 #al_send_bundle_al_user_bundle .form-check-container {
-  display: flex;
-  justify-content: flex-end;
+  /*display: flex;
+  justify-content: flex-end;*/
   margin: 0.5rem 0 5px 0;
 }
-
-.al_email_container {
-  display: flex;
+/* al_email_container desktop version */
+@media only screen and (min-width: 700px) {
+  .al_email_container {
+    display: flex;
+  }  
+  .al_email_container > span {
+    display: flex;
+    flex: 1;    
+  }  
+  .al_email_container > span > input {
+    flex: 1;
+    margin: 0 0.5rem; 
+  }
 }
-.al_email_container > span {
-  display: flex;
-  flex: 1;
-}
-.al_email_container > span > input {
-  flex: 1;
-  margin: 0 10px;
+/* al_email_container mobile version */
+@media only screen and (max-width: 700px) {
+  .al_email_container {
+    display: block; 
+  }
+  .al_email_container > span {
+    display: block; 
+  }  
+  .al_email_container > span > input {    
+    margin: 0 0 10px; 
+  }
 }
