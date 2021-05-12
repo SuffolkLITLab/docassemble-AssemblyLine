@@ -51,12 +51,8 @@ default screen parts:
     % if not user_logged_in():
     [:sign-in-alt: Sign-in](${url_of('login', next=interview_url())}) or [register](${url_of('register', next=interview_url())}) to save your progress (optional).
     % endif
-
-    % if get_config('debug'):
-    Feedback, suggestions, or comments? [Complete this survey](${ interview_url(i="docassemble.MAVirtualCourt:feedback.yml", github_repo=github_repo_name, github_user='suffolklitlab', variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}.
-    % else:
-    Feedback, suggestions, or comments? [Complete this survey](${ interview_url(i="docassemble.MAVirtualCourt:feedback.yml", github_repo=github_repo_name, github_user='suffolklitlab', variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}.
-    % endif    
+  footer: |
+    [:comment-dots: Feedback](${ interview_url(i="docassemble.MAVirtualCourt:feedback.yml", github_repo=github_repo_name, github_user='suffolklitlab', variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}
 ---
 image sets:
   smashicons:
