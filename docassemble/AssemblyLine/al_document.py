@@ -52,11 +52,11 @@ def table_row( title, view_file:DAFile, download_file:DAFile=None, view_icon:str
   html = '\n\t<tr>'
   # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
   # TODO: Need to replace with proper CSS
-  html += '\n\t\t<td><div><strong>' + title + '</strong></div></td>'
+  html += '\n\t\t<td><strong>' + title + '</strong></td>'
   html += '\n\t\t<td>'
   html += action_button_html( view_file.url_for(), label=word("View"), size="md", icon=view_icon, color="secondary" )
   html += action_button_html( download_file.url_for(attachment=True), size="md", label=word("Download"), icon=download_icon, color="primary" )
-
+  html += '</td>'
   html += '\n\t</tr>'
 
   return html
@@ -695,13 +695,7 @@ class ALDocumentBundle(DAList):
     
     return_str = '''
   <div class="al_send_bundle '''+name+'''" id="al_send_bundle_'''+name+'''" name="al_send_bundle_'''+name+'''">
-  <h4 id="al_doc_email_header">Get a copy of the documents in email</h4>  
-  <div class="al_email_container">
-  <span class="al_email_address '''+name+''' form-group row da-field-container da-field-container-datatype-email">
-    <label for="'''+al_email_input_id+'''" class="al_doc_email col-form-label da-form-label datext-right">Email</label>
-    <input value="''' + (user_info().email if user_logged_in() else '') + '''" alt="Input box" class="form-control" type="email" name="'''+al_email_input_id+'''" id="'''+al_email_input_id+'''">
-  </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n" + '''
-    </div>
+  <h5 id="al_doc_email_header">Get a copy of the documents in email</h5>    
     '''
     if show_editable_checkbox:
       return_str += '''
@@ -713,6 +707,14 @@ class ALDocumentBundle(DAList):
   </div>
   '''
     return_str += "</div>"
+    return_str += '''
+  <div class="al_email_container">
+  <span class="al_email_address '''+name+''' form-group row da-field-container da-field-container-datatype-email">
+    <label for="'''+al_email_input_id+'''" class="al_doc_email col-form-label da-form-label datext-right">Email address</label>
+    <input value="''' + (user_info().email if user_logged_in() else '') + '''" alt="Input box" class="form-control" type="email" size="35" name="'''+al_email_input_id+'''" id="'''+al_email_input_id+'''">
+  </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n" + '''
+  </div></div>
+  '''
     return return_str
     
   def send_email(self, to:any=None, key:str='final', editable:bool=False, template=None, **kwargs):
