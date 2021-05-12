@@ -40,11 +40,25 @@ code: |
   send_icon = "envelope"
 ---
 code: |
+  # Override this in your package where possible, so that 
+  # features that depend on the package name will work
+  # from the playground
   package_name = str(user_info().package)
+---
+code: |
   if package_name and not "playground" in package_name:
     github_repo_name = package_name.replace('.','-')
   else:    
     github_repo_name = "docassemble-AssemblyLine"
+---
+code: |
+  # Username or organization name for Github repositories
+  # Used to direct feedback to the right place and to check for
+  # the last commit date.
+  github_user = "suffolklitlab" 
+---
+code: |
+  feedback_form = "docassemble.MAVirtualCourt:feedback.yml"
 ---
 default screen parts:
   under: |
@@ -52,7 +66,9 @@ default screen parts:
     [:sign-in-alt: Sign-in](${url_of('login', next=interview_url())}) or [register](${url_of('register', next=interview_url())}) to save your progress (optional).
     % endif
   footer: |
-    [:comment-dots: Feedback](${ interview_url(i="docassemble.MAVirtualCourt:feedback.yml", github_repo=github_repo_name, github_user='suffolklitlab', variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}
+    [:share-alt-square: Share](https://www.example.com)
+    [:info-circle: About](${ url_action('about_this_interview') })
+    [:comment-dots: Feedback](${ interview_url(i=feedback_form, github_repo=github_repo_name, github_user=github_user, variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}
 ---
 image sets:
   smashicons:
@@ -62,3 +78,57 @@ image sets:
     images:
       form: sign-form.svg
       form-lineal: sign-form-lineal.svg
+---
+objects:
+  - github_readonly: DAWeb.using(base_url="https://api.github.com")
+---
+code: |
+  github_url = "https://github.com/" + github_user + "/" + github_repo_name
+---
+code: |
+  res = github_readonly.get("repos/" + github_user + '/' + github_repo_name)
+  if res and res.get('pushed_at'):
+    package_updated_on = as_datetime(res.get('pushed_at')).format('yyyy-MM-dd')
+  else:
+    package_updated_on = None
+---
+event: about_this_interview
+id: about AssemblyLine project
+question: |
+  About this form
+# TODO: I think people might want more form-specific info here?
+subquestion: |
+  [CENTER] [FILE seal.jpg, 30%, Logo of the Suffolk LIT Lab]
+  
+  ${ about_this_interview_version_info }
+back button label: |
+  Back to form
+---
+template: about_this_interview_version_info
+content: |
+  % if all_variables(special='metadata').get('authors'):
+  This form was authored by 
+  ${ comma_and_list(all_variables(special='metadata').get('authors')) }.
+  % endif
+  
+  % if package_updated_on:
+  This form was last updated on ${ package_updated_on }.
+  <a href="${ github_url }"><i class="fab fa-github"></i> View on github</a>.
+  % endif
+  
+  This form is part of the [Document Assembly Line 
+  project](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/). 
+  It was created by attorneys, coders, students, and volunteers coordinated by 
+  Suffolk University Law School's [Legal Innovation and Technology 
+  Lab](https://suffolklitlab.org).
+  
+  Version information: "${all_variables(special='metadata').get('title')}" version 
+  `${ package_version_number }`; `${ al_version }`.
+  
+  Do you have something to tell us? Send us 
+  [feedback](${ interview_url(i=feedback_form, github_repo=github_repo_name, github_user=github_user, variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}.
+
+  &copy; ${today().year} 
+  [Suffolk Legal Innovation and Technology Lab](https://suffolklitlab.org)
+  and open source contributors under the [MIT License](https://opensource.org/licenses/MIT).
+  
