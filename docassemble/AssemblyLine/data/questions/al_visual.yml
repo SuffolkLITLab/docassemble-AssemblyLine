@@ -52,7 +52,7 @@ default screen parts:
     [:sign-in-alt: Sign-in](${url_of('login', next=interview_url())}) or [register](${url_of('register', next=interview_url())}) to save your progress (optional).
     % endif
   footer: |
-    [:share-alt-square: Share](${ url_ask(['al_share_form_screen','al_share_results']) })
+    [:share-alt-square: Share](${ url_ask(['al_share_form_screen', {'recompute': ['al_did_share_form']}, 'al_share_results']) })
     [:comment-dots: Feedback](${ interview_url(i="docassemble.MAVirtualCourt:feedback.yml", github_repo=github_repo_name, github_user='suffolklitlab', variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}
 ---
 image sets:
@@ -114,8 +114,7 @@ fields:
     default: |
       Hi, I wanted to let you know about a free tool that I learned about:
       "${single_paragraph(all_variables(special='metadata').get('title','Court Forms Online'))}". I think this might
-      help you, too. Check it out at this link: 
-      ${ interview_url(i=user_info().filename, style="short", new_session=1) }
+      help you, too. Check it out at the link in this message: 
     show if: 
       variable: sharing_type
       is: tell_friend      
@@ -124,14 +123,11 @@ fields:
     default: |
       Hi, I wanted to share my progress on a Court Forms Online tool,
       "${all_variables(special='metadata').get('title')}".
-      
-      Click this link to jump to my progress on the tool.
-      ${ interview_url(temporary=48) }. The link will expire in 48 hours.
     show if:
       variable: sharing_type
       is: share_answers      
-  - Your name: tell_a_friend_from_name
-    default: ${ str(users) if defined('users') else '' }      
+  - Your name: al_share_form_from_name
+    default: ${ str(users[0]) if defined('users[0].name.first') else '' }      
 script: |
   <script>
     function myFunction(id_name) {
@@ -205,5 +201,36 @@ id: Results of sharing
 continue button field: al_share_results
 question: |
   Thanks for sharing!
+---
+need:
+  - al_share_answers_message_template
+  - al_tell_a_friend_message_template
+code: |
+  if phone_number_is_valid(share_interview_contact_method):
+    if sharing_type == "tell_friend":
+      success = send_sms(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
+    else:
+      success = send_sms(to=share_interview_contact_method, template=al_share_answers_message_template)
+  else:
+    if sharing_type == "tell_friend":
+      success = send_email(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
+    else:
+      success = send_email(to=share_interview_contact_method, template=al_share_answers_message_template)
+  al_did_share_form = True
+---
+template: al_share_answers_message_template
+subject: |
+  CourtFormsOnline form from ${ al_share_form_from_name }
+content: |
+  ${ share_interview_answers_message }
+  Click the link below to view and edit ${ al_share_form_from_name }'s
+  progress so far:
   
-  
+  ${ interview_url(temporary=48) }
+---
+template: al_tell_a_friend_message_template
+subject: |
+  ${ al_share_form_from_name } wants to tell you about Court Forms Online
+content: |
+  ${ tell_a_friend_message }
+  ${ interview_url(i=user_info().filename, style="short", new_session=1) }
