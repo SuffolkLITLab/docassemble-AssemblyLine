@@ -1,4 +1,6 @@
+from typing import Dict, List, Union
 from docassemble.base.util import Address, Individual, DAList, date_difference, name_suffix, states_list, comma_and_list, word, comma_list, url_action, get_config
+from docassemble.base.functions import DANav
 
 ##########################################################
 # Base classes
@@ -39,14 +41,14 @@ class ALPeopleList(DAList):
     super(ALPeopleList, self).init(*pargs, **kwargs)
     self.object_type = ALIndividual
 
-  def names_and_addresses_on_one_line(self, comma_string='; '):
+  def names_and_addresses_on_one_line(self, comma_string:str='; ') -> str:
     """Returns the name of each person followed by their address, separated by a semicolon"""
     return comma_and_list([str(person) + ', ' + person.address.on_one_line() for person in self], comma_string=comma_string)
 
-  def familiar(self):
+  def familiar(self) -> str:
     return comma_and_list([person.name.familiar() for person in self])
 
-  def familiar_or(self):
+  def familiar_or(self) -> str:
     return comma_and_list([person.name.familiar() for person in self],and_string=word("or"))
 
 class ALIndividual(Individual):
@@ -54,6 +56,10 @@ class ALIndividual(Individual):
   Two custom attributes are objects and so we need to initialize: `previous_addresses` 
   and `other_addresses`
   """
+  previous_addresses: ALAddressList
+  other_addresses: ALAddressList
+  mailing_address: ALAddress
+
   def init(self, *pargs, **kwargs):
     super(ALIndividual, self).init(*pargs, **kwargs)
     # Initialize the attributes that are themselves objects. Requirement to work with Docassemble
@@ -83,7 +89,7 @@ class ALIndividual(Individual):
       nums.append(self.phone_number + ' (other)')
     return comma_list(nums)
   
-  def merge_letters(self, new_letters):
+  def merge_letters(self, new_letters: str):
     # TODO: move to 209A package
     """If the Individual has a child_letters attribute, add the new letters to the existing list"""
     if hasattr(self, 'child_letters'):
@@ -91,7 +97,7 @@ class ALIndividual(Individual):
     else:
       self.child_letters = filter_letters(new_letters)
 
-  def formatted_age(self):
+  def formatted_age(self) -> str:
     dd = date_difference(self.birthdate)
     if dd.years >= 2:
       return '%d years' % (int(dd.years),)
@@ -102,7 +108,7 @@ class ALIndividual(Individual):
     return '%d days' % (int(dd.days),)
   
   # This design helps us translate the prompts for common fields just once
-  def name_fields(self, person_or_business:str = 'person'):
+  def name_fields(self, person_or_business:str = 'person') -> List[Dict[str, str]]:
     """
     Return suitable field prompts for a name. If `uses_parts` is None, adds the 
     proper "show ifs" and uses both the parts and the single entry
@@ -144,7 +150,7 @@ class ALIndividual(Individual):
          "show if": show_if_business} 
       ]
  
-  def address_fields(self, country_code="US", default_state=None, show_country=False):
+  def address_fields(self, country_code:str="US", default_state:str=None, show_country:bool=False) -> List[Dict[str, str]]:
     """
     Return field prompts for address.
     """
@@ -192,7 +198,7 @@ class ALIndividual(Individual):
     """
     pass
 
-def section_links(nav):
+def section_links(nav: DANav) -> List[str]:
   """Returns a list of clickable navigation links without animation."""
   sections = nav.get_sections()
   section_link = []
@@ -242,14 +248,14 @@ class PeopleList(ALPeopleList):
 # These could go in toolbox but keeping here to reduce packages
 # needed for baseline running.
 
-def will_send_to_real_court():
+def will_send_to_real_court() -> bool:
   """Dev or root needs to be in the URL root: can change in the config file"""
   return not ('dev' in get_config('url root') or 
               'test' in get_config('url root') or
               'localhost' in get_config('url root'))
 
 # This one is only used for 209A--should move there along with the combined_letters() method
-def filter_letters(letter_strings):
+def filter_letters(letter_strings: Union[List[str], str]) -> str:
   """Used to take a list of letters like ["A","ABC","AB"] and filter out any duplicate letters."""
   # There is probably a cute one liner, but this is easy to follow and
   # probably same speed
@@ -268,7 +274,7 @@ def filter_letters(letter_strings):
 
 # Note: removed "combined_locations" because it is too tightly coupled to MACourts.py right now
 
-def fa_icon(icon, color="primary", color_css=None, size="sm"):
+def fa_icon(icon:str, color:str="primary", color_css:str=None, size:str="sm"):
   """
   Return HTML for a font-awesome icon of the specified size and color. You can reference
   a CSS variable (such as Bootstrap theme color) or a true CSS color reference, such as 'blue' or 
