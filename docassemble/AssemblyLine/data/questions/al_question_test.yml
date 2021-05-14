@@ -2,6 +2,18 @@
 include:
   - al_package.yml
 ---
+metadata:
+  title: |
+    AL Question Test
+  authors:
+    - Quinten Steenhuis
+    - Plocket
+    - Lily
+    - Bryce Willey
+    - Caroline Robinson
+    - David Colarusso
+    - Kate Barry
+---
 modules:
   - docassemble.base.util
   - docassemble.base.core
