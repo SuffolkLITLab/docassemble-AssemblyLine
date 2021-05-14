@@ -66,6 +66,7 @@ default screen parts:
     [:sign-in-alt: Sign-in](${url_of('login', next=interview_url())}) or [register](${url_of('register', next=interview_url())}) to save your progress (optional).
     % endif
   footer: |
+    [:share-alt-square: Share](${ url_ask(['al_share_form_screen', {'recompute': ['al_did_share_form']}, 'al_share_results']) })
     [:info-circle: About](${ url_action('about_this_interview') })
     [:comment-dots: Feedback](${ interview_url(i=feedback_form, github_repo=github_repo_name, github_user=github_user, variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}
 ---
@@ -77,6 +78,177 @@ image sets:
     images:
       form: sign-form.svg
       form-lineal: sign-form-lineal.svg
+---
+continue button field: al_share_form_screen
+id: al share form screen
+question: |
+  Share this tool
+subquestion: |
+  What do you want to do?
+fields:
+  - no label: sharing_type
+    datatype: radio
+    choices:
+      - Tell a friend about this tool: tell_friend
+      - Share my answers and progress with someone: share_answers      
+  - note: |
+      **Note**: the person you share this link with will be able to see and
+      edit your answers on this form.
+    show if:
+      variable: sharing_type
+      is: share_answers
+  - note: |
+      You can copy and share this link
+      <input disabled="true" type="text" value="${ interview_url(i=user_info().filename, style="short", new_session=1) }" id="copy_new_session">
+      <div class="copy-tooltip">
+      <button onclick="myFunction('copy_new_session')" onmouseout="outFunc()" type="button">
+        <span class="tooltiptext" id="myTooltip">Copy to clipboard</span>
+        <i class="far fa-copy"></i>
+        </button>
+      </div>      
+    js show if: 
+      val("sharing_type") === "tell_friend"
+  - note: |
+      You can copy and share this link (expires in 48 hours)
+      <input disabled="true" type="text" value="${ interview_url(temporary=48) }" id="copy_current_session">
+      <div class="copy-tooltip">
+      <button onclick="myFunction('copy_current_session')" onmouseout="outFunc()" type="button">
+        <span class="tooltiptext" id="myTooltip">Copy to clipboard</span>
+        <i class="far fa-copy"></i>
+        </button>
+      </div>      
+    show if: 
+      variable: sharing_type
+      is: share_answers
+  - note: |
+      Or, send an email or text message from inside our app. Tell the person why you are sharing this tool.
+  - Email or phone number you want to send this to: share_interview_contact_method
+    validate: is_phone_or_email
+  - Message: tell_a_friend_message
+    datatype: area
+    default: |
+      Hi, I wanted to let you know about a free tool that I learned about:
+      "${single_paragraph(all_variables(special='metadata').get('title','Court Forms Online'))}". I think this might
+      help you, too. Check it out at the link in this message: 
+    show if: 
+      variable: sharing_type
+      is: tell_friend      
+  - Message: share_interview_answers_message
+    datatype: area
+    default: |
+      Hi, I wanted to share my progress on a Court Forms Online tool,
+      "${all_variables(special='metadata').get('title')}".
+    show if:
+      variable: sharing_type
+      is: share_answers      
+  - Your name: al_share_form_from_name
+    default: ${ str(users[0]) if defined('users[0].name.first') else '' }      
+script: |
+  <script>
+    function myFunction(id_name) {
+      var copyText = document.getElementById(id_name);
+      copyText.select();
+      copyText.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+
+      var tooltip = document.getElementById("myTooltip");
+      tooltip.innerHTML = "Copied: " + copyText.value;
+    }
+
+    function outFunc() {
+      var tooltip = document.getElementById("myTooltip");
+      tooltip.innerHTML = "Copy to clipboard";
+    }
+  </script>
+css: |
+  <style>
+  .copy-tooltip {
+    position: relative;
+    display: inline-block;
+  }
+
+  .copy-tooltip .tooltiptext {
+    visibility: hidden;
+    width: 140px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    margin-left: -75px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .copy-tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+  }
+
+  .copy-tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+  }
+  </style>
+back button label: |
+  Back to your form
+continue button label: |
+  Send by text or email  
+---
+code: |
+  def is_phone_or_email(text):
+    if re.match("\S+@\S+", text) or phone_number_is_valid(text):
+      return True
+    else:
+      validation_error("Enter a valid phone number or email address")
+---
+id: Results of sharing
+continue button field: al_share_results
+question: |
+  Thanks for sharing!
+---
+need:
+  - al_share_answers_message_template
+  - al_tell_a_friend_message_template
+code: |
+  if phone_number_is_valid(share_interview_contact_method):
+    if sharing_type == "tell_friend":
+      success = send_sms(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
+    else:
+      success = send_sms(to=share_interview_contact_method, template=al_share_answers_message_template)
+  else:
+    if sharing_type == "tell_friend":
+      success = send_email(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
+    else:
+      success = send_email(to=share_interview_contact_method, template=al_share_answers_message_template)
+  al_did_share_form = True
+---
+template: al_share_answers_message_template
+subject: |
+  CourtFormsOnline form from ${ al_share_form_from_name }
+content: |
+  ${ share_interview_answers_message }
+  Click the link below to view and edit ${ al_share_form_from_name }'s
+  progress so far:
+  
+  ${ interview_url(temporary=48) }
+---
+template: al_tell_a_friend_message_template
+subject: |
+  ${ al_share_form_from_name } wants to tell you about Court Forms Online
+content: |
+  ${ tell_a_friend_message }
+  ${ interview_url(i=user_info().filename, style="short", new_session=1) }
 ---
 objects:
   - github_readonly: DAWeb.using(base_url="https://api.github.com")
@@ -130,4 +302,3 @@ content: |
   &copy; ${today().year} 
   [Suffolk Legal Innovation and Technology Lab](https://suffolklitlab.org)
   and open source contributors under the [MIT License](https://opensource.org/licenses/MIT).
-  
