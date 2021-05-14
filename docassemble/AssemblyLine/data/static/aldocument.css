@@ -41,7 +41,6 @@ td.text-left:first-child {
 @media only screen and (min-width: 700px) {
   .da-subquestion .btn {
     min-width: 120px;
-    margin-left: 0.5rem;
   }
 } 
 .da-subquestion .daquestionbackbutton {
