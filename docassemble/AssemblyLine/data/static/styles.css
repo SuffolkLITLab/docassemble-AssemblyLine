@@ -60,3 +60,14 @@ blockquote:before {
 blockquote p {
     display: inline;
 }
+/* [FILE] image shadow */
+.daicon {    
+  box-shadow: 5px 5px 15px #69868e;
+  border-style: solid;
+  border-width: 1px;
+  border-color: gray;
+}
+/* Reduce integer and number input box size */
+input[type=number] {
+  width: 10rem;
+}
