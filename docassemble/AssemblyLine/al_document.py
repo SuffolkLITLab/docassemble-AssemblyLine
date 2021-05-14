@@ -699,13 +699,7 @@ class ALDocumentBundle(DAList):
 
     return_str = '''
   <div class="al_send_bundle '''+name+'''" id="al_send_bundle_'''+name+'''" name="al_send_bundle_'''+name+'''">
-  <h5 id="al_doc_email_header">Get a copy of the documents in email</h5>    
-  <div class="al_email_container">
-  <span class="al_email_address '''+name+''' form-group row da-field-container da-field-container-datatype-email">
-    <label for="'''+al_email_input_id+'''" class="al_doc_email col-form-label da-form-label datext-right">Email</label>
-    <input value="''' + (user_info().email if user_logged_in() else '') + '''" alt="Input box" class="form-control" type="email" name="'''+al_email_input_id+'''" id="'''+al_email_input_id+'''">
-  </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n" + '''
-    </div>
+  <h5 id="al_doc_email_header">Get a copy of the documents in email</h5>      
     '''
     if show_editable_checkbox:
       return_str += '''
