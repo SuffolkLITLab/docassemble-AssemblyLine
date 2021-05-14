@@ -41,6 +41,7 @@ td.text-left:first-child {
 @media only screen and (min-width: 700px) {
   .da-subquestion .btn {
     min-width: 120px;
+    margin-left: 0.5rem;
   }
 } 
 .da-subquestion .daquestionbackbutton {
@@ -80,15 +81,29 @@ td.text-left:first-child {
   justify-content: flex-end;*/
   margin: 0.5rem 0 5px 0;
 }
-
-.al_email_container {
-  display: block; /*flex;*/
+/* al_email_container desktop version */
+@media only screen and (min-width: 700px) {
+  .al_email_container {
+    display: flex;
+  }  
+  .al_email_container > span {
+    display: flex;
+    flex: 1;    
+  }  
+  .al_email_container > span > input {
+    flex: 1;
+    margin: 0 0.5rem; 
+  }
 }
-.al_email_container > span {
-  display: block; /*flex;
-  flex: 1;*/
-}
-.al_email_container > span > input {
-  /*flex: 1;*/
-  margin: 0 0 10px; /* Make it look better in mobile*/
+/* al_email_container mobile version */
+@media only screen and (max-width: 500px) {
+  .al_email_container {
+    display: block; 
+  }
+  .al_email_container > span {
+    display: block; 
+  }  
+  .al_email_container > span > input {    
+    margin: 0 0 10px; 
+  }
 }
