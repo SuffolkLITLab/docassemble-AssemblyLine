@@ -277,28 +277,25 @@ back button label: |
 ---
 template: about_this_interview_version_info
 content: |
-  % if all_variables(special='metadata').get('authors'):
-  This form was authored by 
-  ${ comma_and_list(all_variables(special='metadata').get('authors')) }.
-  % endif
+  "${all_variables(special='metadata').get('title','').rstrip()}" version 
+  `${ package_version_number }`; AssemblyLine version `${ al_version }`.
   
   % if package_updated_on:
-  This form was last updated on ${ package_updated_on }.
-  <a href="${ github_url }"><i class="fab fa-github"></i> View on github</a>.
+  Last updated on ${ package_updated_on }.
   % endif
-  
-  This form is part of the [Document Assembly Line 
-  project](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/). 
+
+  [Submit feedback](${ interview_url(i=feedback_form, github_repo=github_repo_name, github_user=github_user, variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}.
+
+  "${all_variables(special='metadata').get('title','').rstrip()}" is part of the [Document
+  Assembly Line project](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/). 
   It was created by attorneys, coders, students, and volunteers coordinated by 
   Suffolk University Law School's [Legal Innovation and Technology 
-  Lab](https://suffolklitlab.org).
-  
-  Version information: "${all_variables(special='metadata').get('title')}" version 
-  `${ package_version_number }`; `${ al_version }`.
-  
-  Do you have something to tell us? Send us 
-  [feedback](${ interview_url(i=feedback_form, github_repo=github_repo_name, github_user=github_user, variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}.
-
+  Lab](https://suffolklitlab.org). 
+  % if all_variables(special='metadata').get('authors'):
+  This form was authored by ${ comma_and_list(all_variables(special='metadata').get('authors')) }.
+  % endif
+       
   &copy; ${today().year} 
   [Suffolk Legal Innovation and Technology Lab](https://suffolklitlab.org)
   and open source contributors under the [MIT License](https://opensource.org/licenses/MIT).
+  [:fab-fa-github: View on GitHub](${ github_url }).  
