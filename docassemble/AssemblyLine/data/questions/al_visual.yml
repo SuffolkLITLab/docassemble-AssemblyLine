@@ -68,7 +68,7 @@ default screen parts:
     [:sign-in-alt: Sign-in](${url_of('login', next=interview_url())}) or [register](${url_of('register', next=interview_url())}) to save your progress (optional).
     % endif
   footer: |
-    [:share-alt-square: Share](${ url_ask(['al_share_form_screen', {'recompute': ['al_did_share_form']}, 'al_share_results']) })
+    [:share-alt-square: Share](${ url_ask([{'undefine': ['al_sharing_type','al_how_share_link']}, 'al_share_form_screen', {'recompute': ['al_did_share_form']}, 'al_share_results']) })
     [:info-circle: About](${ url_action('about_this_interview') })
     [:comment-dots: Feedback](${ interview_url(i=feedback_form, github_repo=github_repo_name, github_user=github_user, variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}
 ---
@@ -107,12 +107,12 @@ fields:
   - note: |
       You can copy and share this link
       
-      ${ copy_button_html(  interview_url(i=user_info().filename, style="short", new_session=1) ) }
+      ${ copy_button_html(  interview_url(i=user_info().filename, style="short", new_session=1), label=al_copy_button_label.show(), tooltip_inert_text=al_copy_button_tooltip_inert_text.show(), tooltip_copied_text = al_copy_button_tooltip_copied_text.show() ) }
     js show if: |
       val("al_sharing_type") === "tell_friend" && val("al_how_share_link") === "link_only"      
   - note: |
       You can copy and share this link (expires in 48 hours)
-      ${ copy_button_html( interview_url(temporary=48)) }
+      ${ copy_button_html( interview_url(temporary=48), label=al_copy_button_label.show(), tooltip_inert_text=al_copy_button_tooltip_inert_text.show(), tooltip_copied_text = al_copy_button_tooltip_copied_text.show()) }
     js show if: |
       val("al_sharing_type") === "share_answers" && val("al_how_share_link") === "link_only"
   - Email or phone number you want to send this to: share_interview_contact_method
@@ -132,46 +132,52 @@ fields:
     datatype: area
     default: |
       Hi, I wanted to share my progress on a form on Court Forms Online,
-      "${all_variables(special='metadata').get('title')}".
+      "${single_paragraph(all_variables(special='metadata').get('title','Court Forms Online'))}".
+      If you click this link, you can follow along or finish the form for me.
     js show if: |
       val("al_how_share_link") === "email_or_sms" && val("al_sharing_type") === "share_answers"      
   - Your name: al_share_form_from_name
     default: ${ str(users[0]) if defined('users[0].name.first') else '' } 
     show if:
       variable: al_how_share_link
-      is: email_or_sms
-    
+      is: email_or_sms    
 back button label: |
   Back to your form
-continue button label: |
-  Send by text or email  
----
-code: |
-  def is_phone_or_email(text):
-    if re.match("\S+@\S+", text) or phone_number_is_valid(text):
-      return True
-    else:
-      validation_error("Enter a valid phone number or email address")
 ---
 id: Results of sharing
 continue button field: al_share_results
 question: |
+  % if al_sharing_type == 'tell_friend':
   Thanks for sharing!
+  % elif al_how_share_link == 'link_only':
+  Do not forget to send the link!
+  % else:
+  Your message is on its way
+  % endif
+subquestion: |
+  % if al_sharing_type == 'share_answers':
+  **Keep in mind**: when you make a change to your form, the
+  person you shared it with will see the change you made. You will
+  also see any changes that person makes.
+  % endif
+  
+  Click "Next" to go back to your form in progress.
 ---
 need:
   - al_share_answers_message_template
   - al_tell_a_friend_message_template
 code: |
-  if phone_number_is_valid(share_interview_contact_method):
-    if al_sharing_type == "tell_friend":
-      success = send_sms(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
+  if al_how_share_link == 'email_or_sms':
+    if phone_number_is_valid(share_interview_contact_method):
+      if al_sharing_type == "tell_friend":
+        success = send_sms(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
+      else:
+        success = send_sms(to=share_interview_contact_method, template=al_share_answers_message_template)
     else:
-      success = send_sms(to=share_interview_contact_method, template=al_share_answers_message_template)
-  else:
-    if al_sharing_type == "tell_friend":
-      success = send_email(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
-    else:
-      success = send_email(to=share_interview_contact_method, template=al_share_answers_message_template)
+      if al_sharing_type == "tell_friend":
+        success = send_email(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
+      else:
+        success = send_email(to=share_interview_contact_method, template=al_share_answers_message_template)
   al_did_share_form = True
 ---
 ##########
@@ -209,16 +215,13 @@ content: |
   ${ tell_a_friend_message }
   ${ interview_url(i=user_info().filename, style="short", new_session=1) }
 ---
-objects:
-  - github_readonly: DAWeb.using(base_url="https://api.github.com")
----
 code: |
   github_url = "https://github.com/" + github_user + "/" + github_repo_name
 ---
 code: |
-  res = github_readonly.get("repos/" + github_user + '/' + github_repo_name)
-  if res and res.get('pushed_at'):
-    package_updated_on = as_datetime(res.get('pushed_at')).format('yyyy-MM-dd')
+  res = github_modified_date(github_user, github_repo_name)
+  if res:
+    package_updated_on = res.format('yyyy-MM-dd')
   else:
     package_updated_on = None
 ---
@@ -227,6 +230,9 @@ id: about AssemblyLine project
 question: |
   About this form
 # TODO: I think people might want more form-specific info here?
+# It is easy to copy and edit this event without removing the version
+# information. We may consider using the form description, adding a 
+# thumbnail of the original form, etc. at some point.
 subquestion: |
   [CENTER] [FILE seal.jpg, 30%, Logo of the Suffolk LIT Lab]
   
@@ -257,4 +263,4 @@ content: |
   &copy; ${today().year} 
   [Suffolk Legal Innovation and Technology Lab](https://suffolklitlab.org)
   and open source contributors under the [MIT License](https://opensource.org/licenses/MIT).
-  [:fab-fa-github: View on GitHub](${ github_url }).  
+  [:fab-fa-github: View code on GitHub](${ github_url }).  
