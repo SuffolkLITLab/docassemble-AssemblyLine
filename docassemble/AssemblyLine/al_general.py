@@ -1,6 +1,29 @@
 from typing import Dict, List, Union
-from docassemble.base.util import Address, Individual, DAList, date_difference, name_suffix, states_list, comma_and_list, word, comma_list, url_action, get_config
+from docassemble.base.util import Address, Individual, DAList, date_difference, name_suffix, states_list, comma_and_list, word, comma_list, url_action, get_config, phone_number_is_valid, validation_error, DAWeb, get_config, as_datetime, DADateTime
 from docassemble.base.functions import DANav
+import re
+
+__all__ = ['ALAddress', 
+           'ALAddressList', 
+           'ALPeopleList', 
+           'ALIndividual', 
+           'section_links', 
+           'is_phone_or_email',
+           'section_links',
+           'Landlord',
+           'Tenant',
+           'HousingAuthority',
+           'Applicant',
+           'Abuser',
+           'Survivor',
+           'VCIndividual',
+           'AddressList',
+           'Applicant',
+           'Abuser',
+           'Survivor',
+           'VCIndividual',
+           'AddressList',
+           'github_modified_date']
 
 ##########################################################
 # Base classes
@@ -286,3 +309,41 @@ def fa_icon(icon:str, color:str="primary", color_css:str=None, size:str="sm"):
     return '<i class="fa fa-' + icon + ' fa-' + size + '" style="color:' + color_css + ';"></i>'
   else:
     return '<i class="fa fa-' + icon + ' fa-' + size + '" style="color:var(--' + color + ');"></i>'
+
+def is_phone_or_email(text:str)->bool:
+  """
+  Returns True if the string is either a valid phone number or a valid email address.
+  Email validation is extremely minimal--just checks for an @ sign between two non-zero length 
+  strings.
+  """
+  if re.match("\S+@\S+", text) or phone_number_is_valid(text):
+    return True
+  else:
+    validation_error("Enter a valid phone number or email address")
+
+
+def github_modified_date(github_user:str, github_repo_name:str)->Union[DADateTime, None]:
+  """
+  Returns the date that the given GitHub repository was modified or None if API call fails.
+  
+  Will check for the presence of credentials in the configuration labeled "github readonly"
+  in this format:
+  
+  github readonly:
+    username: YOUR_GITHUB_USERNAME
+    password: YOUR_GITHUB_PRIVATE_TOKEN
+    type: basic    
+
+  If no valid auth information is in the configuration, it will fall back to anonymous authentication.
+  The GitHub API is rate-limited to 60 anonymous API queries/hour.    
+  """
+  github_readonly_web = DAWeb(base_url="https://api.github.com")
+  res = github_readonly_web.get("repos/" + github_user + '/' + github_repo_name, auth=get_config("github readonly"))
+  if res and res.get('pushed_at'):
+    return as_datetime(res.get('pushed_at'))
+  else:
+    return None
+  
+  
+  
+  

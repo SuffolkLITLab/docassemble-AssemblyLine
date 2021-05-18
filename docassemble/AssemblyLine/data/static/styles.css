@@ -3,6 +3,14 @@
 }
 */
 
+footer {
+  text-align: right
+}
+
+footer a {
+  padding-left: 2em;
+}
+
 .ma_icon {
     position: relative;
     height: 40px;
