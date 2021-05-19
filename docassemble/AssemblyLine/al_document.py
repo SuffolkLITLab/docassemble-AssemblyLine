@@ -379,7 +379,7 @@ class DALazyAttribute(DAObject):
 
 class ALDocument(DADict):
   """
-  An opinionated collection of attachement blocks. Typically there are three:
+  An opinionated dictionary of attachment blocks. Typically there are three:
   1. The final version of a document with a signature. Use key="final" as an argument in a method.
   2. The preview version of a document with no signature. Use key="preview" as an argument in a method.
   3. An addendum of a document contained in the attribute `addendum`. E.g. `my_doc.addendum`.
@@ -443,7 +443,9 @@ class ALDocument(DADict):
   ---
   ```
   
-  Activate an addendum from the start if you already know you need one
+  For a document that may need an addendum, you must specify this when the object is created
+  or in a mandatory code block. The addendum will only be triggered if the document has "overflow"
+  in one of the fields that you specify.
   ```
   ---
   objects:
@@ -452,25 +454,17 @@ class ALDocument(DADict):
   attachment:
       variable name: my_doc[i]
       ...
-  ```
-  
-  Activate an addendum conditionally later on if needed
-  ```
   ---
-  objects:
-    - my_doc: ALDocument.using(filename="myDoc.pdf", title="myDoc", enabled=True)
-  ---
-  mandatory: True
-  id: interview order
-  code: |
-    # ...
-    if condition1 and condition2:
-      my_doc.has_addendum = True
-    # ...
-  --- 
+  generic object: ALDocument
   attachment:
-      variable name: my_doc[i]
-      ...
+    variable name: x.addendum
+    docx template file: docx_addendum.docx
+  ---
+  code: |
+    my_doc.overflow_fields['big_text_variable'].overflow_trigger = 640 # Characters 
+    my_doc.overflow_fields['big_text_variable'].label = "Big text label" # Optional - you may use in your addendum
+    my_doc.overflow_fields['list_of_objects_variable'].overflow_trigger = 4 # Items in the list
+    my_doc.overflow_fields.gathered = True      
   ```
   """
   filename: str
