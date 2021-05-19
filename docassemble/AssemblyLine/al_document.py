@@ -379,10 +379,10 @@ class DALazyAttribute(DAObject):
 
 class ALDocument(DADict):
   """
-  An opinionated collection of typically three attachment blocks:
-  1. The final version of a document, at typical key "final"
-  2. The preview version of a document, at typical key "preview"
-  3. An addendum of a document, at the attribute `addendum`
+  An opinionated dictionary of attachment blocks. Typically there are three:
+  1. The final version of a document with a signature. Use key="final" as an argument in a method.
+  2. The preview version of a document with no signature. Use key="preview" as an argument in a method.
+  3. An addendum of a document contained in the attribute `addendum`. E.g. `my_doc.addendum`.
 
   Each form that an interview generates will get its own ALDocument object.
 
@@ -396,13 +396,76 @@ class ALDocument(DADict):
   Required attributes:
     - filename: name used for output PDF
     - title: display name for the output PDF
-    - enabled
-    - has_addendum: The default value is False. Set to True if the document has overflow, like for a PDF template.
+    - enabled: if this document should be created. See examples.
 
   Optional attribute:
     - addendum: an attachment block
-    - overflow_fields
-
+    - overflow_fields: ALAddendumFieldDict instance. These values will be used to detect and handle overflow.
+    - has_addendum: Defaults to False. Set to True if the document could have overflow, like for a PDF template.
+  
+  Examples:
+  
+  Simple use where the document is always enabled and will have no addendum
+  ```
+  ---
+  objects:
+    - my_doc: ALDocument.using(filename="myDoc.pdf", title="myDoc", enabled=True)
+  --- 
+  attachment:
+      variable name: my_doc[i]  # This will usually be "final" or "preview"
+      ...
+  ```
+  
+  Enable a document conditionally
+  ```
+  ---
+  # See that `enabled` is not defined here
+  objects:
+    - my_doc: ALDocument.using(filename="myDoc.pdf", title="myDoc")
+    - affidavit_of_indigency: ALDocument.using(filename="affidavit-of-indigency.pdf", title="Affidavit of Indigency")
+  ---
+  # an example of an arbitrary condition
+  code: |
+    my_doc.enabled = condition1 and condition2
+    enable_my_doc_conditionally = True
+  ---
+  # A common example many interviews would encounter for an affidavit of indigency
+  code: |  
+    affidavit_of_indigency.enabled = ask_indigency_questions and is_indigent
+  ---
+  attachment:
+      variable name: my_doc[i]
+      ...
+  ---
+  attachment:
+      variable name: affidavit_of_indigency[i]
+      ...
+  ---
+  ```
+  
+  For a document that may need an addendum, you must specify this when the object is created
+  or in a mandatory code block. The addendum will only be triggered if the document has "overflow"
+  in one of the fields that you specify.
+  ```
+  ---
+  objects:
+    - my_doc: ALDocument.using(filename="myDoc.pdf", title="myDoc", enabled=True, has_addendum=True)
+  --- 
+  attachment:
+      variable name: my_doc[i]
+      ...
+  ---
+  generic object: ALDocument
+  attachment:
+    variable name: x.addendum
+    docx template file: docx_addendum.docx
+  ---
+  code: |
+    my_doc.overflow_fields['big_text_variable'].overflow_trigger = 640 # Characters 
+    my_doc.overflow_fields['big_text_variable'].label = "Big text label" # Optional - you may use in your addendum
+    my_doc.overflow_fields['list_of_objects_variable'].overflow_trigger = 4 # Items in the list
+    my_doc.overflow_fields.gathered = True      
+  ```
   """
   filename: str
   title: str
