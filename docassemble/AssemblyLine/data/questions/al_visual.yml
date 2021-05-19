@@ -6,7 +6,7 @@ metadata:
     CourtFormsOnline
   title url: https://courtformsonline.org
   logo: |
-    <img src="/packagestatic/docassemble.MAVirtualCourt/mass_icon.png" class="ma_icon" alt="MA State Icon"><div class="title">CourtFormsOnline: MassAccess</div>
+    <img src="/packagestatic/docassemble.AssemblyLine/ma_logo.png" class="ma_icon" alt="Assembly Line Logo"><div class="title">CourtFormsOnline</div>
   exit url: https://courtformsonline.org
 ---
 default screen parts:
