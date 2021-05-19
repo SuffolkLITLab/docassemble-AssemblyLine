@@ -1,4 +1,11 @@
 .history/
 .vscode/
-.env
 docassemble/AssemblyLine/__pycache__/
+**/__pycache__/
+
+# Build / sdist related
+build
+dist
+*.egg-info
+# Used in bumpversion.sh
+.env
