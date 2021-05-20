@@ -6,7 +6,7 @@ $(document).on('daPageLoad', function() {
     var $audio_nodes = $('.daaudio-control');
     var id_count = 1;
     for ( var audio_node of $audio_nodes ) {
-      al_js.replace_with_audio_minimal_controls( audio_node, 'page_reader_substitute_' + id_count, $audio_nodes );
+      al_js.replace_with_audio_minimal_controls( audio_node, 'page_reader_substitute_' + id_count );
       id_count++;
     }
   } catch ( error ) { console.log( 'AL audio intantiation error:', error ) }
