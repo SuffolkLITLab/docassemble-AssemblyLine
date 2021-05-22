@@ -1,3 +1,11 @@
+# Version v
+
+(TODO fill in)
+
+# Version v
+
+We've added a footer element, with an About page (TODO add more)
+
 # 2.0.18
 
 The first tagged release of Assembly Line
