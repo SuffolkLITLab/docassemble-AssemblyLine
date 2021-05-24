@@ -27,19 +27,30 @@ twine --help 2>&1 > /dev/null
 test ! -z $TWINE_USERNAME
 test ! -z $TWINE_PASSWORD
 test ! -z $TEAMS_BUMP_WEBHOOK
+test ! -z $1
+git fetch --all
+
+# TODO(brycew): should we restrict this to only work on default branches?
+branch=$(git rev-parse --abbrev-ref HEAD)
+if [ ! -z $(git ls-remote --exit-code --heads origin $branch) ] && \ 
+   [ x"$(git merge-base $branch origin/$branch)" != x"$(git rev-parse origin/$branch)" ]
+then
+  echo "$branch is behind the origin. Pull from origin first."
+  exit 1
+fi
 
 ### Makes git commit and tag
 if [ "$1" = "minor" ] || [ "$1" = "major" ] 
 then
   echo What has changed about this "$1" version?
   read -r release_update
-  new_version=$(bumpversion --config-file .bumpversion.cfg "$1" --list | grep new_version | cut -d= -f 2)
+  new_version=$(bumpversion --list --config-file .bumpversion.cfg "$1" | grep new_version | cut -d= -f 2)
   echo -e "# Version v$new_version\n\n$release_update\n\n$(cat CHANGELOG.md)" > CHANGELOG.md
   git add CHANGELOG.md && git commit --amend -C HEAD
 else
-  new_version=$(bumpversion --config-file .bumpversion.cfg "$1" --list | grep new_version | cut -d= -f 2)
+  new_version=$(bumpversion --list --config-file .bumpversion.cfg "$1" | grep new_version | cut -d= -f 2)
 fi
-git push 
+git push
 git push --tags
 
 ### Make and update Pypi package
