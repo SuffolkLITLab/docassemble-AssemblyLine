@@ -18,6 +18,26 @@
 # * major is a breaking change, either internally or externally
 # For more info about semantic versioning (aka semver), see https://semver.org/
 
+doing_dryrun=false
+
+while [ -n "$1" ]; do
+  case "$1" in
+  -d | --dry-run)
+    doing_dryrun=true
+    shift
+    ;;
+  --)
+    shift # double dash makes for parameters
+    break
+    ;;
+  *)
+    break # found not an option: just continue
+    ;;
+  esac
+done
+
+
+# Set after, because we can't iterate through things without getting to the end
 set -euo pipefail
 
 ### Make sure you have all the necessary commands installed and env vars set
@@ -27,7 +47,7 @@ twine --help 2>&1 > /dev/null
 test ! -z $TWINE_USERNAME
 test ! -z $TWINE_PASSWORD
 test ! -z $TEAMS_BUMP_WEBHOOK
-test ! -z $1
+test ! -z $1 || echo "You need to pass in test, patch, minor, or major" || exit 1
 git fetch --all
 
 # TODO(brycew): should we restrict this to only work on default branches?
@@ -42,27 +62,22 @@ fi
 ### Makes git commit and tag
 if [ "$1" = "minor" ] || [ "$1" = "major" ] 
 then
-  echo What has changed about this "$1" version?
-  read -r release_update
+  echo What has changed about this "$1" version? Press ctrl-d to finish, ctrl-c to cancel
+  release_update=$(</dev/stdin)
   new_version=$(bumpversion --list --config-file .bumpversion.cfg "$1" | grep new_version | cut -d= -f 2)
   echo -e "# Version v$new_version\n\n$release_update\n\n$(cat CHANGELOG.md)" > CHANGELOG.md
   git add CHANGELOG.md && git commit --amend -C HEAD
 else
   new_version=$(bumpversion --list --config-file .bumpversion.cfg "$1" | grep new_version | cut -d= -f 2)
 fi
-git push
-git push --tags
 
 ### Make and update Pypi package
 rm -rf build dist ./*.egg-info
 python3 setup.py sdist
-# Needs TWINE_USERNAME and TWINE_PASSWORD
-twine upload --repository 'pypi' dist/* --non-interactive
-rm -rf build dist ./*.egg-info
 
 ### Auto get project and repo name to put in Teams message
-remote_url=$(git remote -v | cut -f2 | cut -d ' ' -f1)
-repo_name=$(basename -s "$remote_url")
+remote_url=$(git remote get-url --push origin ) 
+repo_name=$(basename -s ".git" "$remote_url")
 org_name=$(basename "$(dirname "$remote_url")")
 if [[ "$org_name" = *@* ]]; then
   # Likely an SSH URL. Split at the ':'
@@ -120,6 +135,13 @@ sed -e "s/{{version}}/$new_version/g; s/{{project_name}}/$project_name/g; s/{{or
 	]
 }
 EOF
+
+## Push and save stuff at the very end of the script
+git push
+git push --tags
+# Needs TWINE_USERNAME and TWINE_PASSWORD
+twine upload --repository 'pypi' dist/* --non-interactive
+rm -rf build dist ./*.egg-info
 
 curl -H "Content-Type:application/json" -d "@/tmp/teams_msg_to_send.json" "$TEAMS_BUMP_WEBHOOK"
 rm "/tmp/teams_msg_to_send.json"
