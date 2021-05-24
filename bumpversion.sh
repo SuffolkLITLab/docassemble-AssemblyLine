@@ -18,8 +18,15 @@
 # * major is a breaking change, either internally or externally
 # For more info about semantic versioning (aka semver), see https://semver.org/
 
-set -eu
+set -euo pipefail
 
+### Make sure you have all the necessary commands installed and env vars set
+git --help 2>&1 > /dev/null
+bumpversion --help 2>&1 > /dev/null
+twine --help 2>&1 > /dev/null
+test ! -z $TWINE_USERNAME
+test ! -z $TWINE_PASSWORD
+test ! -z $TEAMS_BUMP_WEBHOOK
 
 ### Makes git commit and tag
 if [ "$1" = "minor" ] || [ "$1" = "major" ] 
