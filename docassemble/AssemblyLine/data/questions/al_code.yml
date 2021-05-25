@@ -1,10 +1,14 @@
 #############################################
 # Contains code to do various actions that
 # belong in YAML and not .py files
-# 1. Email file to court
+# 1. Email file to court TODO: does this really belong here?
 # 2. Signature flow
 ##########################################################
 # Code to handle emailing court
+---
+# Placeholder
+objects:
+  - court_emails: DADict.using(auto_gather=False, gathered=True)
 ---
 code: |
   ready_to_email
@@ -90,12 +94,9 @@ code: |
 ---
 code: |
   # This is a fallback package title to avoid errors on new forms
-  # It defines package_title as the title of the first form.
+  # It defines package_title as the metadata title.
   # You may want a better form title for most interviews
-  if next(iter(al_download_titles),''):
-    package_title = next(iter(al_download_titles))
-  else:
-    package_title = "Court Form"
+  package_title = all_variables(special='metadata').get('title','').rstrip()
 ---
 attachment:
   variable name: al_cover_page[i]
