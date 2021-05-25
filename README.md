@@ -41,17 +41,7 @@ install packages api key: 12345
 
 # Migration
 
-* Remove any references to MAVirtualCourt. Add an include block like this at the top
-  of your interview YAML file
-
-```
-include:
-  - docassemble.AssemblyLine:al_package.yml
-  - docassemble.MassAccess:massaccess.yml
-```
-
-* Change references to `basic_questions_intro_screen` to `al_intro_screen`
-* Change references to `courts[0]` to trial_court
+See [discussion here](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/issues/69)
 
 
 # ALDocument class
