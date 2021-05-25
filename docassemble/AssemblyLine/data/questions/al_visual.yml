@@ -233,9 +233,7 @@ question: |
 # It is easy to copy and edit this event without removing the version
 # information. We may consider using the form description, adding a 
 # thumbnail of the original form, etc. at some point.
-subquestion: |
-  [CENTER] [FILE seal.jpg, 30%, Logo of the Suffolk LIT Lab]
-  
+subquestion: |  
   ${ about_this_interview_version_info }
 back button label: |
   Back to form
@@ -246,21 +244,14 @@ content: |
   `${ package_version_number }`; AssemblyLine version `${ al_version }`.
   
   % if package_updated_on:
-  Last updated on ${ package_updated_on }.
+  Last updated on ${ package_updated_on }. [:fab-fa-github: View code on GitHub](${ github_url }).  
   % endif
 
   [Submit feedback](${ interview_url(i=feedback_form, github_repo=github_repo_name, github_user=github_user, variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}.
 
-  "${all_variables(special='metadata').get('title','').rstrip()}" is part of the [Document
-  Assembly Line project](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/). 
-  It was created by attorneys, coders, students, and volunteers coordinated by 
-  Suffolk University Law School's [Legal Innovation and Technology 
-  Lab](https://suffolklitlab.org). 
   % if all_variables(special='metadata').get('authors'):
   This form was authored by ${ comma_and_list(all_variables(special='metadata').get('authors')) }.
   % endif
-       
-  &copy; ${today().year} 
-  [Suffolk Legal Innovation and Technology Lab](https://suffolklitlab.org)
-  and open source contributors under the [MIT License](https://opensource.org/licenses/MIT).
-  [:fab-fa-github: View code on GitHub](${ github_url }).  
+  
+  "${all_variables(special='metadata').get('title','').rstrip()}" includes code 
+  from the [Document Assembly Line project](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/). 
