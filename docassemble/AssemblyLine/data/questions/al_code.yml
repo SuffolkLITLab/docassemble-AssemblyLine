@@ -10,10 +10,6 @@
 objects:
   - court_emails: DADict.using(auto_gather=False, gathered=True)
 ---
-# Placeholder
-code: |
-  will_send_to_real_court = False
----
 code: |
   ready_to_email
   prevent_going_back()

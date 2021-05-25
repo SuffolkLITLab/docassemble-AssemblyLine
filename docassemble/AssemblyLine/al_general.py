@@ -23,7 +23,8 @@ __all__ = ['ALAddress',
            'Survivor',
            'VCIndividual',
            'AddressList',
-           'github_modified_date']
+           'github_modified_date',
+           'will_send_to_real_court']
 
 ##########################################################
 # Base classes
