@@ -145,6 +145,59 @@ code: |
   # If the interview author didn't specify and it's a "court" or "other" case, we just ask
   user_started_case = user_ask_role == 'plaintiff'
 ---
+id: what is the user's detailed role in this case?
+comment: |
+  This provides a placeholder question to request the user's specific role
+  for very general forms, such as motions, where the parties can be either
+  defendants or respondents.
+question: |
+  % if al_form_type in ['starts_case','existing_case']:
+  Did you start this case, or are you responding to a case
+  that someone else started?
+  % elif al_form_type == 'appeal':
+  Did you start the case in the trial court, or did you respond
+  to a case that someone else started?
+  % else:
+  Did you file the first form in this dispute, or did you respond
+  to a form that someone else filed first?
+  % endif
+fields: 
+  - no label: user_detailed_role_started_case
+    datatype: radio
+    choices:
+      - I started this case: started
+      - I responded to this case: responded
+  - Are you the **petitioner** or **plaintiff**?: user_detailed_role
+    datatype: radio
+    choices:
+      - Petitioner: petitioner
+      - Plaintiff: plaintiff      
+      - I don't know: unknown
+    show if:
+      variable: user_detailed_role_started_case
+      is: "started"
+  - Are you the **respondent** or **defendant**?: user_detailed_role
+    datatype: radio
+    choices:
+      - Respondent: respondent
+      - Defendant: defendant
+      - I don't know: unknown      
+    show if:
+      variable: user_detailed_role_started_case
+      is: "responded"
+help:
+  label: |
+    How do I know?
+  content: |
+    If you are the first person to file a form in the case, you 
+    started the case. You are the "Plaintiff" or the "Petitioner."
+  
+    If you are responding to a case or court papers someone else filed, you
+    are the "Defendant" or the "Respondent."
+    
+    The exact name that applies to your kind of case may be listed on paperwork
+    that you filled out or that the court sent you.
+---
 code: |
   # This will be considered after any code in the parent interview
   # Most likely, user_started_case should be True for form types "other" and "out_of_court" but 
