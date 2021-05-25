@@ -1,10 +1,18 @@
 #############################################
 # Contains code to do various actions that
 # belong in YAML and not .py files
-# 1. Email file to court
+# 1. Email file to court TODO: does this really belong here?
 # 2. Signature flow
 ##########################################################
 # Code to handle emailing court
+---
+# Placeholder
+objects:
+  - court_emails: DADict.using(auto_gather=False, gathered=True)
+---
+# Placeholder
+code: |
+  will_send_to_real_court = False
 ---
 code: |
   ready_to_email
