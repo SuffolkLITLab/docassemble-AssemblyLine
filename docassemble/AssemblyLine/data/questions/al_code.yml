@@ -98,12 +98,9 @@ code: |
 ---
 code: |
   # This is a fallback package title to avoid errors on new forms
-  # It defines package_title as the title of the first form.
+  # It defines package_title as the metadata title.
   # You may want a better form title for most interviews
-  if next(iter(al_download_titles),''):
-    package_title = next(iter(al_download_titles))
-  else:
-    package_title = "Court Form"
+  package_title = all_variables(special='metadata').get('title','').rstrip()
 ---
 attachment:
   variable name: al_cover_page[i]
