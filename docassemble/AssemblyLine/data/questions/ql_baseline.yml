@@ -885,9 +885,7 @@ subquestion: |
   Your forms are almost ready. You need to sign them first.
   
   Use the mouse or touchpad on your computer or
-  sign with your finger on your phone. 
-   
-  You can send the forms to someone else to sign if you choose the "phone" option.
+  sign with your finger on a smartphone.
 field: signature_choice
 buttons:  
   - Sign on my phone: phone
