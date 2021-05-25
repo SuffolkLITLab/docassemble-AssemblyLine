@@ -8,6 +8,37 @@ This is the run-time code that supports the interviews at https://courtformsonli
 
 This package supersedes [MAVirtualCourt](https://github.com/SuffolkLITLab/docassemble-MAVirtualCourt).
 
+# Installation
+
+This package depends on the following configuration changes on your Docassemble server:
+
+* Ensure that [font-awesome](https://docassemble.org/docs/config.html#default%20icons) is enabled (this may be on by default:
+```yaml
+default icons: font awesome
+```
+* Add a [Google API key](https://docassemble.org/docs/config.html#google) that has access to:
+    * Google Places API
+    * Google Geocoding API
+* Add a [VoiceRSS API key](https://docassemble.org/docs/config.html#voicerss)
+* Add a [Twilio API key](https://docassemble.org/docs/config.html#twilio) for SMS support
+* Add an email account: [Mailgun](https://docassemble.org/docs/config.html#mailgun%20api) or [SendGrid](https://docassemble.org/docs/config.html#sendgrid%20api) recommended for email support
+* To show package update time and to enable the feedback form, add a GitHub Private Access token to your config.yml file, like this:
+```yaml
+# Needs access to create new issues on repositories
+github issues:
+  username: "suffolklitlab-issues"
+  token: "12345"
+# Does not need any special access to public repositories  
+github readonly:
+  username: "suffolklitlab-issues"
+  password: "45678"
+  type: "basic"
+```
+* If you are also using the [Assembly Line Weaver](https://github.com/SuffolkLITLab/docassemble-assemblylinewizard), you may want to set up a [Docassemble API key](https://docassemble.org/docs/api.html#manage_api) in your config.yml file to allow you to install packages automatically, like this:
+```yaml
+install packages api key: 12345
+```
+
 # Migration
 
 * Remove any references to MAVirtualCourt. Add an include block like this at the top
@@ -23,7 +54,16 @@ include:
 * Change references to `courts[0]` to trial_court
 
 
-# Example usage of ALDocument class
+# ALDocument class
+
+## Purpose
+
+The ALDocument class is a small utility library that makes it simpler to use the following features in an interview:
+
+* Conditional assembly of multiple, optional documents that are triggered in different ways in your interview
+* An addendum for PDF files that makes it simple to deal with overflow text
+* A customizable download screen that lists the documents in a neat table
+* A customizable "send" button that allows the user to email the final forms to a location of their choice
 
 Here is a small snippet that you can copy and modify that shows how to use the most important features of the ALDocument class.
 
@@ -69,3 +109,7 @@ E.g.,
 code: |
   CRA_Motion_to_Dismiss_attachment.enabled = condition1 and condition2
 ```
+
+# Changelog
+
+See [CHANGELOG.MD](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/blob/main/CHANGELOG.md)
