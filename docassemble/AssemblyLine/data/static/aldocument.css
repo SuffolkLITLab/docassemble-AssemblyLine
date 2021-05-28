@@ -1,6 +1,8 @@
 /* WARNING TO AL DEVELOPERS: Only use CSS _classes_ in our CSS unless you know for a fact that an ID is static. Most IDs are generated dynamically, so using them in the CSS will only work with our test files. */
 
 /* Email button (there's another section for this at the bottom) */
+/* Feedback from UI designers has been that email input field and
+   send button should be on the same line. */
 .al_email_address, .al_email_address label, .al_email_address input {
   display: inline;
   width: unset;
