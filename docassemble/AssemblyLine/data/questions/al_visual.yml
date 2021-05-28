@@ -29,14 +29,12 @@ features:
     - al_audio.js
     - docassemble.ALToolbox:copy_button.js
   css:
+    - styles.css
     - al_audio.css
     - docassemble.ALToolbox:copy_button.css
----
-features:
   question help button: True
   question back button: True
   progress bar: True
-  css: styles.css  
 ---
 code: |
   send_icon = "envelope"

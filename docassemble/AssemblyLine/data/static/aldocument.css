@@ -1,9 +1,16 @@
-/* Email button */
+/* WARNING TO AL DEVELOPERS: Only use CSS _classes_ in our CSS unless you know for a fact that an ID is static. Most IDs are generated dynamically, so using them in the CSS will only work with our test files. */
+
+/* Email button (there's another section for this at the bottom) */
 .al_email_address, .al_email_address label, .al_email_address input {
-  display: inline-block;
+  display: inline;
   width: unset;
   margin: unset;
 }
+
+.al_email_address input {
+  max-width: 50%
+}
+
 .al_send_button {
   display: inline-block;
 }
@@ -76,33 +83,14 @@ td.text-left:first-child {
 }
 /* LY 5/2021 Remove flex rules for horizontal alignment*/
 #al_send_bundle_al_user_bundle .form-check-container {
-  /*display: flex;
-  justify-content: flex-end;*/
   margin: 0.5rem 0 5px 0;
-}
-/* al_email_container desktop version */
-@media only screen and (min-width: 700px) {
-  .al_email_container {
-    display: flex;
-  }  
-  .al_email_container > span {
-    display: flex;
-    flex: 1;    
-  }  
-  .al_email_container > span > input {
-    flex: 1;
-    margin: 0 0.5rem; 
-  }
 }
 /* al_email_container mobile version */
 @media only screen and (max-width: 700px) {
   .al_email_container {
     display: block; 
   }
-  .al_email_container > span {
-    display: block; 
-  }  
-  .al_email_container > span > input {    
+  .al_email_container > span > input {
     margin: 0 0 10px; 
   }
 }
