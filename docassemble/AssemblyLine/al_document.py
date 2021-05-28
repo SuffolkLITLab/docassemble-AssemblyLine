@@ -775,7 +775,6 @@ class ALDocumentBundle(DAList):
       </div>
     </div>
   '''
-    # return_str += '</div>'  # al_send_bundle
     return_str += '''
   <div class="al_email_container">
     <span class="al_email_address '''+name+''' form-group row da-field-container da-field-container-datatype-email">
