@@ -1,27 +1,35 @@
 #!/bin/bash
 
-# Setup: 
-# Copy the example env file at `.env.example` to .env, and fill the values of your own variables
-# TEAMS_BUMP_WEBHOOK: a url that you setup following the procudure at https://stackoverflow.com/a/65759554
-# TWINE_USERNAME: your Pypi username
-# TWINE_PASSWORD: your Pypi password
+helpvar="Setup:
+Copy the example env file at '.env.example' to '.env', and fill the values of your own variables
+* TEAMS_BUMP_WEBHOOK: a url that you setup following the procudure at https://stackoverflow.com/a/65759554
+* TWINE_USERNAME: your Pypi username, or '__token__' if you are using an API token
+* TWINE_PASSWORD: your Pypi password, or an API token, including the 'pypi-' prefix
 
-# How to run:
-# $ (source .env && ./bumpversion.sh patch)
-# Can pass in test, patch, minor, or major depending on which part of the version you're bumping. We
-# roughly follow semantic versioning:
-# * test is a nonstandard version increment. Since you have to install Docassemble packages to test 
-#   if they work in other packages, you should bump test before installing to see what works
-# * patch is a version that changes nothing about how other interviews use your package/library.
-#   Usually just bug fixes.
-# * minor is the addition of a feature, and generally means that you cannot downgrade after upgrading
-# * major is a breaking change, either internally or externally
-# For more info about semantic versioning (aka semver), see https://semver.org/
+How to run:
+
+$ (source .env && ./bumpversion.sh patch)
+
+Can pass in test, patch, minor, or major depending on which part of the version you're bumping. We
+roughly follow semantic versioning:
+* test is a nonstandard version increment. Since you have to install Docassemble packages to test 
+  if they work in other packages, you should bump test before installing to see what works
+* patch is a version that changes nothing about how other interviews use your package/library.
+  Usually just bug fixes.
+* minor is the addition of a feature, and generally means that you cannot downgrade after upgrading
+* major is a breaking change, either internally or externally
+For more info about semantic versioning (aka semver), see https://semver.org/
+"
 
 real_run=true
 
 while [ -n "$1" ]; do
   case "$1" in
+  -h | --help)
+    echo -n "$helpvar"
+    shift
+    exit
+    ;;
   -n | --dry-run)
     real_run=false
     shift
@@ -37,23 +45,50 @@ while [ -n "$1" ]; do
 done
 
 
+### Make sure you have all the necessary commands installed and env vars set
+if ! git --help > /dev/null 2>&1; then
+  echo "You must have the git command installed"
+  exit 1
+fi
+
+if ! bumpversion --help > /dev/null 2>&1; then
+  echo "You need to install the bumpversion python library"
+  exit 1
+fi
+
+if ! twine --help > /dev/null 2>&1; then
+  echo "You need to install the twine python library to publish to pypi"
+  exit 1
+fi
+
+if [ -z "$1" ]; then
+  echo -n "You need to pass in test, patch, minor, or major: $helpvar"
+  exit 1
+fi
+
+if [ -z "$TWINE_USERNAME" ]; then
+  echo "You need to have the TWINE_USERNAME environment variable defined"
+  exit 1
+fi
+
+if [ -z "$TWINE_PASSWORD" ]; then
+  echo "You need to have the TWINE_PASSWORD environment variable defined"
+  exit 1
+fi
+
+if [ -z "$TEAMS_BUMP_WEBHOOK" ]; then
+  echo "You need to have the TEAMS_BUMP_WEBHOOK environment variable defined"
+  exit 1
+fi
+
 # Set after, because we can't iterate through things without getting to the end
 set -euo pipefail
 
-### Make sure you have all the necessary commands installed and env vars set
-git --help 2>&1 > /dev/null
-bumpversion --help 2>&1 > /dev/null
-twine --help 2>&1 > /dev/null
-test ! -z $TWINE_USERNAME
-test ! -z $TWINE_PASSWORD
-test ! -z $TEAMS_BUMP_WEBHOOK
-test ! -z $1 || echo "You need to pass in test, patch, minor, or major" || exit 1
-git fetch --all
-
 # TODO(brycew): should we restrict this to only work on default branches?
+git fetch --all
 branch=$(git rev-parse --abbrev-ref HEAD)
-if [ ! -z $(git ls-remote --exit-code --heads origin $branch) ] && \ 
-   [ x"$(git merge-base $branch origin/$branch)" != x"$(git rev-parse origin/$branch)" ]
+if [ -n "$(git ls-remote --exit-code --heads origin "$branch")" ] && \
+   [ x"$(git merge-base "$branch" origin/"$branch")" != x"$(git rev-parse origin/"$branch")" ]
 then
   echo "$branch is behind the origin. Pull from origin first."
   exit 1
