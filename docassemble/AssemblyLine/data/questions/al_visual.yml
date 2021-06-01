@@ -60,7 +60,7 @@ code: |
   github_user = "suffolklitlab" 
 ---
 code: |
-  feedback_form = "docassemble.MAVirtualCourt:feedback.yml"
+  feedback_form = "docassemble.AssemblyLine:feedback.yml"
 ---
 default screen parts:
   under: |
