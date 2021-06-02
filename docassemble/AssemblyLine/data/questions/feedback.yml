@@ -1,0 +1,550 @@
+---
+metadata:
+  title: CourtFormsOnline Feedback Form
+  short title: Feedback
+---
+modules:
+  - docassemble.GithubFeedbackForm.github_issue
+---
+# This is the repository that Github issue will be created on if
+# the repository is not passed as a URL argument
+code: default_repository = 'docassemble-AssemblyLine'  
+---
+code: default_github_user_or_organization = 'suffolklitlab'
+---
+comment: |
+  For security reasons, you should limit
+  the ability of this script to create issues to any repositories
+  that you control.
+variable name: allowed_github_users
+data:
+  - "suffolklitlab"
+  - "masslegalhelp"
+  - "GBLSMA"
+  - "gbls"
+---
+features:
+  labels above fields: True   
+  question back button: True
+---
+image sets:
+  freepik:
+    attribution: |
+      Icon made by [Freepik](http://www.flaticon.com/authors/freepik)
+    images:
+      opinion: opinion.svg
+      bug: bug.svg
+      confusion: confusion.svg
+      lifebuoy: lifebuoy.svg
+      love: love.svg
+      enhancement: enhance.svg
+---
+mandatory: True
+code: |
+  intro
+  if reason == 'bug':
+    bug_details
+    issue_template = bug_report
+  elif reason == 'confusing':
+    confusing_details
+    issue_template = confusing_report
+  elif reason == 'else':
+    other_feedback
+    issue_template = other_feedback_report
+  elif reason == 'help':
+    gentle_exit
+  else:
+    value(reason)  
+    issue_template = generic_report[reason]
+  send_to_github
+  prevent_going_back()
+  store_variables_snapshot(persistent=True) # this is mostly just for backup reasons
+  end_results
+---
+code: github_user = url_args.get('github_user', default_github_user_or_organization)
+---
+code: github_repo = url_args.get('github_repo', default_repository)
+---
+code: variable = url_args.get('variable')
+---
+code: question_id = url_args.get('question_id')
+---
+code: package_version = url_args.get('package_version')
+---
+code: |
+  if not task_performed('sent to github', persistent=True):
+    if github_user in allowed_github_users:
+      issue_url = make_github_issue(github_user, github_repo, template=issue_template)
+    mark_task_as_performed('sent to github', persistent=True)
+  send_to_github = True
+---
+if: |
+  not get_config('debug')
+id: intro
+question: |
+  Tell us how we're doing
+decoration: opinion  
+subquestion: |
+  The information you type here will be publicly available. That means anyone
+  will be able to see it. Use this form to give us information that does not
+  include any personal details.
+
+  If you need more help, these are free resources:
+
+  - For help with a non-criminal legal problem in Massachusetts, use the 
+  [Massachusetts Legal Resource Finder](https://masslrf.org/en/home)
+
+  - If your income is low enough, try the [Mass Legal Answers Online](http://masslao.org/) website where volunteer lawyers answer questions
+  about your personal civil legal problems. 
+
+  Thank you for telling us about your experience using CourtFormsOnline.
+fields:
+  - "**What would you like to tell us about?**": reason
+    input type: radio
+    choices:
+      - I found a bug: bug
+      - Part of the form was confusing or missing information: confusing
+      - I need more help: help      
+      - I have something else to tell you: else
+continue button field: intro  
+---
+if: |
+  get_config('debug')
+id: intro
+question: |
+  Tester feedback form
+decoration: opinion  
+subquestion: |
+  This form is designed to be used by testers and community
+  stakeholders. 
+  
+  The information you type here will be publicly available. That means anyone
+  will be able to see it. 
+  
+  It helps us to know how to prioritize your feedback. We use
+  a [5-level 
+  rating](https://suffolklitlab.org/legal-tech-class/docs/legal-tech-overview/maturity-model/#example-maturity-model-for-the-massaccess-project)
+  for our finished forms. Forms are usually 
+  ready to publish when they meet level 1, but all kinds of
+  feedback are valuable. Some forms will reach level 2-5 through 
+  iterative revision. Some will stay at level 1. Categorizing feedback
+  helps us choose the right tasks to work on in the right order.
+  
+  #### Description of levels
+  1. A user is able to correctly fill in the full form, like the paper form.
+      * 1.5 Eliminates compound question. First pass at plain language.
+  2. Similar to an intake with a new attorney
+  3. Similar to an intake with an experienced attorney
+  4. Provides substantial help and tailored resources in addition
+  to filling in the form.
+fields:
+  - "**What would you like to tell us about?**": reason
+    input type: radio
+    choices:
+      - Bug: bug
+      - Language fix: language
+      - Logic error: logic
+      - Confusing user experience: confusing
+      - Proposed enhancement: enhancement
+      - I have something else to tell you: else
+continue button field: intro  
+---
+variable name: maturity_levels
+data:
+  - Level 1 - this needs to be fixed to be equivalent to the blank form
+  - Level 1.5 - it works as-is, but this is a significant plain language issue
+  - Level 2 - this needs to be fixed to meet expectations of a basic intake
+  - Level 3 - this needs to be fixed to meet expectations of a sophisticated intake worker
+  - Level 4 - this is purely an enhancement to improve user experience
+---
+id: bug
+question: |
+  Tell us about the bug
+decoration: bug
+subquestion: |
+  Please be specific about the problem you ran into. The more you tell
+  us, the more we can do to try to fix it.
+  
+  Do not type any private information. Your bug report will be visible
+  on a public website.
+fields:
+  #- label: |
+  #    **What form were you using?**
+  #  field: form_title
+  #  show if:
+  #    code: |
+  #      github_repo == default_repository
+  - label: |
+      **What was the title at the top of the page where
+      the bug happened?**
+    field: page_title
+    show if:
+      code: |
+        not question_id
+  - When should this fix be implemented?: maturity_level
+    code: maturity_levels
+    show if:
+      code: |
+        get_config('debug')
+  - Who are you? Just tell us your name or github username, not email. This will be public.: user_contact_info
+    show if:
+      code: |
+        get_config('debug')  
+  - label: |
+      **Tell us the steps that you followed before you noticed the problem.** [BR]
+      For example: 1. I opened the interview. 2. On the first page, I put in just my first name. 3. On the second page, I put in my phone number. 4. I pressed a button to go to the next page.
+    field: reproduce_bug
+    datatype: area
+    rows: 4
+  - "**What did you expect to happen?**": bug_expected_behavior
+    datatype: area
+    rows: 4
+  - "**What happened instead? Be specific.**": bug_details
+    datatype: area
+    rows: 4
+  - label: |
+      **What else would you like to tell us?**
+    field: share_other_details   
+    datatype: area
+    required: False
+  - label: |
+      **Share my specific answers with an administrator**[BR]
+      You can optionally share your answers on the online form with an
+      administrator. Only authorized employees can view
+      this information. It will not be made public.
+      [BR]
+      If you say no, it may be harder for us to track down the problem,
+      but we will still try our best.
+      We will not contact you either way.
+    field: share_interview_answers
+    datatype: yesnoradio
+---
+id: confusing
+question: |
+  Tell us about your experience
+decoration: confusion  
+subquestion: |
+  Tell us about your experience. The more specific you are, the more
+  helpful we can be.
+  
+  Do not include private information about your case. The information you
+  type on this form will be visible on a public website.
+fields:
+  - label: |
+      **What form were you using?**
+    field: form_title
+    show if:
+      code: |
+        github_repo == default_repository
+  - label: |
+      **What was the title at the top of the page where
+      the bug happened?**
+    field: page_title
+    show if:
+      code: |
+        not question_id    
+  - When should this fix be implemented?: maturity_level
+    code: maturity_levels
+    show if:
+      code: |
+        get_config('debug')
+  - Who are you? Just tell us your name or github username, not email. This will be public.: user_contact_info
+    show if:
+      code: |
+        get_config('debug')          
+  - label: |
+      **What was confusing or missing information? **
+    field: confusing_details
+    datatype: area
+    rows: 4
+  - label: |
+      **What else would you like to tell us?**
+    field: share_other_details   
+    datatype: area
+    required: False
+---
+id: other thoughts
+question: |
+  Tell us your thoughts
+decoration: love  
+subquestion: |
+  Do not include private information about your case. The information you
+  type on this form will be visible on a public website.
+fields:
+  - What is the best way to describe you?: user_type
+    datatype: radio
+    choices:
+      - Person needing help
+      - Friend or family member of person who needs help
+      - Social worker
+      - Community organizer
+      - Other worker at a nonprofit
+      - Attorney or paralegal
+      - Other: other
+  - Who are you? Just tell us your name or github username, not email. This will be public.: user_contact_info
+    show if:
+      code: |
+        get_config('debug')        
+  - Other (please specify): user_type
+    show if:
+      variable: user_type
+      is: other
+  - label: |
+      **What would you like to tell us?**
+    field: other_feedback   
+    datatype: area
+---
+id: language fix
+question: |
+  Tell us about the language fix
+decoration: confusion
+fields:
+  - label: |
+      **What form were you using?**
+    field: form_title
+    show if:
+      code: |
+        github_repo == default_repository
+  - label: |
+      **What was the title at the top of the page where
+      the bug happened?**
+    field: page_title
+    show if:
+      code: |
+        not question_id    
+  - When should this fix be implemented?: maturity_level
+    code: maturity_levels
+    show if:
+      code: |
+        get_config('debug')
+  - Who are you? Just tell us your name or github username, not email. This will be public.: user_contact_info
+    show if:
+      code: |
+        get_config('debug')          
+  - label: |
+      **What language fix is needed? **
+    field: language
+    datatype: area
+    rows: 4
+  - label: |
+      **What else would you like to tell us?**
+    field: share_other_details   
+    datatype: area
+    required: False
+---
+id: logic fix
+question: |
+  Tell us about the logic error
+decoration: confusion
+fields:
+  - label: |
+      **What form were you using?**
+    field: form_title
+    show if:
+      code: |
+        github_repo == default_repository
+  - label: |
+      **What was the title at the top of the page where
+      the bug happened?**
+    field: page_title
+    show if:
+      code: |
+        not question_id    
+  - When should this fix be implemented?: maturity_level
+    code: maturity_levels
+    show if:
+      code: |
+        get_config('debug')
+  - Who are you? Just tell us your name or github username, not email. This will be public.: user_contact_info
+    show if:
+      code: |
+        get_config('debug')
+  - label: |
+      **What logic fix is needed? **
+    field: logic
+    datatype: area
+    rows: 4
+  - label: |
+      **What else would you like to tell us?**
+    field: share_other_details   
+    datatype: area
+    required: False
+---
+id: enhancement
+question: |
+  Tell us about the enhancement you propose
+decoration: enhancement
+fields:
+  - label: |
+      **What form were you using?**
+    field: form_title
+    show if:
+      code: |
+        github_repo == default_repository
+  - When should this fix be implemented?: maturity_level
+    code: maturity_levels
+    show if:
+      code: |
+        get_config('debug')
+  - Who are you? Just tell us your name or github username, not email. This will be public.: user_contact_info
+    show if:
+      code: |
+        get_config('debug')          
+  - label: |
+      **What enhancement do you propose? **
+    field: enhancement
+    datatype: area
+    rows: 4
+  - label: |
+      **What else would you like to tell us?**
+    field: share_other_details   
+    datatype: area
+    required: False
+---
+id: exit
+event: gentle_exit
+question: |
+  How to get more help
+decoration: lifebuoy  
+subquestion: |
+  We are sorry that we couldn't do more to help you.
+  
+  If you need more help, these are free resources:
+
+  - For help with a non-criminal legal problem in Massachusetts, use the 
+  [Massachusetts Legal Resource Finder](https://masslrf.org/en/home)
+
+  - If your income is low enough, try the [Mass Legal Answers Online](http://masslao.org/) website where volunteer lawyers answer questions
+  about your personal civil legal problems. 
+buttons:
+  - Exit: exit
+    url: https://courtformsonline.org
+---
+id: end_results
+event: end_results
+question: |
+  Thank you for your feedback
+decoration: opinion  
+subquestion: |
+  We appreciate you letting us know how we are doing.
+  
+  % if defined('issue_url'):
+  If you would like to track this issue, you can [follow 
+  it](${issue_url}) on GitHub.
+  % endif
+buttons:
+  - Exit: exit
+    url: https://courtformsonline.org
+---
+template: bug_report
+subject: |
+  % if get_config('debug'):
+  Tester feedback: bug
+  % else:
+  User: bug
+  % endif
+content: |
+  &nbsp; | &nbsp;
+  -------|------------------------------------
+  % if question_id:
+  Question ID | `${ question_id }`
+  % else:  
+  Page title | ${ page_title }
+  % endif
+  Steps to reproduce | ${ reproduce_bug }
+  Expected behavior | ${ bug_expected_behavior }
+  What happened instead | ${ bug_details }
+  Other information | ${ share_other_details }
+  % if variable:
+  Variable being sought | `${ variable }`
+  % endif
+  % if package_version:
+  Package version | `${ package_version }`
+  % endif
+  % if get_config('debug'):
+  Maturity target | ${ maturity_level }
+  Tester contact info | ${ user_contact_info }
+  % endif
+---
+template: confusing_report
+subject: |
+  % if get_config('debug'):
+  Tester feedback: part of the form was confusing
+  % else:
+  User: part of the form was confusing
+  % endif
+content: |
+  &nbsp; | &nbsp;
+  -------|------------------------------------
+  % if question_id:
+  Question ID | `${ question_id }`
+  % else:  
+  Page title | ${ page_title }
+  % endif  
+  What was confusing | ${ confusing_details }
+  Other information | ${ share_other_details }
+  % if variable:
+  Variable being sought | `${ variable }`
+  % endif  
+  % if package_version:
+  Package version | `${ package_version }`
+  % endif  
+  % if get_config('debug'):
+  Maturity target | ${ maturity_level }
+  Tester contact info | ${ user_contact_info }
+  % endif
+---
+template: other_feedback_report
+subject: |
+  % if get_config('debug'):
+  Tester feedback: other
+  % else:
+  User: other feedback
+  % endif
+content: | 
+  ## What best describes you?
+  
+  ${ user_type }
+  
+  ## User feedback:  
+  > ${ other_feedback }
+  
+  % if question_id:
+  Question id: `${ question_id }`
+  % endif
+  
+  % if variable:
+  Variable being sought: `${ variable }`
+  % endif  
+  % if package_version:
+  Package version | `${ package_version }`
+  % endif  
+  % if get_config('debug'):
+  Maturity target | ${ maturity_level }
+  Tester contact info | ${ user_contact_info }
+  % endif 
+---
+objects:
+  - generic_report: DADict
+---
+template: generic_report[i]
+subject: |
+  Tester feedback: ${i}
+content: |
+  &nbsp; | &nbsp;
+  -------|------------------------------------
+  % if question_id:
+  Question ID | `${ question_id }`
+  % elif defined('page_title'): 
+  Page title | ${ page_title }
+  % endif  
+  ${i} | ${ value(i) }
+  Other information | ${ share_other_details }
+  % if variable:
+  Variable being sought | `${ variable }`
+  % endif  
+  % if package_version:
+  Package version | `${ package_version }`
+  % endif   
+  Maturity target | ${ maturity_level }
+  Tester contact info | ${ user_contact_info }

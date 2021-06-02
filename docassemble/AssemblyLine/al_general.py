@@ -16,14 +16,14 @@ __all__ = ['ALAddress',
            'Applicant',
            'Abuser',
            'Survivor',
+           'PeopleList',           
            'VCIndividual',
            'AddressList',
            'Applicant',
            'Abuser',
            'Survivor',
-           'VCIndividual',
-           'AddressList',
-           'github_modified_date']
+           'github_modified_date',
+           'will_send_to_real_court']
 
 ##########################################################
 # Base classes
