@@ -44,17 +44,17 @@ def html_safe_str(the_string: str) -> str:
   return re.sub( r'[^A-Za-z0-9]+', '_', the_string )
 
 #def table_row( title, view_file:DAFile, download_file:DAFile=None, view_icon:str="eye", download_icon:str="download") -> str:
-def table_row( title:str, buttons:list = []) -> str:
+def table_row( title:str, button_htmls:List[str] = []) -> str:
   """
-  Uses the provided title and buttons to return the row of an AL document-
-  styled table in HTML format.
+  Uses the provided title and list of button html strings to
+  return the row of an AL document-styled table in HTML format.
   """
   html = '\n\t<tr>'
   # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
   # TODO: Need to replace with proper CSS
   html += '\n\t\t<td class="al_doc_title"><strong>' + title + '</strong></td>'
   html += '\n\t\t<td class="al_buttons">'
-  for button in buttons:
+  for button in button_htmls:
     html += button
   html += '</td>'
   html += '\n\t</tr>'

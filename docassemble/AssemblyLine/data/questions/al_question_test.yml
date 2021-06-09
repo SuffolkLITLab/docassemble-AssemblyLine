@@ -93,9 +93,26 @@ question: |
   Hello, ${ users }
 subquestion: |
   #### Your files are ready to download below
+  
+  ---
+  
+  **Standard Table**
+  
   ${ al_user_bundle.download_list_html() }
   
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+  
+  ---
+  
+  **No zip**
+  
+  ${ al_user_bundle.download_list_html( include_zip=False ) }
+  
+  ---
+  
+  **Single file**
+  
+  ${ al_single_doc_bundle.download_list_html() }
 ---
 question: |
   Try a big text field
@@ -127,6 +144,7 @@ objects:
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template], filename="user_bundle.pdf", title="All forms to download for your records")
   - al_court_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template], filename='court_bundle.pdf', title='All forms to send to the court')
+  - al_single_doc_bundle: ALDocumentBundle.using(elements=[dummy_template], filename="one_file_bundle.pdf", title="One file")
 ---
 code: |
   # This is used in the subject of the email template when someone
