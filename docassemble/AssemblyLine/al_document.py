@@ -670,7 +670,8 @@ class ALDocumentBundle(DAList):
     zipname = self.filename
     if zipname.endswith( ".pdf" ):
       zipname = zipname[:-len( ".pdf" )]
-    zip = zip_file( self.as_pdf( key=key, refresh=refresh ), filename=f'{ zipname }.zip' )
+    docs = [doc.as_pdf(key=key, refresh=refresh) for doc in self.enabled_documents()]
+    zip = zip_file( docs, filename=f'{ zipname }.zip' )
     if title == '':
       zip.title = self.title
     else:
