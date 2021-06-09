@@ -762,7 +762,7 @@ class ALDocumentBundle(DAList):
         html += table_row( doc.title, buttons )
     
     # Add a zip file row if there's more than one doc
-    if len(self) > 1:
+    if len(self) > 1 and include_zip:
       zip = self.as_zip()
       html += table_row( zip.title, zip_button( zip ))
       
