@@ -1,7 +1,7 @@
 import re
 from typing import Any, Dict, List, Union
 from docassemble.base.functions import DANav
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude
 
 __all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALDocumentBundleDict','safeattr','label','key']
 
@@ -43,24 +43,33 @@ def html_safe_str(the_string: str) -> str:
   """
   return re.sub( r'[^A-Za-z0-9]+', '_', the_string )
 
-def table_row( title, view_file:DAFile, download_file:DAFile=None, view_icon:str="eye", download_icon:str="download") -> str:
+#def table_row( title, view_file:DAFile, download_file:DAFile=None, view_icon:str="eye", download_icon:str="download") -> str:
+def table_row( title:str, button_htmls:List[str] = []) -> str:
   """
-  Uses the provided DAFile/DAFileCollection objects to build the row of a table in HTML format that allows
-  you to both view and download an ALDocument.
+  Uses the provided title and list of button html strings to
+  return the row of an AL document-styled table in HTML format.
   """
-  if not download_file:
-    download_file = view_file
   html = '\n\t<tr>'
   # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
   # TODO: Need to replace with proper CSS
-  html += '\n\t\t<td><strong>' + title + '</strong></td>'
-  html += '\n\t\t<td>'
-  html += action_button_html( view_file.url_for(), label=word("View"), size="md", icon=view_icon, color="secondary" )
-  html += action_button_html( download_file.url_for(attachment=True), size="md", label=word("Download"), icon=download_icon, color="primary" )
+  html += '\n\t\t<td class="al_doc_title"><strong>' + title + '</strong></td>'
+  html += '\n\t\t<td class="al_buttons">'
+  for button in button_htmls:
+    html += button
   html += '</td>'
   html += '\n\t</tr>'
 
   return html
+
+def view_button( file:DAFile, label:str = "View", icon:str = "eye" ) -> str:
+  return action_button_html( file.url_for(attachment=False), label=word(label), icon=icon, color="secondary", size="md", classname='al_view' )
+
+def download_button( file:DAFile, label:str = "Download", icon:str = "download" ) -> str:
+  return action_button_html( file.url_for(attachment=True), label=word(label), icon=icon, color="primary", size="md", classname='al_download' )
+
+def zip_button( file:DAFile, label:str = "Download zip", icon:str = "file-archive" ) -> str:
+  return action_button_html( file.url_for(attachment=False), label=word(label), icon=icon, color="primary", size="md", classname='al_zip' )
+
 
 class ALAddendumField(DAObject):
   """
@@ -646,6 +655,33 @@ class ALDocumentBundle(DAList):
     setattr(self.cache, safe_key, pdf)
     return pdf
 
+  def as_zip(self, key:str = 'final', refresh:bool = True, title:str = '') -> DAFile:
+    '''Returns a zip file containing the whole bundle'''
+    log_if_debug(f'Calling as_zip() for { str( self.title )}')
+
+    zip_key = f'{ space_to_underscore( key )}_zip'
+
+    # Speed up performance if can (docs say `zip_file` works like `pdf_concatenate`)
+    if hasattr(self.cache, zip_key):
+      log_if_debug(f'Returning cached version of { str( self.title )} zip')
+      return getattr(self.cache,  zip_key)
+
+    # strip out a possible '.pdf' ending then add '.zip'
+    zipname = self.filename
+    if zipname.endswith( ".pdf" ):
+      zipname = zipname[:-len( ".pdf" )]
+    docs = [doc.as_pdf(key=key, refresh=refresh) for doc in self.enabled_documents()]
+    zip = zip_file( docs, filename=f'{ zipname }.zip' )
+    if title == '':
+      zip.title = self.title
+    else:
+      zip.title = title
+    
+    setattr(self.cache, zip_key, zip)
+    log_if_debug(f'Stored {self.title} zip at {self.instanceName}.cache.{zip_key}')
+    
+    return zip
+  
   def preview(self, refresh:bool=True) -> DAFile:
     return self.as_pdf(key='preview', refresh=refresh)
 
@@ -701,7 +737,7 @@ class ALDocumentBundle(DAList):
       editable.append(doc.docx if hasattr(doc, 'docx') else doc.pdf)
     return editable
 
-  def download_list_html(self, key:str='final', format:str='pdf', view:bool=True, refresh:bool=True) -> str:
+  def download_list_html(self, key:str='final', format:str='pdf', view:bool=True, refresh:bool=True, include_zip:bool = True) -> str:
     """
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
@@ -719,11 +755,18 @@ class ALDocumentBundle(DAList):
 
     for doc in self:
       if doc.enabled:
-        the_file = doc.as_pdf() # should trigger cache
         if format=='docx':
-          html += table_row(doc.title, the_file, download_file=doc.as_docx(key=key))
+          doc_dwnld_button = download_button( doc.as_docx(key=key) )
         else:
-          html += table_row(doc.title, the_file, download_file=the_file)
+          doc_dwnld_button = download_button( doc.as_pdf(key=key) )
+        buttons = [ view_button(doc.as_pdf()), doc_dwnld_button ]
+        html += table_row( doc.title, buttons )
+    
+    # Add a zip file row if there's more than one doc
+    if len(self) > 1 and include_zip:
+      zip = self.as_zip()
+      html += table_row( zip.title, zip_button( zip ))
+      
     html += '\n</table>'
 
     # Discuss: Do we want a table with the ability to have a merged pdf row?
