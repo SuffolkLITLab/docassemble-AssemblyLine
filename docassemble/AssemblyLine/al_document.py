@@ -1,9 +1,9 @@
 import re
 from typing import Any, Dict, List, Union
 from docassemble.base.functions import DANav
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile
 
-__all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALDocumentBundleDict','safeattr','label','key']
+__all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALStaticDocument', 'ALDocumentBundleDict','safeattr','label','key']
 
 DEBUG_MODE = get_config('debug')
 
@@ -564,7 +564,7 @@ class ALDocument(DADict):
         return [self[key], self.addendum]
       else:
         return [self[key]]
-
+      
   def need_addendum(self) -> bool:
     return hasattr(self, 'has_addendum') and self.has_addendum and self.has_overflow()
 
@@ -594,6 +594,44 @@ class ALDocument(DADict):
       overflow_message = self.default_overflow_message
     return self.overflow_fields[field_name].overflow_value(overflow_message=overflow_message, preserve_newlines=preserve_newlines, input_width=input_width)
 
+class ALStaticDocument(DAStaticFile, ALDocument):
+  """A class that allows one-line initialization of static documents to include in an ALDocumentBundle.
+  
+  Note:
+      You should always place the static file within the /data/static folder of a package.
+      ALDocumentBundle relies on a publically accessible file. The /data/templates folder is private.
+      
+  Attributes:
+      filename(str): the path to the file within /data/static/.
+      title(str): The title that will display as a row when invoked with `download_list_html()` method
+                  of an ALDocumentBundle.                  
+  Examples:
+      Add a static PDF file to a document bundle.
+      .. code-block:: yaml
+      ---
+      objects:
+        - static_test: ALStaticDocument.using(title="Static Test", filename="static.pdf", enabled=True)
+      ---
+      objects: 
+        - bundle: ALDocumentBundle.using(elements=[static_test], filename="bundle", title="Documents to download now")
+  Todo:
+      Handle files placed in /data/templates if that turns out to be useful. Likely by copying into
+      a DAFile with pdf_concatenate().
+  """
+  def init(self, *pargs, **kwargs):
+    super().init(*pargs, **kwargs)
+    self.has_addendum = False
+    self.auto_gather = False
+    self.gathered = True
+  
+  def __getitem__(self, key):
+    # This overrides the .get() method so that the 'final' and 'private' key always exist and
+    # point to the same file.
+    return self
+  
+  def as_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
+    return [self]
+  
 class ALDocumentBundle(DAList):
   """
   DAList of ALDocuments or nested ALDocumentBundles.
