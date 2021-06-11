@@ -608,12 +608,13 @@ class ALStaticDocument(DAStaticFile, ALDocument):
   Examples:
       Add a static PDF file to a document bundle.
       .. code-block:: yaml
-      ---
-      objects:
-        - static_test: ALStaticDocument.using(title="Static Test", filename="static.pdf", enabled=True)
-      ---
-      objects: 
-        - bundle: ALDocumentBundle.using(elements=[static_test], filename="bundle", title="Documents to download now")
+        ---
+        objects:
+          - static_test: ALStaticDocument.using(title="Static Test", filename="static.pdf", enabled=True)
+        ---
+        objects: 
+          - bundle: ALDocumentBundle.using(elements=[static_test], filename="bundle", title="Documents to download now")
+          
   Todo:
       Handle files placed in /data/templates if that turns out to be useful. Likely by copying into
       a DAFile with pdf_concatenate().
