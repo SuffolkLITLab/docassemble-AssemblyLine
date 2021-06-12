@@ -763,7 +763,7 @@ class ALDocumentBundle(DAList):
         html += table_row( doc.title, buttons )
     
     # Add a zip file row if there's more than one doc
-    if len(self) > 1 and include_zip:
+    if len(self.enabled_documents()) > 1 and include_zip:
       zip = self.as_zip()
       html += table_row( zip.title, zip_button( zip ))
       
@@ -796,7 +796,7 @@ class ALDocumentBundle(DAList):
     name = re.sub(r'[^A-Za-z0-9]+','_', self.instanceName)  # safe name for classes and ids
     al_wants_editable_input_id = 'al_wants_editable_' + name
     al_email_input_id = 'al_doc_email_' + name
-    al_send_button_id = "al_send_email_button_"+name
+    al_send_button_id = "al_send_email_button_" + name
 
     javascript_string = "javascript:aldocument_send_action('" + \
       self.attr_name('send_email_action_event') + \

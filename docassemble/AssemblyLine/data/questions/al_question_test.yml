@@ -28,26 +28,26 @@ code: |
   # big_text_field
   # debug_safe_value
   
-  #al_intro_screen
-  #test_label_functions
-  #feature_tests_1
+  al_intro_screen
+  test_label_functions
+  feature_tests_1
   al_user_bundle
-  #chiropractors.gather()
-  #other_parties.gather()
-  #users.gather()
-  #users[0].gender  
-  #users[0].address.address
-  #users[0].mailing_address.address
-  #trial_court
-  #big_text_field  
-  #children.gather()
-  #preview_screen
-  #basic_questions_signature_flow
-  al_user_bundle.enabled = True
+  chiropractors.gather()
+  other_parties.gather()
+  users.gather()
+  users[0].gender  
+  users[0].address.address
+  users[0].mailing_address.address
+  trial_court
+  big_text_field  
+  children.gather()
+  preview_screen
+  basic_questions_signature_flow
+  dummy_template.enabled = False
+  one_enabled_doc_test
+  dummy_template.enabled = True
   many_bundles_test
   end
-  #al_user_bundle.enabled = False
-  #one_enabled_doc_test
 ---
 question: |
   Test
@@ -119,13 +119,13 @@ subquestion: |
   
   ${ al_single_doc_bundle.download_list_html() }
 ---
-#need: al_user_bundle
-#id: one enabled doc
-event: one_enabled_doc_test
+need: al_user_bundle
+id: one enabled doc
+continue button field: one_enabled_doc_test
 question: |
   One enabled file
-#subquestion: |
-#  ${ al_user_bundle.download_list_html() }
+subquestion: |
+  ${ al_user_bundle.download_list_html() }
 ---
 question: |
   Try a big text field
