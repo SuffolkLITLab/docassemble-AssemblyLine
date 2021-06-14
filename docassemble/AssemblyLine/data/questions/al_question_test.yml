@@ -27,6 +27,7 @@ mandatory: True
 code: |
   # big_text_field
   # debug_safe_value
+  
   al_intro_screen
   test_label_functions
   feature_tests_1
@@ -42,7 +43,11 @@ code: |
   children.gather()
   preview_screen
   basic_questions_signature_flow
-  end_screen
+  dummy_template.enabled = False
+  one_enabled_doc_test
+  dummy_template.enabled = True
+  many_bundles_test
+  end
 ---
 question: |
   Test
@@ -88,7 +93,7 @@ subquestion: |
 ---
 need: al_user_bundle
 id: test end screen
-event: end_screen
+event: many_bundles_test
 question: |
   Hello, ${ users }
 subquestion: |
@@ -113,6 +118,14 @@ subquestion: |
   **Single file**
   
   ${ al_single_doc_bundle.download_list_html() }
+---
+need: al_user_bundle
+id: one enabled doc
+continue button field: one_enabled_doc_test
+question: |
+  One enabled file
+subquestion: |
+  ${ al_user_bundle.download_list_html() }
 ---
 question: |
   Try a big text field
@@ -139,7 +152,7 @@ objects:
   # Dummy template will use the generic addendum
   - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=True, enabled=True, default_overflow_message=" [See addendum]")
   # `has_addendum` should be taken care of by a default attr
-  - word_template: ALDocument.using(title="Word Template", filename="word_template", enabled=True)  
+  - word_template: ALDocument.using(title="Word Template", filename="word_template", enabled=True)
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template], filename="user_bundle.pdf", title="All forms to download for your records")
@@ -188,3 +201,8 @@ attachment:
   variable name: word_template[i]
   docx template file: sample_word_template.docx
   filename: sample_word_template.docx
+---
+id: end if we need it
+event: end
+question: Great job!
+---

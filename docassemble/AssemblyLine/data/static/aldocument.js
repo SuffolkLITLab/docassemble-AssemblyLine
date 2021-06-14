@@ -6,6 +6,7 @@
 function aldocument_send_action(event_name, wants_editable_id, email_id) {
   var editable = false;
   
+  console.log( email_id );
   var editable_choice_node = $('#' + wants_editable_id);
   if ( editable_choice_node && editable_choice_node[0] ) {
     editable = $('#' + wants_editable_id)[0].checked;
