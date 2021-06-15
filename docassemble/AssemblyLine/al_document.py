@@ -564,7 +564,6 @@ class ALDocument(DADict):
         return [self[key], self.addendum]
       else:
         return [self[key]]
-      
   def need_addendum(self) -> bool:
     return hasattr(self, 'has_addendum') and self.has_addendum and self.has_overflow()
 
