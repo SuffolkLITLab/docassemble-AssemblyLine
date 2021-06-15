@@ -93,7 +93,7 @@ subquestion: |
 ---
 need: al_user_bundle
 id: test end screen
-event: many_bundles_test
+continue button field: many_bundles_test
 question: |
   Hello, ${ users }
 subquestion: |

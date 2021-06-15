@@ -794,8 +794,8 @@ class ALDocumentBundle(DAList):
     include an editable (Word) copy of the file, iff it is available.
     """
     name = re.sub(r'[^A-Za-z0-9]+','_', self.instanceName)  # safe name for classes and ids
-    al_wants_editable_input_id = 'al_wants_editable_' + name
-    al_email_input_id = 'al_doc_email_' + name
+    al_wants_editable_input_id = '_ignore_al_wants_editable_' + name
+    al_email_input_id = '_ignore_al_doc_email_' + name
     al_send_button_id = "al_send_email_button_" + name
 
     javascript_string = "javascript:aldocument_send_action('" + \
