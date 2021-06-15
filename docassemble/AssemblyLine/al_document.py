@@ -487,8 +487,6 @@ class ALDocument(DADict):
   
   def init(self, *pargs, **kwargs):
     super(ALDocument, self).init(*pargs, **kwargs)
-    self.auto_gather=False
-    self.gathered=True
     self.initializeAttribute('overflow_fields',ALAddendumFieldDict)
     if not hasattr(self, 'default_overflow_message'):
       self.default_overflow_message = '...'
