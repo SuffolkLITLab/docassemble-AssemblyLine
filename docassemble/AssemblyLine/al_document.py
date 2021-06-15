@@ -566,6 +566,7 @@ class ALDocument(DADict):
         return [self[key], self.addendum]
       else:
         return [self[key]]
+      
   def need_addendum(self) -> bool:
     return hasattr(self, 'has_addendum') and self.has_addendum and self.has_overflow()
 
@@ -634,14 +635,17 @@ class ALStaticDocument(DAStaticFile):
   def as_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     return [self]
   
-  def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
+  def as_pdf(self, key:str='final', refresh:bool=True) -> DAStaticFile:
+    return pdf_concatenate(self)
     if self._is_pdf():
       return self
     else:
       return pdf_concatenate(self)
   
-  def __str__(self):
-    return DAStaticFile.__str__(self)
+  def show(self, **kwargs):
+    # TODO: this explicit conversion shouldn't be needed
+    # Workaround for problem generating thumbnails without it
+    return pdf_concatenate(self).show(**kwargs)
   
 class ALDocumentBundle(DAList):
   """
