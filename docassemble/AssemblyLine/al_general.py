@@ -107,10 +107,15 @@ class ALIndividual(Individual):
   def phone_numbers(self) -> str:
     nums = []
     if hasattr(self, 'mobile_number') and self.mobile_number:
-      nums.append(self.mobile_number + ' (cell)')
+      nums.append({self.mobile_number: 'cell'})
     if hasattr(self, 'phone_number') and self.phone_number:
-      nums.append(self.phone_number + ' (other)')
-    return comma_list(nums)
+      nums.append({self.phone_number: 'other'})
+    if len(nums) > 1:      
+      return comma_list([list(num.keys())[0] + ' (' + list(num.values())[0] + ')' for num in nums])
+    elif len(nums):
+      return list(nums[0].keys())[0]
+    else:
+      return ''
   
   def merge_letters(self, new_letters: str):
     # TODO: move to 209A package
