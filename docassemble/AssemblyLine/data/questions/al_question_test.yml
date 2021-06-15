@@ -190,4 +190,4 @@ attachment:
   filename: sample_word_template.docx
 ---
 objects:
-  - static_test: ALStaticDocument.using(title="Test Static Document", filename="ma_logo.png", enabled=True)
+  - static_test: ALStaticDocument.using(title="Test Static Document", filename="lt1-pullout-10-getting-organized.pdf", enabled=True)
