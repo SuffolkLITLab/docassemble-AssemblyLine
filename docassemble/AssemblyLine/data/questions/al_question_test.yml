@@ -46,6 +46,8 @@ code: |
 ---
 question: |
   Test
+subquestion: |
+  ${ static_test }
 fields:
   - code: |
       users[0].name_fields()
@@ -101,6 +103,14 @@ subquestion: |
   ${ al_user_bundle.download_list_html() }
   
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+  
+  `${ al_user_bundle.enabled_documents() }`
+  
+  ${ static_test }
+  
+  ${ al_user_bundle.as_pdf() }
+  
+  
   
   ---
   

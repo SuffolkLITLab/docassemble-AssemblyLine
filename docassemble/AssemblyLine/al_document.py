@@ -487,6 +487,8 @@ class ALDocument(DADict):
   
   def init(self, *pargs, **kwargs):
     super(ALDocument, self).init(*pargs, **kwargs)
+    self.auto_gather=False
+    self.gathered=True
     self.initializeAttribute('overflow_fields',ALAddendumFieldDict)
     if not hasattr(self, 'default_overflow_message'):
       self.default_overflow_message = '...'
@@ -593,7 +595,7 @@ class ALDocument(DADict):
       overflow_message = self.default_overflow_message
     return self.overflow_fields[field_name].overflow_value(overflow_message=overflow_message, preserve_newlines=preserve_newlines, input_width=input_width)
 
-class ALStaticDocument(DAStaticFile, ALDocument):
+class ALStaticDocument(DAStaticFile):
   """A class that allows one-line initialization of static documents to include in an ALDocumentBundle.
   
   Note:
@@ -631,6 +633,15 @@ class ALStaticDocument(DAStaticFile, ALDocument):
   
   def as_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     return [self]
+  
+  def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
+    if self._is_pdf():
+      return self
+    else:
+      return pdf_concatenate(self)
+  
+  def __str__(self):
+    return DAStaticFile.__str__(self)
   
 class ALDocumentBundle(DAList):
   """
