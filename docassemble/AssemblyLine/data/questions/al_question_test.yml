@@ -106,6 +106,8 @@ subquestion: |
   ${ al_user_bundle.download_list_html() }
   
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+    
+  ${ al_user_bundle.as_pdf() }
   
   ---
   
@@ -155,7 +157,7 @@ objects:
   - word_template: ALDocument.using(title="Word Template", filename="word_template", enabled=True)
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template], filename="user_bundle.pdf", title="All forms to download for your records")
+  - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template, static_test], filename="user_bundle.pdf", title="All forms to download for your records")
   - al_court_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template], filename='court_bundle.pdf', title='All forms to send to the court')
   - al_single_doc_bundle: ALDocumentBundle.using(elements=[dummy_template], filename="one_file_bundle.pdf", title="One file")
 ---
@@ -201,6 +203,9 @@ attachment:
   variable name: word_template[i]
   docx template file: sample_word_template.docx
   filename: sample_word_template.docx
+---
+objects:
+  - static_test: ALStaticDocument.using(title="Test Static Document", filename="lt1-pullout-10-getting-organized.pdf", enabled=True)
 ---
 id: end if we need it
 event: end
