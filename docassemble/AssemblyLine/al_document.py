@@ -103,8 +103,11 @@ class ALAddendumField(DAObject):
       return self.value()
 
     # If trigger is not a boolean value, overflow value is the value that starts at the end of the safe value.
-    safe_text = self.safe_value(overflow_message = overflow_message, input_width=input_width, preserve_newlines=preserve_newlines)
     original_value = self.value_if_defined()
+    safe_text = self.safe_value(overflow_message = overflow_message, 
+                                input_width=input_width, 
+                                preserve_newlines=preserve_newlines, 
+                                _original_value = original_value)
     if isinstance(safe_text,str):
       # Always get rid of double newlines, for consistency with safe_value.
       value_to_process = re.sub(r"[\r\n]+|\r+|\n+",r"\n",original_value).rstrip()
@@ -122,7 +125,7 @@ class ALAddendumField(DAObject):
       return value_to_process[overflow_start:]
 
     # Do not subtract length of overflow message if this is a list of objects instead of a string
-    return self.value_if_defined()[self.overflow_trigger:]
+    return original_value[self.overflow_trigger:]
 
   def max_lines(self, input_width:int=80, overflow_message_length=0) -> int:
     """
@@ -138,14 +141,26 @@ class ALAddendumField(DAObject):
     """
     return self.value_if_defined()
 
-  def safe_value(self, overflow_message:str="", input_width:int=80, preserve_newlines:bool=False):
+  def safe_value(self, overflow_message:str="", input_width:int=80, preserve_newlines:bool=False, _original_value=None):
     """
     Try to return just the portion of the variable
     that is _shorter than_ the overflow trigger. Otherwise, return empty string.
+    Args:
+        overflow_message (str): A short message to go on the page where text is cutoff.
+        input_width (int): The width, in characters, of the input box. Defaults to 80.
+        preserve_newlines (bool): Determines whether newlines are preserved in the "safe" text.
+            Defaults to False, which means all newlines are removed. This allows more text to appear
+            before being sent to the addendum.
+        _original_value (Any): for speed reasons, you can provide the full text and just use this
+            method to determine if the overflow trigger is exceeded. If no _original_value is
+            provided, this method will determine it using the value_if_defined() method.
     """
 
     # Handle simplest case first
-    value = self.value_if_defined()
+    if _original_value:
+      value = _original_value
+    else:
+      value = self.value_if_defined()
     if isinstance(value, str) and len(value) <= self.overflow_trigger and (value.count('\r') + value.count('\n')) == 0:
       return value
 
@@ -361,12 +376,22 @@ class ALAddendumFieldDict(DAOrderedDict):
     If the "style" is set to overflow_only, only return the overflow values.
     """
     if style == 'overflow_only':
-      return [field for field in self.values() if defined(field.field_name) and len(field.overflow_value())]
+      return [field for field in self.values() if len(field.overflow_value())]
     else:
       return [field for field in self.values() if defined(field.field_name)]
 
   def overflow(self):
     return self.defined_fields(style='overflow_only')
+  
+  def has_overflow(self)->bool:
+    """Returns True if any defined field's length exceeds the overflow trigger.
+    Returns:
+      bool: True if at least 1 field has "overflow" content, False otherwise.
+    """
+    for field in self.values():
+      if field.overflow_value():
+        return True
+    return False      
 
   #def defined_sections(self):
   #  if self.style == 'overflow_only':
@@ -569,7 +594,7 @@ class ALDocument(DADict):
     return hasattr(self, 'has_addendum') and self.has_addendum and self.has_overflow()
 
   def has_overflow(self) -> bool:
-    return len(self.overflow()) > 0
+    return self.overflow_fields.has_overflow()
 
   def overflow(self):
     return self.overflow_fields.overflow()
