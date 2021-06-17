@@ -107,10 +107,33 @@ class ALIndividual(Individual):
   def phone_numbers(self) -> str:
     nums = []
     if hasattr(self, 'mobile_number') and self.mobile_number:
-      nums.append(self.mobile_number + ' (cell)')
+      nums.append({self.mobile_number: 'cell'})
     if hasattr(self, 'phone_number') and self.phone_number:
-      nums.append(self.phone_number + ' (other)')
-    return comma_list(nums)
+      nums.append({self.phone_number: 'other'})
+    if len(nums) > 1:      
+      return comma_list([list(num.keys())[0] + ' (' + list(num.values())[0] + ')' for num in nums])
+    elif len(nums):
+      return list(nums[0].keys())[0]
+    else:
+      return ''
+  
+  def contact_methods(self)-> str:
+    """Method to return a formatted string with all provided contact methods of the individual:
+        * Phone number(s)
+        * Email
+        * other method
+    Returns:
+        str: Formatted string
+    """
+    methods = []
+    if self.phone_numbers():
+      methods.append({self.phone_numbers(): word("by phone at ")})
+    if hasattr(self, 'email') and self.email:
+      methods.append({self.email: word("by email at ")})
+    if hasattr(self, 'other_contact_method') and self.other_contact_method:
+      methods.append({self.other_contact_method: "by "})
+    
+    return comma_and_list([list(method.values())[0] + list(method.keys())[0] for method in methods if len(method)], and_string=word("or"))
   
   def merge_letters(self, new_letters: str):
     # TODO: move to 209A package

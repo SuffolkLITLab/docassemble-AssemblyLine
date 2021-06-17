@@ -462,7 +462,7 @@ validation code: |
       (not showifdef('users[0].mobile_number')) and \
       (not showifdef('users[0].email')) and \
       (not showifdef('users[0].other_contact_method'))):
-    validation_error(word("You need to provide at least one contact method."))
+    validation_error(word("You need to provide at least one contact method."), field="users[0].other_contact_method")
 # TODO: adjust this if the form is not a court form
 help: |
   % if al_form_type in ['starts_case','existing_case','appeal']:

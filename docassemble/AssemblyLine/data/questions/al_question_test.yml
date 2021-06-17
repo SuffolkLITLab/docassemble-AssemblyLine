@@ -38,6 +38,7 @@ code: |
   users[0].gender  
   users[0].address.address
   users[0].mailing_address.address
+  users[0].phone_number
   trial_court
   big_text_field  
   children.gather()
@@ -175,6 +176,10 @@ attachment:
   variable name: dummy_template[i]
   content: |
     You live at ${ users[0].address.on_one_line() }
+    
+    Your phone number(s) are: ${ users[0].phone_numbers() }.
+    
+    You can be reached by ${ users[0].contact_methods() }.
 
     You have ${ len(children) } children, named ${ children.familiar() }
 
