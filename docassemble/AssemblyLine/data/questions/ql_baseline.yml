@@ -349,6 +349,11 @@ content: |
   Zip or postal code
 ---
 generic object: ALAddress
+template: x.postal_code_label
+content: |
+  Postal code
+---
+generic object: ALAddress
 template: x.country_label
 content: |
   Country
@@ -411,7 +416,7 @@ subquestion: |
   Use an address where you can be contacted.
 fields:
   - code: |
-      users[0].address_fields(default_state="MA")
+      users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: your mailing address
 sets:
@@ -422,7 +427,7 @@ question: |
   What is your mailing address?
 fields:
   - code: |
-      users[0].mailing_address.address_fields()
+      users[0].mailing_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 generic object: ALIndividual
 id: any mailing address
@@ -434,7 +439,7 @@ question: |
   What is ${x}'s mailing address?
 fields:
   - code: |
-      x.mailing_address.address_fields()
+      x.mailing_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: your contact information
 question: |
@@ -680,7 +685,7 @@ question: |
   What is ${ x.possessive('address') }?
 fields:
   - code: |
-      x.address_fields(default_state="MA")
+      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: persons contact information
 generic object: ALIndividual

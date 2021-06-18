@@ -34,15 +34,23 @@ class ALAddress(Address):
   # the built-in address object requires some fields to be defined that we don't want to require of
   # international addresses when you want to render it to text.
 
-  def address_fields(self, country_code="US", default_state=None, show_country=False):
-
+  def address_fields(self, country_code=None, default_state=None, show_country=False):
     fields = [
       {"label": str(self.address_label), "address autocomplete": True, "field": self.attr_name('address')},
       {"label": str(self.unit_label), "field": self.attr_name('unit'), "required": False},
       {"label": str(self.city_label), "field": self.attr_name("city")},
       {"label": str(self.state_label), "field": self.attr_name("state"), "code": "states_list(country_code='{}')".format(country_code), "default": default_state},
-      {"label": str(self.zip_label), "field": self.attr_name('zip'), "required": False},
     ]
+    if country_code == "US":
+      fields.append(
+        {"label": str(self.zip_label), "field": self.attr_name('zip'), "required": False}
+      )
+    else:
+      fields.append(
+        # We have code in ALWeaver that relies on "zip", so keep attribute same for now
+        {"label": str(self.postal_code_label), "field": self.attr_name('zip'), "required": False}
+      )
+      
     if show_country:
       fields.append({"label": self.country_label, "field": self.attr_name("address.country"), "required": False, "code": "countries_list()", "default": country_code})
       # NOTE: using , "datatype": "combobox" might be nice but does not play together well w/ address autocomplete
