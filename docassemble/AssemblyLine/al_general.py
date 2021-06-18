@@ -49,7 +49,7 @@ class ALAddress(Address):
     ]
     if country_code:
       fields.append(
-        {"label": str(self.state_label), "field": self.attr_name("state"), "code": "states_list(country_code='{}')".format(country_code), "default": default_state}
+        {"label": str(self.state_label), "field": self.attr_name("state"), "code": "states_list(country_code='{}')".format(country_code), "default": default_state if default_state else ''}
       )
     else:
       fields.append(
