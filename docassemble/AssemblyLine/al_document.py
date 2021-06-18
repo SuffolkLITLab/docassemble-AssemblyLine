@@ -3,7 +3,18 @@ from typing import Any, Dict, List, Union
 from docassemble.base.functions import DANav
 from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude
 
-__all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALDocumentBundleDict','safeattr','label','key']
+__all__ = ['ALAddendumField',
+           'ALAddendumFieldDict',
+           'ALDocumentBundle', 
+           'ALDocument', 
+           'ALDocumentBundleDict',
+           'safeattr',
+           'label',
+           'key',
+           'ALExhibitList',
+           'ALExhibit',
+           'ALExhibitDocument',
+           'unpack_dafilelist']
 
 DEBUG_MODE = get_config('debug')
 
@@ -818,9 +829,8 @@ class ALDocumentBundle(DAList):
 
 class ALDocumentBundleDict(DADict):
   """
-  A dictionary with named bundles of ALDocuments.
-  In the assembly line, we expect to find two predetermined bundles:
-  court_bundle and user_bundle.
+  A dictionary with named bundles of ALDocuments. In the assembly line, we
+  expect to find two predetermined bundles: court_bundle and user_bundle.
 
   It may be helpful in some circumstances to have a "bundle" of bundles. E.g.,
   you may want to present the user multiple combinations of documents for
@@ -848,3 +858,93 @@ class ALDocumentBundleDict(DADict):
     Return a list of PDF-ified documents, suitable to make an attachment to send_mail.
     """
     return self[bundle].as_pdf_list(key='final')
+
+class ALExhibit(DAObject):
+  """Class to represent a single exhibit, with cover page, which may contain multiple documents representing pages.
+  Atributes:
+      elements (list): List of individual DAFiles representing uploaded images or documents.
+      cover_page (DAFile | DAFileCollection): A DAFile or DAFileCollection object created by an `attachment:` block
+        Will typically say something like "Exhibit 1"
+  """
+  cover_page: DAFile
+  pages: DAFileList
+  _cache: DAFile
+  _index: Union[str,int]
+
+  def init(self, *pargs, **kwargs):
+    super().init(*pargs, **kwargs)
+    self.object_type = DAFileList
+
+  def add_numbers(self, starting_number=1):
+    pass
+
+  def as_pdf(self, add_page_numbers=True, add_cover_page=True):
+    if hasattr(self, '_cache'):
+      return self._cache
+    if hasattr(self, 'filename'):
+      filename = self.filename
+    else:
+      filename = "exhibit_" + self._index
+    self._cache = pdf_concatenate(self.cover_page, self.pages, filename=filename)
+    return self._cache
+
+  @property
+  def complete(self):
+    self.title
+    self.pages.gather()
+    return True
+
+  def __str__(self):
+    return self.title
+
+class ALExhibitList(DAList):
+  def init(self, *pargs, **kwargs):
+    super().init(*pargs, **kwargs)
+    self.object_type = ALExhibit
+    self.complete_attribute = 'complete'
+
+class ALExhibitDocument(ALDocument):
+  """Represents a collection of uploaded documents, formatted like a record appendix or exhibit list, with a table of contents and 
+  optional page numbering.
+
+  Attributes:
+      pages (ALExhibitList): list of ALExhibit documents. Each item is a separate exhibit, which may be multiple pages.
+      table_of_contents: DAFile or DAFileCollection object created by an `attachment:` block
+      _cache (DAFile): a cached version of the list of exhibits. It may take
+        a long time to process.
+      add_table_of_contents (bool): flag to control whether a table of contents is generated for this form        
+      add_cover_pages (bool): flag to control whether cover pages are included with each separate exhibit
+      add_page_numbers (bool): Flag that controls whether the as_pdf() method
+        also will add Bates-stamp style page numbers and labels on each page.  
+
+  Todo:
+      * Method of making a safe link in place of the attachment (e.g., filesize limits on email)        
+  """
+  exhibits: DAFileList
+  _cache: DAFile
+  table_of_contents: DAFile
+
+  def init(self, *pargs, **kwargs):
+    super().init(*pargs, **kwargs)
+    self.initializeAttribute('pages', ALExhibitList)
+    self.has_addendum = False
+
+  def has_overflow(self):
+    return False
+
+  def as_pdf(self, include_table_of_contents:bool = True):
+    return pdf_concatenate([a.as_pdf() for a in self.exhibits], filename=self.filename)
+
+def unpack_dafilelist(the_file:DAFileList)->DAFile:
+  """Creates a plain DAFile out of the first item in a DAFileList
+  Arguments:
+      the_file (DAFileList): an item representing an uploaded document in a Docassemble interview
+  
+  Returns:
+      A DAFile representing the first item in the DAFileList, with a fixed instanceName attribute.
+  """
+  if isinstance(the_file, DAFileList):
+    temp_name = the_file.instanceName
+    the_file = next(iter(the_file))
+    the_file.instanceName = temp_name # reset instance name to the whole object instead of index in list we got rid of
+  return the_file

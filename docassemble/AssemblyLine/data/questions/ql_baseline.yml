@@ -1238,3 +1238,80 @@ attachment:
 generic object: ALAddendumField
 code: |
   x.label = x.field_name.capitalize().replace("_", " ")
+---
+#########################################################
+# ALExhibitDocument questions
+---
+generic object: ALExhibitList
+id: any exhibits
+question: |
+  % if al_form_type in ['starts_case','existing_case','appeal']:
+  Do you have any documents that you want to provide to the court?
+  % else:
+  Do you have any documents that you want to attach to this form?
+  % endif
+subquestion: |
+  Upload each file one at a time.
+fields:
+  - Do you have any documents you want to upload?: x.there_are_any
+    datatype: yesnoradio
+  - note: |
+      **Okay**. You will have a chance to upload multiple documents, one photograph or
+      one file at a time. You will also have a chance to reorder the documents if 
+      you need to.
+---
+generic object: ALExhibitList
+id: exhibit i
+question: |
+  Upload the ${ ordinal(i) } document
+subquestion: |
+  You will have a chance to upload additional pages for this document later.  
+fields:
+  - Name: x[i].title
+  - Upload an image, PDF, or Word document: x[i].pages
+    datatype: files
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/*, image/png,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if sum(exhibit.size_in_bytes() for exhibit in x[i].pages) > (15 * 1024 * 1024):
+    validation_error("Upload a file smaller than 15 MB.")
+  try:
+    pdf_concatenate(x[i].pages)
+  except:
+    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages")
+  del x[i].pages.gathered  # docassemble sets this attribute but we want to force gathering additional pages
+---
+generic object: ALExhibitList
+id: exhibit i has additional pages
+question: |
+  Does ${ x[i] } have any additional pages?
+yesno: x[i].pages.there_is_another
+---
+generic object: ALExhibitList
+id: exhibit additional page
+question: |
+  Upload the ${ ordinal(j) } part of your ${ x[i].title } document
+fields:
+  - Upload a PDF, Word, or image file: x[i].pages[j]
+    datatype: file
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/*, image/png,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if sum(x[i].pages[j].size_in_bytes()) > (15 * 1024 * 1024):
+    validation_error("Upload a file smaller than 15 MB.")
+  try:
+    pdf_concatenate(x[i].pages[j])
+  except:
+    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages[j]")
+
+  x[i].pages[j] = unpack_dafilelist(x[i].pages[j])
+---
+generic object: ALExhibitList
+id: another exhibit
+question: |
+  Do you have another document you want to upload?
+yesno: x.there_is_another
