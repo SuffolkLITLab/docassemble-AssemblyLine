@@ -8,6 +8,9 @@ code: |
   # Defaults to checking for a possible name from global docassemble config
   al_app_name = get_config('appname', get_config('external hostname','CourtFormsOnline.org'))
 ---
+###########################
+# localization and internationalization / i18n settings
+---
 code: |
   AL_DEFAULT_COUNTRY = "US"
 ---
@@ -16,6 +19,9 @@ code: |
 ---
 code: |
   AL_DEFAULT_LANGUAGE = "en"
+---
+###############################
+# Features
 ---
 features:
   navigation: True 
