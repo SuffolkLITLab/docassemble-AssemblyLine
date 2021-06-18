@@ -342,7 +342,11 @@ generic object: ALAddress
 template: x.state_label
 # See https://docassemble.org/docs/functions.html#subdivision_type
 content: |
-  ${ subdivision_type(AL_DEFAULT_COUNTRY) or "State" }
+  % if safe_subdivision_type(AL_DEFAULT_COUNTRY):
+  ${ safe_subdivision_type(AL_DEFAULT_COUNTRY) }
+  % else:
+  State
+  % endif
 ---
 generic object: ALAddress
 template: x.zip_label

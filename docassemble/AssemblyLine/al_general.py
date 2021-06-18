@@ -1,5 +1,5 @@
 from typing import Dict, List, Union
-from docassemble.base.util import Address, Individual, DAList, date_difference, name_suffix, states_list, comma_and_list, word, comma_list, url_action, get_config, phone_number_is_valid, validation_error, DAWeb, get_config, as_datetime, DADateTime
+from docassemble.base.util import Address, Individual, DAList, date_difference, name_suffix, states_list, comma_and_list, word, comma_list, url_action, get_config, phone_number_is_valid, validation_error, DAWeb, get_config, as_datetime, DADateTime, subdivision_type
 from docassemble.base.functions import DANav
 import re
 
@@ -23,10 +23,17 @@ __all__ = ['ALAddress',
            'Abuser',
            'Survivor',
            'github_modified_date',
-           'will_send_to_real_court']
+           'will_send_to_real_court',
+           'safe_subdivision_type']
 
 ##########################################################
 # Base classes
+
+def safe_subdivision_type(country_code):
+  try:
+    return subdivision_type(country_code)
+  except:
+    return None
 
 class ALAddress(Address):
   # Future-proofing TODO: this class can be used to help handle international addresses in the future.
@@ -39,8 +46,15 @@ class ALAddress(Address):
       {"label": str(self.address_label), "address autocomplete": True, "field": self.attr_name('address')},
       {"label": str(self.unit_label), "field": self.attr_name('unit'), "required": False},
       {"label": str(self.city_label), "field": self.attr_name("city")},
-      {"label": str(self.state_label), "field": self.attr_name("state"), "code": "states_list(country_code='{}')".format(country_code), "default": default_state},
     ]
+    if country_code:
+      fields.append(
+        {"label": str(self.state_label), "field": self.attr_name("state"), "code": "states_list(country_code='{}')".format(country_code), "default": default_state}
+      )
+    else:
+      fields.append(
+        {"label": str(self.state_label), "field": self.attr_name("state"), "default": default_state if default_state else ''}
+      )      
     if country_code == "US":
       fields.append(
         {"label": str(self.zip_label), "field": self.attr_name('zip'), "required": False}

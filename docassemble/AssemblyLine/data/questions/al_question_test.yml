@@ -4,6 +4,9 @@ include:
 ---
 #code: |
 #  AL_DEFAULT_COUNTRY = "CA"
+#---
+#code: |
+#  AL_DEFAULT_STATE = "ON"
 ---
 metadata:
   title: |
