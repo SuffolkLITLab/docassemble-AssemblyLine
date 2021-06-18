@@ -2,6 +2,9 @@
 include:
   - al_package.yml
 ---
+#code: |
+#  AL_DEFAULT_COUNTRY = "CA"
+---
 metadata:
   title: |
     AL Question Test
@@ -58,7 +61,7 @@ fields:
   - code: |
       users[0].gender_fields()
   - code: |
-      users[0].address_fields()
+      users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 continue button field: test_label_functions
 ---
 code: |

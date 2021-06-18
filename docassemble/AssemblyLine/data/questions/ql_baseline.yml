@@ -340,8 +340,9 @@ content: |
 ---
 generic object: ALAddress
 template: x.state_label
+# See https://docassemble.org/docs/functions.html#subdivision_type
 content: |
-  State
+  ${ subdivision_type(AL_DEFAULT_COUNTRY) or "State" }
 ---
 generic object: ALAddress
 template: x.zip_label
