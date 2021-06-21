@@ -1,3 +1,6 @@
+# v2.1.2
+Added internationalization support to address fields methods, together with new constants `AL_DEFAULT_COUNTRY`, `AL_DEFAULT_STATE`, and `AL_DEFAULT_LANGUAGE` (use ISO 2 letter codes for all 3 parameters).
+
 # v2.0.18
 
 The first tagged release of Assembly Line
