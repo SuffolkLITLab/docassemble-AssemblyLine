@@ -2,11 +2,11 @@
 include:
   - al_package.yml
 ---
-#code: |
-#  AL_DEFAULT_COUNTRY = "CA"
-#---
-#code: |
-#  AL_DEFAULT_STATE = "ON"
+code: |
+  AL_DEFAULT_COUNTRY = "CA"
+---
+code: |
+  AL_DEFAULT_STATE = "ON"
 ---
 metadata:
   title: |
