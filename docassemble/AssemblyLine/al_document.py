@@ -664,6 +664,22 @@ class ALStaticDocument(DAStaticFile):
       return self
     else:
       return pdf_concatenate(self)
+    
+  def as_docx(self, key:str='final', refresh:bool=True) -> Union[DAStaticFile, DAFile]:
+    """
+    Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
+    """
+    if self._is_docx():
+      return self
+    else:
+      return self.as_pdf(key=key)
+  
+  def _is_docx(self):
+    if hasattr(self, 'extension') and self.extension.lower() == 'docx':
+        return True
+    if hasattr(self, 'mimetype') and self.mimetype == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        return True
+    return False
   
   def show(self, **kwargs):
     # TODO: this explicit conversion shouldn't be needed
