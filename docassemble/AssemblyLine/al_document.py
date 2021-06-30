@@ -873,7 +873,7 @@ class ALDocumentBundle(DAList):
     # Add a zip file row if there's more than one doc
     filename_root = os.path.splitext(str(self.filename))[0]
     if len(self.enabled_documents()) > 1 and include_zip:
-      zip = self.as_zip()
+      zip = self.as_zip(key=key)
       zip_button = action_button_html( zip.url_for(attachment=False, display_filename = filename_root + ".zip"), label=zip_label, icon=zip_icon, color="primary", size="md", classname='al_zip' )
       html += table_row( zip.title, zip_button)
       
