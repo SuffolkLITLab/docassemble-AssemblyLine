@@ -62,10 +62,6 @@ def table_row( title:str, button_htmls:List[str] = []) -> str:
 
   return html
 
-def zip_button( file:DAFile, label:str = "Download zip", icon:str = "file-archive" ) -> str:
-  return 
-
-
 class ALAddendumField(DAObject):
   """
   Object representing a single field and its attributes as related to whether
