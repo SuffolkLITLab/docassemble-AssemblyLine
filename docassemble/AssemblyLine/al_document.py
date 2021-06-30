@@ -1,4 +1,5 @@
 import re
+import os
 from typing import Any, Dict, List, Union
 from docassemble.base.functions import DANav
 from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile
@@ -61,14 +62,8 @@ def table_row( title:str, button_htmls:List[str] = []) -> str:
 
   return html
 
-def view_button( file:DAFile, label:str = "View", icon:str = "eye" ) -> str:
-  return action_button_html( file.url_for(attachment=False), label=word(label), icon=icon, color="secondary", size="md", classname='al_view' )
-
-def download_button( file:DAFile, label:str = "Download", icon:str = "download" ) -> str:
-  return action_button_html( file.url_for(attachment=True), label=word(label), icon=icon, color="primary", size="md", classname='al_download' )
-
 def zip_button( file:DAFile, label:str = "Download zip", icon:str = "file-archive" ) -> str:
-  return action_button_html( file.url_for(attachment=False), label=word(label), icon=icon, color="primary", size="md", classname='al_zip' )
+  return 
 
 
 class ALAddendumField(DAObject):
@@ -566,12 +561,30 @@ class ALDocument(DADict):
     """
     Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
     """
-    try:
-      the_file = docx_concatenate(self.as_list(key=key, refresh=refresh))
+    if self.need_addendum():
+      try:
+        the_file = docx_concatenate(self.as_list(key=key, refresh=refresh))
+        the_file.title = self.title
+        return the_file
+      except:
+        return self.as_pdf(key=key)
+
+    if isinstance(self[key], DAFileCollection) and hasattr(self[key], 'docx'):
+      the_file = self[key].docx
       the_file.title = self.title
       return the_file
-    except:
-      return self.as_pdf(key=key)
+    
+    return self.as_pdf(key=key)
+
+  def _is_docx(self, key:str='final'):
+    """Returns True iff the file is a DOCX.
+    """
+    if isinstance(self[key], DAFileCollection) and hasattr(self[key], 'docx'):
+      return True
+    if isinstance(self[key], DAFile) and hasattr(self[key], 'docx'):
+      return True
+      
+    return False
 
   def as_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
@@ -674,7 +687,7 @@ class ALStaticDocument(DAStaticFile):
     else:
       return self.as_pdf(key=key)
   
-  def _is_docx(self):
+  def _is_docx(self, key:str="final"):
     if hasattr(self, 'extension') and self.extension.lower() == 'docx':
         return True
     if hasattr(self, 'mimetype') and self.mimetype == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
@@ -829,7 +842,7 @@ class ALDocumentBundle(DAList):
       editable.append(doc.docx if hasattr(doc, 'docx') else doc.pdf)
     return editable
 
-  def download_list_html(self, key:str='final', format:str='pdf', view:bool=True, refresh:bool=True, include_zip:bool = True) -> str:
+  def download_list_html(self, key:str='final', format:str='pdf', view:bool=True, refresh:bool=True, include_zip:bool = True, view_label="View", view_icon:str="eye", download_label:str="Download", download_icon:str="download", zip_label:str="Download zip", zip_icon:str="file-archive") -> str:
     """
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
@@ -841,23 +854,32 @@ class ALDocumentBundle(DAList):
         if format == 'pdf':
           doc.as_pdf(key=key, refresh=refresh) # Generate cached file for this session
 
-    # TODO: wire up the format and view keywords
-    # TODO: make icons configurable
     html ='<table class="al_table" id="' + html_safe_str(self.instanceName) + '">'
 
     for doc in self:
+      filename_root = os.path.splitext(str(doc.filename))[0]
       if doc.enabled:
-        if format=='docx':
-          doc_dwnld_button = download_button( doc.as_docx(key=key) )
+        if format=='docx' and doc._is_docx(key=key):
+          download_doc = doc.as_docx(key=key)
+          download_filename = filename_root + ".docx"
         else:
-          doc_dwnld_button = download_button( doc.as_pdf(key=key) )
-        buttons = [ view_button(doc.as_pdf()), doc_dwnld_button ]
+          download_doc = doc.as_pdf(key=key)
+          download_filename = filename_root + ".pdf"
+
+        doc_download_button = action_button_html( download_doc.url_for(attachment=True, display_filename=download_filename), label=download_label, icon=download_icon, color="primary", size="md", classname='al_download' )
+        if view:
+          doc_view_button = action_button_html( doc.as_pdf(key=key).url_for(attachment=False, display_filename=filename_root + ".pdf"), label=view_label, icon=view_icon, color="secondary", size="md", classname='al_view' )
+          buttons = [ doc_view_button, doc_download_button ]
+        else:
+          buttons = [ doc_download_button ]
         html += table_row( doc.title, buttons )
     
     # Add a zip file row if there's more than one doc
+    filename_root = os.path.splitext(str(self.filename))[0]
     if len(self.enabled_documents()) > 1 and include_zip:
       zip = self.as_zip()
-      html += table_row( zip.title, zip_button( zip ))
+      zip_button = action_button_html( zip.url_for(attachment=False, display_filename = filename_root + ".zip"), label=zip_label, icon=zip_icon, color="primary", size="md", classname='al_zip' )
+      html += table_row( zip.title, zip_button)
       
     html += '\n</table>'
 

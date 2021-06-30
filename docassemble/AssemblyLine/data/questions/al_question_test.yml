@@ -98,44 +98,6 @@ subquestion: |
   
   [Edit](${url_action('users[0].name.first')})
 ---
-need: al_user_bundle
-id: test end screen
-continue button field: many_bundles_test
-question: |
-  Hello, ${ users }
-subquestion: |
-  #### Your files are ready to download below
-  
-  ---
-  
-  **Standard Table**
-  
-  ${ al_user_bundle.download_list_html() }
-  
-  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
-    
-  ${ al_user_bundle.as_pdf() }
-  
-  ---
-  
-  **No zip**
-  
-  ${ al_user_bundle.download_list_html( include_zip=False ) }
-  
-  ---
-  
-  **Single file**
-  
-  ${ al_single_doc_bundle.download_list_html() }
----
-need: al_user_bundle
-id: one enabled doc
-continue button field: one_enabled_doc_test
-question: |
-  One enabled file
-subquestion: |
-  ${ al_user_bundle.download_list_html() }
----
 question: |
   Try a big text field
 subquestion: |
@@ -222,3 +184,38 @@ id: end if we need it
 event: end
 question: Great job!
 ---
+need: al_user_bundle
+id: one enabled doc
+continue button field: one_enabled_doc_test
+question: |
+  One enabled file
+subquestion: |
+  ${ al_user_bundle.download_list_html(format="docx") }
+---
+need: al_user_bundle
+id: download test end screen
+continue button field: many_bundles_test
+question: |
+  Your files are ready to download below
+subquestion: |
+  ---
+  
+  **Standard Table, view buttons are hidden**
+  
+  ${ al_user_bundle.download_list_html(view=False) }
+  
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+    
+  ${ al_user_bundle.as_pdf() }
+  
+  ---
+  
+  **No zip, docx format, and hidden view buttons**
+  
+  ${ al_user_bundle.download_list_html( include_zip=False, format="docx") }
+  
+  ---
+  
+  **Single file**
+  
+  ${ al_single_doc_bundle.download_list_html() }
