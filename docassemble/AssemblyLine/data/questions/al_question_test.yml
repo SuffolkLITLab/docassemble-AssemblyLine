@@ -210,7 +210,7 @@ subquestion: |
   
   ---
   
-  **No zip, docx format, and hidden view buttons**
+  **No zip, docx format**
   
   ${ al_user_bundle.download_list_html( include_zip=False, format="docx") }
   
