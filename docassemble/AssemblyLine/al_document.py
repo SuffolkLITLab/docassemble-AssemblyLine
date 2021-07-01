@@ -565,7 +565,7 @@ class ALDocument(DADict):
       except:
         return self.as_pdf(key=key)
 
-    if isinstance(self[key], DAFileCollection) and hasattr(self[key], 'docx'):
+    if self._is_docx(key=key):
       the_file = self[key].docx
       the_file.title = self.title
       return the_file
