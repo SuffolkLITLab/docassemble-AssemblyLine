@@ -466,7 +466,7 @@ class ALDocument(DADict):
           Here is some content
 
           % if i == 'final':
-          users[0].signature
+          ${ users[0].signature }
           % elif i == 'preview':
           [ Your signature here ]
           % endif
