@@ -403,94 +403,128 @@ class DALazyAttribute(DAObject):
           return dict()
 
 class ALDocument(DADict):
-  """
-  An opinionated dictionary of attachment blocks. Typically there are three:
-  1. The final version of a document with a signature. Use key="final" as an argument in a method.
-  2. The preview version of a document with no signature. Use key="preview" as an argument in a method.
-  3. An addendum of a document contained in the attribute `addendum`. E.g. `my_doc.addendum`.
+  """  
+  A dictionary of attachments, either created by a DAFile or an attachment
+  block. Typically there are three:
+  1. The final version of a document with a signature. E.g., my_doc['final'].
+  2. The preview version of a document with no signature. E.g.,
+     my_doc['preview'].
+  3. An addendum of a document contained in the attribute `addendum`. E.g.
+     `my_doc.addendum`.
 
-  Each form that an interview generates will get its own ALDocument object.
+  There is no limit to the number of keys, but the ALDocumentBundle class
+  expects at least a "final" key to exist, and the `addendum` attribute is
+  required if you desire to use PDF documents with text overflow. It is best
+  practice to use exactly the two keys "final" and "preview" and the attribute
+  "addendum". The "final" and "preview" documents will normally be the same
+  template, but with logic controlling the display of a particular section, such
+  as the signature.
 
-  This should really relate to one canonical document in different states. Not multiple
-  unrelated output documents that might get delivered together, except the addendum.
+  Each form that an interview generates should get its own ALDocument object.
 
-  The "addendum" attribute will typically be handled in a generic object block.
-  Multiple documents can use the same addendum template, with just the case caption
+  The "addendum" attribute can be handled in a generic object block. Multiple
+  documents can use the same addendum template, with just the case caption
   varying.
 
-  Required attributes:
-    - filename: name used for output PDF
-    - title: display name for the output PDF
-    - enabled: if this document should be created. See examples.
+  ALDocuments are designed to be used contingently as part of ALDocumentBundle
+  objects. Each ALDocument is considered to be "enabled" or "disabled" for a
+  particular interview user's session. This allows you to always work with a
+  single object representing all of the possible documents an interview can
+  generate, and use encapsulated logic to trigger individual documents inclusion
+  on the final download screen.
 
-  Optional attribute:
-    - addendum: an attachment block
-    - overflow_fields: ALAddendumFieldDict instance. These values will be used to detect and handle overflow.
-    - has_addendum: Defaults to False. Set to True if the document could have overflow, like for a PDF template.
+  Attributes:
+      filename (str): name used for output PDF
+      title (str): display name for the output PDF
+      enabled (bool): if this document should be created. See examples.
+      addendum (DAFile | DAFileCollection): (optional) an attachment block
+      overflow_fields (ALAddendumField): (optional) ALAddendumFieldDict
+        instance. These values will be used to detect and handle overflow.
+      has_addendum (bool): (optional) Defaults to False. Set to True if the
+        document could have overflow, like for a PDF template.
   
-  Examples:
+  Note:
+      The `enabled` attribute should always be defined by a code block or the
+      objects block, because by default it is considered fresh on each page
+      load. If your interview logic requires that you directly ask the user
+      whether or not to include a document, you can use a single intermediate
+      variable that is posed to the interview user to work around this
+      limitation.
+
+  Examples: # TODO: the code blocks aren't working right yet on the Docusaurus page.
+
+      Simple use where the document is always enabled and will have no addendum
+      --------------------------------------------------------------------------
+      ```yaml
+      ---
+      objects:
+        - my_doc: ALDocument.using(filename="myDoc.pdf", title="myDoc", enabled=True)
+      --- 
+      attachment:
+        variable name: my_doc[i]  # This same template will be used for the `preview` and `final` keys
+        content: |
+          Here is some content
+
+          % if i == 'final':
+          ${ users[0].signature }
+          % elif i == 'preview':
+          [ Your signature here ]
+          % endif
+      ```
+
+      Enable a document conditionally
+      --------------------------------
+      ```yaml
+      ---
+      # See that `enabled` is not defined here
+      objects:
+        - affidavit_of_indigency: ALDocument.using(filename="affidavit-of-indigency.pdf", title="Affidavit of Indigency")
+      ---
+      code: |
+        affidavit_of_indigency.enabled = ask_indigency_questions and is_indigent
+      ```
+
+      An example enabling with a question posed to the interview user
+      ----------------------------------------------------------------
+      You should always use a code block or an object block to set the "enabled" status;
+      Use an intermediate variable if you want to ask the user directly whether or not to include a document.
+      ```yaml
+      ---
+      question: |
+        Do you want the extra document included?
+      yesno: include_extra_document
+      ---
+      code: |
+        extra_document.enabled = include_extra_document
+      ---
+      attachment:
+          variable name: extra_document[i] # This same template will be used for `final` and `preview`
+          docx template file: extra_document.docx
+      ```
   
-  Simple use where the document is always enabled and will have no addendum
-  ```
-  ---
-  objects:
-    - my_doc: ALDocument.using(filename="myDoc.pdf", title="myDoc", enabled=True)
-  --- 
-  attachment:
-      variable name: my_doc[i]  # This will usually be "final" or "preview"
-      ...
-  ```
-  
-  Enable a document conditionally
-  ```
-  ---
-  # See that `enabled` is not defined here
-  objects:
-    - my_doc: ALDocument.using(filename="myDoc.pdf", title="myDoc")
-    - affidavit_of_indigency: ALDocument.using(filename="affidavit-of-indigency.pdf", title="Affidavit of Indigency")
-  ---
-  # an example of an arbitrary condition
-  code: |
-    my_doc.enabled = condition1 and condition2
-    enable_my_doc_conditionally = True
-  ---
-  # A common example many interviews would encounter for an affidavit of indigency
-  code: |  
-    affidavit_of_indigency.enabled = ask_indigency_questions and is_indigent
-  ---
-  attachment:
-      variable name: my_doc[i]
-      ...
-  ---
-  attachment:
-      variable name: affidavit_of_indigency[i]
-      ...
-  ---
-  ```
-  
-  For a document that may need an addendum, you must specify this when the object is created
-  or in a mandatory code block. The addendum will only be triggered if the document has "overflow"
-  in one of the fields that you specify.
-  ```
-  ---
-  objects:
-    - my_doc: ALDocument.using(filename="myDoc.pdf", title="myDoc", enabled=True, has_addendum=True)
-  --- 
-  attachment:
-      variable name: my_doc[i]
-      ...
-  ---
-  generic object: ALDocument
-  attachment:
-    variable name: x.addendum
-    docx template file: docx_addendum.docx
-  ---
-  code: |
-    my_doc.overflow_fields['big_text_variable'].overflow_trigger = 640 # Characters 
-    my_doc.overflow_fields['big_text_variable'].label = "Big text label" # Optional - you may use in your addendum
-    my_doc.overflow_fields['list_of_objects_variable'].overflow_trigger = 4 # Items in the list
-    my_doc.overflow_fields.gathered = True      
-  ```
+      For a document that may need an addendum, you must specify this when the object is created
+      or in a mandatory code block. The addendum will only be triggered if the document has "overflow"
+      in one of the fields that you specify.
+      ```
+      ---
+      objects:
+        - my_doc: ALDocument.using(filename="myDoc.pdf", title="myDoc", enabled=True, has_addendum=True)
+      --- 
+      attachment:
+          variable name: my_doc[i]
+          ...
+      ---
+      generic object: ALDocument
+      attachment:
+        variable name: x.addendum
+        docx template file: docx_addendum.docx
+      ---
+      code: |
+        my_doc.overflow_fields['big_text_variable'].overflow_trigger = 640 # Characters 
+        my_doc.overflow_fields['big_text_variable'].label = "Big text label" # Optional - you may use in your addendum
+        my_doc.overflow_fields['list_of_objects_variable'].overflow_trigger = 4 # Items in the list
+        my_doc.overflow_fields.gathered = True      
+      ```
   """
   filename: str
   title: str
@@ -509,6 +543,8 @@ class ALDocument(DADict):
     if not hasattr(self, 'has_addendum'):
       self.has_addendum = False
     self.initializeAttribute('cache', DALazyAttribute)
+    self.always_enabled = hasattr(self, 'enabled') and self.enabled
+
 
   def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
     # Trigger some stuff up front to avoid idempotency problems
@@ -658,6 +694,9 @@ class ALStaticDocument(DAStaticFile):
     self.has_addendum = False
     self.auto_gather = False
     self.gathered = True
+    self.initializeAttribute('cache', DALazyAttribute)
+    self.always_enabled = hasattr(self, 'enabled') and self.enabled
+
   
   def __getitem__(self, key):
     # This overrides the .get() method so that the 'final' and 'private' key always exist and
@@ -729,6 +768,7 @@ class ALDocumentBundle(DAList):
     self.auto_gather=False
     self.gathered=True
     self.initializeAttribute('cache', DALazyAttribute)
+    self.always_enabled = hasattr(self, 'enabled') and self.enabled
 
   def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
     safe_key = space_to_underscore(key)
@@ -743,7 +783,7 @@ class ALDocumentBundle(DAList):
       ending = ''
     else:
       ending = '.pdf'
-    files = self.enabled_documents()
+    files = self.enabled_documents(refresh=refresh)
     if len(files) == 1:
       # This case is simplest--we do not need to process the document at this level
       log_if_debug('Storing bundle for just one document ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
@@ -769,7 +809,7 @@ class ALDocumentBundle(DAList):
 
     # strip out a possible '.pdf' ending then add '.zip'
     zipname = os.path.splitext(self.filename)[0]
-    docs = [doc.as_pdf(key=key, refresh=refresh) for doc in self.enabled_documents()]
+    docs = [doc.as_pdf(key=key, refresh=refresh) for doc in self.enabled_documents(refresh=refresh)]
     zip = zip_file( docs, filename=zipname + '.zip' )
     if title == '':
       zip.title = self.title
@@ -784,11 +824,31 @@ class ALDocumentBundle(DAList):
   def preview(self, refresh:bool=True) -> DAFile:
     return self.as_pdf(key='preview', refresh=refresh)
 
-  def enabled_documents(self) -> List[Any]:
+  def enabled_documents(self, refresh:bool=True) -> List[Any]:
     """
     Returns the enabled documents
+    
+    Args:
+        refresh(bool): Controls whether the 'enabled' attribute is reconsidered.        
     """
-    return [document for document in self.elements if document.enabled]
+    if refresh:
+      retval = []
+      for document in self.elements:
+        if document.always_enabled:
+          enabled = True
+        else:
+          if hasattr(document.cache, 'enabled'):
+            enabled = document.cache.enabled
+          else:
+            document.cache.enabled = document.enabled
+            enabled = document.cache.enabled
+          if hasattr(document, 'enabled'):
+            del document.enabled
+        if enabled:
+          retval.append(document)
+      return retval
+    else:
+      return [document for document in self.elements if document.enabled]
 
   def as_flat_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
@@ -798,7 +858,7 @@ class ALDocumentBundle(DAList):
     # Iterate through the list of self.templates
     # Unpack the list of documents at each step so this can be concatenated into a single list
     flat_list = []
-    for document in self.enabled_documents():
+    for document in self.enabled_documents(refresh=refresh):
       if isinstance(document, ALDocumentBundle):
         # call the bundle's as_flat_list() method to show all enabled templates.
         flat_list.extend(document.as_flat_list(key=key, refresh=refresh))
@@ -823,7 +883,7 @@ class ALDocumentBundle(DAList):
     """
     Returns the nested bundles as a list of PDFs that is only one level deep.
     """
-    return [doc.as_pdf(key=key, refresh=True) for doc in self if isinstance(doc, ALDocumentBundle) or doc.enabled]
+    return [doc.as_pdf(key=key, refresh=refresh) for doc in self.enabled_documents(refresh=refresh)]
 
   def as_editable_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
@@ -842,35 +902,34 @@ class ALDocumentBundle(DAList):
     of pdfs with 'view' and 'download' buttons.
     """
     # Trigger some variables up top to avoid idempotency issues
-    for doc in self:
-      if doc.enabled:
-        doc.title
-        if format == 'pdf':
-          doc.as_pdf(key=key, refresh=refresh) # Generate cached file for this session
+    enabled_docs = self.enabled_documents(refresh=refresh)
+    for doc in enabled_docs:
+      doc.title
+      if format == 'pdf':
+        doc.as_pdf(key=key, refresh=refresh) # Generate cached file for this session
 
-    html ='<table class="al_table" id="' + html_safe_str(self.instanceName) + '">'
+    html = f'<table class="al_table" id="{ html_safe_str(self.instanceName) }">'
 
-    for doc in self:
+    for doc in enabled_docs:
       filename_root = os.path.splitext(str(doc.filename))[0]
-      if doc.enabled:
-        if format=='docx' and doc._is_docx(key=key):
-          download_doc = doc.as_docx(key=key)
-          download_filename = filename_root + ".docx"
-        else:
-          download_doc = doc.as_pdf(key=key)
-          download_filename = filename_root + ".pdf"
+      if format=='docx' and doc._is_docx(key=key):
+        download_doc = doc.as_docx(key=key)
+        download_filename = filename_root + ".docx"
+      else:
+        download_doc = doc.as_pdf(key=key)
+        download_filename = filename_root + ".pdf"
 
-        doc_download_button = action_button_html( download_doc.url_for(attachment=True, display_filename=download_filename), label=download_label, icon=download_icon, color="primary", size="md", classname='al_download' )
-        if view:
-          doc_view_button = action_button_html( doc.as_pdf(key=key).url_for(attachment=False, display_filename=filename_root + ".pdf"), label=view_label, icon=view_icon, color="secondary", size="md", classname='al_view' )
-          buttons = [ doc_view_button, doc_download_button ]
-        else:
-          buttons = [ doc_download_button ]
-        html += table_row( doc.title, buttons )
+      doc_download_button = action_button_html( download_doc.url_for(attachment=True, display_filename=download_filename), label=download_label, icon=download_icon, color="primary", size="md", classname='al_download' )
+      if view:
+        doc_view_button = action_button_html( doc.as_pdf(key=key).url_for(attachment=False, display_filename=filename_root + ".pdf"), label=view_label, icon=view_icon, color="secondary", size="md", classname='al_view' )
+        buttons = [ doc_view_button, doc_download_button ]
+      else:
+        buttons = [ doc_download_button ]
+      html += table_row( doc.title, buttons )
     
     # Add a zip file row if there's more than one doc
     filename_root = os.path.splitext(str(self.filename))[0]
-    if len(self.enabled_documents()) > 1 and include_zip:
+    if len(enabled_docs) > 1 and include_zip:
       zip = self.as_zip(key=key)
       zip_button = action_button_html( zip.url_for(attachment=False, display_filename = filename_root + ".zip"), label=zip_label, icon=zip_icon, color="primary", size="md", classname='al_zip' )
       html += table_row( zip.title, zip_button)
