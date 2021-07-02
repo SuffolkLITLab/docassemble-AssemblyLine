@@ -8,6 +8,10 @@ This is the run-time code that supports the interviews at https://courtformsonli
 
 This package supersedes [MAVirtualCourt](https://github.com/SuffolkLITLab/docassemble-MAVirtualCourt).
 
+# Documentation
+
+https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/
+
 # Installation
 
 This package depends on the following configuration changes on your Docassemble server:

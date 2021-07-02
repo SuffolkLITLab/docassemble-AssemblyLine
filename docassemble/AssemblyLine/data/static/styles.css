@@ -77,3 +77,7 @@ blockquote p {
 input[type=number] {
   width: 10rem;
 }
+/* Widen the Submit button (button labels vary) */
+.btn[type='submit'] {
+  min-width: 8em;
+}

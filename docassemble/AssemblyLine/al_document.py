@@ -1,13 +1,15 @@
 import re
+import os
 from typing import Any, Dict, List, Union
 from docassemble.base.functions import DANav
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile
 
 __all__ = ['ALAddendumField',
            'ALAddendumFieldDict',
            'ALDocumentBundle', 
            'ALDocument', 
            'ALDocumentBundleDict',
+           'ALStaticDocument',
            'safeattr',
            'label',
            'key',
@@ -54,20 +56,19 @@ def html_safe_str(the_string: str) -> str:
   """
   return re.sub( r'[^A-Za-z0-9]+', '_', the_string )
 
-def table_row( title, view_file:DAFile, download_file:DAFile=None, view_icon:str="eye", download_icon:str="download") -> str:
+#def table_row( title, view_file:DAFile, download_file:DAFile=None, view_icon:str="eye", download_icon:str="download") -> str:
+def table_row( title:str, button_htmls:List[str] = []) -> str:
   """
-  Uses the provided DAFile/DAFileCollection objects to build the row of a table in HTML format that allows
-  you to both view and download an ALDocument.
+  Uses the provided title and list of button html strings to
+  return the row of an AL document-styled table in HTML format.
   """
-  if not download_file:
-    download_file = view_file
   html = '\n\t<tr>'
   # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
   # TODO: Need to replace with proper CSS
-  html += '\n\t\t<td><strong>' + title + '</strong></td>'
-  html += '\n\t\t<td>'
-  html += action_button_html( view_file.url_for(), label=word("View"), size="md", icon=view_icon, color="secondary" )
-  html += action_button_html( download_file.url_for(attachment=True), size="md", label=word("Download"), icon=download_icon, color="primary" )
+  html += '\n\t\t<td class="al_doc_title"><strong>' + title + '</strong></td>'
+  html += '\n\t\t<td class="al_buttons">'
+  for button in button_htmls:
+    html += button
   html += '</td>'
   html += '\n\t</tr>'
 
@@ -105,8 +106,11 @@ class ALAddendumField(DAObject):
       return self.value()
 
     # If trigger is not a boolean value, overflow value is the value that starts at the end of the safe value.
-    safe_text = self.safe_value(overflow_message = overflow_message, input_width=input_width, preserve_newlines=preserve_newlines)
     original_value = self.value_if_defined()
+    safe_text = self.safe_value(overflow_message = overflow_message, 
+                                input_width=input_width, 
+                                preserve_newlines=preserve_newlines, 
+                                _original_value = original_value)
     if isinstance(safe_text,str):
       # Always get rid of double newlines, for consistency with safe_value.
       value_to_process = re.sub(r"[\r\n]+|\r+|\n+",r"\n",original_value).rstrip()
@@ -124,7 +128,7 @@ class ALAddendumField(DAObject):
       return value_to_process[overflow_start:]
 
     # Do not subtract length of overflow message if this is a list of objects instead of a string
-    return self.value_if_defined()[self.overflow_trigger:]
+    return original_value[self.overflow_trigger:]
 
   def max_lines(self, input_width:int=80, overflow_message_length=0) -> int:
     """
@@ -140,14 +144,26 @@ class ALAddendumField(DAObject):
     """
     return self.value_if_defined()
 
-  def safe_value(self, overflow_message:str="", input_width:int=80, preserve_newlines:bool=False):
+  def safe_value(self, overflow_message:str="", input_width:int=80, preserve_newlines:bool=False, _original_value=None):
     """
     Try to return just the portion of the variable
     that is _shorter than_ the overflow trigger. Otherwise, return empty string.
+    Args:
+        overflow_message (str): A short message to go on the page where text is cutoff.
+        input_width (int): The width, in characters, of the input box. Defaults to 80.
+        preserve_newlines (bool): Determines whether newlines are preserved in the "safe" text.
+            Defaults to False, which means all newlines are removed. This allows more text to appear
+            before being sent to the addendum.
+        _original_value (Any): for speed reasons, you can provide the full text and just use this
+            method to determine if the overflow trigger is exceeded. If no _original_value is
+            provided, this method will determine it using the value_if_defined() method.
     """
 
     # Handle simplest case first
-    value = self.value_if_defined()
+    if _original_value:
+      value = _original_value
+    else:
+      value = self.value_if_defined()
     if isinstance(value, str) and len(value) <= self.overflow_trigger and (value.count('\r') + value.count('\n')) == 0:
       return value
 
@@ -363,12 +379,22 @@ class ALAddendumFieldDict(DAOrderedDict):
     If the "style" is set to overflow_only, only return the overflow values.
     """
     if style == 'overflow_only':
-      return [field for field in self.values() if defined(field.field_name) and len(field.overflow_value())]
+      return [field for field in self.values() if len(field.overflow_value())]
     else:
       return [field for field in self.values() if defined(field.field_name)]
 
   def overflow(self):
     return self.defined_fields(style='overflow_only')
+  
+  def has_overflow(self)->bool:
+    """Returns True if any defined field's length exceeds the overflow trigger.
+    Returns:
+      bool: True if at least 1 field has "overflow" content, False otherwise.
+    """
+    for field in self.values():
+      if field.overflow_value():
+        return True
+    return False      
 
   #def defined_sections(self):
   #  if self.style == 'overflow_only':
@@ -543,12 +569,30 @@ class ALDocument(DADict):
     """
     Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
     """
-    try:
-      the_file = docx_concatenate(self.as_list(key=key, refresh=refresh))
+    if self.need_addendum():
+      try:
+        the_file = docx_concatenate(self.as_list(key=key, refresh=refresh))
+        the_file.title = self.title
+        return the_file
+      except:
+        return self.as_pdf(key=key)
+
+    if self._is_docx(key=key):
+      the_file = self[key].docx
       the_file.title = self.title
       return the_file
-    except:
-      return self.as_pdf(key=key)
+    
+    return self.as_pdf(key=key)
+
+  def _is_docx(self, key:str='final'):
+    """Returns True iff the file is a DOCX.
+    """
+    if isinstance(self[key], DAFileCollection) and hasattr(self[key], 'docx'):
+      return True
+    if isinstance(self[key], DAFile) and hasattr(self[key], 'docx'):
+      return True
+      
+    return False
 
   def as_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
@@ -566,12 +610,12 @@ class ALDocument(DADict):
         return [self[key], self.addendum]
       else:
         return [self[key]]
-
+      
   def need_addendum(self) -> bool:
     return hasattr(self, 'has_addendum') and self.has_addendum and self.has_overflow()
 
   def has_overflow(self) -> bool:
-    return len(self.overflow()) > 0
+    return self.overflow_fields.has_overflow()
 
   def overflow(self):
     return self.overflow_fields.overflow()
@@ -596,6 +640,73 @@ class ALDocument(DADict):
       overflow_message = self.default_overflow_message
     return self.overflow_fields[field_name].overflow_value(overflow_message=overflow_message, preserve_newlines=preserve_newlines, input_width=input_width)
 
+class ALStaticDocument(DAStaticFile):
+  """A class that allows one-line initialization of static documents to include in an ALDocumentBundle.
+  
+  Note:
+      You should always place the static file within the /data/static folder of a package.
+      ALDocumentBundle relies on a publically accessible file. The /data/templates folder is private.
+      
+  Attributes:
+      filename(str): the path to the file within /data/static/.
+      title(str): The title that will display as a row when invoked with `download_list_html()` method
+                  of an ALDocumentBundle.                  
+  Examples:
+      Add a static PDF file to a document bundle.
+      .. code-block:: yaml
+        ---
+        objects:
+          - static_test: ALStaticDocument.using(title="Static Test", filename="static.pdf", enabled=True)
+        ---
+        objects: 
+          - bundle: ALDocumentBundle.using(elements=[static_test], filename="bundle", title="Documents to download now")
+          
+  Todo:
+      Handle files placed in /data/templates if that turns out to be useful. Likely by copying into
+      a DAFile with pdf_concatenate().
+  """
+  def init(self, *pargs, **kwargs):
+    super().init(*pargs, **kwargs)
+    self.has_addendum = False
+    self.auto_gather = False
+    self.gathered = True
+  
+  def __getitem__(self, key):
+    # This overrides the .get() method so that the 'final' and 'private' key always exist and
+    # point to the same file.
+    return self
+  
+  def as_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
+    return [self]
+  
+  def as_pdf(self, key:str='final', refresh:bool=True) -> DAStaticFile:
+    return pdf_concatenate(self)
+    if self._is_pdf():
+      return self
+    else:
+      return pdf_concatenate(self)
+    
+  def as_docx(self, key:str='final', refresh:bool=True) -> Union[DAStaticFile, DAFile]:
+    """
+    Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
+    """
+    if self._is_docx():
+      return self
+    else:
+      return self.as_pdf(key=key)
+  
+  def _is_docx(self, key:str="final"):
+    if hasattr(self, 'extension') and self.extension.lower() == 'docx':
+        return True
+    if hasattr(self, 'mimetype') and self.mimetype == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        return True
+    return False
+  
+  def show(self, **kwargs):
+    # TODO: this explicit conversion shouldn't be needed
+    # Workaround for problem generating thumbnails without it
+    return pdf_concatenate(self).show(**kwargs)
+  
 class ALDocumentBundle(DAList):
   """
   DAList of ALDocuments or nested ALDocumentBundles.
@@ -657,6 +768,31 @@ class ALDocumentBundle(DAList):
     setattr(self.cache, safe_key, pdf)
     return pdf
 
+  def as_zip(self, key:str = 'final', refresh:bool = True, title:str = '') -> DAFile:
+    '''Returns a zip file containing the whole bundle'''
+    log_if_debug(f'Calling as_zip() for { str( self.title )}')
+
+    zip_key = f'{ space_to_underscore( key )}_zip'
+
+    # Speed up performance if can (docs say `zip_file` works like `pdf_concatenate`)
+    if hasattr(self.cache, zip_key):
+      log_if_debug(f'Returning cached version of { str( self.title )} zip')
+      return getattr(self.cache,  zip_key)
+
+    # strip out a possible '.pdf' ending then add '.zip'
+    zipname = os.path.splitext(self.filename)[0]
+    docs = [doc.as_pdf(key=key, refresh=refresh) for doc in self.enabled_documents()]
+    zip = zip_file( docs, filename=zipname + '.zip' )
+    if title == '':
+      zip.title = self.title
+    else:
+      zip.title = title
+    
+    setattr(self.cache, zip_key, zip)
+    log_if_debug(f'Stored {self.title} zip at {self.instanceName}.cache.{zip_key}')
+    
+    return zip
+  
   def preview(self, refresh:bool=True) -> DAFile:
     return self.as_pdf(key='preview', refresh=refresh)
 
@@ -712,7 +848,7 @@ class ALDocumentBundle(DAList):
       editable.append(doc.docx if hasattr(doc, 'docx') else doc.pdf)
     return editable
 
-  def download_list_html(self, key:str='final', format:str='pdf', view:bool=True, refresh:bool=True) -> str:
+  def download_list_html(self, key:str='final', format:str='pdf', view:bool=True, refresh:bool=True, include_zip:bool = True, view_label="View", view_icon:str="eye", download_label:str="Download", download_icon:str="download", zip_label:str="Download zip", zip_icon:str="file-archive") -> str:
     """
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
@@ -724,17 +860,33 @@ class ALDocumentBundle(DAList):
         if format == 'pdf':
           doc.as_pdf(key=key, refresh=refresh) # Generate cached file for this session
 
-    # TODO: wire up the format and view keywords
-    # TODO: make icons configurable
     html ='<table class="al_table" id="' + html_safe_str(self.instanceName) + '">'
 
     for doc in self:
+      filename_root = os.path.splitext(str(doc.filename))[0]
       if doc.enabled:
-        the_file = doc.as_pdf() # should trigger cache
-        if format=='docx':
-          html += table_row(doc.title, the_file, download_file=doc.as_docx(key=key))
+        if format=='docx' and doc._is_docx(key=key):
+          download_doc = doc.as_docx(key=key)
+          download_filename = filename_root + ".docx"
         else:
-          html += table_row(doc.title, the_file, download_file=the_file)
+          download_doc = doc.as_pdf(key=key)
+          download_filename = filename_root + ".pdf"
+
+        doc_download_button = action_button_html( download_doc.url_for(attachment=True, display_filename=download_filename), label=download_label, icon=download_icon, color="primary", size="md", classname='al_download' )
+        if view:
+          doc_view_button = action_button_html( doc.as_pdf(key=key).url_for(attachment=False, display_filename=filename_root + ".pdf"), label=view_label, icon=view_icon, color="secondary", size="md", classname='al_view' )
+          buttons = [ doc_view_button, doc_download_button ]
+        else:
+          buttons = [ doc_download_button ]
+        html += table_row( doc.title, buttons )
+    
+    # Add a zip file row if there's more than one doc
+    filename_root = os.path.splitext(str(self.filename))[0]
+    if len(self.enabled_documents()) > 1 and include_zip:
+      zip = self.as_zip(key=key)
+      zip_button = action_button_html( zip.url_for(attachment=False, display_filename = filename_root + ".zip"), label=zip_label, icon=zip_icon, color="primary", size="md", classname='al_zip' )
+      html += table_row( zip.title, zip_button)
+      
     html += '\n</table>'
 
     # Discuss: Do we want a table with the ability to have a merged pdf row?
@@ -762,9 +914,9 @@ class ALDocumentBundle(DAList):
     include an editable (Word) copy of the file, iff it is available.
     """
     name = re.sub(r'[^A-Za-z0-9]+','_', self.instanceName)  # safe name for classes and ids
-    al_wants_editable_input_id = 'al_wants_editable_' + name
-    al_email_input_id = 'al_doc_email_' + name
-    al_send_button_id = "al_send_email_button_"+name
+    al_wants_editable_input_id = '_ignore_al_wants_editable_' + name
+    al_email_input_id = '_ignore_al_doc_email_' + name
+    al_send_button_id = "al_send_email_button_" + name
 
     javascript_string = "javascript:aldocument_send_action('" + \
       self.attr_name('send_email_action_event') + \

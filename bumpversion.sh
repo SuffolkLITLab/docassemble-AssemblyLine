@@ -102,7 +102,7 @@ else
   new_version=$(bumpversion --list --dry-run --verbose --config-file .bumpversion.cfg "$1" | grep new_version | cut -d= -f 2)
 fi
 
-if [ "$1" = "minor" ] || [ "$1" = "major" ] 
+if [ "$1" = "patch" ] || [ "$1" = "minor" ] || [ "$1" = "major" ] 
 then
   echo What has changed about this "$1" version? Press ctrl-d to finish, ctrl-c to cancel
   release_update=$(</dev/stdin)

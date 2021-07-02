@@ -20,6 +20,7 @@ objects:
   # Support old interviews that use `courts`
   - courts: DAList.using(auto_gather=False, target_number=1, gathered=True)
   - trial_court_address: Address
+  - appeals_court_address: Address
 ---
 id: basic questions intro screen
 decoration: form-lineal
@@ -340,13 +341,23 @@ content: |
 ---
 generic object: ALAddress
 template: x.state_label
+# See https://docassemble.org/docs/functions.html#subdivision_type
 content: |
+  % if safe_subdivision_type(AL_DEFAULT_COUNTRY):
+  ${ safe_subdivision_type(AL_DEFAULT_COUNTRY) }
+  % else:
   State
+  % endif
 ---
 generic object: ALAddress
 template: x.zip_label
 content: |
   Zip or postal code
+---
+generic object: ALAddress
+template: x.postal_code_label
+content: |
+  Postal code
 ---
 generic object: ALAddress
 template: x.country_label
@@ -411,7 +422,7 @@ subquestion: |
   Use an address where you can be contacted.
 fields:
   - code: |
-      users[0].address_fields(default_state="MA")
+      users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: your mailing address
 sets:
@@ -422,7 +433,7 @@ question: |
   What is your mailing address?
 fields:
   - code: |
-      users[0].mailing_address.address_fields()
+      users[0].mailing_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 generic object: ALIndividual
 id: any mailing address
@@ -434,7 +445,7 @@ question: |
   What is ${x}'s mailing address?
 fields:
   - code: |
-      x.mailing_address.address_fields()
+      x.mailing_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: your contact information
 question: |
@@ -462,7 +473,7 @@ validation code: |
       (not showifdef('users[0].mobile_number')) and \
       (not showifdef('users[0].email')) and \
       (not showifdef('users[0].other_contact_method'))):
-    validation_error(word("You need to provide at least one contact method."))
+    validation_error(word("You need to provide at least one contact method."), field="users[0].other_contact_method")
 # TODO: adjust this if the form is not a court form
 help: |
   % if al_form_type in ['starts_case','existing_case','appeal']:
@@ -680,7 +691,7 @@ question: |
   What is ${ x.possessive('address') }?
 fields:
   - code: |
-      x.address_fields(default_state="MA")
+      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: persons contact information
 generic object: ALIndividual
@@ -922,6 +933,38 @@ code: |
   trial_court = ALCourt('trial_court')
   trial_court.name = trial_court_name
   trial_court.address = trial_court_address
+---
+id: choose a court
+question: |
+  What is the name of the appeals court your case is in?
+subquestion: |
+  % if not al_form_type == 'starts_case':
+  Look at your court paperwork. Match the name listed there.
+  % endif
+fields:
+  - Name: appeals_court_name
+  - Address: appeals_court_address.address
+    address autocomplete: True
+    required: False
+  - Suite: appeals_court_address.unit
+    required: False
+  - City: appeals_court_address.city
+    required: False
+  - State: appeals_court_address.state
+    required: False
+  - Postal code: appeals_court_address.zip    
+    required: False
+---
+depends on:
+  - appeals_court_name
+  - appeals_court_address.address
+need:
+  - appeals_court_name
+  - appeals_court_address.address
+code: |
+  appeals_court = ALCourt('appeals_court')
+  appeals_court.name = appeals_court_name
+  appeals_court.address = appeals_court_address
 ---  
 #######################################################################
 # Signature stuff

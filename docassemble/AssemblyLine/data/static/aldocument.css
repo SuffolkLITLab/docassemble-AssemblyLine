@@ -45,13 +45,6 @@ td.text-left:first-child {
   margin: 0em;
 }
 
-/* BW hotfixes 2/9/2021 */
-/* LY 5/2021 Add media requirement to skip it for horizontal alignment mobile mode */
-@media only screen and (min-width: 700px) {
-  .da-subquestion .btn {
-    min-width: 120px;
-  }
-} 
 .da-subquestion .daquestionbackbutton {
   background-color: #eee;
 }
@@ -64,26 +57,26 @@ td.text-left:first-child {
   margin: 0.5rem 0;
 }
 
-#al_user_bundle a.btn-darevisit {
-  margin-bottom: 0;
-}
-/* LY 5/2021 Align buttons horizontally */
-#al_user_bundle a.btn {
+.al_table .al_buttons .btn {
   position: relative;
-  margin: 0.1rem;
-  /*float: right;
-  margin: 0.5rem 0; */
+  margin: 0;
+  margin-bottom: 0.1rem;
+  /* Avoid icons being on their own lines */
+  white-space: nowrap;
 }
 
-#al_user_bundle a.btn:nth-child(1) {
-  margin-bottom: 0;
-  margin-left:0.5rem;
+/* On wide screens, let titles wrap, but let buttons stay horizontal */
+/* On small screens, wrap buttons and let titles have the room they need */
+@media only screen and (min-width: 450px) {
+  .al_table .al_buttons {
+    white-space: nowrap;
+  }
 }
 
 #al_user_bundle td div {
   min-width: 320px;
 }
-/* LY 5/2021 Remove flex rules for horizontal alignment*/
+
 #al_send_bundle_al_user_bundle .form-check-container {
   margin: 0.5rem 0 5px 0;
 }
@@ -95,4 +88,16 @@ td.text-left:first-child {
   .al_email_container > span > input {
     margin: 0 0 10px; 
   }
+}
+/* The following 3 rules split title/button columns on the download screen by a 30%/70% ratio. This is to give the buttons enough room to stay horizontal even with long titles. */
+table {
+  width: 100%;
+  table-layout: fixed;
+}
+.al_doc_title {
+  width: 30%; 
+}
+.al_buttons {
+  width: 70%;
+  padding-left: 2em;  
 }
