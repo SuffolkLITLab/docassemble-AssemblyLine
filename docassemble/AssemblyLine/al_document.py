@@ -518,6 +518,8 @@ class ALDocument(DADict):
     if not hasattr(self, 'has_addendum'):
       self.has_addendum = False
     self.initializeAttribute('cache', DALazyAttribute)
+    self.always_enabled = hasattr(self, 'enabled') and self.enabled
+
 
   def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
     # Trigger some stuff up front to avoid idempotency problems
@@ -649,6 +651,9 @@ class ALStaticDocument(DAStaticFile):
     self.has_addendum = False
     self.auto_gather = False
     self.gathered = True
+    self.initializeAttribute('cache', DALazyAttribute)
+    self.always_enabled = hasattr(self, 'enabled') and self.enabled
+
   
   def __getitem__(self, key):
     # This overrides the .get() method so that the 'final' and 'private' key always exist and
@@ -720,6 +725,7 @@ class ALDocumentBundle(DAList):
     self.auto_gather=False
     self.gathered=True
     self.initializeAttribute('cache', DALazyAttribute)
+    self.always_enabled = hasattr(self, 'enabled') and self.enabled
 
   def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
     safe_key = space_to_underscore(key)
@@ -734,7 +740,7 @@ class ALDocumentBundle(DAList):
       ending = ''
     else:
       ending = '.pdf'
-    files = self.enabled_documents()
+    files = self.enabled_documents(refresh=refresh)
     if len(files) == 1:
       # This case is simplest--we do not need to process the document at this level
       log_if_debug('Storing bundle for just one document ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
@@ -762,7 +768,7 @@ class ALDocumentBundle(DAList):
     zipname = self.filename
     if zipname.endswith( ".pdf" ):
       zipname = zipname[:-len( ".pdf" )]
-    docs = [doc.as_pdf(key=key, refresh=refresh) for doc in self.enabled_documents()]
+    docs = [doc.as_pdf(key=key, refresh=refresh) for doc in self.enabled_documents(refresh=refresh)]
     zip = zip_file( docs, filename=f'{ zipname }.zip' )
     if title == '':
       zip.title = self.title
@@ -777,11 +783,31 @@ class ALDocumentBundle(DAList):
   def preview(self, refresh:bool=True) -> DAFile:
     return self.as_pdf(key='preview', refresh=refresh)
 
-  def enabled_documents(self) -> List[Any]:
+  def enabled_documents(self, refresh:bool=True) -> List[Any]:
     """
     Returns the enabled documents
+    
+    Args:
+        refresh(bool): Controls whether the 'enabled' attribute is reconsidered.        
     """
-    return [document for document in self.elements if document.enabled]
+    if refresh:
+      retval = []
+      for document in self.elements:
+        if document.always_enabled:
+          enabled = True
+        else:
+          if hasattr(document.cache, 'enabled'):
+            enabled = document.cache.enabled
+          else:
+            document.cache.enabled = document.enabled
+            enabled = document.cache.enabled
+          if hasattr(document, 'enabled'):
+            del document.enabled
+        if enabled:
+          retval.append(document)
+      return retval
+    else:
+      return [document for document in self.elements if document.enabled]
 
   def as_flat_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
@@ -791,7 +817,7 @@ class ALDocumentBundle(DAList):
     # Iterate through the list of self.templates
     # Unpack the list of documents at each step so this can be concatenated into a single list
     flat_list = []
-    for document in self.enabled_documents():
+    for document in self.enabled_documents(refresh=refresh):
       if isinstance(document, ALDocumentBundle):
         # call the bundle's as_flat_list() method to show all enabled templates.
         flat_list.extend(document.as_flat_list(key=key, refresh=refresh))
@@ -816,7 +842,7 @@ class ALDocumentBundle(DAList):
     """
     Returns the nested bundles as a list of PDFs that is only one level deep.
     """
-    return [doc.as_pdf(key=key, refresh=True) for doc in self if isinstance(doc, ALDocumentBundle) or doc.enabled]
+    return [doc.as_pdf(key=key, refresh=refresh) for doc in self.enabled_documents(refresh=refresh)]
 
   def as_editable_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
@@ -835,27 +861,26 @@ class ALDocumentBundle(DAList):
     of pdfs with 'view' and 'download' buttons.
     """
     # Trigger some variables up top to avoid idempotency issues
-    for doc in self:
-      if doc.enabled:
-        doc.title
-        if format == 'pdf':
-          doc.as_pdf(key=key, refresh=refresh) # Generate cached file for this session
+    enabled_docs = self.enabled_documents(refresh=refresh)
+    for doc in enabled_docs:
+      doc.title
+      if format == 'pdf':
+        doc.as_pdf(key=key, refresh=refresh) # Generate cached file for this session
 
     # TODO: wire up the format and view keywords
     # TODO: make icons configurable
     html ='<table class="al_table" id="' + html_safe_str(self.instanceName) + '">'
 
-    for doc in self:
-      if doc.enabled:
-        if format=='docx':
-          doc_dwnld_button = download_button( doc.as_docx(key=key) )
-        else:
-          doc_dwnld_button = download_button( doc.as_pdf(key=key) )
-        buttons = [ view_button(doc.as_pdf()), doc_dwnld_button ]
-        html += table_row( doc.title, buttons )
+    for doc in enabled_docs:
+      if format=='docx':
+        doc_dwnld_button = download_button( doc.as_docx(key=key) )
+      else:
+        doc_dwnld_button = download_button( doc.as_pdf(key=key) )
+      buttons = [ view_button(doc.as_pdf()), doc_dwnld_button ]
+      html += table_row( doc.title, buttons )
     
     # Add a zip file row if there's more than one doc
-    if len(self.enabled_documents()) > 1 and include_zip:
+    if len(enabled_docs) > 1 and include_zip:
       zip = self.as_zip()
       html += table_row( zip.title, zip_button( zip ))
       
