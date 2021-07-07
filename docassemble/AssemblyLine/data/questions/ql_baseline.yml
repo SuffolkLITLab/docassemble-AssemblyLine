@@ -1344,7 +1344,7 @@ fields:
     accept: |
       "image/*, image/png,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
-  if sum(x[i].pages[j].size_in_bytes()) > (15 * 1024 * 1024):
+  if x[i].pages[j].size_in_bytes() > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
   try:
     pdf_concatenate(x[i].pages[j])
@@ -1358,3 +1358,16 @@ id: another exhibit
 question: |
   Do you have another document you want to upload?
 yesno: x.there_is_another
+---
+generic object: ALExhibit
+attachment:
+  variable name: x.cover_page
+  content: |-
+    # Cover page
+---
+generic object: ALExhibitDocument
+attachment:
+  variable name: x.table_of_contents
+  docx template file: exhibit_table_of_contents.docx
+  field code:
+    exhibits: raw(x.exhibits)

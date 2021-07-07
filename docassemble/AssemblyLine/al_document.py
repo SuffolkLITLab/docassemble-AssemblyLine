@@ -1030,15 +1030,19 @@ class ALExhibit(DAObject):
   def add_numbers(self, starting_number=1):
     pass
 
-  def as_pdf(self, add_page_numbers=True, add_cover_page=True):
+  def as_pdf(self, add_page_numbers:bool=True, add_cover_page:bool=True, filename:str=None)->DAFile:
     if hasattr(self, '_cache'):
       return self._cache
-    if hasattr(self, 'filename'):
-      filename = self.filename
+    if not filename:
+      filename = "exhibits.pdf"
+    if add_cover_page:
+      self._cache = pdf_concatenate(self.cover_page, self.pages, filename=filename)
     else:
-      filename = "exhibit_" + self._index
-    self._cache = pdf_concatenate(self.cover_page, self.pages, filename=filename)
+      self._cache = pdf_concatenate(self.pages, filename=filename)
     return self._cache
+
+  def num_pages(self)->int:
+    return self.pages.num_pages()
 
   @property
   def complete(self):
@@ -1054,13 +1058,16 @@ class ALExhibitList(DAList):
     super().init(*pargs, **kwargs)
     self.object_type = ALExhibit
     self.complete_attribute = 'complete'
+  
+  def as_pdf(self, filename="file.pdf"):
+    return pdf_concatenate([exhibit.as_pdf() for exhibit in self], filename=filename)
 
 class ALExhibitDocument(ALDocument):
   """Represents a collection of uploaded documents, formatted like a record appendix or exhibit list, with a table of contents and 
   optional page numbering.
 
   Attributes:
-      pages (ALExhibitList): list of ALExhibit documents. Each item is a separate exhibit, which may be multiple pages.
+      exhibits (ALExhibitList): list of ALExhibit documents. Each item is a separate exhibit, which may be multiple pages.
       table_of_contents: DAFile or DAFileCollection object created by an `attachment:` block
       _cache (DAFile): a cached version of the list of exhibits. It may take
         a long time to process.
@@ -1072,20 +1079,39 @@ class ALExhibitDocument(ALDocument):
   Todo:
       * Method of making a safe link in place of the attachment (e.g., filesize limits on email)        
   """
-  exhibits: DAFileList
+  exhibits: ALExhibitList
   _cache: DAFile
   table_of_contents: DAFile
+  include_table_of_contents: bool
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
-    self.initializeAttribute('pages', ALExhibitList)
+    self.initializeAttribute('exhibits', ALExhibitList)
     self.has_addendum = False
 
   def has_overflow(self):
     return False
 
-  def as_pdf(self, include_table_of_contents:bool = True):
-    return pdf_concatenate([a.as_pdf() for a in self.exhibits], filename=self.filename)
+  def __getitem__(self, key):
+    # This overrides the .get() method so that the 'final' and 'private' key always exist and
+    # point to the same file.
+    return self
+  
+  def as_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
+    return [self]
+
+  def as_pdf(self, key="final", refresh:bool=True) -> DAFile:
+    """
+    Args:
+        key(str): unused, for signature compatibility with ALDocument
+    """
+    filename = os.path.splitext(self.filename)[0] + ".pdf"
+    
+    return pdf_concatenate(self.table_of_contents, self.exhibits.as_pdf(), filename=filename)
+    # pdf_concatenate([a.as_pdf() for a in self.exhibits], filename=self.filename)
+
+  def as_docx(self, key:str="bool", refresh:bool=True) -> DAFile:
+      return self.as_pdf()
 
 def unpack_dafilelist(the_file:DAFileList)->DAFile:
   """Creates a plain DAFile out of the first item in a DAFileList
