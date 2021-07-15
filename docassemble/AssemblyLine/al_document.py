@@ -2,7 +2,10 @@ import re
 import os
 from typing import Any, Dict, List, Union
 from docassemble.base.functions import DANav
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, \
+    DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, \
+    include_docx_template, user_logged_in, user_info, action_argument, send_email, \
+    docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile
 
 __all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALStaticDocument', 'ALDocumentBundleDict','safeattr','label','key']
 
@@ -896,7 +899,10 @@ class ALDocumentBundle(DAList):
       editable.append(doc.docx if hasattr(doc, 'docx') else doc.pdf)
     return editable
 
-  def download_list_html(self, key:str='final', format:str='pdf', view:bool=True, refresh:bool=True, include_zip:bool = True, view_label="View", view_icon:str="eye", download_label:str="Download", download_icon:str="download", zip_label:str="Download zip", zip_icon:str="file-archive") -> str:
+  def download_list_html(self, key:str='final', format:str='pdf', view:bool=True,
+      refresh:bool=True, include_zip:bool = True, view_label="View", view_icon:str="eye",
+      download_label:str="Download", download_icon:str="download", zip_label:str="Download zip",
+      zip_icon:str="file-archive") -> str:
     """
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
@@ -919,9 +925,14 @@ class ALDocumentBundle(DAList):
         download_doc = doc.as_pdf(key=key)
         download_filename = filename_root + ".pdf"
 
-      doc_download_button = action_button_html( download_doc.url_for(attachment=True, display_filename=download_filename), label=download_label, icon=download_icon, color="primary", size="md", classname='al_download' )
+      doc_download_button = action_button_html(
+          download_doc.url_for(attachment=True, display_filename=download_filename),
+          label=download_label, icon=download_icon, color="primary", size="md",
+          classname='al_download' )
       if view:
-        doc_view_button = action_button_html( doc.as_pdf(key=key).url_for(attachment=False, display_filename=filename_root + ".pdf"), label=view_label, icon=view_icon, color="secondary", size="md", classname='al_view' )
+        doc_view_button = action_button_html(
+            doc.as_pdf(key=key).url_for(attachment=False, display_filename=filename_root + ".pdf"),
+            label=view_label, icon=view_icon, color="secondary", size="md", classname='al_view' )
         buttons = [ doc_view_button, doc_download_button ]
       else:
         buttons = [ doc_download_button ]
@@ -931,23 +942,50 @@ class ALDocumentBundle(DAList):
     filename_root = os.path.splitext(str(self.filename))[0]
     if len(enabled_docs) > 1 and include_zip:
       zip = self.as_zip(key=key)
-      zip_button = action_button_html( zip.url_for(attachment=False, display_filename = filename_root + ".zip"), label=zip_label, icon=zip_icon, color="primary", size="md", classname='al_zip' )
+      zip_button = action_button_html(
+          zip.url_for(attachment=False, display_filename = filename_root + ".zip"),
+          label=zip_label, icon=zip_icon, color="primary", size="md", classname='al_zip' )
       html += table_row( zip.title, zip_button)
-      
+
     html += '\n</table>'
 
     # Discuss: Do we want a table with the ability to have a merged pdf row?
     return html
 
   def download_html(self, key:str ='final', format:str ='pdf',
-                    view:bool=True, refresh:bool=True) -> str:
+                    view:bool=True, refresh:bool=True,
+                    view_label:str='View', view_icon:str='eye',
+                    download_label:str="Download", download_icon:str="download") -> str:
     """
     Returns an HTML string of a table to display all the docs
     combined into one pdf with 'view' and 'download' buttons.
     """
-    the_file = self.as_pdf(key=key)
+    if format == 'docx':
+      the_file = self.as_docx(key=key)
+    else:
+      the_file = self.as_pdf(key=key)
+
+    doc_download_button = action_button_html(
+        the_file.url_for(attachment=True),
+        label=download_label,
+        icon=download_icon,
+        color="primary",
+        size="md",
+        classname='al_download')
+    if view:
+      doc_view_button = action_button_html(
+          self.as_pdf(key=key).url_for(attachment=False),
+          label=view_label,
+          icon=view_icon,
+          color="secondary",
+          size="md",
+          classname='al_view')
+      buttons = [doc_view_button, doc_download_button]
+    else:
+      buttons = [doc_download_button]
+
     html ='<table class="al_table merged_docs" id="' + html_safe_str(self.instanceName) + '">'
-    html += table_row( self.title, the_file, download_file=the_file )
+    html += table_row(self.title, buttons)
     html += '\n</table>'
 
     return html
@@ -989,7 +1027,7 @@ class ALDocumentBundle(DAList):
   <div class="al_email_container">
     <span class="al_email_address '''+name+''' form-group row da-field-container da-field-container-datatype-email">
       <label for="'''+al_email_input_id+'''" class="al_doc_email col-form-label da-form-label datext-right">Email</label>
-      <input value="''' + (user_info().email if user_logged_in() else '') + '''" alt="Input box" class="form-control" type="email" size="35" name="'''+al_email_input_id+'''" id="'''+al_email_input_id+'''">
+      <input value="''' + (user_info().email if user_logged_in() else '') + '" alt="Input box" class="form-control" type="email" size="35" name="'+al_email_input_id+'" id="'+al_email_input_id+'''">
     </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n" + '''
   </div>
   '''
