@@ -1,0 +1,40 @@
+{
+  "name": "docassemble-AssemblyLine",
+  "version": "0.1.0",
+  "description": "",
+  "main": "",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "npm run langs_setup && npm run cucumber -- $@",
+    "cucumber_base": "./node_modules/.bin/cucumber-js --require ./node_modules/docassemble-cucumber/lib/index.js",
+    "cucumber": "run_cucumber(){ npm run cucumber_base -- \"$@\" docassemble/*/data/sources/*.feature; }; run_cucumber",
+    "langs": "npm run langs_setup && ./node_modules/.bin/cucumber-js --require ./node_modules/docassemble-cucumber/lib/index.js docassemble/*/data/sources/*_lang*.feature",
+    "langs_setup": "node_modules/.bin/da-langs 'docassemble/*/data/sources/*.feature'",
+    "langs_local": "npm run langs_setup && npm run local",
+    "local": "npm run setup && npm run cucumber; npm run takedown",
+    "setup": "node_modules/.bin/da-setup",
+    "takedown": "node_modules/.bin/da-takedown"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SuffolkLITLab/docassemble-AssemblyLine.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SuffolkLITLab/docassemble-AssemblyLine/issues"
+  },
+  "homepage": "https://github.com/SuffolkLITLab/docassemble-AssemblyLine#readme",
+  "dependencies": {
+    "bufferutil": "^4.0.1",
+    "chai": "^4.2.0",
+    "cucumber": "^6.0.5",
+    "docassemble-cucumber": "^2.0.0",
+    "dotenv": "^8.2.0",
+    "mocha": "^7.2.0",
+    "puppeteer": "^3.1.0",
+    "utf-8-validate": "^5.0.2"
+  }
+}
