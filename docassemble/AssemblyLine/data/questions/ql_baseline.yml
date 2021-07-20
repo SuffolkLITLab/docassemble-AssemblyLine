@@ -1293,15 +1293,31 @@ question: |
   % else:
   Do you have any documents that you want to attach to this form?
   % endif
-subquestion: |
-  Upload each file one at a time.
 fields:
   - Do you have any documents you want to upload?: x.there_are_any
     datatype: yesnoradio
   - note: |
-      **Okay**. You will have a chance to upload multiple documents, one photograph or
-      one file at a time. You will also have a chance to reorder the documents if 
-      you need to.
+      **Okay**. You will have a chance to upload multiple documents, one 
+      exhibit at a time.
+    show if: x.there_are_any
+  - First document title: x[0].title
+    show if: x.there_are_any    
+  - Upload the first document: x[0].pages
+    show if: x.there_are_any    
+    datatype: files
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/*, image/png,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if x.there_are_any:
+    if sum(exhibit.size_in_bytes() for exhibit in x[0].pages) > (15 * 1024 * 1024):
+      validation_error("Upload a file smaller than 15 MB.")
+    try:
+      pdf_concatenate(x[0].pages)
+    except:
+      validation_error("Unable to convert this file. Please upload a new one.", field="x[0].pages")
+    del x[0].pages.gathered  # docassemble sets this attribute but we want to force gathering additional pages
 ---
 generic object: ALExhibitList
 id: exhibit i
@@ -1310,8 +1326,8 @@ question: |
 subquestion: |
   You will have a chance to upload additional pages for this document later.  
 fields:
-  - Name: x[i].title
-  - Upload an image, PDF, or Word document: x[i].pages
+  - Document title: x[i].title
+  - Upload the first exhibit: x[i].pages
     datatype: files
     maximum image size: 1024
     image upload type: jpeg        
@@ -1359,11 +1375,16 @@ question: |
   Do you have another document you want to upload?
 yesno: x.there_is_another
 ---
+# generic object: ALExhibitList
+# code: |
+#   x[i].label = alpha(i)
+---
 generic object: ALExhibit
 attachment:
   variable name: x.cover_page
-  content: |-
-    # Cover page
+  docx template file: exhibit_cover_sheet.docx
+  field code:
+    exhibit_label: raw(x.label)
 ---
 generic object: ALExhibitDocument
 attachment:

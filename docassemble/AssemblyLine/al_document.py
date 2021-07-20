@@ -1,8 +1,8 @@
 import re
 import os
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Callable
 from docassemble.base.functions import DANav
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile, alpha
 
 __all__ = ['ALAddendumField',
            'ALAddendumFieldDict',
@@ -1015,11 +1015,13 @@ class ALExhibit(DAObject):
   """Class to represent a single exhibit, with cover page, which may contain multiple documents representing pages.
   Atributes:
       elements (list): List of individual DAFiles representing uploaded images or documents.
-      cover_page (DAFile | DAFileCollection): A DAFile or DAFileCollection object created by an `attachment:` block
+      cover_page (DAFile | DAFileCollection): (optional) A DAFile or DAFileCollection object created by an `attachment:` block
         Will typically say something like "Exhibit 1"
+      label (str): A label, like "A" or "1" for this exhibit in the cover page and table of contents
   """
   cover_page: DAFile
   pages: DAFileList
+  label: str
   _cache: DAFile
   _index: Union[str,int]
 
@@ -1027,10 +1029,10 @@ class ALExhibit(DAObject):
     super().init(*pargs, **kwargs)
     self.object_type = DAFileList
 
-  def add_numbers(self, starting_number=1):
+  def add_numbers(self, starting_number=1)->None:
     pass
 
-  def as_pdf(self, add_page_numbers:bool=True, add_cover_page:bool=True, filename:str=None)->DAFile:
+  def as_pdf(self, prefix='', add_page_numbers:bool=True, add_cover_page:bool=True, filename:str=None)->DAFile:
     if hasattr(self, '_cache'):
       return self._cache
     if not filename:
@@ -1054,13 +1056,58 @@ class ALExhibit(DAObject):
     return self.title
 
 class ALExhibitList(DAList):
+  """
+  Attributes:
+      auto_label (bool): Set to true if you want exhibits to be automatically numbered for purposes of cover page and table of contents
+      auto_labeler (Callable): (optional) a function or lambda to transform the index for each exhibit to a label.
+                               Defaults to labels like A..Z if unspecified.
+  """
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
+    if not hasattr(self, 'auto_label'):
+      self.auto_label = True
+    if not hasattr(self, 'auto_labeler'):
+      self.auto_labeler = alpha
     self.object_type = ALExhibit
+    
     self.complete_attribute = 'complete'
   
-  def as_pdf(self, filename="file.pdf"):
-    return pdf_concatenate([exhibit.as_pdf() for exhibit in self], filename=filename)
+  def as_pdf(self, filename="file.pdf", add_cover_pages:bool = True)->DAFile:
+    """
+    Return a single PDF containing all exhibits.
+    Args:
+        filename (str): the filename to be assigned to the generated PDF document.
+        add_cover_pages (bool): True if each exhibit should have a cover page, like "Exhibit A".
+    Returns:
+        A DAfile containing the rendered exhibit list as a single file.
+    """
+    return pdf_concatenate([exhibit.as_pdf(add_cover_page=add_cover_pages) for exhibit in self], filename=filename)
+
+  def add_numbers(self, prefix:str='', starting_number:int=1)->None:
+    """
+    Add running page numbers. (TODO: not yet implemented)
+    Args:
+        prefix (str): The prefix before each page number. E.g., Ex-
+        starting_number (int): The number that the first page will be assigned. Defaults 
+                               to 1.
+    """
+    pass
+
+  def _update_labels(self, auto_labeler:Callable=None)->None:
+    """
+    Private method to refresh labels on all exhibits.
+    Args:
+        auto_labeler (Callable): (optional) a lambda or function to transform index to a label, like A.
+    """
+    if auto_labeler is None:
+      auto_labeler = self.auto_labeler
+
+    for index, exhibit in enumerate(self.elements):
+      exhibit.label = self.auto_labeler(index)
+  
+  def hook_after_gather(self):
+    if self.auto_label:
+      self._update_labels()
 
 class ALExhibitDocument(ALDocument):
   """Represents a collection of uploaded documents, formatted like a record appendix or exhibit list, with a table of contents and 
@@ -1083,13 +1130,21 @@ class ALExhibitDocument(ALDocument):
   _cache: DAFile
   table_of_contents: DAFile
   include_table_of_contents: bool
+  include_exhibit_cover_pages: bool
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
     self.initializeAttribute('exhibits', ALExhibitList)
+    if not hasattr(self, 'include_table_of_contents'):
+      self.include_table_of_contents = True
+    if not hasattr(self, 'include_exhibit_cover_pages'):
+      self.include_exhibit_cover_pages = True
     self.has_addendum = False
 
   def has_overflow(self):
+    """
+    Provided for signature compatibility with ALDocument. Exhibits do not have overflow.
+    """
     return False
 
   def __getitem__(self, key):
@@ -1103,7 +1158,7 @@ class ALExhibitDocument(ALDocument):
   def as_pdf(self, key="final", refresh:bool=True) -> DAFile:
     """
     Args:
-        key(str): unused, for signature compatibility with ALDocument
+        key (str): unused, for signature compatibility with ALDocument
     """
     filename = os.path.splitext(self.filename)[0] + ".pdf"
     
@@ -1115,7 +1170,7 @@ class ALExhibitDocument(ALDocument):
 
 def unpack_dafilelist(the_file:DAFileList)->DAFile:
   """Creates a plain DAFile out of the first item in a DAFileList
-  Arguments:
+  Args:
       the_file (DAFileList): an item representing an uploaded document in a Docassemble interview
   
   Returns:
