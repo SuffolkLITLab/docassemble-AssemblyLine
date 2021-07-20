@@ -1297,8 +1297,8 @@ fields:
   - Do you have any documents you want to upload?: x.there_are_any
     datatype: yesnoradio
   - note: |
-      **Okay**. You will have a chance to upload multiple documents, one 
-      exhibit at a time.
+      **Okay**. You will have a chance to upload multiple documents. 
+      You can also add additional pages to this document.
     show if: x.there_are_any
   - First document title: x[0].title
     show if: x.there_are_any    
@@ -1345,8 +1345,23 @@ validation code: |
 generic object: ALExhibitList
 id: exhibit i has additional pages
 question: |
-  Does ${ x[i] } have any additional pages?
-yesno: x[i].pages.there_is_another
+  Does "**${ x[i] }**" have any additional pages?
+subquestion: |
+  You have uploaded ${ x[i].pages.num_pages() } pages so far.  
+
+  ${ collapse_template(x[i].in_progress_template )}
+  
+field: x[i].pages.there_is_another
+buttons:
+  - All done: False
+  - Add another page: True
+---
+generic object: ALExhibitList
+template: x[i].in_progress_template
+subject: |
+  Preview "${ x[i].title }" so far
+content: |
+  ${ x[i].rearrange_pages_table }
 ---
 generic object: ALExhibitList
 id: exhibit additional page
@@ -1372,12 +1387,68 @@ validation code: |
 generic object: ALExhibitList
 id: another exhibit
 question: |
-  Do you have another document you want to upload?
+  You have ${ x.number_gathered() } document(s) so far. Do you have another document
+  you want to upload?
 yesno: x.there_is_another
 ---
-# generic object: ALExhibitList
-# code: |
-#   x[i].label = alpha(i)
+generic object: ALExhibitList
+table: x.rearrange_exhibits_table
+rows: x
+allow reordering: True
+delete buttons: True
+columns:
+  - ${ al_exhibit_title_label }: |
+      row_item.title
+  - ${ al_exhibit_preview_label }: |
+      row_item.pages.show(width="50%")
+  - ${ al_exhibit_total_pages_label }: |
+      row_item.pages.num_pages()
+edit:
+  - rearrange_pages
+---
+generic object: ALExhibit
+table: x.rearrange_pages_table
+rows: x.pages
+allow reordering: True
+delete buttons: True
+columns: 
+  - ${ al_exhibit_preview_label }: |
+      row_item.show(width="50%")
+---  
+template: al_exhibit_preview_label
+content: |
+  Thumbnail
+---
+template: al_exhibit_title_label
+content: |
+  Title
+---
+template: al_exhibit_total_pages_label
+content: |
+  Total pages
+---
+generic object: ALExhibitList
+question: |
+  Review your documents
+subquestion: |
+  % if x.auto_label:
+  Each document will be labeled in the order below, starting at 
+  ${ x.auto_labeler(0) }, and continuing with ${ x.auto_labeler(1) } and so on.
+  
+  % endif
+  ${ x.rearrange_exhibits_table }
+
+  ${ x.add_action() }
+continue button field: x.rearrange_exhibits
+---
+generic object: ALExhibit
+question: |
+  Review your document pages
+subquestion: |
+  ${ x.rearrange_pages_table }
+
+  ${ x.pages.add_action() }
+continue button field: x.rearrange_pages
 ---
 generic object: ALExhibit
 attachment:

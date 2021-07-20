@@ -1058,9 +1058,12 @@ class ALExhibit(DAObject):
 class ALExhibitList(DAList):
   """
   Attributes:
-      auto_label (bool): Set to true if you want exhibits to be automatically numbered for purposes of cover page and table of contents
+      auto_label (bool): Set to True if you want exhibits to be automatically numbered for purposes of cover page 
+                         and table of contents. Defaults to True.
       auto_labeler (Callable): (optional) a function or lambda to transform the index for each exhibit to a label.
                                Defaults to labels like A..Z if unspecified.
+      auto_ocr (bool): Set to True if you would like exhibits to be OCR'ed in the background after they are uploaded. 
+                       Defaults to True.
   """
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
@@ -1068,6 +1071,9 @@ class ALExhibitList(DAList):
       self.auto_label = True
     if not hasattr(self, 'auto_labeler'):
       self.auto_labeler = alpha
+    if not hasattr(self, 'auto_ocr'):
+      self.auto_ocr = True
+
     self.object_type = ALExhibit
     
     self.complete_attribute = 'complete'
@@ -1104,10 +1110,17 @@ class ALExhibitList(DAList):
 
     for index, exhibit in enumerate(self.elements):
       exhibit.label = self.auto_labeler(index)
-  
+
   def hook_after_gather(self):
     if self.auto_label:
       self._update_labels()
+    if self.auto_ocr:
+      for exhibit in self.elements:
+        pass
+        # Note that we just discard the task result
+        # psm=1 is the default which uses automatic text orientation and location detection.
+        # Appears to be the most accurate method.
+        # exhibit.make_ocr_pdf_in_background(psm=1) 
 
 class ALExhibitDocument(ALDocument):
   """Represents a collection of uploaded documents, formatted like a record appendix or exhibit list, with a table of contents and 
