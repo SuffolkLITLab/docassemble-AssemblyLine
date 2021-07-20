@@ -568,7 +568,7 @@ class ALDocument(DADict):
     if refresh:
       main_doc = self.getitem_fresh(key)
     else:
-      main_doc = self.elements[key]
+      main_doc = self[key]
 
     if isinstance(main_doc, DAFileCollection):
       main_doc = main_doc.pdf
