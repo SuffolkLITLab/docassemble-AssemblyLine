@@ -22,6 +22,9 @@ default screen parts:
     `Package: ${ user_info().package } ${ package_version_number }; ${ al_version }`
     <div data-variable="${ encode_name(str( user_info().variable )) }" id="sought_variable" aria-hidden="true" style="display: none;"></div>
     % endif
+  # We need both pre and post until old interviews are updated to v2 of the testing framework or v1 of the testing framework is updated. In future, we will need this in `post` so that it will work on signature pages.
+  post: |
+    <div data-variable="${ encode_name(str( user_info().variable )) }" id="trigger" aria-hidden="true" style="display: none;"></div>
 ---
 features:
   small screen navigation: False

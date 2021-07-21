@@ -1,11 +1,10 @@
-.history/
-.vscode/
-docassemble/AssemblyLine/__pycache__/
-**/__pycache__/
-
-# Build / sdist related
-build
-dist
-*.egg-info
-# Used in bumpversion.sh
+tests/chromedriver
+*DS_Store*
+node_modules*
 .env
+npm-debug.log
+error*.jpg
+screenshot_*.jpg
+downloads_*
+*_lang_*.feature
+*_report_*

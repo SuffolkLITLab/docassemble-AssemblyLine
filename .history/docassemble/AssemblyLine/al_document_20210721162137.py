@@ -1,7 +1,9 @@
 import re
 import os
 from typing import Any, Dict, List, Union, Callable
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, send_email, docx_concatenate, get_config, space_to_underscore, DAStaticFile, alpha
+from docassemble.base.functions import DANav
+<<<<<<< HEAD
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile, alpha, DAEmpty
 
 __all__ = ['ALAddendumField',
            'ALAddendumFieldDict',
@@ -16,6 +18,14 @@ __all__ = ['ALAddendumField',
            'ALExhibit',
            'ALExhibitDocument',
            'unpack_dafilelist']
+=======
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, \
+    DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, \
+    include_docx_template, user_logged_in, user_info, action_argument, send_email, \
+    docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile
+
+__all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALStaticDocument', 'ALDocumentBundleDict','safeattr','label','key']
+>>>>>>> main
 
 DEBUG_MODE = get_config('debug')
 

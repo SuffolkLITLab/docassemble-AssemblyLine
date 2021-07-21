@@ -3,10 +3,10 @@ include:
   - al_package.yml
 ---
 code: |
-  AL_DEFAULT_COUNTRY = "CA"
+  AL_DEFAULT_COUNTRY = "US"
 ---
 code: |
-  AL_DEFAULT_STATE = "ON"
+  AL_DEFAULT_STATE = "MA"
 ---
 metadata:
   title: |
@@ -31,9 +31,6 @@ objects:
 ---
 mandatory: True
 code: |
-  # big_text_field
-  # debug_safe_value
-  
   al_intro_screen
   test_label_functions
   feature_tests_1
@@ -50,9 +47,6 @@ code: |
   children.gather()
   preview_screen
   basic_questions_signature_flow
-  dummy_template.enabled = False
-  one_enabled_doc_test
-  dummy_template.enabled = True
   many_bundles_test
   end
 ---
@@ -80,7 +74,7 @@ code: |
 id: test behavior of some features
 continue button field: feature_tests_1
 question: |
-  Features test 1
+  Test custom audio element behavior on help button
 help: |
   Show help screen
 ---
@@ -92,11 +86,11 @@ subquestion: |
   Take a look at the files below. When you are ready, click "next"
   to continue and add your signature.
     
-  ${ dummy_template.as_pdf(key='preview') }
-  
   ${ al_user_bundle.as_pdf(key='preview') }
-  
-  [Edit](${url_action('users[0].name.first')})
+
+  [Edit mako_template status](${ url_action('mako_template_enabled') })
+
+  [Edit user's name](${url_action('users[0].name.first')})
 ---
 question: |
   Try a big text field
@@ -106,29 +100,26 @@ fields:
   - Write something: big_text_field
     datatype: area
 ---
-continue button field: debug_safe_value
-question: |
-  Test
-subquestion: |
-  #### Safe
-  
-  > ${ dummy_template.safe_value('big_text_field', preserve_newlines=True) }
-  
-  #### Overflow
-  
-  > ${ dummy_template.overflow_value('big_text_field', preserve_newlines=True) }
-  
----
 objects:
-  # Dummy template will use the generic addendum
-  - dummy_template: ALDocument.using(title="Dummy template", filename="dummy_template", has_addendum=True, enabled=True, default_overflow_message=" [See addendum]")
+  # Mako template will use the generic addendum
+  - mako_template: ALDocument.using(title="Mako template", filename="mako_template", has_addendum=True, default_overflow_message=" [See addendum]")
   # `has_addendum` should be taken care of by a default attr
   - word_template: ALDocument.using(title="Word Template", filename="word_template", enabled=True)
 ---
+id: Mako template
+question: |
+  Enable Mako template?
+yesno: mako_template_enabled
+---
+code: |
+  # You must use an intermediate value to set the enabled status, because it is not 
+  # cached longer than one page load. You do not need to explicitly reconsider it.
+  mako_template.enabled = mako_template_enabled 
+---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template, static_test], filename="user_bundle.pdf", title="All forms to download for your records")
-  - al_court_bundle: ALDocumentBundle.using(elements=[dummy_template, word_template], filename='court_bundle.pdf', title='All forms to send to the court')
-  - al_single_doc_bundle: ALDocumentBundle.using(elements=[dummy_template], filename="one_file_bundle.pdf", title="One file")
+  - al_user_bundle: ALDocumentBundle.using(elements=[mako_template, word_template, static_template], filename="user_bundle.pdf", title="All forms to download for your records")
+  - al_court_bundle: ALDocumentBundle.using(elements=[mako_template, word_template], filename='court_bundle.pdf', title='All forms to send to the court')
+  - al_single_doc_bundle: ALDocumentBundle.using(elements=[mako_template], filename="one_file_bundle.pdf", title="One file")
 ---
 code: |
   # This is used in the subject of the email template when someone
@@ -136,13 +127,15 @@ code: |
   metadata_title = "AssemblyLine Question Test"
 ---
 code: |
-  dummy_template.overflow_fields['big_text_field'].overflow_trigger = 200
-  dummy_template.overflow_fields['children'].overflow_trigger = 2
-  dummy_template.overflow_fields.gathered = True
+  mako_template.overflow_fields['big_text_field'].overflow_trigger = 200
+  mako_template.overflow_fields['children'].overflow_trigger = 2
+  mako_template.overflow_fields.gathered = True
 ---
 attachment:
-  variable name: dummy_template[i]
+  variable name: mako_template[i]
   content: |
+    # Mako template
+    
     You live at ${ users[0].address.on_one_line() }
     
     Your phone number(s) are: ${ users[0].phone_numbers() }.
@@ -153,14 +146,14 @@ attachment:
 
     Here is the safe value of "big_text_field":
     
-    > ${ dummy_template.safe_value('big_text_field') }
+    > ${ mako_template.safe_value('big_text_field') }
 
     % if len(children):
     Here is some information about your first 2 children:
 
     Name | Age
     -----|----
-    % for child in dummy_template.safe_value('children'):
+    % for child in mako_template.safe_value('children'):
     ${ child } | ${ child.age_in_years() }
     % endfor
     % endif
@@ -178,7 +171,7 @@ attachment:
   filename: sample_word_template.docx
 ---
 objects:
-  - static_test: ALStaticDocument.using(title="Test Static Document", filename="lt1-pullout-10-getting-organized.pdf", enabled=True)
+  - static_template: ALStaticDocument.using(title="Test Static Document", filename="lt1-pullout-10-getting-organized.pdf", enabled=True)
 ---
 id: end if we need it
 event: end
