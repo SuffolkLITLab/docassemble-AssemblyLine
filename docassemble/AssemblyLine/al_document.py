@@ -1023,15 +1023,33 @@ class ALExhibit(DAObject):
   pages: DAFileList
   label: str
   _cache: DALazyAttribute
-  _index: Union[str,int]
+  starting_page: int
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
     self.initializeAttribute('_cache', DALazyAttribute)
     self.object_type = DAFileList
+    if not hasattr(self, 'starting_page'):
+      self.start_page = 1
 
-  def add_numbers(self, starting_number=1)->None:
+  def add_numbers(self, starting_page=None)->None:
+    """
+    Todo:
+        Not implemented yet.
+    """
     pass
+
+  def ocr_pages(self):
+    """
+    Return the OCR version if it exists; otherwise the initial version of each doc in `pages`.
+    """
+    pages = []
+    for page in self.pages:
+      if hasattr(page, 'ocr_version') and hasattr(page, 'ocr_status') and page.ocr_status.ready() and not page.ocr_status.failed() and page.ocr_version.ok:
+        pages.append(page.ocr_version)
+      else: 
+        pages.append(page)
+    return pages
 
   def as_pdf(self, prefix='', add_page_numbers:bool=True, add_cover_page:bool=True, filename:str=None)->DAFile:
     if hasattr(self._cache, '_file'):
@@ -1039,9 +1057,9 @@ class ALExhibit(DAObject):
     if not filename:
       filename = "exhibits.pdf"
     if add_cover_page:
-      self._cache._file = pdf_concatenate(self.cover_page, self.pages, filename=filename)
+      self._cache._file = pdf_concatenate(self.cover_page, self.ocr_pages(), filename=filename)
     else:
-      self._cache._file = pdf_concatenate(self.pages, filename=filename)
+      self._cache._file = pdf_concatenate(self.ocr_pages(), filename=filename)
     return self._cache._file
 
   def num_pages(self)->int:
@@ -1075,7 +1093,6 @@ class ALExhibitList(DAList):
     if not hasattr(self, 'auto_ocr'):
       self.auto_ocr = True
     self.object_type = ALExhibit
-    self.ocr_status = []
     self.complete_attribute = 'complete'
   
   def as_pdf(self, filename="file.pdf", add_cover_pages:bool = True)->DAFile:
@@ -1111,21 +1128,51 @@ class ALExhibitList(DAList):
     for index, exhibit in enumerate(self.elements):
       exhibit.label = self.auto_labeler(index)
 
-  def ocr_ready(self):
+  def ocr_ready(self)->bool:
+    """
+    Returns:
+        True iff OCR process has finished on all pages. OCR is non-blocking, and assembly will work
+        even if OCR is not complete. Check this status if you want to wait to deliver a document until
+        OCR is complete.
+    """
     ready = True
-    for status in self.ocr_status:
-      ready &= status.ready()
+    for exhibit in self.elements:
+      for page in exhibit.pages:
+        if hasattr(page, 'ocr_status'):
+          ready &= page.ocr_status.ready()
     return ready
 
+  def _update_page_numbers(self)->None:
+    """
+    Update the `start_page` attribute of all exhibits so it reflects current position in the list + number of pages of each document.
+    """
+    current_index = 1
+    for exhibit in self.elements:
+      exhibit.start_page = current_index
+      current_index += exhibit.num_pages()
+
+  def _ocr_docs(self):
+    for exhibit in self.elements:
+      if len(exhibit.pages):
+        # We cannot OCR in place. It is too fragile.
+        for page in exhibit.pages:
+          page.ocr_version = DAFile(page.attr_name('ocr_version'))
+          # psm=1 is the default which uses automatic text orientation and location detection.
+          # Appears to be the most accurate method.
+          page.ocr_status = page.make_ocr_pdf_in_background(page.ocr_version, psm=1)
+
   def hook_after_gather(self):
+    """
+    Private method automatically triggered when the list is fully gathered.
+    """
+    self._update_page_numbers()
     if self.auto_label:
       self._update_labels()
-    if self.auto_ocr:
-      self.ocr_status = []
-      for exhibit in self.elements:
-        # psm=1 is the default which uses automatic text orientation and location detection.
-        # Appears to be the most accurate method.
-        self.ocr_status.append(exhibit.pages.make_ocr_pdf_in_background(psm=1))
+    
+    # TODO: implement below. Was buggy when OCRing a lot of files and OCRing in place. 
+    # Switched to creating a new DAFile, but that introduced different bugs. -- third refresh breaks it. file never gets a number so not "ok"
+    # if self.auto_ocr:
+    #  self._ocr_docs()
 
 class ALExhibitDocument(ALDocument):
   """Represents a collection of uploaded documents, formatted like a record appendix or exhibit list, with a table of contents and 
@@ -1180,7 +1227,7 @@ class ALExhibitDocument(ALDocument):
     """
     filename = os.path.splitext(self.filename)[0] + ".pdf"
     
-    return pdf_concatenate(self.table_of_contents, self.exhibits.as_pdf(), filename=filename)
+    return pdf_concatenate(self.table_of_contents, self.exhibits.as_pdf(add_cover_pages=self.include_exhibit_cover_pages), filename=filename)
     # pdf_concatenate([a.as_pdf() for a in self.exhibits], filename=self.filename)
 
   def as_docx(self, key:str="bool", refresh:bool=True) -> DAFile:

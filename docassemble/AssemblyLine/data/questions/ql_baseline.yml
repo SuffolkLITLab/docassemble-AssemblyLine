@@ -1301,6 +1301,7 @@ fields:
       You can also add additional pages to this document.
     show if: x.there_are_any
   - First document title: x[0].title
+    maxlength: 60 # longer might break TOC
     show if: x.there_are_any    
   - Upload the first document: x[0].pages
     show if: x.there_are_any    
@@ -1308,7 +1309,7 @@ fields:
     maximum image size: 1024
     image upload type: jpeg        
     accept: |
-      "image/*, image/png,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+      "image/png, image/jpg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   if x.there_are_any:
     if sum(exhibit.size_in_bytes() for exhibit in x[0].pages) > (15 * 1024 * 1024):
@@ -1327,12 +1328,13 @@ subquestion: |
   You will have a chance to upload additional pages for this document later.  
 fields:
   - Document title: x[i].title
+    maxlength: 60 # longer might break TOC
   - Upload the first exhibit: x[i].pages
     datatype: files
     maximum image size: 1024
     image upload type: jpeg        
     accept: |
-      "image/*, image/png,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+      "image/png, image/jpg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   if sum(exhibit.size_in_bytes() for exhibit in x[i].pages) > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
@@ -1375,7 +1377,7 @@ fields:
     maximum image size: 1024
     image upload type: jpeg        
     accept: |
-      "image/*, image/png,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+      "image/png, image/jpg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   if x[i].pages[j].size_in_bytes() > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
@@ -1477,3 +1479,4 @@ attachment:
   docx template file: exhibit_table_of_contents.docx
   field code:
     exhibits: raw(x.exhibits)
+    include_exhibit_cover_pages: raw(x.include_exhibit_cover_pages)
