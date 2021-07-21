@@ -2,7 +2,7 @@
 Feature: ALDocument class
 
 Scenario: No page errors
-  And the max seconds for each step is 80
+  And the max seconds for each step is 150
   Given I start the interview at "test_aldocument"
   And I get to "end aldocument tests" with this data:
     | var | value | trigger |
