@@ -1282,7 +1282,20 @@ class ALExhibitDocument(ALDocument):
         also will add Bates-stamp style page numbers and labels on each page.  
 
   Todo:
-      * Method of making a safe link in place of the attachment (e.g., filesize limits on email)        
+      * Method of making a safe link in place of the attachment (e.g., filesize limits on email)  
+      
+  Examples:
+  ```
+  ---
+  objects:
+    - exhibit_attachment: ALExhibitDocument.using(title="Exhibits", filename="exhibits" )
+  ---
+  code: |
+    exhibit_attachment.enabled = exhibit_attachment.exhibits.there_are_any
+  ---
+  objects:
+    - al_user_bundle: ALDocumentBundle.using(elements=[my_instructions, my_main_attachment, exhibit_attachment], filename="user_bundle.pdf", title="All forms to download for your records")
+  ```
   """
   exhibits: ALExhibitList
   _cache: DAFile
