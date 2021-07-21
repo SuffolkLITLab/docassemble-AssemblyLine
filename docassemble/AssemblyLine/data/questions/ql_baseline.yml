@@ -1353,7 +1353,7 @@ subquestion: |
   
 field: x[i].pages.there_is_another
 buttons:
-  - All done: False
+  - Finished adding pages: False
   - Add another page: True
 ---
 generic object: ALExhibitList
@@ -1361,6 +1361,8 @@ template: x[i].in_progress_template
 subject: |
   Preview "${ x[i].title }" so far
 content: |
+  Use the buttons to rearrange the pages.
+  
   ${ x[i].rearrange_pages_table }
 ---
 generic object: ALExhibitList
@@ -1389,7 +1391,19 @@ id: another exhibit
 question: |
   You have ${ x.number_gathered() } document(s) so far. Do you have another document
   you want to upload?
-yesno: x.there_is_another
+subquestion: |
+  ${ collapse_template(x.in_progress_exhibits) }
+field: x.there_is_another
+buttons:
+  - Finished adding documents: False
+  - Add another document: True
+---
+generic object: ALExhibitList
+template: x.in_progress_exhibits
+subject: |
+  Preview your documents so far
+content: |
+  ${ x.rearrange_exhibits_table }
 ---
 generic object: ALExhibitList
 table: x.rearrange_exhibits_table
