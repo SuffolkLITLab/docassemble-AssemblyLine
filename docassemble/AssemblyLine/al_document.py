@@ -2,7 +2,7 @@ import re
 import os
 from typing import Any, Dict, List, Union, Callable
 from docassemble.base.functions import DANav
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile, alpha
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, action_argument, send_email, docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile, alpha, DAEmpty
 
 __all__ = ['ALAddendumField',
            'ALAddendumFieldDict',
@@ -1022,26 +1022,27 @@ class ALExhibit(DAObject):
   cover_page: DAFile
   pages: DAFileList
   label: str
-  _cache: DAFile
+  _cache: DALazyAttribute
   _index: Union[str,int]
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
+    self.initializeAttribute('_cache', DALazyAttribute)
     self.object_type = DAFileList
 
   def add_numbers(self, starting_number=1)->None:
     pass
 
   def as_pdf(self, prefix='', add_page_numbers:bool=True, add_cover_page:bool=True, filename:str=None)->DAFile:
-    if hasattr(self, '_cache'):
-      return self._cache
+    if hasattr(self._cache, '_file'):
+      return self._cache._file
     if not filename:
       filename = "exhibits.pdf"
     if add_cover_page:
-      self._cache = pdf_concatenate(self.cover_page, self.pages, filename=filename)
+      self._cache._file = pdf_concatenate(self.cover_page, self.pages, filename=filename)
     else:
-      self._cache = pdf_concatenate(self.pages, filename=filename)
-    return self._cache
+      self._cache._file = pdf_concatenate(self.pages, filename=filename)
+    return self._cache._file
 
   def num_pages(self)->int:
     return self.pages.num_pages()
@@ -1073,9 +1074,8 @@ class ALExhibitList(DAList):
       self.auto_labeler = alpha
     if not hasattr(self, 'auto_ocr'):
       self.auto_ocr = True
-
     self.object_type = ALExhibit
-    
+    self.ocr_status = []
     self.complete_attribute = 'complete'
   
   def as_pdf(self, filename="file.pdf", add_cover_pages:bool = True)->DAFile:
@@ -1111,16 +1111,21 @@ class ALExhibitList(DAList):
     for index, exhibit in enumerate(self.elements):
       exhibit.label = self.auto_labeler(index)
 
+  def ocr_ready(self):
+    ready = True
+    for status in self.ocr_status:
+      ready &= status.ready()
+    return ready
+
   def hook_after_gather(self):
     if self.auto_label:
       self._update_labels()
     if self.auto_ocr:
+      self.ocr_status = []
       for exhibit in self.elements:
-        pass
-        # Note that we just discard the task result
         # psm=1 is the default which uses automatic text orientation and location detection.
         # Appears to be the most accurate method.
-        # exhibit.make_ocr_pdf_in_background(psm=1) 
+        self.ocr_status.append(exhibit.pages.make_ocr_pdf_in_background(psm=1))
 
 class ALExhibitDocument(ALDocument):
   """Represents a collection of uploaded documents, formatted like a record appendix or exhibit list, with a table of contents and 
@@ -1131,8 +1136,8 @@ class ALExhibitDocument(ALDocument):
       table_of_contents: DAFile or DAFileCollection object created by an `attachment:` block
       _cache (DAFile): a cached version of the list of exhibits. It may take
         a long time to process.
-      add_table_of_contents (bool): flag to control whether a table of contents is generated for this form        
-      add_cover_pages (bool): flag to control whether cover pages are included with each separate exhibit
+      include_table_of_contents (bool): flag to control whether a table of contents is generated for this form        
+      include_exhibit_cover_pages (bool): flag to control whether cover pages are included with each separate exhibit
       add_page_numbers (bool): Flag that controls whether the as_pdf() method
         also will add Bates-stamp style page numbers and labels on each page.  
 
