@@ -1309,7 +1309,7 @@ fields:
     maximum image size: 1024
     image upload type: jpeg        
     accept: |
-      "image/png, image/jpg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   if x.there_are_any:
     if sum(exhibit.size_in_bytes() for exhibit in x[0].pages) > (15 * 1024 * 1024):
@@ -1334,7 +1334,7 @@ fields:
     maximum image size: 1024
     image upload type: jpeg        
     accept: |
-      "image/png, image/jpg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   if sum(exhibit.size_in_bytes() for exhibit in x[i].pages) > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
@@ -1377,7 +1377,7 @@ fields:
     maximum image size: 1024
     image upload type: jpeg        
     accept: |
-      "image/png, image/jpg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   if x[i].pages[j].size_in_bytes() > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
