@@ -1,3 +1,10 @@
+# Version v2.2.0
+
+* Added ALExhibitDocument class
+* Added automated tests
+* Improvements to handling of refreshed document state
+* Improvements to docstrings
+
 # v2.1.4
 * Added ALStaticDocument class
 * Respect filename provided on download screens
