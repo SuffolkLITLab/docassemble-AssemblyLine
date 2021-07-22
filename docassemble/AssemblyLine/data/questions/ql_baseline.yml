@@ -1281,3 +1281,202 @@ attachment:
 generic object: ALAddendumField
 code: |
   x.label = x.field_name.capitalize().replace("_", " ")
+---
+#########################################################
+# ALExhibitDocument questions
+---
+generic object: ALExhibitList
+id: any exhibits
+question: |
+  % if al_form_type in ['starts_case','existing_case','appeal']:
+  Do you have any documents that you want to provide to the court?
+  % else:
+  Do you have any documents that you want to attach to this form?
+  % endif
+fields:
+  - Do you have any documents you want to upload?: x.there_are_any
+    datatype: yesnoradio
+  - note: |
+      **Okay**. You will have a chance to upload multiple documents. 
+      You can also add additional pages to this document.
+    show if: x.there_are_any
+  - First document title: x[0].title
+    maxlength: 60 # longer might break TOC
+    show if: x.there_are_any    
+  - Upload the first document: x[0].pages
+    show if: x.there_are_any    
+    datatype: files
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if x.there_are_any:
+    if sum(exhibit.size_in_bytes() for exhibit in x[0].pages) > (15 * 1024 * 1024):
+      validation_error("Upload a file smaller than 15 MB.")
+    try:
+      pdf_concatenate(x[0].pages)
+    except:
+      validation_error("Unable to convert this file. Please upload a new one.", field="x[0].pages")
+    del x[0].pages.gathered  # docassemble sets this attribute but we want to force gathering additional pages
+---
+generic object: ALExhibitList
+id: exhibit i
+question: |
+  Upload the ${ ordinal(i) } document
+subquestion: |
+  You will have a chance to upload additional pages for this document later.  
+fields:
+  - Document title: x[i].title
+    maxlength: 60 # longer might break TOC
+  - Upload the first exhibit: x[i].pages
+    datatype: files
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if sum(exhibit.size_in_bytes() for exhibit in x[i].pages) > (15 * 1024 * 1024):
+    validation_error("Upload a file smaller than 15 MB.")
+  try:
+    pdf_concatenate(x[i].pages)
+  except:
+    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages")
+  del x[i].pages.gathered  # docassemble sets this attribute but we want to force gathering additional pages
+---
+generic object: ALExhibitList
+id: exhibit i has additional pages
+question: |
+  Does "**${ x[i] }**" have any additional pages?
+subquestion: |
+  You have uploaded ${ x[i].pages.num_pages() } pages so far.  
+
+  ${ collapse_template(x[i].in_progress_template )}
+  
+field: x[i].pages.there_is_another
+buttons:
+  - Finished adding pages: False
+  - Add another page: True
+---
+generic object: ALExhibitList
+template: x[i].in_progress_template
+subject: |
+  Preview "${ x[i].title }" so far
+content: |
+  Use the buttons to rearrange the pages.
+  
+  ${ x[i].rearrange_pages_table }
+---
+generic object: ALExhibitList
+id: exhibit additional page
+question: |
+  Upload the ${ ordinal(j) } part of your ${ x[i].title } document
+fields:
+  - Upload a PDF, Word, or image file: x[i].pages[j]
+    datatype: file
+    maximum image size: 1024
+    image upload type: jpeg        
+    accept: |
+      "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
+validation code: |
+  if x[i].pages[j].size_in_bytes() > (15 * 1024 * 1024):
+    validation_error("Upload a file smaller than 15 MB.")
+  try:
+    pdf_concatenate(x[i].pages[j])
+  except:
+    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages[j]")
+
+  x[i].pages[j] = unpack_dafilelist(x[i].pages[j])
+---
+generic object: ALExhibitList
+id: another exhibit
+question: |
+  You have ${ x.number_gathered() } document(s) so far. Do you have another document
+  you want to upload?
+subquestion: |
+  ${ collapse_template(x.in_progress_exhibits) }
+field: x.there_is_another
+buttons:
+  - Finished adding documents: False
+  - Add another document: True
+---
+generic object: ALExhibitList
+template: x.in_progress_exhibits
+subject: |
+  Preview your documents so far
+content: |
+  ${ x.rearrange_exhibits_table }
+---
+generic object: ALExhibitList
+table: x.rearrange_exhibits_table
+rows: x
+allow reordering: True
+delete buttons: True
+columns:
+  - ${ al_exhibit_title_label }: |
+      row_item.title
+  - ${ al_exhibit_preview_label }: |
+      row_item.pages.show(width="50%")
+  - ${ al_exhibit_total_pages_label }: |
+      row_item.pages.num_pages()
+edit:
+  - rearrange_pages
+---
+generic object: ALExhibit
+table: x.rearrange_pages_table
+rows: x.pages
+allow reordering: True
+delete buttons: True
+columns: 
+  - ${ al_exhibit_preview_label }: |
+      row_item.show(width="50%")
+---  
+template: al_exhibit_preview_label
+content: |
+  Thumbnail
+---
+template: al_exhibit_title_label
+content: |
+  Title
+---
+template: al_exhibit_total_pages_label
+content: |
+  Total pages
+---
+generic object: ALExhibitList
+question: |
+  Review your documents
+subquestion: |
+  % if x.auto_label:
+  Each document will be labeled in the order below, starting at 
+  ${ x.auto_labeler(0) }, and continuing with ${ x.auto_labeler(1) } and so on.
+  
+  % endif
+  ${ x.rearrange_exhibits_table }
+
+  ${ x.add_action() }
+continue button field: x.rearrange_exhibits
+---
+generic object: ALExhibit
+question: |
+  Review your document pages
+subquestion: |
+  ${ x.rearrange_pages_table }
+
+  ${ x.pages.add_action() }
+continue button field: x.rearrange_pages
+---
+generic object: ALExhibit
+attachment:
+  variable name: x.cover_page
+  docx template file: exhibit_cover_sheet.docx
+  field code:
+    exhibit_label: raw(x.label)
+---
+generic object: ALExhibitDocument
+attachment:
+  variable name: x.table_of_contents
+  docx template file: exhibit_table_of_contents.docx
+  field code:
+    exhibits: raw(x.exhibits)
+    include_exhibit_cover_pages: raw(x.include_exhibit_cover_pages)

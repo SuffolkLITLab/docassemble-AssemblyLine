@@ -8,3 +8,4 @@ screenshot_*.jpg
 downloads_*
 *_lang_*.feature
 *_report_*
+.history

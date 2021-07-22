@@ -1,13 +1,21 @@
 import re
 import os
-from typing import Any, Dict, List, Union
-from docassemble.base.functions import DANav
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, \
-    DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, \
-    include_docx_template, user_logged_in, user_info, action_argument, send_email, \
-    docx_concatenate, reconsider, get_config, space_to_underscore, LatitudeLongitude, DAStaticFile
+from typing import Any, Dict, List, Union, Callable
+from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, send_email, docx_concatenate, get_config, space_to_underscore, DAStaticFile, alpha
 
-__all__ = ['ALAddendumField', 'ALAddendumFieldDict', 'ALDocumentBundle', 'ALDocument', 'ALStaticDocument', 'ALDocumentBundleDict','safeattr','label','key']
+__all__ = ['ALAddendumField',
+           'ALAddendumFieldDict',
+           'ALDocumentBundle', 
+           'ALDocument', 
+           'ALDocumentBundleDict',
+           'ALStaticDocument',
+           'safeattr',
+           'label',
+           'key',
+           'ALExhibitList',
+           'ALExhibit',
+           'ALExhibitDocument',
+           'unpack_dafilelist']
 
 DEBUG_MODE = get_config('debug')
 
@@ -1066,9 +1074,8 @@ class ALDocumentBundle(DAList):
 
 class ALDocumentBundleDict(DADict):
   """
-  A dictionary with named bundles of ALDocuments.
-  In the assembly line, we expect to find two predetermined bundles:
-  court_bundle and user_bundle.
+  A dictionary with named bundles of ALDocuments. In the assembly line, we
+  expect to find two predetermined bundles: court_bundle and user_bundle.
 
   It may be helpful in some circumstances to have a "bundle" of bundles. E.g.,
   you may want to present the user multiple combinations of documents for
@@ -1096,3 +1103,252 @@ class ALDocumentBundleDict(DADict):
     Return a list of PDF-ified documents, suitable to make an attachment to send_mail.
     """
     return self[bundle].as_pdf_list(key='final')
+
+class ALExhibit(DAObject):
+  """Class to represent a single exhibit, with cover page, which may contain multiple documents representing pages.
+  Atributes:
+      elements (list): List of individual DAFiles representing uploaded images or documents.
+      cover_page (DAFile | DAFileCollection): (optional) A DAFile or DAFileCollection object created by an `attachment:` block
+        Will typically say something like "Exhibit 1"
+      label (str): A label, like "A" or "1" for this exhibit in the cover page and table of contents
+  """
+  cover_page: DAFile
+  pages: DAFileList
+  label: str
+  _cache: DALazyAttribute
+  starting_page: int
+
+  def init(self, *pargs, **kwargs):
+    super().init(*pargs, **kwargs)
+    self.initializeAttribute('_cache', DALazyAttribute)
+    self.object_type = DAFileList
+    if not hasattr(self, 'starting_page'):
+      self.start_page = 1
+
+  def add_numbers(self, starting_page=None)->None:
+    """
+    Todo:
+        Not implemented yet.
+    """
+    pass
+
+  def ocr_pages(self):
+    """
+    Return the OCR version if it exists; otherwise the initial version of each doc in `pages`.
+    """
+    pages = []
+    for page in self.pages:
+      if hasattr(page, 'ocr_version') and hasattr(page, 'ocr_status') and page.ocr_status.ready() and not page.ocr_status.failed() and page.ocr_version.ok:
+        pages.append(page.ocr_version)
+      else: 
+        pages.append(page)
+    return pages
+
+  def as_pdf(self, prefix='', add_page_numbers:bool=True, add_cover_page:bool=True, filename:str=None)->DAFile:
+    if hasattr(self._cache, '_file'):
+      return self._cache._file
+    if not filename:
+      filename = "exhibits.pdf"
+    if add_cover_page:
+      self._cache._file = pdf_concatenate(self.cover_page, self.ocr_pages(), filename=filename)
+    else:
+      self._cache._file = pdf_concatenate(self.ocr_pages(), filename=filename)
+    return self._cache._file
+
+  def num_pages(self)->int:
+    return self.pages.num_pages()
+
+  @property
+  def complete(self):
+    self.title
+    self.pages.gather()
+    return True
+
+  def __str__(self):
+    return self.title
+
+class ALExhibitList(DAList):
+  """
+  Attributes:
+      auto_label (bool): Set to True if you want exhibits to be automatically numbered for purposes of cover page 
+                         and table of contents. Defaults to True.
+      auto_labeler (Callable): (optional) a function or lambda to transform the index for each exhibit to a label.
+                               Defaults to labels like A..Z if unspecified.
+      auto_ocr (bool): Set to True if you would like exhibits to be OCR'ed in the background after they are uploaded. 
+                       Defaults to True.
+  """
+  def init(self, *pargs, **kwargs):
+    super().init(*pargs, **kwargs)
+    if not hasattr(self, 'auto_label'):
+      self.auto_label = True
+    if not hasattr(self, 'auto_labeler'):
+      self.auto_labeler = alpha
+    if not hasattr(self, 'auto_ocr'):
+      self.auto_ocr = True
+    self.object_type = ALExhibit
+    self.complete_attribute = 'complete'
+  
+  def as_pdf(self, filename="file.pdf", add_cover_pages:bool = True)->DAFile:
+    """
+    Return a single PDF containing all exhibits.
+    Args:
+        filename (str): the filename to be assigned to the generated PDF document.
+        add_cover_pages (bool): True if each exhibit should have a cover page, like "Exhibit A".
+    Returns:
+        A DAfile containing the rendered exhibit list as a single file.
+    """
+    return pdf_concatenate([exhibit.as_pdf(add_cover_page=add_cover_pages) for exhibit in self], filename=filename)
+
+  def add_numbers(self, prefix:str='', starting_number:int=1)->None:
+    """
+    Add running page numbers. (TODO: not yet implemented)
+    Args:
+        prefix (str): The prefix before each page number. E.g., Ex-
+        starting_number (int): The number that the first page will be assigned. Defaults 
+                               to 1.
+    """
+    pass
+
+  def _update_labels(self, auto_labeler:Callable=None)->None:
+    """
+    Private method to refresh labels on all exhibits.
+    Args:
+        auto_labeler (Callable): (optional) a lambda or function to transform index to a label, like A.
+    """
+    if auto_labeler is None:
+      auto_labeler = self.auto_labeler
+
+    for index, exhibit in enumerate(self.elements):
+      exhibit.label = self.auto_labeler(index)
+
+  def ocr_ready(self)->bool:
+    """
+    Returns:
+        True iff OCR process has finished on all pages. OCR is non-blocking, and assembly will work
+        even if OCR is not complete. Check this status if you want to wait to deliver a document until
+        OCR is complete.
+    """
+    ready = True
+    for exhibit in self.elements:
+      for page in exhibit.pages:
+        if hasattr(page, 'ocr_status'):
+          ready &= page.ocr_status.ready()
+    return ready
+
+  def _update_page_numbers(self)->None:
+    """
+    Update the `start_page` attribute of all exhibits so it reflects current position in the list + number of pages of each document.
+    """
+    current_index = 1
+    for exhibit in self.elements:
+      exhibit.start_page = current_index
+      current_index += exhibit.num_pages()
+
+  def _ocr_docs(self):
+    for exhibit in self.elements:
+      if len(exhibit.pages):
+        # We cannot OCR in place. It is too fragile.
+        for page in exhibit.pages:
+          page.ocr_version = DAFile(page.attr_name('ocr_version'))
+          # psm=1 is the default which uses automatic text orientation and location detection.
+          # Appears to be the most accurate method.
+          page.ocr_status = page.make_ocr_pdf_in_background(page.ocr_version, psm=1)
+
+  def hook_after_gather(self):
+    """
+    Private method automatically triggered when the list is fully gathered.
+    """
+    self._update_page_numbers()
+    if self.auto_label:
+      self._update_labels()
+    
+    # TODO: implement below. Was buggy when OCRing a lot of files and OCRing in place. 
+    # Switched to creating a new DAFile, but that introduced different bugs. -- third refresh breaks it. file never gets a number so not "ok"
+    # if self.auto_ocr:
+    #  self._ocr_docs()
+
+class ALExhibitDocument(ALDocument):
+  """Represents a collection of uploaded documents, formatted like a record appendix or exhibit list, with a table of contents and 
+  optional page numbering.
+
+  Attributes:
+      exhibits (ALExhibitList): list of ALExhibit documents. Each item is a separate exhibit, which may be multiple pages.
+      table_of_contents: DAFile or DAFileCollection object created by an `attachment:` block
+      _cache (DAFile): a cached version of the list of exhibits. It may take
+        a long time to process.
+      include_table_of_contents (bool): flag to control whether a table of contents is generated for this form        
+      include_exhibit_cover_pages (bool): flag to control whether cover pages are included with each separate exhibit
+      add_page_numbers (bool): Flag that controls whether the as_pdf() method
+        also will add Bates-stamp style page numbers and labels on each page.  
+
+  Todo:
+      * Method of making a safe link in place of the attachment (e.g., filesize limits on email)  
+      
+  Examples:
+  ```
+  ---
+  objects:
+    - exhibit_attachment: ALExhibitDocument.using(title="Exhibits", filename="exhibits" )
+  ---
+  code: |
+    exhibit_attachment.enabled = exhibit_attachment.exhibits.there_are_any
+  ---
+  objects:
+    - al_user_bundle: ALDocumentBundle.using(elements=[my_instructions, my_main_attachment, exhibit_attachment], filename="user_bundle.pdf", title="All forms to download for your records")
+  ```
+  """
+  exhibits: ALExhibitList
+  _cache: DAFile
+  table_of_contents: DAFile
+  include_table_of_contents: bool
+  include_exhibit_cover_pages: bool
+
+  def init(self, *pargs, **kwargs):
+    super().init(*pargs, **kwargs)
+    self.initializeAttribute('exhibits', ALExhibitList)
+    if not hasattr(self, 'include_table_of_contents'):
+      self.include_table_of_contents = True
+    if not hasattr(self, 'include_exhibit_cover_pages'):
+      self.include_exhibit_cover_pages = True
+    self.has_addendum = False
+
+  def has_overflow(self):
+    """
+    Provided for signature compatibility with ALDocument. Exhibits do not have overflow.
+    """
+    return False
+
+  def __getitem__(self, key):
+    # This overrides the .get() method so that the 'final' and 'private' key always exist and
+    # point to the same file.
+    return self
+  
+  def as_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
+    return [self]
+
+  def as_pdf(self, key="final", refresh:bool=True) -> DAFile:
+    """
+    Args:
+        key (str): unused, for signature compatibility with ALDocument
+    """
+    filename = os.path.splitext(self.filename)[0] + ".pdf"
+    
+    return pdf_concatenate(self.table_of_contents, self.exhibits.as_pdf(add_cover_pages=self.include_exhibit_cover_pages), filename=filename)
+    # pdf_concatenate([a.as_pdf() for a in self.exhibits], filename=self.filename)
+
+  def as_docx(self, key:str="bool", refresh:bool=True) -> DAFile:
+      return self.as_pdf()
+
+def unpack_dafilelist(the_file:DAFileList)->DAFile:
+  """Creates a plain DAFile out of the first item in a DAFileList
+  Args:
+      the_file (DAFileList): an item representing an uploaded document in a Docassemble interview
+  
+  Returns:
+      A DAFile representing the first item in the DAFileList, with a fixed instanceName attribute.
+  """
+  if isinstance(the_file, DAFileList):
+    temp_name = the_file.instanceName
+    the_file = next(iter(the_file))
+    the_file.instanceName = temp_name # reset instance name to the whole object instead of index in list we got rid of
+  return the_file

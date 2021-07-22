@@ -105,6 +105,10 @@ objects:
   - mako_template: ALDocument.using(title="Mako template", filename="mako_template", has_addendum=True, default_overflow_message=" [See addendum]")
   # `has_addendum` should be taken care of by a default attr
   - word_template: ALDocument.using(title="Word Template", filename="word_template", enabled=True)
+  - exhibit_attachment: ALExhibitDocument.using(title="Exhibits", filename="exhibits" )
+---
+code: |
+  exhibit_attachment.enabled = exhibit_attachment.exhibits.there_are_any
 ---
 id: Mako template
 question: |
@@ -117,7 +121,7 @@ code: |
   mako_template.enabled = mako_template_enabled 
 ---
 objects:
-  - al_user_bundle: ALDocumentBundle.using(elements=[mako_template, word_template, static_template], filename="user_bundle.pdf", title="All forms to download for your records")
+  - al_user_bundle: ALDocumentBundle.using(elements=[mako_template, word_template, static_template, exhibit_attachment], filename="user_bundle.pdf", title="All forms to download for your records")
   - al_court_bundle: ALDocumentBundle.using(elements=[mako_template, word_template], filename='court_bundle.pdf', title='All forms to send to the court')
   - al_single_doc_bundle: ALDocumentBundle.using(elements=[mako_template], filename="one_file_bundle.pdf", title="One file")
 ---
