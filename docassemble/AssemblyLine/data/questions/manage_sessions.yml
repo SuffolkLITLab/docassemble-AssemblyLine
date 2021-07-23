@@ -1,0 +1,112 @@
+---
+include:
+  - al_package.yml
+---
+metadata:
+  title: |
+    Copy interview session
+  temporary session: True
+---
+id: interview order
+mandatory: True
+code: |
+  source_session
+  copy_session
+  copy_session_results
+---
+code: |
+  sessions_list_temp = []
+  next_id = None
+  while True:
+      (items, next_id) = interview_list(next_id=next_id)
+      sessions_list_temp.extend(items)
+      if not next_id:
+          break
+  sessions_list = sessions_list_temp
+  del sessions_list_temp
+---
+code: |
+  formatted_sessions_temp = []
+  for index, session in enumerate(sessions_list):
+    formatted_sessions_temp.append({
+      index: f"{session.get('title')}:{session.get('subtitle','') if session.get('subtitle','') else ''} ({ format_date(session.get('modtime')) })"
+    })
+  formatted_sessions = formatted_sessions_temp
+  del formatted_sessions_temp
+---
+question: |
+  Copy saved answers
+fields:
+  - Copy my answers from: source_session
+    datatype: combobox
+    code: formatted_sessions
+  - To a new session of: destination_session
+    datatype: combobox
+    code: |
+      [{interview.get('filename'): interview.get('title')} for interview in interview_menu() ]
+  #- Include court, docket number, and role of parties: include_court_answers
+  #  datatype: yesno
+  #  help: |
+  #    Check this box if you want to copy in the name of the court,
+  #    docket number, etc. 
+---
+code: |
+  # vars = get_session_variables(filename, session_id, secret, simplify=False)
+  source_session = int(source_session)
+  filtered_vars_tmp = get_session_variables(
+    sessions_list[source_session].get('filename'),
+    sessions_list[source_session].get('session'),
+    simplify=False)
+  
+  # This is a list of some variables that should never
+  # get copied into a new session.
+  variables_to_remove = [
+    # Internal fields
+    '_internal',
+    'nav',
+    'url_args',
+    # Database-like fields we don't need to copy
+    'all_courts',
+    'macourts',
+    'court_emails',    
+    # AssemblyLine form-specific fields 
+    'al_form_type',
+    'al_version',    
+    'form_approved_for_email_filing',    
+    'interview_metadata',    
+    'package_name',
+    'package_version_number',
+    'user_has_saved_answers',        
+    # Variables that should be calculated fresh
+    'signature_date',
+    'al_court_bundle',
+    'al_user_bundle',
+    'case_name',
+    # Maybe we will want these to be optional? Depends on how good review screen is.
+    # 'docket_number',
+    # 'docket_numbers',
+    #'user_ask_role',
+    #'user_role',    
+    #'user_started_case',
+  ]
+  
+  for var in variables_to_remove:
+    filtered_vars_tmp.pop(var, None)
+  
+  filtered_vars = filtered_vars_tmp
+  del filtered_vars_tmp
+---
+need:
+  - filtered_vars
+code: |
+  new_session_id = create_session(destination_session)
+  try:
+    set_session_variables(destination_session, new_session_id, filtered_vars)
+    copy_success = True
+  except:
+    copy_success = False
+  copy_session = True
+---
+event: copy_session_results
+code: |
+  response(url=interview_url(i=destination_session, session=new_session_id ))
