@@ -3,6 +3,14 @@ metadata:
   title: |
     Saved Sessions
   description: |
-    This is just a place to store saved sessions. The interview
-    does not do anything on its own.
+    This is just a place to store saved sessions.
 ---
+# Save a copy
+comment: |
+  Copy the answers from the "current session" into the 
+  "saved_session_store.yml" interview.
+---
+# fast forward
+comment: |
+  Copy the answers from any saved session into the current interview filename,
+  by creating a new session of the interview and copying answers into it.
