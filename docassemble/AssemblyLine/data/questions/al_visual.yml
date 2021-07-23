@@ -70,6 +70,10 @@ default screen parts:
     [:sign-in-alt: Sign-in](${url_of('login', next=interview_url())}) or [register](${url_of('register', next=interview_url())}) to save your progress (optional).
     % endif
   footer: |
+    % if get_config('debug'):
+    [:save: Save a copy](https://www.example.com)
+    [:fast-forward: Fast forward](https://www.example.com)
+    % endif
     [:share-alt-square: Share](${ url_ask([{'undefine': ['al_sharing_type','al_how_share_link']}, 'al_share_form_screen', {'recompute': ['al_did_share_form']}, 'al_share_results']) })
     [:info-circle: About](${ url_action('about_this_interview') })
     [:comment-dots: Feedback](${ interview_url(i=feedback_form, github_repo=github_repo_name, github_user=github_user, variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}

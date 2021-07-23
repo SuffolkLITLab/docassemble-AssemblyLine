@@ -10,9 +10,9 @@ metadata:
 id: interview order
 mandatory: True
 code: |
-  source_session
-  copy_session
-  copy_session_results
+  al_sessions_source_session
+  al_sessions_copy_session
+  al_sessions_copy_session_results
 ---
 code: |
   sessions_list_temp = []
@@ -22,25 +22,25 @@ code: |
       sessions_list_temp.extend(items)
       if not next_id:
           break
-  sessions_list = sessions_list_temp
+  al_sessions_list = sessions_list_temp
   del sessions_list_temp
 ---
 code: |
   formatted_sessions_temp = []
-  for index, session in enumerate(sessions_list):
+  for index, session in enumerate(al_sessions_list):
     formatted_sessions_temp.append({
       index: f"{session.get('title')}:{session.get('subtitle','') if session.get('subtitle','') else ''} ({ format_date(session.get('modtime')) })"
     })
-  formatted_sessions = formatted_sessions_temp
+  al_formatted_sessions = formatted_sessions_temp
   del formatted_sessions_temp
 ---
 question: |
   Copy saved answers
 fields:
-  - Copy my answers from: source_session
+  - Copy my answers from: al_sessions_source_session
     datatype: combobox
-    code: formatted_sessions
-  - To a new session of: destination_session
+    code: al_formatted_sessions
+  - To a new session of: al_sessions_destination_session
     datatype: combobox
     code: |
       [{interview.get('filename'): interview.get('title')} for interview in interview_menu() ]
@@ -52,15 +52,15 @@ fields:
 ---
 code: |
   # vars = get_session_variables(filename, session_id, secret, simplify=False)
-  source_session = int(source_session)
+  al_sessions_source_session = int(al_sessions_source_session)
   filtered_vars_tmp = get_session_variables(
-    sessions_list[source_session].get('filename'),
-    sessions_list[source_session].get('session'),
+    al_sessions_list[al_sessions_source_session].get('filename'),
+    al_sessions_list[al_sessions_source_session].get('session'),
     simplify=False)
   
   # This is a list of some variables that should never
   # get copied into a new session.
-  variables_to_remove = [
+  al_sessions_variables_to_remove = [
     # Internal fields
     '_internal',
     'nav',
@@ -90,23 +90,23 @@ code: |
     #'user_started_case',
   ]
   
-  for var in variables_to_remove:
+  for var in al_sessions_variables_to_remove:
     filtered_vars_tmp.pop(var, None)
   
-  filtered_vars = filtered_vars_tmp
+  al_sessions_filtered_vars = filtered_vars_tmp
   del filtered_vars_tmp
 ---
 need:
-  - filtered_vars
+  - al_sessions_filtered_vars
 code: |
-  new_session_id = create_session(destination_session)
+  al_sessions_new_session_id = create_session(al_sessions_destination_session)
   try:
-    set_session_variables(destination_session, new_session_id, filtered_vars)
-    copy_success = True
+    set_session_variables(al_sessions_destination_session, al_sessions_new_session_id, al_sessions_filtered_vars)
+    al_sessions_copy_success = True
   except:
-    copy_success = False
-  copy_session = True
+    al_sessions_copy_success = False
+  al_sessions_copy_session = True
 ---
-event: copy_session_results
+event: al_sessions_copy_session_results
 code: |
-  response(url=interview_url(i=destination_session, session=new_session_id ))
+  response(url=interview_url(i=al_sessions_destination_session, session=al_sessions_new_session_id ))
