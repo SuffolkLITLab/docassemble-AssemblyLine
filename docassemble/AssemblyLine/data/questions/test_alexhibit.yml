@@ -1,14 +1,3 @@
-# TODO: Why is 'unpack' called that if it just gets the first one?
-# TODO: Should we abstract the amount of memory allowed?
-# TODO: Can an exhibit add a cover page after it's already been cached?
-# TODO: ALExhibitDocument's _cache attr is not used?
-# TODO: ALExhibitsList - is `.filename` ever defined? How to test that?
-# TODO: "In the assembly line, we expect to find two predetermined bundles: court_bundle and user_bundle." What does this mean? That the developer should define these two bundles?
-# TODO: Propose that methods that aren't currently active/available be commented out and that function descriptions only contain active attributes and methods.
-# TODO: Is ALExhibit `elements` used?
-# TODO: How to test ALExhibit ~`elements` (by adding docs/pages?)~, cover_page, label, starting_page, pages(?)?
-# TODO: Test ALExhibitDocument's include_table_of_contents, include_exhibit_cover_pages, add_page_numbers.
-# TODO: Why do we have al_documents and aldocuments names for files? Would it be useful to be more consistent?
 ---
 include:
   - al_package.yml
