@@ -2,10 +2,10 @@
 include:
   - al_settings.yml
   - al_code.yml
+  - al_saved_sessions.yml  
   - al_visual.yml
   - al_document.yml
   - ql_baseline.yml
-  - saved_session_store.yml
 ---
 modules:
   - docassemble.ALToolbox.misc

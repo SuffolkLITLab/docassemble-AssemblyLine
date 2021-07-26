@@ -1,0 +1,12 @@
+---
+metadata:
+  title: |
+    Answer Snapshots
+  description: |
+    This is just a place to store saved sessions.
+---
+mandatory: True
+question: |
+  Saved answer snapshots
+subquestion: |
+  ${ action_button_html(url_of('interviews'),label="Manage saved answers") }

@@ -20,10 +20,6 @@ metadata:
     - David Colarusso
     - Kate Barry
 ---
-mandatory: True
-code: |
-  set_parts(subtitle='The subtitle')
----
 modules:
   - docassemble.base.util
   - docassemble.base.core
