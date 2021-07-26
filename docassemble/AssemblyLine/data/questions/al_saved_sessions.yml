@@ -121,10 +121,7 @@ code: |
   al_sessions_destination_session = f"{user_info().current_package}:al_saved_sessions_store.yml"
   log("Snapshot location" + al_sessions_destination_session)
   al_sessions_new_session_id = create_session(al_sessions_destination_session)
-  # TODO: figure out how to provide a new "subtitle" when using `set_session_variables`
-  # It looks like it might not be possible w/o a change to DA upstream.
-  # al_sessions_filtered_vars['_internal'] = {}
-  # al_sessions_filtered_vars['_internal']['subtitle'] = al_sessions_snapshot_label
+  al_sessions_filtered_vars["_internal['subtitle']"] = al_sessions_snapshot_label
   try:
     set_session_variables(al_sessions_destination_session, al_sessions_new_session_id, al_sessions_filtered_vars)
     al_sessions_save_session_snapshot_success = True
@@ -144,4 +141,6 @@ subquestion: |
 ---
 event: al_sessions_launch_new_session
 code: |
-  response(url=interview_url(i=al_sessions_destination_session, session=al_sessions_new_session_id ))
+  response(url=interview_url(i=user_info().filename, session=al_sessions_new_session_id ))
+  
+  
