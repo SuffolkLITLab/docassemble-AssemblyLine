@@ -10,7 +10,7 @@ code: |
 ---
 metadata:
   title: |
-    AL Question Test
+    AL Question Test    
   authors:
     - Quinten Steenhuis
     - Plocket
@@ -19,6 +19,10 @@ metadata:
     - Caroline Robinson
     - David Colarusso
     - Kate Barry
+---
+mandatory: True
+code: |
+  set_parts(subtitle='The subtitle')
 ---
 modules:
   - docassemble.base.util

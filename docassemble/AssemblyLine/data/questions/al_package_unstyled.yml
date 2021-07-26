@@ -8,6 +8,7 @@ include:
   - al_settings.yml
   - al_code.yml
   - al_document.yml
+  - saved_session_store.yml  
 ---
 modules:
   - docassemble.ALToolbox.misc

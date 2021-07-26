@@ -1,7 +1,7 @@
 ---
 metadata:
   title: |
-    Saved Sessions
+    Answer Snapshots
   description: |
     This is just a place to store saved sessions.
 ---
@@ -9,8 +9,143 @@ metadata:
 comment: |
   Copy the answers from the "current session" into the 
   "saved_session_store.yml" interview.
+question: |
+  Save answer snapshot
+subquestion: |
+  You have visited ${ all_variables(include_internal=True).get('_internal',{}).get('steps',1) }
+  screens so far and defined ${ len(all_variables()) } fields.
+
+  Save a copy of your current answer progress to load into this interview
+  or a different interview later.
+  
+  **Warning**: this feature is for developers only. A snapshot is not a replacement
+  for starting the interview from the beginning. Some features may not work the 
+  same when loaded from a snapshot.
+fields:
+  - Label: al_sessions_snapshot_label
+    default: |
+      ${ all_variables(special='titles').get('full') }
+      % if all_variables(special='titles').get('sub'):
+      : ${ all_variables(special='titles').get('sub') }
+      % endif
+      % if defined('users[0].name.first'):
+      - ${ comma_and_list(users.complete_elements()) }
+      % endif
+      % if defined('other_parties[0].name.first'):
+      - ${ comma_and_list(other_parties.complete_elements()) }
+      % endif
+    help: |
+      This can help you identify the snapshot later.
+      Use a cue like "10 children" or "No adverse party"
+      
 ---
 # fast forward
 comment: |
   Copy the answers from any saved session into the current interview filename,
   by creating a new session of the interview and copying answers into it.
+question: |
+  Fast Forward
+subquestion: |
+  Choose an interview below to load into a copy of the currently running
+  interview (${ all_variables(special='titles').get('full') }).
+  
+  **Warning**: this feature is for developers only. A snapshot is not a replacement
+  for starting the interview from the beginning. Some features may not work the 
+  same when loaded from a snapshot into a new interview.
+fields:
+  - Copy my answers from: al_sessions_source_session
+    datatype: combobox
+    code: al_formatted_sessions  
+under: |
+  ${ action_button_html(url_of('interviews'),label="Manage saved answers") }
+---
+code: |
+  sessions_list_temp = []
+  next_id = None
+  while True:
+      (items, next_id) = interview_list(next_id=next_id)
+      sessions_list_temp.extend(items)
+      if not next_id:
+          break
+  al_sessions_list = sessions_list_temp
+  del sessions_list_temp
+---
+code: |
+  formatted_sessions_temp = []
+  for index, session in enumerate(al_sessions_list):
+    formatted_sessions_temp.append({
+      index: f"{session.get('title')}:{session.get('subtitle','') if session.get('subtitle','') else ''} ({ format_date(session.get('modtime')) })"
+    })
+  al_formatted_sessions = formatted_sessions_temp
+  del formatted_sessions_temp
+---
+code: |
+  # This is a list of some variables that should never
+  # get copied into a new session.
+  al_sessions_variables_to_remove = [
+    # Internal fields
+    '_internal',
+    'nav',
+    'url_args',
+    # Database-like fields we don't need to copy
+    'all_courts',
+    'macourts',
+    'court_emails',    
+    # AssemblyLine form-specific fields 
+    'al_form_type',
+    'al_version',    
+    'form_approved_for_email_filing',    
+    'interview_metadata',    
+    'package_name',
+    'package_version_number',
+    'user_has_saved_answers',        
+    # Variables that should be calculated fresh
+    'signature_date',
+    'al_court_bundle',
+    'al_user_bundle',
+    'case_name',
+    # Maybe we will want these to be optional? Depends on how good review screen is.
+    # 'docket_number',
+    # 'docket_numbers',
+    #'user_ask_role',
+    #'user_role',    
+    #'user_started_case',
+  ]
+---
+code: |
+  filtered_vars_tmp = all_variables(simplify=False)
+  
+  for var in al_sessions_variables_to_remove:
+    filtered_vars_tmp.pop(var, None)
+  
+  al_sessions_filtered_vars = filtered_vars_tmp
+  del filtered_vars_tmp
+---
+need:
+  - al_sessions_filtered_vars
+code: |
+  # For "fast forward" we assume they are loading into the current interview name
+  al_sessions_destination_session = f"{user_info().package}:data/questions/{user_info().filename}"
+  al_sessions_new_session_id = create_session(al_sessions_destination_session)
+  al_sessions_filtered_vars['_internal'] = {}
+  al_sessions_filtered_vars['_internal']['subtitle'] = al_sessions_snapshot_label
+  try:
+    set_session_variables(al_sessions_destination_session, al_sessions_new_session_id, al_sessions_filtered_vars)
+    al_sessions_save_session_snapshot_success = True
+  except:
+    al_sessions_save_session_snapshot_success = False
+  al_sessions_save_session_snapshot = True  
+---
+continue button field: al_sessions_snapshot_success
+question: |
+  % if al_sessions_save_session_snapshot_success:
+  Your snapshot was saved
+  % else:
+  Something went wrong saving your snapshot
+  % endif
+subquestion: |
+  ${ action_button_html(url_of('interviews'),label="Manage saved answers") }
+---
+event: al_sessions_launch_new_session
+code: |
+  response(url=interview_url(i=al_sessions_destination_session, session=al_sessions_new_session_id ))

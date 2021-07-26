@@ -5,6 +5,7 @@ include:
   - al_visual.yml
   - al_document.yml
   - ql_baseline.yml
+  - saved_session_store.yml
 ---
 modules:
   - docassemble.ALToolbox.misc
