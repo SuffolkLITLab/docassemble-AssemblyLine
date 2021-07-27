@@ -1,16 +1,34 @@
 ---
+variable name: al_sessions_url_ask_snapshot
+data:
+  - undefine: 
+    - al_sessions_save_session_snapshot
+    - al_sessions_new_session_id
+  - al_sessions_snapshot_label
+  - al_sessions_save_session_snapshot
+  - al_sessions_snapshot_success
+---
+variable name: al_sessions_url_ask_fast_forward
+data:
+  - undefine:
+    - al_sessions_new_session_id
+  - al_sessions_source_session
+  - al_sessions_fast_forward_session
+  - al_sessions_launch_new_session
+---
 template: al_sessions_preview_variables
 subject: |
   Preview
 content: |
   <pre>
   ${ verbatim(json.dumps(al_simple_filtered_vars, sort_keys=True, indent=4)) }
-  </pre>
+  </pre>  
 ---
+id: save answer snapshot
 # Save a copy
 comment: |
   Copy the answers from the "current session" into the 
-  "saved_session_store.yml" interview.
+  "al_saved_session_store.yml" interview.
 question: |
   Save answer snapshot
 subquestion: |
@@ -42,6 +60,7 @@ fields:
       This can help you identify the snapshot later.
       Use a cue like "10 children" or "No adverse party"
 ---
+id: fast forward answers
 # fast forward
 comment: |
   Copy the answers from any saved session into the current interview filename,
@@ -137,6 +156,8 @@ code: |
     'al_simple_filtered_vars',
     'filtered_vars_tmp',
     'simple_filtered_vars_tmp',
+    'al_sessions_url_ask_snapshot',
+    'al_sessions_url_ask_fast_forward',
     # Maybe we will want these to be optional? Depends on how good review screen is.
     # 'docket_number',
     # 'docket_numbers',
@@ -164,8 +185,7 @@ code: |
 code: |
   # vars = get_session_variables(filename, session_id, secret, simplify=False)
   al_sessions_source_session = int(al_sessions_source_session)
-  filtered_vars_tmp = all_variables(simplify=False)
-  get_session_variables(
+  filtered_vars_tmp = get_session_variables(
     al_sessions_list[al_sessions_source_session].get('filename'),
     al_sessions_list[al_sessions_source_session].get('session'),
     simplify=False)
@@ -179,10 +199,11 @@ code: |
 # Triggered by "save snapshot"
 need:
   - al_sessions_filtered_vars
+  - al_sessions_snapshot_label
 code: |
   al_sessions_destination_session = f"{user_info().current_package}:al_saved_sessions_store.yml"
-  log("Snapshot location" + al_sessions_destination_session)
-  al_sessions_new_session_id = create_session(al_sessions_destination_session)
+  if not defined("al_sessions_new_session_id"):
+    al_sessions_new_session_id = create_session(al_sessions_destination_session)
   al_sessions_filtered_vars["_internal['subtitle']"] = al_sessions_snapshot_label
   try:
     set_session_variables(al_sessions_destination_session, al_sessions_new_session_id, al_sessions_filtered_vars)
@@ -208,7 +229,8 @@ need:
   - al_sessions_fast_forward_filtered_vars
 code: |
   al_sessions_destination_session = user_info().filename
-  al_sessions_new_session_id = create_session(al_sessions_destination_session)
+  if not defined("al_sessions_new_session_id"):
+    al_sessions_new_session_id = create_session(al_sessions_destination_session)
   try:
     set_session_variables(al_sessions_destination_session, al_sessions_new_session_id, al_sessions_fast_forward_filtered_vars)
     al_sessions_copy_success = True
@@ -217,7 +239,8 @@ code: |
   al_sessions_fast_forward_session = True  
 ---
 # This is triggered by the "Fast forward" button
+need:
+  - al_sessions_new_session_id
 event: al_sessions_launch_new_session
 code: |
   response(url=interview_url(i=user_info().filename, session=al_sessions_new_session_id ))
-   
