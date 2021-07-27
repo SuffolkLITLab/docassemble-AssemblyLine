@@ -1,7 +1,6 @@
 ---
 include:
   - al_package.yml
-  - saved_session_store.yml
 ---
 metadata:
   title: |
