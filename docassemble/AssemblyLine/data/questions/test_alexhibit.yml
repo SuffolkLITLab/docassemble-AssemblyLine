@@ -1,0 +1,200 @@
+---
+include:
+  - al_package.yml
+---
+mandatory: True
+code: |
+  thumbnails_defaults
+  download_list_defaults
+  thumbnails_custom
+  download_list_html_custom_1
+  download_list_html_custom_2
+  end_alexhibit_tests
+---
+objects:
+  - exhibits_bundle_defaults_1: ALDocumentBundle.using(elements=[exhibit_doc_defaults_1], filename="exhibits_bundle_defaults", title="Exhibits with defaults")
+  # Commenting out until the custom exhibit features are implemented
+  - exhibits_bundle_custom_1: ALDocumentBundle.using(elements=[exhibit_doc_custom_1], filename="exhibits_bundle_custom", title="Exhibits with custom args")
+---
+template: custom_exhibit_args
+content: |
+  Testing custom values for ALExhibitDocument args. Currently includes:
+  
+  - `include_table_of_contents=False`
+  - `include_exhibit_cover_pages=False`
+---
+template: no_custom_exhibit_args
+content: |
+  Custom ALExhibitDocument args:
+  
+  - None
+---
+objects:
+  - exhibit_doc_defaults_1: ALExhibitDocument.using(title="Exhibits doc defaults", filename="exhibits_doc_defaults" )
+  # Changing these defaults:
+  # `include_table_of_contents` default True 
+  # `include_exhibit_cover_pages` default True
+  - exhibit_doc_custom_1: ALExhibitDocument.using(title="Exhibits doc custom args", filename="exhibits_doc_custom", include_table_of_contents=False, include_exhibit_cover_pages=False )
+---
+code: |
+  exhibit_doc_defaults_1.enabled = exhibit_doc_defaults_1.exhibits.there_are_any
+  exhibit_doc_custom_1.enabled = exhibit_doc_custom_1.exhibits.there_are_any
+---
+# Note on test screens: Screens test that custom ALDocumentBundle arguments and such are happy. As far as custom exhibit arguments, they're tested in instantiation of the custom exhibit document itself. Currently, each screen should test both the default exhibit document and the custom exhibit document (once custom arguments are implemented).
+---
+id: thumbnails_defaults
+continue button field: thumbnails_defaults
+question: Default ALDocumentBundle thumbnail method args
+subquestion: |
+  ${ no_custom_exhibit_args }
+
+  exhibits_bundle_defaults_1.as_pdf()
+  
+  ${ exhibits_bundle_defaults_1.as_pdf() }
+  
+  exhibits_bundle_defaults_1.preview()
+  
+  ${ exhibits_bundle_defaults_1.preview() }
+  
+  exhibits_bundle_defaults_1.as_zip()
+  
+  ${ exhibits_bundle_defaults_1.as_zip() }
+  
+  ---
+  
+  ${ custom_exhibit_args }
+  
+  exhibits_bundle_custom_1.as_pdf()
+  
+  ${ exhibits_bundle_custom_1.as_pdf() }
+  
+  exhibits_bundle_custom_1.preview()
+  
+  ${ exhibits_bundle_custom_1.preview() }
+  
+  exhibits_bundle_custom_1.as_zip()
+  
+  ${ exhibits_bundle_custom_1.as_zip() }
+---
+id: download_list_defaults
+continue button field: download_list_defaults
+question: Default ALDocumentBundle .download_list_html() args
+subquestion: |
+  ${ no_custom_exhibit_args }
+
+  ${ exhibits_bundle_defaults_1.download_list_html() }
+  
+  ---
+  
+  ${ custom_exhibit_args }
+  
+  ${ exhibits_bundle_custom_1.download_list_html() }
+---
+id: thumbnails_custom
+continue button field: thumbnails_custom
+question: |
+  Custom ALDocumentBundle args
+subquestion: |
+  Custom ALDocumentBundle args:
+  
+  - `key="test_key"`
+  - `refresh=False`
+  - `title="Custom title"`
+
+  ---
+  
+  ${ no_custom_exhibit_args }
+  
+  exhibits_bundle_defaults_1.as_pdf( key="test_key", refresh=False )
+  
+  ${ exhibits_bundle_defaults_1.as_pdf( key="test_key", refresh=False ) }
+  
+  exhibits_bundle_defaults_1.preview( refresh=False )
+  
+  ${ exhibits_bundle_defaults_1.preview( refresh=False ) }
+  
+  exhibits_bundle_defaults_1.as_zip( key="test_key", refresh=False, title="Custom title" )
+  
+  ${ exhibits_bundle_defaults_1.as_zip( key="test_key", refresh=False, title="Custom title" ) }
+  
+  ---
+  
+  ${ custom_exhibit_args }
+
+  exhibits_bundle_custom_1.as_pdf( key="test_key", refresh=False )
+  
+  ${ exhibits_bundle_custom_1.as_pdf( key="test_key", refresh=False ) }
+  
+  exhibits_bundle_custom_1.preview( refresh=False )
+  
+  ${ exhibits_bundle_custom_1.preview( refresh=False ) }
+  
+  exhibits_bundle_custom_1.as_zip( key="test_key", refresh=False, title="Custom title" )
+  
+  ${ exhibits_bundle_custom_1.as_zip( key="test_key", refresh=False, title="Custom title" ) }
+---
+id: download_list_html_custom_1
+continue button field: download_list_html_custom_1
+question: |
+  ALDocumentBundle download_list_html() with custom args (1)
+subquestion: |
+  Custom ALDocumentBundle args:
+  
+  - `key="test_key"`
+  - `format="docx"`
+  - `refresh=False`
+  - `view_label="Custom view label"`
+  - `view_icon="circle"`
+  - `download_label="Custom download label"`
+  - `download_icon="square"`
+  - `zip_label="Custom zip label"`
+  - `zip_icon="clock"`
+
+  ---
+  
+  ${ no_custom_exhibit_args }
+  
+  exhibits_bundle_defaults_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", zip_label="Custom zip label", zip_icon="clock" )
+  
+  ${ exhibits_bundle_defaults_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", zip_label="Custom zip label", zip_icon="clock" ) }
+  
+  ---
+  
+  ${ custom_exhibit_args }
+
+  exhibits_bundle_custom_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", zip_label="Custom zip label", zip_icon="clock" )
+  
+  ${ exhibits_bundle_custom_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", zip_label="Custom zip label", zip_icon="clock" ) }
+---
+id: download_list_html_custom_2
+continue button field: download_list_html_custom_2
+question: |
+  ALDocumentBundle download_list_html() with custom args (2)
+subquestion: |
+  Custom ALDocumentBundle args:
+  
+  - `view=False`
+  - `include_zip=False`
+  
+  ---
+
+  ${ no_custom_exhibit_args }
+  
+  exhibits_bundle_defaults_1.download_list_html( view=False, include_zip=False )
+  
+  ${ exhibits_bundle_defaults_1.download_list_html( view=False, include_zip=False ) }
+
+  ---
+  
+  ${ custom_exhibit_args }
+
+  exhibits_bundle_custom_1.download_list_html( view=False, include_zip=False )
+  
+  ${ exhibits_bundle_custom_1.download_list_html( view=False, include_zip=False ) }
+---
+id: end alexhibit tests
+event: end_alexhibit_tests
+question: The end of ALExhibitDocument tests
+buttons:
+  - Restart: restart
+---
