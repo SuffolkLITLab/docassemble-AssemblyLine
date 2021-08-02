@@ -116,7 +116,7 @@ fields:
     required: False
 ---
 # TODO: test `.from_row()`, `.geolocate()`
-id: court_with_all_fields_result
+id: court_with_just_name_result
 question: |
   Court info when all fields filled
 subquestion: |
@@ -152,7 +152,7 @@ code: |
 code: |
   missing_street.description = 'Description of the court that has just its name filled in defined by the developer.'
 ---
-id: court with just name
+id: missing street
 question: |
   User leaves out street address
 fields:
@@ -170,7 +170,7 @@ fields:
     required: False
 ---
 # TODO: test `.from_row()`, `.geolocate()`
-id: court_with_all_fields_result
+id: missing_street_result
 question: |
   Court info when all fields filled
 subquestion: |
@@ -206,7 +206,7 @@ code: |
 code: |
   missing_city.description = 'Description of the court that has just its name filled in defined by the developer.'
 ---
-id: court with just name
+id: missing city
 question: |
   User leaves out city
 fields:
@@ -224,7 +224,7 @@ fields:
     required: False
 ---
 # TODO: test `.from_row()`, `.geolocate()`
-id: court_with_all_fields_result
+id: missing_city_result
 question: |
   Court info when all fields filled
 subquestion: |
