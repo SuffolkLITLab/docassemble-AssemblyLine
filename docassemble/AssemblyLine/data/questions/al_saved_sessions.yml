@@ -37,8 +37,8 @@ subquestion: |
   
   ${ collapse_template(al_sessions_preview_variables) }
 
-  Save a copy of your current answer progress to load into this interview
-  or a different interview later.
+  Save a copy of your current answer progress, including any files, to load into
+  this interview or a different interview later.
   
   **Warning**: this feature is for developers only. A snapshot is not a replacement
   for starting the interview from the beginning. Some features may not work the 
@@ -175,6 +175,12 @@ code: |
     filtered_vars_tmp.pop(var, None)
     simple_filtered_vars_tmp.pop(var, None)
   
+  # Make all top-level DAFiles and DAFileCollections public
+  # TODO: is it worth making this recursive and traversing all attributes?
+  for var in filtered_vars_tmp:
+    if isinstance(var, DAFile) or isinstance(var, DAFileCollection) or isinstance(var, DAFileList):
+      var.set_attributes(private=False)
+  
   al_simple_filtered_vars = simple_filtered_vars_tmp
   al_sessions_filtered_vars = filtered_vars_tmp
   del filtered_vars_tmp
@@ -192,6 +198,12 @@ code: |
    
   for var in al_sessions_variables_to_remove:
     filtered_vars_tmp.pop(var, None)
+
+  # Mark all top-level files public so the new session can open them
+  # TODO: is it worth making this recursive and traversing all attributes?  
+  for var in filtered_vars_tmp:
+    if isinstance(var, DAFile) or isinstance(var, DAFileCollection) or isinstance(var, DAFileList):
+      var.set_attributes(private=False)
   
   al_sessions_fast_forward_filtered_vars = filtered_vars_tmp
   del filtered_vars_tmp
