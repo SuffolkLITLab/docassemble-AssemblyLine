@@ -179,7 +179,10 @@ code: |
   # TODO: is it worth making this recursive and traversing all attributes?
   for var in filtered_vars_tmp:
     if isinstance(var, DAFile) or isinstance(var, DAFileCollection) or isinstance(var, DAFileList):
-      var.set_attributes(private=False)
+      try:
+        var.set_attributes(private=False)
+      except:
+        pass
   
   al_simple_filtered_vars = simple_filtered_vars_tmp
   al_sessions_filtered_vars = filtered_vars_tmp
@@ -203,8 +206,11 @@ code: |
   # TODO: is it worth making this recursive and traversing all attributes?  
   for var in filtered_vars_tmp:
     if isinstance(var, DAFile) or isinstance(var, DAFileCollection) or isinstance(var, DAFileList):
-      var.set_attributes(private=False)
-  
+      try:
+        var.set_attributes(private=False)
+      except:
+        pass
+        
   al_sessions_fast_forward_filtered_vars = filtered_vars_tmp
   del filtered_vars_tmp
 ---
