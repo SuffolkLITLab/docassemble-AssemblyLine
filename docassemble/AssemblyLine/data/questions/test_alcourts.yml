@@ -7,21 +7,15 @@ metadata:
     Test courts classes
 ---
 # TODO: When the testing framework implements the back button,
-# reduce this to one page only and test more missing field
-# info and with name that contains city name.
+# consider reducing this to one page only and simply going back
+# and forth.
 mandatory: True
 code: |
   court_with_all_fields_name
   court_with_all_fields_result
-
-  court_with_just_name_name
-  court_with_just_name_result
   
-  missing_street_name
-  missing_street_result
-  
-  missing_city_name
-  missing_city_result
+  name_contains_city_name
+  name_contains_city_result
 
   end_alcourt_tests
 ---
@@ -79,167 +73,59 @@ subquestion: |
   ${ court_with_all_fields.short_description() }
 continue button field: court_with_all_fields_result
 ---
-# Just name address filled in
+# Court name includes city
 ---
 objects:
-  - court_with_just_name_address: Address
+  - name_contains_city_address: Address
 ---
 depends on:
-  - court_with_just_name_name
-  - court_with_just_name_address
+  - name_contains_city_name
+  - name_contains_city_address
 need:
-  - court_with_just_name_name
-  - court_with_just_name_address
+  - name_contains_city_name
+  - name_contains_city_address
 code: |
-  court_with_just_name = ALCourt('court_with_just_name')
-  court_with_just_name.name = court_with_just_name_name
-  court_with_just_name.address = court_with_just_name_address
+  name_contains_city = ALCourt('name_contains_city')
+  name_contains_city.name = name_contains_city_name
+  name_contains_city.address = name_contains_city_address
 ---
 code: |
-  court_with_just_name.description = 'Description of the court that has just its name filled in defined by the developer.'
+  name_contains_city.description = 'Description of the court that has just its name filled in defined by the developer.'
 ---
-id: court with just name
+id: name has city
 question: |
-  User inputs just name
+  Name contains city name
 fields:
-  - Name: court_with_just_name_name
-  - Address: court_with_just_name_address.address
+  - Name: name_contains_city_name
+  - Address: name_contains_city_address.address
     address autocomplete: True
     required: False
-  - Suite: court_with_just_name_address.unit
+  - Suite: name_contains_city_address.unit
     required: False
-  - City: court_with_just_name_address.city
+  - City: name_contains_city_address.city
     required: False
-  - State: court_with_just_name_address.state
+  - State: name_contains_city_address.state
     required: False
-  - Postal code: court_with_just_name_address.zip    
+  - Postal code: name_contains_city_address.zip    
     required: False
 ---
 # TODO: test `.from_row()`, `.geolocate()`
-id: court_with_just_name_result
+id: name_contains_city_result
 question: |
   Court info when all fields filled
 subquestion: |
-  `court_with_just_name.short_label()`:
+  `name_contains_city.short_label()`:
   
-  ${ court_with_just_name.short_label() }
+  ${ name_contains_city.short_label() }
   
-  `court_with_just_name.short_label_and_address()`:
+  `name_contains_city.short_label_and_address()`:
   
-  ${ court_with_just_name.short_label_and_address() }
+  ${ name_contains_city.short_label_and_address() }
   
-  `court_with_just_name.short_description()`:
+  `name_contains_city.short_description()`:
   
-  ${ court_with_just_name.short_description() }
-continue button field: court_with_just_name_result
----
-# Missing first line of street address
----
-objects:
-  - missing_street_address: Address
----
-depends on:
-  - missing_street_name
-  - missing_street_address
-need:
-  - missing_street_name
-  - missing_street_address
-code: |
-  missing_street = ALCourt('missing_street')
-  missing_street.name = missing_street_name
-  missing_street.address = missing_street_address
----
-code: |
-  missing_street.description = 'Description of the court that has just its name filled in defined by the developer.'
----
-id: missing street
-question: |
-  User leaves out street address
-fields:
-  - Name: missing_street_name
-  - Address: missing_street_address.address
-    address autocomplete: True
-    required: False
-  - Suite: missing_street_address.unit
-    required: False
-  - City: missing_street_address.city
-    required: False
-  - State: missing_street_address.state
-    required: False
-  - Postal code: missing_street_address.zip    
-    required: False
----
-# TODO: test `.from_row()`, `.geolocate()`
-id: missing_street_result
-question: |
-  Court info when all fields filled
-subquestion: |
-  `missing_street.short_label()`:
-  
-  ${ missing_street.short_label() }
-  
-  `missing_street.short_label_and_address()`:
-  
-  ${ missing_street.short_label_and_address() }
-  
-  `missing_street.short_description()`:
-  
-  ${ missing_street.short_description() }
-continue button field: missing_street_result
----
-# Missing city name
----
-objects:
-  - missing_city_address: Address
----
-depends on:
-  - missing_city_name
-  - missing_city_address
-need:
-  - missing_city_name
-  - missing_city_address
-code: |
-  missing_city = ALCourt('missing_city')
-  missing_city.name = missing_city_name
-  missing_city.address = missing_city_address
----
-code: |
-  missing_city.description = 'Description of the court that has just its name filled in defined by the developer.'
----
-id: missing city
-question: |
-  User leaves out city
-fields:
-  - Name: missing_city_name
-  - Address: missing_city_address.address
-    address autocomplete: True
-    required: False
-  - Suite: missing_city_address.unit
-    required: False
-  - City: missing_city_address.city
-    required: False
-  - State: missing_city_address.state
-    required: False
-  - Postal code: missing_city_address.zip    
-    required: False
----
-# TODO: test `.from_row()`, `.geolocate()`
-id: missing_city_result
-question: |
-  Court info when all fields filled
-subquestion: |
-  `missing_city.short_label()`:
-  
-  ${ missing_city.short_label() }
-  
-  `missing_city.short_label_and_address()`:
-  
-  ${ missing_city.short_label_and_address() }
-  
-  `missing_city.short_description()`:
-  
-  ${ missing_city.short_description() }
-continue button field: missing_city_result
+  ${ name_contains_city.short_description() }
+continue button field: name_contains_city_result
 ---
 id: end alcourt tests
 event: end_alcourt_tests

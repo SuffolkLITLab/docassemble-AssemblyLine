@@ -1,7 +1,7 @@
 #####################################
 # Package for a very simple / MVP list of courts that is mostly signature compatible w/ MACourts for now
 
-from docassemble.base.util import path_and_mimetype, Address, LatitudeLongitude, DAStaticFile, markdown_to_html, prevent_dependency_satisfaction, DAObject, DAList, DADict, log, space_to_underscore, defined
+from docassemble.base.util import path_and_mimetype, Address, LatitudeLongitude, DAStaticFile, markdown_to_html, prevent_dependency_satisfaction, DAObject, DAList, DADict, log, space_to_underscore
 from docassemble.base.legal import Court
 import pandas as pd
 import os
@@ -45,7 +45,7 @@ class ALCourt(Court):
       list.
       """
       # Avoid forcing the interview to define the court's address
-      if defined( self.attr_name('address.city') ):
+      if hasattr( self, 'address' ) and hasattr( self.address, 'city' ):
         if self.address.city in str(self.name):
           return str(self.name)
         else:
@@ -58,19 +58,7 @@ class ALCourt(Court):
       Returns a markdown formatted string with the name and address of the court.
       More concise version without description; suitable for a responsive case.
       """
-      label = f'**{ self.short_label() }**'
-      
-      # Handle inconsistent user-defined court data
-      # If address has not been left blank
-      if (( defined( self.attr_name('address.address') )
-          or defined( self.attr_name('address.city') ))
-          and self.address.on_one_line() != ', ' ):
-        # Handle no street address first line
-        street_normalized = re.sub( r'^, ', '', self.address.on_one_line() )
-        # Handle missing city name
-        address = re.sub( r', ,', ',', street_normalized )
-        label += f'[BR]{ address }'
-      return label
+      return f'**{ self.short_label() }**[BR]{ self.address.on_one_line() }'
     
     def short_description(self)->str:
       """
@@ -78,7 +66,10 @@ class ALCourt(Court):
       the description of the court, for inclusion in the results page with radio
       buttons.
       """
-      return f'{ self.short_label_and_address() }[BR]{ self.description }'
+      all_info = f'**{ self.short_label() }**'
+      if hasattr( self, 'address' ):
+        all_info = f'{ all_info }[BR]{ self.address.on_one_line() }'
+      return f'{ all_info }[BR]{ self.description }'
   
     def from_row(self, df_row, ensure_lat_long=True)->None:
       """
