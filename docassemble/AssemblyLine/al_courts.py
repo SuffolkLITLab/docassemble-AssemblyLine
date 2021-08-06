@@ -5,6 +5,7 @@ from docassemble.base.util import path_and_mimetype, Address, LatitudeLongitude,
 from docassemble.base.legal import Court
 import pandas as pd
 import os
+import re
 #import io, json, sys, requests, bs4, re, os
 # from docassemble.webapp.playground import PlaygroundSection
 #import usaddress
@@ -43,17 +44,21 @@ class ALCourt(Court):
       append city name to the court name. This is good for a drop-down selection
       list.
       """
-      if self.address.city in str(self.name):
-        return str(self.name)
+      # Avoid forcing the interview to define the court's address
+      if hasattr( self, 'address' ) and hasattr( self.address, 'city' ):
+        if self.address.city in str(self.name):
+          return str(self.name)
+        else:
+          return str(self.name) + ' (' + self.address.city + ')'
       else:
-        return str(self.name) + ' (' + self.address.city + ')'
+        return str( self.name )
     
     def short_label_and_address(self)->str:
       """
       Returns a markdown formatted string with the name and address of the court.
       More concise version without description; suitable for a responsive case.
       """
-      return '**' + self.short_label() + '**' + '[BR]' + self.address.on_one_line()
+      return f'**{ self.short_label() }**[BR]{ self.address.on_one_line() }'
     
     def short_description(self)->str:
       """
@@ -61,7 +66,10 @@ class ALCourt(Court):
       the description of the court, for inclusion in the results page with radio
       buttons.
       """
-      return '**' + self.short_label() + '**' + '[BR]' + self.address.on_one_line() + '[BR]' + self.description
+      all_info = f'**{ self.short_label() }**'
+      if hasattr( self, 'address' ):
+        all_info = f'{ all_info }[BR]{ self.address.on_one_line() }'
+      return f'{ all_info }[BR]{ self.description }'
   
     def from_row(self, df_row, ensure_lat_long=True)->None:
       """
