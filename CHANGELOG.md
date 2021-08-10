@@ -1,3 +1,7 @@
+# Version v2.2.1
+
+Important data leakage fix (#263)
+
 # Version v2.2.0
 
 * Added ALExhibitDocument class
