@@ -9,3 +9,4 @@ downloads_*
 *_lang_*.feature
 *_report_*
 .history
+__pycache__/

@@ -82,15 +82,13 @@ class ALAddendumField(DAObject):
   how to handle overflow for a dictionary, e.g.
 
   Required attributes:
-    - field_name->str represents the name of a docassemble variable
-    - overflow_trigger->int
+    - field_name (str): represents the name of a docassemble variable
+    - overflow_trigger (int | bool): determines when text is cut off and sent to addendum
 
   Optional/planned (not implemented yet):
     - headers->dict(attribute: display label for table)
     - field_style->"list"|"table"|"string" (optional: defaults to "string")
   """
-  field_name:str
-  overflow_trigger: Union[int, bool]
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
@@ -537,14 +535,6 @@ class ALDocument(DADict):
         my_doc.overflow_fields.gathered = True      
       ```
   """
-  filename: str
-  title: str
-  enabled: bool
-  has_addendum: bool
-  addendum: DAFileCollection
-  overflow_fields: ALAddendumFieldDict
-  default_overflow_message: str
-  cache: DALazyAttribute # stores cached DAFile output with a per-screen load lifetime
   
   def init(self, *pargs, **kwargs):
     super(ALDocument, self).init(*pargs, **kwargs)
@@ -767,12 +757,6 @@ class ALDocumentBundle(DAList):
     - title
   optional attribute: enabled
   """
-
-  filename:str
-  title: str
-  elements:List[ALDocument] # or ALDocumentBundle
-  cache: DALazyAttribute # stores cached DAFile output with a per-screen load lifetime
-  enabled:bool # optional
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
@@ -1111,12 +1095,8 @@ class ALExhibit(DAObject):
       cover_page (DAFile | DAFileCollection): (optional) A DAFile or DAFileCollection object created by an `attachment:` block
         Will typically say something like "Exhibit 1"
       label (str): A label, like "A" or "1" for this exhibit in the cover page and table of contents
+      starting_page (int): first page number to use in table of contents
   """
-  cover_page: DAFile
-  pages: DAFileList
-  label: str
-  _cache: DALazyAttribute
-  starting_page: int
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
@@ -1297,11 +1277,6 @@ class ALExhibitDocument(ALDocument):
     - al_user_bundle: ALDocumentBundle.using(elements=[my_instructions, my_main_attachment, exhibit_attachment], filename="user_bundle.pdf", title="All forms to download for your records")
   ```
   """
-  exhibits: ALExhibitList
-  _cache: DAFile
-  table_of_contents: DAFile
-  include_table_of_contents: bool
-  include_exhibit_cover_pages: bool
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
