@@ -6,7 +6,7 @@ data:
     - al_sessions_new_session_id
   - al_sessions_snapshot_label
   - al_sessions_save_session_snapshot
-  - al_sessions_snapshot_success
+  - al_sessions_snapshot_results
 ---
 variable name: al_sessions_url_ask_fast_forward
 data:
@@ -96,7 +96,7 @@ code: |
   formatted_sessions_temp = []
   for index, session in enumerate(al_sessions_list):
     formatted_sessions_temp.append({
-      index: f"{session.get('title')}:{session.get('subtitle','') if session.get('subtitle','') else ''} ({ format_date(session.get('modtime')) })"
+      index: f"{session.get('title')}:{session.get('subtitle') if session.get('subtitle') else ''} ({ format_date(session.get('modtime')) })"
     })
   al_formatted_sessions = formatted_sessions_temp
   del formatted_sessions_temp
@@ -150,7 +150,7 @@ code: |
     'al_sessions_save_session_snapshot',
     'al_sessions_save_session_snapshot_success',
     'al_sessions_snapshot_label',
-    'al_sessions_snapshot_success',
+    'al_sessions_snapshot_results',
     'al_sessions_source_session',
     'al_sessions_variables_to_remove',
     'al_simple_filtered_vars',
@@ -228,10 +228,11 @@ code: |
     al_sessions_save_session_snapshot_success = True
   except:
     al_sessions_save_session_snapshot_success = False
+    log(f"Unable to save a copy of session {user_info().session}")
   al_sessions_save_session_snapshot = True  
 ---
 # Triggered by "Save snapshot"
-continue button field: al_sessions_snapshot_success
+continue button field: al_sessions_snapshot_results
 question: |
   % if al_sessions_save_session_snapshot_success:
   Your snapshot was saved
