@@ -1,3 +1,7 @@
+# Version v2.3.1
+
+Safer string handling in send_button_html
+
 # Version v2.3.0
 
 Add the ability for a developer to snapshot and fastforward sessions. This adds a HUD along with the question id
