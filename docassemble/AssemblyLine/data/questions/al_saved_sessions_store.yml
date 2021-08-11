@@ -1,0 +1,41 @@
+---
+metadata:
+  title: |
+    Answer Snapshots
+  description: |
+    This is just a place to store saved sessions.
+---
+modules:
+  - docassemble.ALToolbox.misc
+---
+features:
+  css:
+    - docassemble.ALToolbox:collapse_template.css
+  question help button: True      
+---
+mandatory: True
+question: |
+  ${ all_variables(special='titles').get('full') }
+  % if all_variables(special='titles').get('sub'):
+  : ${ all_variables(special='titles').get('sub') }
+  % endif
+subquestion: |
+  ${ collapse_template(preview_variables) }
+
+  ${ action_button_html(url_of('interviews'),label="Manage saved answers") }
+help:
+  label: |
+    What's this?
+  content: |
+    This is a special interview for developers to store "snapshots"
+    of interviews during the development process for quick testing.
+    
+    It does not do anything else yet.
+---
+template: preview_variables
+subject: |
+  Preview contents
+content: |
+  <pre>
+  ${ verbatim(json.dumps(all_variables(), sort_keys=True, indent=4)) }
+  </pre>

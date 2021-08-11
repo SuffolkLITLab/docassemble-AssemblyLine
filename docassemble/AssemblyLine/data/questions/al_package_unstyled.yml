@@ -7,6 +7,7 @@ include:
   - ql_baseline.yml
   - al_settings.yml
   - al_code.yml
+  - al_saved_sessions.yml  
   - al_document.yml
 ---
 modules:

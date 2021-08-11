@@ -1,0 +1,61 @@
+---
+include:
+  - al_package.yml
+---
+metadata:
+  title: |
+    Copy interview session
+  temporary session: True
+---
+id: interview order
+mandatory: True
+code: |
+  al_sessions_source_session
+  al_sessions_copy_session
+  al_sessions_copy_session_results
+---
+question: |
+  Copy saved answers
+fields:
+  - Copy my answers from: al_sessions_source_session
+    datatype: combobox
+    code: al_formatted_sessions
+  - To a new session of: al_sessions_destination_session
+    datatype: combobox
+    code: |
+      [{interview.get('filename'): interview.get('title')} for interview in interview_menu() ]
+  #- Include court, docket number, and role of parties: include_court_answers
+  #  datatype: yesno
+  #  help: |
+  #    Check this box if you want to copy in the name of the court,
+  #    docket number, etc. 
+---
+code: |
+  # vars = get_session_variables(filename, session_id, secret, simplify=False)
+  al_sessions_source_session = int(al_sessions_source_session)
+  filtered_vars_tmp = all_variables(simplify=False)
+  get_session_variables(
+    al_sessions_list[al_sessions_source_session].get('filename'),
+    al_sessions_list[al_sessions_source_session].get('session'),
+    simplify=False)
+   
+  for var in al_sessions_variables_to_remove:
+    filtered_vars_tmp.pop(var, None)
+  
+  al_sessions_filtered_vars = filtered_vars_tmp
+  del filtered_vars_tmp
+---
+need:
+  - al_sessions_filtered_vars
+code: |
+  al_sessions_new_session_id = create_session(al_sessions_destination_session)
+  try:
+    set_session_variables(al_sessions_destination_session, al_sessions_new_session_id, al_sessions_filtered_vars)
+    al_sessions_copy_success = True
+  except:
+    al_sessions_copy_success = False
+  al_sessions_copy_session = True
+---
+event: al_sessions_copy_session_results
+code: |
+  response(url=interview_url(i=al_sessions_destination_session, session=al_sessions_new_session_id ))  
