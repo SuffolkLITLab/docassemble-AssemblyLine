@@ -1,3 +1,7 @@
+# Version v2.3.0
+
+Add the ability for a developer to snapshot and fastforward sessions. This adds a HUD along with the question id
+
 # Version v2.2.1
 
 Important data leakage fix (#263)
