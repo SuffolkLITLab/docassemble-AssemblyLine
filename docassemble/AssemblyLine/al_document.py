@@ -61,11 +61,13 @@ def table_row( title:str, button_htmls:List[str] = []) -> str:
   Uses the provided title and list of button html strings to
   return the row of an AL document-styled table in HTML format.
   """
-  html = '\n\t<tr>'
-  # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
-  # TODO: Need to replace with proper CSS
-  html += '\n\t\t<td class="al_doc_title"><strong>' + title + '</strong></td>'
-  html += '\n\t\t<td class="al_buttons">'
+  html = (
+    f'\n\t<tr>'
+    # '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
+    # TODO: Need to replace with proper CSS
+    f'\n\t\t<td class="al_doc_title"><strong>{title}</strong></td>'
+    f'\n\t\t<td class="al_buttons">'
+  )
   for button in button_htmls:
     html += button
   html += '</td>'
@@ -781,11 +783,11 @@ class ALDocumentBundle(DAList):
     files = self.enabled_documents(refresh=refresh)
     if len(files) == 1:
       # This case is simplest--we do not need to process the document at this level
-      log_if_debug('Storing bundle for just one document ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
+      log_if_debug(f'Storing bundle for just one document {self.title} at {self.instanceName}.cache.{safe_key}')
       pdf = files[0].as_pdf(key=key, refresh=refresh)
       pdf.title = self.title
     else:
-      log_if_debug('Storing bundle ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
+      log_if_debug(f'Storing bundle {self.title} at {self.instanceName}.cache.{safe_key}')
       pdf = pdf_concatenate([document.as_pdf(key=key, refresh=refresh) for document in files], filename=self.filename + ending)
     pdf.title = self.title
     setattr(self.cache, safe_key, pdf)
