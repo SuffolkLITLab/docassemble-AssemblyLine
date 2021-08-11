@@ -976,9 +976,11 @@ class ALDocumentBundle(DAList):
     else:
       buttons = [doc_download_button]
 
-    html ='<table class="al_table merged_docs" id="' + html_safe_str(self.instanceName) + '">'
-    html += table_row(self.title, buttons)
-    html += '\n</table>'
+    html = ( 
+      f'<table class="al_table merged_docs" id="{html_safe_str(self.instanceName)}">'
+      f'{table_row(self.title, buttons)}'
+      f'\n</table>'
+    )
 
     return html
 
@@ -990,37 +992,38 @@ class ALDocumentBundle(DAList):
     Optionally, display a checkbox that allows someone to decide whether or not to
     include an editable (Word) copy of the file, iff it is available.
     """
-    name = re.sub(r'[^A-Za-z0-9]+','_', self.instanceName)  # safe name for classes and ids
+    name = html_safe_str(self.instanceName)  
     al_wants_editable_input_id = '_ignore_al_wants_editable_' + name
     al_email_input_id = '_ignore_al_doc_email_' + name
-    al_send_button_id = "al_send_email_button_" + name
+    al_send_button_id = 'al_send_email_button_' + name
 
-    javascript_string = "javascript:aldocument_send_action('" + \
-      self.attr_name('send_email_action_event') + \
-      "','" + al_wants_editable_input_id + "','" + \
-      al_email_input_id + "')"
+    javascript_string = (
+      f"javascript:aldocument_send_action("
+      f"'{self.attr_name('send_email_action_event')}',"
+      f"'{al_wants_editable_input_id}','{al_email_input_id}')"
+    )
 
-    return_str = '''
-  <div class="al_send_bundle '''+name+'''" id="al_send_bundle_'''+name+'''" name="al_send_bundle_'''+name+'''">
+    return_str = f'''
+  <div class="al_send_bundle {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
     <h5 id="al_doc_email_header">Get a copy of the documents in email</h5> 
     '''
     if show_editable_checkbox:
-      return_str += '''
+      return_str += f'''
     <div class="form-check-container">
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" class="al_wants_editable" id="'''+al_wants_editable_input_id+'''">
-        <label class="al_wants_editable form-check-label" for="'''+al_wants_editable_input_id+'''">'''\
-          + word("Include an editable copy") + '''
+        <input class="form-check-input" type="checkbox" class="al_wants_editable" id="{al_wants_editable_input_id}">
+        <label class="al_wants_editable form-check-label" for="{al_wants_editable_input_id}">{word("Include an editable copy")}
         </label>
       </div>
     </div>
   '''
-    return_str += '''
+    return_str += f'''
   <div class="al_email_container">
-    <span class="al_email_address '''+name+''' form-group row da-field-container da-field-container-datatype-email">
-      <label for="'''+al_email_input_id+'''" class="al_doc_email col-form-label da-form-label datext-right">Email</label>
-      <input value="''' + (user_info().email if user_logged_in() else '') + '" alt="Input box" class="form-control" type="email" size="35" name="'+al_email_input_id+'" id="'+al_email_input_id+'''">
-    </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n" + '''
+    <span class="al_email_address {name} form-group row da-field-container da-field-container-datatype-email">
+      <label for="{al_email_input_id}" class="al_doc_email col-form-label da-form-label datext-right">Email</label>
+      <input value="{user_info().email if user_logged_in() else ''}" alt="Input box" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
+    </span>{action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}
+
   </div>
   '''
     return_str += '</div>'  # al_send_bundle
