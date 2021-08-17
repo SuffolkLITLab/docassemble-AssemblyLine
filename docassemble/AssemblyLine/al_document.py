@@ -845,7 +845,7 @@ class ALDocumentBundle(DAList):
           retval.append(document)
       return retval
     else:
-      return [document for document in self.elements if document.enabled]
+      return [document for document in self.elements if document.always_enabled or document.enabled]
 
   def as_flat_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
@@ -864,15 +864,15 @@ class ALDocumentBundle(DAList):
         flat_list.extend(document.as_list(key=key, refresh=refresh))
     return flat_list
 
-  def get_titles(self, key:str='final') -> List[str]:
+  def get_titles(self, key:str='final', refresh:bool=True) -> List[str]:
     """
     Gets all of titles of the documents in a list
     """
     flat_list = []
-    for document in self:
+    for document in self.enabled_documents(refresh=refresh):
       if isinstance(document, ALDocumentBundle):
-        flat_list.extend(document.get_titles(key=key))
-      elif document.enabled:
+        flat_list.extend(document.get_titles(key=key, refresh=refresh))
+      else:
         flat_list.append(document.title)
     return flat_list
 
