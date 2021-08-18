@@ -1,3 +1,7 @@
+# Version v2.3.3
+
+Sort session names in Fast Forward (dev only feature)
+
 # Version v2.3.1
 
 Safer string handling in send_button_html
