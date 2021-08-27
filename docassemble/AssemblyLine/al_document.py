@@ -845,7 +845,8 @@ class ALDocumentBundle(DAList):
           retval.append(document)
       return retval
     else:
-      return [document for document in self.elements if document.always_enabled or document.enabled]
+      return [document for document in self.elements 
+          if (hasattr(document, 'always_enabled') and document.always_enabled) or document.enabled]
 
   def as_flat_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
