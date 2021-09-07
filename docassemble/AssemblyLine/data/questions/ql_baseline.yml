@@ -1318,7 +1318,7 @@ validation code: |
       pdf_concatenate(x[0].pages)
     except:
       validation_error("Unable to convert this file. Please upload a new one.", field="x[0].pages")
-    del x[0].pages.gathered  # docassemble sets this attribute but we want to force gathering additional pages
+    x[0].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
 ---
 generic object: ALExhibitList
 id: exhibit i
@@ -1342,7 +1342,7 @@ validation code: |
     pdf_concatenate(x[i].pages)
   except:
     validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages")
-  del x[i].pages.gathered  # docassemble sets this attribute but we want to force gathering additional pages
+  x[i].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
 ---
 generic object: ALExhibitList
 id: exhibit i has additional pages
