@@ -1,0 +1,266 @@
+---
+variable name: al_sessions_url_ask_snapshot
+data:
+  - undefine: 
+    - al_sessions_save_session_snapshot
+    - al_sessions_new_session_id
+  - al_sessions_snapshot_label
+  - al_sessions_save_session_snapshot
+  - al_sessions_snapshot_results
+---
+variable name: al_sessions_url_ask_fast_forward
+data:
+  - undefine:
+    - al_sessions_new_session_id
+  - al_sessions_source_session
+  - al_sessions_fast_forward_session
+  - al_sessions_launch_new_session
+---
+template: al_sessions_preview_variables
+subject: |
+  Preview
+content: |
+  <pre>
+  ${ verbatim(json.dumps(al_simple_filtered_vars, sort_keys=True, indent=4)) }
+  </pre>  
+---
+id: save answer snapshot
+# Save a copy
+comment: |
+  Copy the answers from the "current session" into the 
+  "al_saved_session_store.yml" interview.
+question: |
+  Save answer snapshot
+subquestion: |
+  You have visited ${ all_variables(include_internal=True).get('_internal',{}).get('steps',1) }
+  screens so far and defined ${ len(al_sessions_filtered_vars) } fields.
+  
+  ${ collapse_template(al_sessions_preview_variables) }
+
+  Save a copy of your current answer progress, including any files, to load into
+  this interview or a different interview later.
+  
+  **Warning**: this feature is for developers only. A snapshot is not a replacement
+  for starting the interview from the beginning. Some features may not work the 
+  same when loaded from a snapshot.
+fields:
+  - Label: al_sessions_snapshot_label
+    default: |
+      ${ all_variables(special='titles').get('full') }
+      % if all_variables(special='titles').get('sub'):
+      : ${ all_variables(special='titles').get('sub') }
+      % endif
+      % if defined('users[0].name.first'):
+      - ${ comma_and_list(users.complete_elements()) }
+      % endif
+      % if defined('other_parties[0].name.first'):
+      - ${ comma_and_list(other_parties.complete_elements()) }
+      % endif
+    help: |
+      This can help you identify the snapshot later.
+      Use a cue like "10 children" or "No adverse party"
+---
+id: fast forward answers
+# fast forward
+comment: |
+  Copy the answers from any saved session into the current interview filename,
+  by creating a new session of the interview and copying answers into it.
+question: |
+  Fast Forward
+subquestion: |
+  Choose an interview below to load into a copy of the currently running
+  interview (${ all_variables(special='titles').get('full') }).
+  
+  **Warning**: this feature is for developers only. A snapshot is not a replacement
+  for starting the interview from the beginning. Some features may not work the 
+  same when loaded from a snapshot into a new interview.
+fields:
+  - Copy my answers from: al_sessions_source_session
+    datatype: combobox
+    code: al_formatted_sessions  
+under: |
+  ${ action_button_html(url_of('interviews'),label="Manage saved answers") }
+---
+code: |
+  sessions_list_temp = []
+  next_id = None
+  while True:
+      (items, next_id) = interview_list(next_id=next_id)
+      sessions_list_temp.extend(items)
+      if not next_id:
+          break
+  al_sessions_list = sessions_list_temp
+  del sessions_list_temp
+---
+code: |
+  formatted_sessions_temp = []
+  for index, session in enumerate(al_sessions_list):
+    formatted_sessions_temp.append({
+      index: f"{session.get('title')}: {session.get('subtitle') if session.get('subtitle') else ''} ({ format_date(session.get('modtime')) })"
+    })
+  formatted_sessions_temp.sort(key=lambda session: next(iter(session.values())))
+  al_formatted_sessions = formatted_sessions_temp
+  del formatted_sessions_temp
+---
+code: |
+  # This is a list of some variables that should never
+  # get copied into a new session.
+  al_sessions_variables_to_remove = [
+    # Internal fields
+    '_internal',
+    'nav',
+    'url_args',
+    'device_local',
+    'allow_cron',
+    'feedback_form',
+    'github_repo_name',
+    'github_user',
+    'interview_short_title',
+    'metadata_title',
+    'multi_user',
+    'session_local',
+    'speak_text',
+    'user_local',
+    # Database-like fields we don't need to copy
+    'all_courts',
+    'macourts',
+    'court_emails',    
+    # AssemblyLine form-specific fields 
+    'al_form_type',
+    'al_version',    
+    'form_approved_for_email_filing',    
+    'interview_metadata',    
+    'package_name',
+    'package_version_number',
+    'user_has_saved_answers',        
+    # Variables that should be calculated fresh
+    'signature_date',
+    'al_court_bundle',
+    'al_user_bundle',
+    'case_name',
+    # Variables from saving/loading state
+    'al_formatted_sessions',
+    'al_sessions_copy_success',
+    'al_sessions_fast_forward_filtered_vars',
+    'al_sessions_fast_forward_session',
+    'al_sessions_filtered_vars',
+    'al_sessions_launch_new_session',
+    'al_sessions_list',
+    'al_sessions_new_session_id',
+    'al_sessions_preview_variables',
+    'al_sessions_save_session_snapshot',
+    'al_sessions_save_session_snapshot_success',
+    'al_sessions_snapshot_label',
+    'al_sessions_snapshot_results',
+    'al_sessions_source_session',
+    'al_sessions_variables_to_remove',
+    'al_simple_filtered_vars',
+    'filtered_vars_tmp',
+    'simple_filtered_vars_tmp',
+    'al_sessions_url_ask_snapshot',
+    'al_sessions_url_ask_fast_forward',
+    # Maybe we will want these to be optional? Depends on how good review screen is.
+    # 'docket_number',
+    # 'docket_numbers',
+    #'user_ask_role',
+    #'user_role',    
+    #'user_started_case',
+  ]
+---
+# For save snapshot
+code: |
+  filtered_vars_tmp = all_variables(simplify=False)
+  simple_filtered_vars_tmp = all_variables()
+  
+  for var in al_sessions_variables_to_remove:
+    filtered_vars_tmp.pop(var, None)
+    simple_filtered_vars_tmp.pop(var, None)
+  
+  # Make all top-level DAFiles and DAFileCollections public
+  # TODO: is it worth making this recursive and traversing all attributes?
+  for var in filtered_vars_tmp:
+    if isinstance(var, DAFile) or isinstance(var, DAFileCollection) or isinstance(var, DAFileList):
+      try:
+        var.set_attributes(private=False)
+      except:
+        pass
+  
+  al_simple_filtered_vars = simple_filtered_vars_tmp
+  al_sessions_filtered_vars = filtered_vars_tmp
+  del filtered_vars_tmp
+  del simple_filtered_vars_tmp
+---
+# For fast forward
+---
+code: |
+  # vars = get_session_variables(filename, session_id, secret, simplify=False)
+  al_sessions_source_session = int(al_sessions_source_session)
+  filtered_vars_tmp = get_session_variables(
+    al_sessions_list[al_sessions_source_session].get('filename'),
+    al_sessions_list[al_sessions_source_session].get('session'),
+    simplify=False)
+   
+  for var in al_sessions_variables_to_remove:
+    filtered_vars_tmp.pop(var, None)
+
+  # Mark all top-level files public so the new session can open them
+  # TODO: is it worth making this recursive and traversing all attributes?  
+  for var in filtered_vars_tmp:
+    if isinstance(var, DAFile) or isinstance(var, DAFileCollection) or isinstance(var, DAFileList):
+      try:
+        var.set_attributes(private=False)
+      except:
+        pass
+        
+  al_sessions_fast_forward_filtered_vars = filtered_vars_tmp
+  del filtered_vars_tmp
+---
+# Triggered by "save snapshot"
+need:
+  - al_sessions_filtered_vars
+  - al_sessions_snapshot_label
+code: |
+  al_sessions_destination_session = f"{user_info().current_package}:al_saved_sessions_store.yml"
+  if not defined("al_sessions_new_session_id"):
+    al_sessions_new_session_id = create_session(al_sessions_destination_session)
+  al_sessions_filtered_vars["_internal['subtitle']"] = al_sessions_snapshot_label
+  try:
+    set_session_variables(al_sessions_destination_session, al_sessions_new_session_id, al_sessions_filtered_vars)
+    al_sessions_save_session_snapshot_success = True
+  except:
+    al_sessions_save_session_snapshot_success = False
+    log(f"Unable to save a copy of session {user_info().session}")
+  al_sessions_save_session_snapshot = True  
+---
+# Triggered by "Save snapshot"
+continue button field: al_sessions_snapshot_results
+question: |
+  % if al_sessions_save_session_snapshot_success:
+  Your snapshot was saved
+  % else:
+  Something went wrong saving your snapshot
+  % endif
+subquestion: |
+  ${ action_button_html(url_of('interviews'),label="Manage saved answers") }
+---
+# Triggered by "Fast forward"
+# We still need to create a new session with the current variables
+need:
+  - al_sessions_fast_forward_filtered_vars
+code: |
+  al_sessions_destination_session = user_info().filename
+  if not defined("al_sessions_new_session_id"):
+    al_sessions_new_session_id = create_session(al_sessions_destination_session)
+  try:
+    set_session_variables(al_sessions_destination_session, al_sessions_new_session_id, al_sessions_fast_forward_filtered_vars)
+    al_sessions_copy_success = True
+  except:
+    al_sessions_copy_success = False
+  al_sessions_fast_forward_session = True  
+---
+# This is triggered by the "Fast forward" button
+need:
+  - al_sessions_new_session_id
+event: al_sessions_launch_new_session
+code: |
+  response(url=interview_url(i=user_info().filename, session=al_sessions_new_session_id ))

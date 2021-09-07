@@ -1,3 +1,26 @@
+# Version v2.3.3
+
+Sort session names in Fast Forward (dev only feature)
+
+# Version v2.3.1
+
+Safer string handling in send_button_html
+
+# Version v2.3.0
+
+Add the ability for a developer to snapshot and fastforward sessions. This adds a HUD along with the question id
+
+# Version v2.2.1
+
+Important data leakage fix (#263)
+
+# Version v2.2.0
+
+* Added ALExhibitDocument class
+* Added automated tests
+* Improvements to handling of refreshed document state
+* Improvements to docstrings
+
 # v2.1.4
 * Added ALStaticDocument class
 * Respect filename provided on download screens

@@ -1,0 +1,139 @@
+---
+include:
+  - al_package.yml
+---
+metadata:
+  title: |
+    Test courts classes
+---
+# TODO: When the testing framework implements the back button,
+# consider reducing this to one page only and simply going back
+# and forth.
+mandatory: True
+code: |
+  court_with_all_fields_name
+  court_with_all_fields_result
+  
+  name_contains_city_name
+  name_contains_city_result
+
+  end_alcourt_tests
+---
+# User fills in all fields
+---
+objects:
+  - court_with_all_fields_address: Address
+---
+depends on:
+  - court_with_all_fields_name
+  - court_with_all_fields_address
+need:
+  - court_with_all_fields_name
+  - court_with_all_fields_address
+code: |
+  court_with_all_fields = ALCourt('court_with_all_fields')
+  court_with_all_fields.name = court_with_all_fields_name
+  court_with_all_fields.address = court_with_all_fields_address
+---
+code: |
+  court_with_all_fields.description = 'Description of the court that has all its fields filled in defined by the developer.'
+---
+id: court with all fields
+question: |
+  User fills all fields
+fields:
+  - Name: court_with_all_fields_name
+  - Address: court_with_all_fields_address.address
+    address autocomplete: True
+    required: False
+  - Suite: court_with_all_fields_address.unit
+    required: False
+  - City: court_with_all_fields_address.city
+    required: False
+  - State: court_with_all_fields_address.state
+    required: False
+  - Postal code: court_with_all_fields_address.zip
+    required: False
+---
+# TODO: test `.from_row()`, `.geolocate()`
+id: court_with_all_fields_result
+question: |
+  Court info when all fields filled
+subquestion: |
+  `court_with_all_fields.short_label()`:
+  
+  ${ court_with_all_fields.short_label() }
+  
+  `court_with_all_fields.short_label_and_address()`:
+  
+  ${ court_with_all_fields.short_label_and_address() }
+  
+  `court_with_all_fields.short_description()`:
+  
+  ${ court_with_all_fields.short_description() }
+continue button field: court_with_all_fields_result
+---
+# Court name includes city
+---
+objects:
+  - name_contains_city_address: Address
+---
+depends on:
+  - name_contains_city_name
+  - name_contains_city_address
+need:
+  - name_contains_city_name
+  - name_contains_city_address
+code: |
+  name_contains_city = ALCourt('name_contains_city')
+  name_contains_city.name = name_contains_city_name
+  name_contains_city.address = name_contains_city_address
+---
+code: |
+  name_contains_city.description = 'Description of the court that has just its name filled in defined by the developer.'
+---
+id: name has city
+question: |
+  Name contains city name
+fields:
+  - Name: name_contains_city_name
+  - Address: name_contains_city_address.address
+    address autocomplete: True
+    required: False
+  - Suite: name_contains_city_address.unit
+    required: False
+  - City: name_contains_city_address.city
+    required: False
+  - State: name_contains_city_address.state
+    required: False
+  - Postal code: name_contains_city_address.zip    
+    required: False
+---
+# TODO: test `.from_row()`, `.geolocate()`
+id: name_contains_city_result
+question: |
+  Court info when all fields filled
+subquestion: |
+  `name_contains_city.short_label()`:
+  
+  ${ name_contains_city.short_label() }
+  
+  `name_contains_city.short_label_and_address()`:
+  
+  ${ name_contains_city.short_label_and_address() }
+  
+  `name_contains_city.short_description()`:
+  
+  ${ name_contains_city.short_description() }
+continue button field: name_contains_city_result
+---
+id: end alcourt tests
+event: end_alcourt_tests
+question: The end of ALCourt tests
+subquestion: |
+  Tests still needed:
+  
+  - ALCourt `.geolocate()`
+  - ALCourt `.from_row()`
+  - ALCourtLoader functionality
+---

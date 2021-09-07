@@ -1,4 +1,10 @@
 ---
+################ What is this? ###############
+# This file is a small playground to demo new features.
+# If you are building a new feature, it should also have an accompanying
+# test. This file is not a test, just a demo to assist PRs and will change
+# frequently as new features are added.
+---
 include:
   - al_package.yml
 ---
@@ -8,9 +14,12 @@ code: |
 code: |
   AL_DEFAULT_STATE = "MA"
 ---
+code: |
+  interview_short_title = "AL Question Test"
+---
 metadata:
   title: |
-    AL Question Test
+    AL Question Test    
   authors:
     - Quinten Steenhuis
     - Plocket

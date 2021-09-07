@@ -61,11 +61,13 @@ def table_row( title:str, button_htmls:List[str] = []) -> str:
   Uses the provided title and list of button html strings to
   return the row of an AL document-styled table in HTML format.
   """
-  html = '\n\t<tr>'
-  # html += '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
-  # TODO: Need to replace with proper CSS
-  html += '\n\t\t<td class="al_doc_title"><strong>' + title + '</strong></td>'
-  html += '\n\t\t<td class="al_buttons">'
+  html = (
+    f'\n\t<tr>'
+    # '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
+    # TODO: Need to replace with proper CSS
+    f'\n\t\t<td class="al_doc_title"><strong>{title}</strong></td>'
+    f'\n\t\t<td class="al_buttons">'
+  )
   for button in button_htmls:
     html += button
   html += '</td>'
@@ -82,15 +84,13 @@ class ALAddendumField(DAObject):
   how to handle overflow for a dictionary, e.g.
 
   Required attributes:
-    - field_name->str represents the name of a docassemble variable
-    - overflow_trigger->int
+    - field_name (str): represents the name of a docassemble variable
+    - overflow_trigger (int | bool): determines when text is cut off and sent to addendum
 
   Optional/planned (not implemented yet):
     - headers->dict(attribute: display label for table)
     - field_style->"list"|"table"|"string" (optional: defaults to "string")
   """
-  field_name:str
-  overflow_trigger: Union[int, bool]
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
@@ -537,14 +537,6 @@ class ALDocument(DADict):
         my_doc.overflow_fields.gathered = True      
       ```
   """
-  filename: str
-  title: str
-  enabled: bool
-  has_addendum: bool
-  addendum: DAFileCollection
-  overflow_fields: ALAddendumFieldDict
-  default_overflow_message: str
-  cache: DALazyAttribute # stores cached DAFile output with a per-screen load lifetime
   
   def init(self, *pargs, **kwargs):
     super(ALDocument, self).init(*pargs, **kwargs)
@@ -768,12 +760,6 @@ class ALDocumentBundle(DAList):
   optional attribute: enabled
   """
 
-  filename:str
-  title: str
-  elements:List[ALDocument] # or ALDocumentBundle
-  cache: DALazyAttribute # stores cached DAFile output with a per-screen load lifetime
-  enabled:bool # optional
-
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
     self.auto_gather=False
@@ -797,11 +783,11 @@ class ALDocumentBundle(DAList):
     files = self.enabled_documents(refresh=refresh)
     if len(files) == 1:
       # This case is simplest--we do not need to process the document at this level
-      log_if_debug('Storing bundle for just one document ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
+      log_if_debug(f'Storing bundle for just one document {self.title} at {self.instanceName}.cache.{safe_key}')
       pdf = files[0].as_pdf(key=key, refresh=refresh)
       pdf.title = self.title
     else:
-      log_if_debug('Storing bundle ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
+      log_if_debug(f'Storing bundle {self.title} at {self.instanceName}.cache.{safe_key}')
       pdf = pdf_concatenate([document.as_pdf(key=key, refresh=refresh) for document in files], filename=self.filename + ending)
     pdf.title = self.title
     setattr(self.cache, safe_key, pdf)
@@ -859,7 +845,8 @@ class ALDocumentBundle(DAList):
           retval.append(document)
       return retval
     else:
-      return [document for document in self.elements if document.enabled]
+      return [document for document in self.elements 
+          if (hasattr(document, 'always_enabled') and document.always_enabled) or document.enabled]
 
   def as_flat_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
     """
@@ -878,15 +865,15 @@ class ALDocumentBundle(DAList):
         flat_list.extend(document.as_list(key=key, refresh=refresh))
     return flat_list
 
-  def get_titles(self, key:str='final') -> List[str]:
+  def get_titles(self, key:str='final', refresh:bool=True) -> List[str]:
     """
     Gets all of titles of the documents in a list
     """
     flat_list = []
-    for document in self:
+    for document in self.enabled_documents(refresh=refresh):
       if isinstance(document, ALDocumentBundle):
-        flat_list.extend(document.get_titles(key=key))
-      elif document.enabled:
+        flat_list.extend(document.get_titles(key=key, refresh=refresh))
+      else:
         flat_list.append(document.title)
     return flat_list
 
@@ -992,9 +979,11 @@ class ALDocumentBundle(DAList):
     else:
       buttons = [doc_download_button]
 
-    html ='<table class="al_table merged_docs" id="' + html_safe_str(self.instanceName) + '">'
-    html += table_row(self.title, buttons)
-    html += '\n</table>'
+    html = ( 
+      f'<table class="al_table merged_docs" id="{html_safe_str(self.instanceName)}">'
+      f'{table_row(self.title, buttons)}'
+      f'\n</table>'
+    )
 
     return html
 
@@ -1006,37 +995,38 @@ class ALDocumentBundle(DAList):
     Optionally, display a checkbox that allows someone to decide whether or not to
     include an editable (Word) copy of the file, iff it is available.
     """
-    name = re.sub(r'[^A-Za-z0-9]+','_', self.instanceName)  # safe name for classes and ids
+    name = html_safe_str(self.instanceName)  
     al_wants_editable_input_id = '_ignore_al_wants_editable_' + name
     al_email_input_id = '_ignore_al_doc_email_' + name
-    al_send_button_id = "al_send_email_button_" + name
+    al_send_button_id = 'al_send_email_button_' + name
 
-    javascript_string = "javascript:aldocument_send_action('" + \
-      self.attr_name('send_email_action_event') + \
-      "','" + al_wants_editable_input_id + "','" + \
-      al_email_input_id + "')"
+    javascript_string = (
+      f"javascript:aldocument_send_action("
+      f"'{self.attr_name('send_email_action_event')}',"
+      f"'{al_wants_editable_input_id}','{al_email_input_id}')"
+    )
 
-    return_str = '''
-  <div class="al_send_bundle '''+name+'''" id="al_send_bundle_'''+name+'''" name="al_send_bundle_'''+name+'''">
+    return_str = f'''
+  <div class="al_send_bundle {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
     <h5 id="al_doc_email_header">Get a copy of the documents in email</h5> 
     '''
     if show_editable_checkbox:
-      return_str += '''
+      return_str += f'''
     <div class="form-check-container">
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" class="al_wants_editable" id="'''+al_wants_editable_input_id+'''">
-        <label class="al_wants_editable form-check-label" for="'''+al_wants_editable_input_id+'''">'''\
-          + word("Include an editable copy") + '''
+        <input class="form-check-input" type="checkbox" class="al_wants_editable" id="{al_wants_editable_input_id}">
+        <label class="al_wants_editable form-check-label" for="{al_wants_editable_input_id}">{word("Include an editable copy")}
         </label>
       </div>
     </div>
   '''
-    return_str += '''
+    return_str += f'''
   <div class="al_email_container">
-    <span class="al_email_address '''+name+''' form-group row da-field-container da-field-container-datatype-email">
-      <label for="'''+al_email_input_id+'''" class="al_doc_email col-form-label da-form-label datext-right">Email</label>
-      <input value="''' + (user_info().email if user_logged_in() else '') + '" alt="Input box" class="form-control" type="email" size="35" name="'+al_email_input_id+'" id="'+al_email_input_id+'''">
-    </span>''' + action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id) + "\n" + '''
+    <span class="al_email_address {name} form-group row da-field-container da-field-container-datatype-email">
+      <label for="{al_email_input_id}" class="al_doc_email col-form-label da-form-label datext-right">Email</label>
+      <input value="{user_info().email if user_logged_in() else ''}" alt="Input box" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
+    </span>{action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}
+
   </div>
   '''
     return_str += '</div>'  # al_send_bundle
@@ -1111,12 +1101,8 @@ class ALExhibit(DAObject):
       cover_page (DAFile | DAFileCollection): (optional) A DAFile or DAFileCollection object created by an `attachment:` block
         Will typically say something like "Exhibit 1"
       label (str): A label, like "A" or "1" for this exhibit in the cover page and table of contents
+      starting_page (int): first page number to use in table of contents
   """
-  cover_page: DAFile
-  pages: DAFileList
-  label: str
-  _cache: DALazyAttribute
-  starting_page: int
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
@@ -1297,11 +1283,6 @@ class ALExhibitDocument(ALDocument):
     - al_user_bundle: ALDocumentBundle.using(elements=[my_instructions, my_main_attachment, exhibit_attachment], filename="user_bundle.pdf", title="All forms to download for your records")
   ```
   """
-  exhibits: ALExhibitList
-  _cache: DAFile
-  table_of_contents: DAFile
-  include_table_of_contents: bool
-  include_exhibit_cover_pages: bool
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)

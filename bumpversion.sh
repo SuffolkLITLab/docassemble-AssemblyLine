@@ -160,7 +160,7 @@ sed -e "s/{{version}}/$new_version/g; s/{{project_name}}/$project_name/g; s/{{or
             "targets": [
                 {
                     "os": "default",
-                    "uri": "https://github.com/{{org_name}}/{{repo_name}}/blob/v{{version}}/CHANGELOG.md#v{{version}}"
+                    "uri": "https://github.com/{{org_name}}/{{repo_name}}/blob/main/CHANGELOG.md#v{{version}}"
                 }
             ]
         },
