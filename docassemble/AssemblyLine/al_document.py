@@ -828,7 +828,7 @@ class ALDocumentBundle(DAList):
     Args:
         refresh(bool): Controls whether the 'enabled' attribute is reconsidered.        
     """
-    if False:
+    if refresh:
       retval = []
       for document in self.elements:
         if document.always_enabled:
