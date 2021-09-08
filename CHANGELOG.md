@@ -1,3 +1,7 @@
+# Version v2.3.4
+
+Fix #269 - make the ALExhibitDocument class idempotent
+
 # Version v2.3.3
 
 Sort session names in Fast Forward (dev only feature)
