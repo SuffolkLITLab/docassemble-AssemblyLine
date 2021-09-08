@@ -21,7 +21,7 @@ Scenario: User can upload exhibits
   Given I start the interview at "test_alexhibit"
   And I get to "end alexhibit tests" with this data:
     | var | value | trigger |
-    | x.there_are_any | True | exhibit_doc_defaults_1.exhibits.has_exhibits |
+    | x.has_exhibits | True | exhibit_doc_defaults_1.exhibits.has_exhibits |
     | x[0].title | Defaults 1 | exhibit_doc_defaults_1.exhibits.has_exhibits |
     | x[0].pages | test_alexhibit_docx_1.docx | exhibit_doc_defaults_1.exhibits.has_exhibits |
     | x[i].pages.target_number | 2 | exhibit_doc_defaults_1.exhibits[0].pages.there_is_another |
@@ -38,7 +38,7 @@ Scenario: User adds only a docx exhibit
   Given I start the interview at "test_alexhibit"
   And I get to "end alexhibit tests" with this data:
     | var | value | trigger |
-    | x.there_are_any | True | exhibit_doc_defaults_1.exhibits.has_exhibits |
+    | x.has_exhibits | True | exhibit_doc_defaults_1.exhibits.has_exhibits |
     | x[0].title | DOCX only | exhibit_doc_defaults_1.exhibits.has_exhibits |
     | x[0].pages | test_alexhibit_docx_1.docx | exhibit_doc_defaults_1.exhibits.has_exhibits |
     | x[i].pages.target_number | 1 | exhibit_doc_defaults_1.exhibits[0].pages.there_is_another |
