@@ -117,7 +117,7 @@ objects:
   - exhibit_attachment: ALExhibitDocument.using(title="Exhibits", filename="exhibits" )
 ---
 code: |
-  exhibit_attachment.enabled = exhibit_attachment.exhibits.there_are_any
+  exhibit_attachment.enabled = len(exhibit_attachment.exhibits) > 0
 ---
 id: Mako template
 question: |

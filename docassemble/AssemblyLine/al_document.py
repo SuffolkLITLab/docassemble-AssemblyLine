@@ -828,7 +828,7 @@ class ALDocumentBundle(DAList):
     Args:
         refresh(bool): Controls whether the 'enabled' attribute is reconsidered.        
     """
-    if refresh:
+    if False:
       retval = []
       for document in self.elements:
         if document.always_enabled:
@@ -1244,9 +1244,10 @@ class ALExhibitList(DAList):
     """
     Private method automatically triggered when the list is fully gathered.
     """
-    self._update_page_numbers()
-    if self.auto_label:
-      self._update_labels()
+    if len(self):
+      self._update_page_numbers()
+      if self.auto_label:
+        self._update_labels()
     
     # TODO: implement below. Was buggy when OCRing a lot of files and OCRing in place. 
     # Switched to creating a new DAFile, but that introduced different bugs. -- third refresh breaks it. file never gets a number so not "ok"
@@ -1277,7 +1278,9 @@ class ALExhibitDocument(ALDocument):
     - exhibit_attachment: ALExhibitDocument.using(title="Exhibits", filename="exhibits" )
   ---
   code: |
-    exhibit_attachment.enabled = exhibit_attachment.exhibits.there_are_any
+    # This block is not needed, but you can provide and customize for your needs.
+    # This mirrors the fallback block in ql_baseline.yml
+    exhibit_attachment.enabled = exhibit_attachment.exhibits.has_exhibits 
   ---
   objects:
     - al_user_bundle: ALDocumentBundle.using(elements=[my_instructions, my_main_attachment, exhibit_attachment], filename="user_bundle.pdf", title="All forms to download for your records")
@@ -1314,7 +1317,8 @@ class ALExhibitDocument(ALDocument):
     """
     filename = os.path.splitext(self.filename)[0] + ".pdf"
     
-    return pdf_concatenate(self.table_of_contents, self.exhibits.as_pdf(add_cover_pages=self.include_exhibit_cover_pages), filename=filename)
+    if len(self.exhibits):
+      return pdf_concatenate(self.table_of_contents, self.exhibits.as_pdf(add_cover_pages=self.include_exhibit_cover_pages), filename=filename)    
     # pdf_concatenate([a.as_pdf() for a in self.exhibits], filename=self.filename)
 
   def as_docx(self, key:str="bool", refresh:bool=True) -> DAFile:
