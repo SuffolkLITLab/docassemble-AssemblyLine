@@ -36,10 +36,6 @@ objects:
   # `include_exhibit_cover_pages` default True
   - exhibit_doc_custom_1: ALExhibitDocument.using(title="Exhibits doc custom args", filename="exhibits_doc_custom", include_table_of_contents=False, include_exhibit_cover_pages=False )
 ---
-code: |
-  exhibit_doc_defaults_1.enabled = exhibit_doc_defaults_1.exhibits.there_are_any
-  exhibit_doc_custom_1.enabled = exhibit_doc_custom_1.exhibits.there_are_any
----
 # Note on test screens: Screens test that custom ALDocumentBundle arguments and such are happy. As far as custom exhibit arguments, they're tested in instantiation of the custom exhibit document itself. Currently, each screen should test both the default exhibit document and the custom exhibit document (once custom arguments are implemented).
 ---
 id: thumbnails_defaults

@@ -1285,6 +1285,10 @@ code: |
 #########################################################
 # ALExhibitDocument questions
 ---
+generic object: ALExhibitDocument
+code: |
+  x.enabled = x.exhibits.has_exhibits
+---
 generic object: ALExhibitList
 id: any exhibits
 question: |
@@ -1294,31 +1298,35 @@ question: |
   Do you have any documents that you want to attach to this form?
   % endif
 fields:
-  - Do you have any documents you want to upload?: x.there_are_any
+  - Do you have any documents you want to upload?: x.has_exhibits
     datatype: yesnoradio
   - note: |
       **Okay**. You will have a chance to upload multiple documents. 
       You can also add additional pages to this document.
-    show if: x.there_are_any
+    show if: x.has_exhibits
   - First document title: x[0].title
     maxlength: 60 # longer might break TOC
-    show if: x.there_are_any    
+    show if: x.has_exhibits    
   - Upload the first document: x[0].pages
-    show if: x.there_are_any    
+    show if: x.has_exhibits    
     datatype: files
     maximum image size: 1024
     image upload type: jpeg        
     accept: |
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
-  if x.there_are_any:
+  if x.has_exhibits:
     if sum(exhibit.size_in_bytes() for exhibit in x[0].pages) > (15 * 1024 * 1024):
       validation_error("Upload a file smaller than 15 MB.")
     try:
       pdf_concatenate(x[0].pages)
     except:
       validation_error("Unable to convert this file. Please upload a new one.", field="x[0].pages")
-    del x[0].pages.gathered  # docassemble sets this attribute but we want to force gathering additional pages
+    x[0].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
+---
+generic object: ALExhibitList
+code: |
+  x.there_are_any = x.has_exhibits
 ---
 generic object: ALExhibitList
 id: exhibit i
@@ -1342,7 +1350,8 @@ validation code: |
     pdf_concatenate(x[i].pages)
   except:
     validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages")
-  del x[i].pages.gathered  # docassemble sets this attribute but we want to force gathering additional pages
+  if defined('x[i].pages'):    
+    x[i].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
 ---
 generic object: ALExhibitList
 id: exhibit i has additional pages
