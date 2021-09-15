@@ -236,6 +236,7 @@ class ALIndividual(Individual):
         {str(self.gender_nonbinary_label): 'nonbinary'},
         {str(self.gender_prefer_not_to_say_label): 'prefer-not-to-say'},
         {str(self.gender_prefer_self_described_label): 'self-described'},
+        {str(self.gender_unknown_label): 'unknown'},
     ]
     self_described_input = {"label": str(self.gender_self_described_label),
                             "field": self.attr_name('gender'),
@@ -259,7 +260,49 @@ class ALIndividual(Individual):
         },
         self_described_input
       ]
-              
+      
+  @property
+  def gender_male(self):
+    """Provide True/False for 'male' gender to assist with checkbox filling
+    in PDFs with "skip undefined" turned on."""
+    return self.gender == 'male'
+  
+  @property
+  def gender_female(self):
+    """Provide True/False for 'female' gender to assist with checkbox filling
+    in PDFs with "skip undefined" turned on."""
+    return self.gender == 'female'
+  
+  @property
+  def gender_other(self):
+    """Provide True/False for 'other' gender to assist with checkbox filling
+    in PDFs with "skip undefined" turned on for forms without more inclusive options."""
+    return ((self.gender != 'male') and (self.gender != 'female'))
+  
+  @property
+  def gender_nonbinary(self):
+    """Provide True/False for 'nonbinary' gender to assist with checkbox filling
+    in PDFs with "skip undefined" turned on."""
+    return self.gender == 'nonbinary'
+  
+  @property
+  def gender_unknown(self):
+    """Provide True/False for 'unknown' gender to assist with checkbox filling
+    in PDFs with "skip undefined" turned on."""
+    return self.gender == 'unknown'
+  
+  @property
+  def gender_undisclosed(self):
+    """Provide True/False for 'prefer-not-to-say' gender to assist with checkbox filling
+    in PDFs with "skip undefined" turned on."""
+    return self.gender == 'prefer-not-to-say'  
+  
+  @property
+  def gender_self_described(self):
+    """Provide True/False for 'self-described' gender to assist with checkbox filling
+    in PDFs with "skip undefined" turned on."""    
+    return not (self.gender in ['prefer-not-to-say','male','female','unknown','nonbinary'])
+  
   def contact_fields(self):
     """
     Return field prompts for other contact info

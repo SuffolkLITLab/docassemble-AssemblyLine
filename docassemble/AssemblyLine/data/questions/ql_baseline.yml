@@ -329,15 +329,15 @@ content: |
   Self-described gender
 ---
 generic object: ALIndividual
+template: x.gender_unknown_label
+content: |
+  Unknown
+---
+generic object: ALIndividual
 template: x.gender_help_text
 content: |
   Some forms require you to select either "Male" or "Female". If you do not select
   "Male" or "Female", your form may include an empty checkbox.
----
-generic object: ALIndividual
-template: x.gender_female_label
-content: |
-  Female
 ---
 generic object: ALAddress
 template: x.state_label
@@ -744,12 +744,6 @@ code: |
   # It's not really necessary to default to asking the user
   # what date to list on the form.  
   signature_date = today()
----
-generic object: ALIndividual
-code: |
-  x.gender_female = x.gender == 'female'
-  x.gender_male = x.gender == 'male'
-  x.gender_other = ((x.gender != 'male') and (x.gender != 'female'))
 ---
 sets:
   - x.gender
