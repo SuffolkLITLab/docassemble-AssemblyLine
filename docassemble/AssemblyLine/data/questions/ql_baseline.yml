@@ -339,11 +339,6 @@ content: |
   Some forms require you to select either "Male" or "Female". If you do not select
   "Male" or "Female", your form may include an empty checkbox.
 ---
-generic object: ALIndividual
-template: x.gender_female_label
-content: |
-  Female
----
 generic object: ALAddress
 template: x.state_label
 # See https://docassemble.org/docs/functions.html#subdivision_type

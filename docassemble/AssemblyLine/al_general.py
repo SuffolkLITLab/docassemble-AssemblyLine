@@ -302,7 +302,7 @@ class ALIndividual(Individual):
   def gender_self_described(self):
     """Provide True/False for 'self-described' gender to assist with checkbox filling
     in PDFs with "skip undefined" turned on."""    
-    return self.gender == 'self-described'    
+    return not (self.gender in ['prefer-not-to-say','male','female','unknown','nonbinary'])
   
   def contact_fields(self):
     """
