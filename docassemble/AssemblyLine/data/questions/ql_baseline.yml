@@ -329,6 +329,11 @@ content: |
   Self-described gender
 ---
 generic object: ALIndividual
+template: x.gender_unknown_label
+content: |
+  Unknown
+---
+generic object: ALIndividual
 template: x.gender_help_text
 content: |
   Some forms require you to select either "Male" or "Female". If you do not select
