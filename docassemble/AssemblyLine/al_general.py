@@ -274,6 +274,12 @@ class ALIndividual(Individual):
     return self.gender == 'female'
   
   @property
+  def gender_other(self):
+    """Provide True/False for 'other' gender to assist with checkbox filling
+    in PDFs with "skip undefined" turned on for forms without more inclusive options."""
+    return ((self.gender != 'male') and (self.gender != 'female'))
+  
+  @property
   def gender_nonbinary(self):
     """Provide True/False for 'nonbinary' gender to assist with checkbox filling
     in PDFs with "skip undefined" turned on."""

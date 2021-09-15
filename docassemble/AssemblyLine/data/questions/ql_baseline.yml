@@ -750,12 +750,6 @@ code: |
   # what date to list on the form.  
   signature_date = today()
 ---
-generic object: ALIndividual
-code: |
-  x.gender_female = x.gender == 'female'
-  x.gender_male = x.gender == 'male'
-  x.gender_other = ((x.gender != 'male') and (x.gender != 'female'))
----
 sets:
   - x.gender
 id: gender
