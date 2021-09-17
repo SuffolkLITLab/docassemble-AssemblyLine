@@ -1,3 +1,7 @@
+# Version v2.3.5
+
+Hotfix error in country attribute of address_fields() method
+
 # Version v2.3.4
 
 Fix #269 - make the ALExhibitDocument class idempotent
