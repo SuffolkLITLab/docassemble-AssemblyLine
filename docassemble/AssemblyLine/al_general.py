@@ -66,7 +66,7 @@ class ALAddress(Address):
       )
       
     if show_country:
-      fields.append({"label": self.country_label, "field": self.attr_name("address.country"), "required": False, "code": "countries_list()", "default": country_code})
+      fields.append({"label": self.country_label, "field": self.attr_name("country"), "required": False, "code": "countries_list()", "default": country_code})
       # NOTE: using , "datatype": "combobox" might be nice but does not play together well w/ address autocomplete
     return fields      
     
