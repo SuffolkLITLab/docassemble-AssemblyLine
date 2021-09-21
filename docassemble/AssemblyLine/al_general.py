@@ -176,18 +176,20 @@ class ALIndividual(Individual):
     return '%d days' % (int(dd.days),)
   
   # This design helps us translate the prompts for common fields just once
-  def name_fields(self, person_or_business:str = 'person') -> List[Dict[str, str]]:
+  def name_fields(self, person_or_business:str = 'person', show_suffix=True) -> List[Dict[str, str]]:
     """
     Return suitable field prompts for a name. If `uses_parts` is None, adds the 
     proper "show ifs" and uses both the parts and the single entry
     """
     if person_or_business == 'person':
-      return [
+      fields = [
         {"label": str(self.first_name_label), "field": self.attr_name('name.first')},
         {"label": str(self.middle_name_label), "field": self.attr_name('name.middle'), "required": False},
         {"label": str(self.last_name_label), "field": self.attr_name("name.last")},
-        {"label": str(self.suffix_label), "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False}
       ]
+      if show_suffix:
+        fields.append({"label": str(self.suffix_label), "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False})
+      return fields        
     elif person_or_business == 'business':
       # Note: we don't make use of the name.text field for simplicity
       # TODO: this could be reconsidered`, but name.text tends to lead to developer error
@@ -199,7 +201,7 @@ class ALIndividual(Individual):
       # they should be converted to strings first
       show_if_indiv = {"variable": self.attr_name("person_type"), "is": "ALIndividual"}
       show_if_business = {"variable": self.attr_name("person_type"), "is": "business"}
-      return [
+      fields = [
         {"label": str(self.person_type_label), "field": self.attr_name('person_type'),
          "choices": [{str(self.individual_choice_label): "ALIndividual"},
                      {str(self.business_choice_label): "business"}],
@@ -210,13 +212,15 @@ class ALIndividual(Individual):
         {"label": str(self.middle_name_label), "field": self.attr_name('name.middle'), "required": False,
          "show if": show_if_indiv},
         {"label": str(self.last_name_label), "field": self.attr_name("name.last"),
-         "show if": show_if_indiv},
-        {"label": str(self.suffix_label), "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False,
-         "show if": show_if_indiv},
+         "show if": show_if_indiv}
+      ]
+      if show_suffix:
+        fields.append({"label": str(self.suffix_label), "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False})
+      fields.append(        
         # Business names
         {"label": str(self.business_name_label), "field": self.attr_name('name.first'),
          "show if": show_if_business} 
-      ]
+      )
  
   def address_fields(self, country_code:str="US", default_state:str=None, show_country:bool=False) -> List[Dict[str, str]]:
     """
