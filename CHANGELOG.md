@@ -1,3 +1,7 @@
+# Version v2.3.6
+
+Make suffix an optional field to display in name_fields() method
+
 # Version v2.3.5
 
 Hotfix error in country attribute of address_fields() method
