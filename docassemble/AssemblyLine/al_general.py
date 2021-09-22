@@ -215,12 +215,13 @@ class ALIndividual(Individual):
          "show if": show_if_indiv}
       ]
       if show_suffix:
-        fields.append({"label": str(self.suffix_label), "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False})
+        fields.append({"label": str(self.suffix_label), "field": self.attr_name("name.suffix"), "choices": name_suffix(), "required": False, 'show if': show_if_indiv})
       fields.append(        
         # Business names
         {"label": str(self.business_name_label), "field": self.attr_name('name.first'),
          "show if": show_if_business} 
       )
+      return fields
  
   def address_fields(self, country_code:str="US", default_state:str=None, show_country:bool=False) -> List[Dict[str, str]]:
     """
