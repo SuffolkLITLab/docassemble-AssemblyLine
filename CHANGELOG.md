@@ -1,3 +1,7 @@
+# Version v2.3.7
+
+Fixed bug in name_fields
+
 # Version v2.3.6
 
 Make suffix an optional field to display in name_fields() method
