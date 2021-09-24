@@ -1318,7 +1318,10 @@ class ALExhibitDocument(ALDocument):
     filename = os.path.splitext(self.filename)[0] + ".pdf"
     
     if len(self.exhibits):
-      return pdf_concatenate(self.table_of_contents, self.exhibits.as_pdf(add_cover_pages=self.include_exhibit_cover_pages), filename=filename)    
+      if self.include_table_of_contents:
+        return pdf_concatenate(self.table_of_contents, self.exhibits.as_pdf(add_cover_pages=self.include_exhibit_cover_pages), filename=filename)    
+      else:
+        return self.exhibits.as_pdf(add_cover_pages=self.include_exhibit_cover_pages, filename=filename)
     # pdf_concatenate([a.as_pdf() for a in self.exhibits], filename=self.filename)
 
   def as_docx(self, key:str="bool", refresh:bool=True) -> DAFile:
