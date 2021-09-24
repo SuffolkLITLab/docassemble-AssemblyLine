@@ -1,3 +1,7 @@
+# Version v2.3.8
+
+Correct usage of include_table_of_contents in ALExhibitDocument class
+
 # Version v2.3.7
 
 Fixed bug in name_fields
