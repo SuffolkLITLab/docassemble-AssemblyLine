@@ -22,6 +22,8 @@ For more info about semantic versioning (aka semver), see https://semver.org/
 "
 
 real_run=true
+announce_to_teams=true
+publish_to_pypi=true
 
 while [ -n "$1" ]; do
   case "$1" in
@@ -34,9 +36,21 @@ while [ -n "$1" ]; do
     real_run=false
     shift
     ;;
+  --disable-teams)
+    announce_to_teams=false
+    shift
+    ;;
+  --disable-pypi)
+    publish_to_pypi=false
+    shift
+    ;;
   --)
     shift # double dash makes for parameters
     break
+    ;;
+  major | minor | patch | test)
+    bump_type=$1
+    shift
     ;;
   *)
     break # found not an option: just continue
@@ -44,6 +58,10 @@ while [ -n "$1" ]; do
   esac
 done
 
+
+echo "$announce_to_teams"
+echo "$publish_to_pypi"
+echo "$bump_type"
 
 ### Make sure you have all the necessary commands installed and env vars set
 if ! git --help > /dev/null 2>&1; then
@@ -61,22 +79,22 @@ if ! twine --help > /dev/null 2>&1; then
   exit 1
 fi
 
-if [ -z "$1" ]; then
+if [ -z "$bump_type" ]; then
   echo -n "You need to pass in test, patch, minor, or major: $helpvar"
   exit 1
 fi
 
-if [ -z "$TWINE_USERNAME" ]; then
+if "$publish_to_pypi" && [ -z "$TWINE_USERNAME" ]; then
   echo "You need to have the TWINE_USERNAME environment variable defined"
   exit 1
 fi
 
-if [ -z "$TWINE_PASSWORD" ]; then
+if "$publish_to_pypi" && [ -z "$TWINE_PASSWORD" ]; then
   echo "You need to have the TWINE_PASSWORD environment variable defined"
   exit 1
 fi
 
-if [ -z "$TEAMS_BUMP_WEBHOOK" ]; then
+if "$announce_to_teams" && [ -z "$TEAMS_BUMP_WEBHOOK" ]; then
   echo "You need to have the TEAMS_BUMP_WEBHOOK environment variable defined"
   exit 1
 fi
@@ -97,14 +115,14 @@ fi
 ### Makes git commit and tag
 if $real_run
 then
-  new_version=$(bumpversion --list --config-file .bumpversion.cfg "$1" | grep new_version | cut -d= -f 2)
+  new_version=$(bumpversion --list --config-file .bumpversion.cfg "$bump_type" | grep new_version | cut -d= -f 2)
 else
-  new_version=$(bumpversion --list --dry-run --verbose --config-file .bumpversion.cfg "$1" | grep new_version | cut -d= -f 2)
+  new_version=$(bumpversion --list --dry-run --verbose --config-file .bumpversion.cfg "$bump_type" | grep new_version | cut -d= -f 2)
 fi
 
-if [ "$1" = "patch" ] || [ "$1" = "minor" ] || [ "$1" = "major" ] 
+if [ "$bump_type" = "patch" ] || [ "$bump_type" = "minor" ] || [ "$bump_type" = "major" ] 
 then
-  echo What has changed about this "$1" version? Press ctrl-d to finish, ctrl-c to cancel
+  echo What has changed about this "$bump_type" version? Press ctrl-d to finish, ctrl-c to cancel
   release_update=$(</dev/stdin)
   if $real_run
   then
@@ -184,25 +202,41 @@ then
   git push
   git push --tags
   # Only push to pypi and announce on non-test bumps
-  if [ ! "$1" = "test" ]
+  if [ ! "$bump_type" = "test" ]
   then
-    # Needs TWINE_USERNAME and TWINE_PASSWORD
-    twine upload --repository 'pypi' dist/* --non-interactive
-    curl -H "Content-Type:application/json" -d "@/tmp/teams_msg_to_send.json" "$TEAMS_BUMP_WEBHOOK"
+    if "$publish_to_pypi"
+    then
+      # Needs TWINE_USERNAME and TWINE_PASSWORD
+      twine upload --repository 'pypi' dist/* --non-interactive
+    fi
+    if "$announce_to_teams"
+    then
+      curl -H "Content-Type:application/json" -d "@/tmp/teams_msg_to_send.json" "$TEAMS_BUMP_WEBHOOK"
+    fi
   fi
   rm -rf build dist ./*.egg-info
 
 else
-  if [ "$1" = "minor" ] || [ "$1" = "major" ] 
+  if [ "$bump_type" = "minor" ] || [ "$bump_type" = "major" ] 
   then
     echo "Changelog would be:"
     echo -e "# v$new_version\n\n$release_update\n\n$(cat CHANGELOG.md)"
   fi
 
-  if [ ! "$1" = "test" ]
+  if [ ! "$bump_type" = "test" ]
   then
-    echo "Would push to Pypi"
-    echo "Teams message JSON is: $(cat /tmp/teams_msg_to_send.json)"
+    if "$publish_to_pypi"
+    then
+      echo "Would push to Pypi"
+    else
+      echo "Would NOT push to Pypi"
+    fi
+    if "$announce_to_teams"
+    then
+      echo "Teams message JSON is: $(cat /tmp/teams_msg_to_send.json)"
+    else
+      echo "Would NOT announce to teams"
+    fi
   else
     echo "Would NOT push to Pypi or announce to Teams"
   fi
