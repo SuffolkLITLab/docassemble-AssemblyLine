@@ -1,3 +1,7 @@
+# Version v2.4.0
+
+Allow ALDocumentBundles to set the value of auto_gather and gathered in object declaration
+
 # Version v2.3.8
 
 Correct usage of include_table_of_contents in ALExhibitDocument class
