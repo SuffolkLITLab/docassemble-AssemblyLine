@@ -762,8 +762,10 @@ class ALDocumentBundle(DAList):
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
-    self.auto_gather=False
-    self.gathered=True
+    if not hasattr(self, 'auto_gather'):
+      self.auto_gather=False
+    if not hasattr(self, 'gathered'):
+      self.gathered=True
     self.initializeAttribute('cache', DALazyAttribute)
     self.always_enabled = hasattr(self, 'enabled') and self.enabled
 
