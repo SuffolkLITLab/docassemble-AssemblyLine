@@ -1,0 +1,33 @@
+---
+include:
+  - al_package.yml
+---
+table: test_table.table
+rows: |
+  [DAObject(attribute=m) for m in range(10)]
+columns:
+  - Column 1: |
+      row_item.attribute
+---
+mandatory: True
+code: |
+  intro
+  download
+---
+objects:
+  - test_table: ALTableDocument.using(title="Table test", filename="test", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[test_table], filename='court_bundle.pdf', title='All forms to send to the court')
+---
+field: intro
+question: |
+  Intro
+---
+imports:
+  - mimetypes
+---
+event: download
+question: |
+  Download
+subquestion: |
+
+  ${ al_court_bundle.download_list_html() }
