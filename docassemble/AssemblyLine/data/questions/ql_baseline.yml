@@ -408,7 +408,7 @@ question: |
   When was ${x} born?
 fields:
   - Birthdate: x.birthdate
-    datatype: date
+    datatype: BirthDate
 ---
 # TODO: consider removing default state
 id: your address
