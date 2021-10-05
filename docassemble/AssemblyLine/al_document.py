@@ -1,5 +1,6 @@
 import re
 import os
+import mimetypes
 from typing import Any, Dict, List, Union, Callable
 from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, send_email, docx_concatenate, get_config, space_to_underscore, DAStaticFile, alpha
 
@@ -15,6 +16,8 @@ __all__ = ['ALAddendumField',
            'ALExhibitList',
            'ALExhibit',
            'ALExhibitDocument',
+           'ALTableDocument',
+           'ALUntransformedDocument',
            'unpack_dafilelist']
 
 DEBUG_MODE = get_config('debug')
@@ -903,6 +906,11 @@ class ALDocumentBundle(DAList):
     """
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
+    
+    `format` is one of:
+    * pdf
+    * docx
+    * original
     """
     # Trigger some variables up top to avoid idempotency issues
     enabled_docs = self.enabled_documents(refresh=refresh)
@@ -915,18 +923,31 @@ class ALDocumentBundle(DAList):
 
     for doc in enabled_docs:
       filename_root = os.path.splitext(str(doc.filename))[0]
+      # Do our best to use the provided filename + the extension from requested filetype
+      if format=='original':
+        download_doc = doc[key]
+        download_filename = doc.filename
       if format=='docx' and doc._is_docx(key=key):
         download_doc = doc.as_docx(key=key)
         download_filename = filename_root + ".docx"
       else:
         download_doc = doc.as_pdf(key=key)
         download_filename = filename_root + ".pdf"
-
+      
+      try:
+        # If it's possible, set the file extension to the actual filetype
+        # This is mostly necessary if people omit the file extension in attachment block
+        # for filetype="original"
+        ext = next(iter(mimetypes.guess_all_extensions(download_doc.mimetype, strict=True)))
+        download_filename = filename_root + ext
+      except:
+        pass        
+      
       doc_download_button = action_button_html(
           download_doc.url_for(attachment=True, display_filename=download_filename),
           label=download_label, icon=download_icon, color="primary", size="md",
           classname='al_download' )
-      if view:
+      if view and doc.as_pdf().url_for().endswith(".pdf"):
         doc_view_button = action_button_html(
             doc.as_pdf(key=key).url_for(attachment=False, display_filename=filename_root + ".pdf"),
             label=view_label, icon=view_icon, color="secondary", size="md", classname='al_view' )
@@ -1329,6 +1350,61 @@ class ALExhibitDocument(ALDocument):
   def as_docx(self, key:str="bool", refresh:bool=True) -> DAFile:
       return self.as_pdf()
 
+class ALTableDocument(ALDocument):
+  def init(self, *pargs, **kwargs):
+    super().init(*pargs, **kwargs)
+    self.has_addendum = False
+
+  def has_overflow(self):
+    """
+    Provided for signature compatibility with ALDocument.
+    """
+    return False
+
+  def __getitem__(self, key):
+    # This overrides the .get() method so that the 'final' and 'private' key always exist and
+    # point to the same file.
+    return self.as_pdf()
+  
+  def as_list(self, **kwargs) -> List[DAFile]:
+    return [self]
+
+  def as_pdf(self, **kwargs) -> DAFile:
+    """
+    Args:
+        key (str): unused, for signature compatibility with ALDocument
+    """
+    return self.table.export(self.filename + '.xlsx', title=self.filename)
+  
+  def as_docx(self, **kwargs) -> DAFile:
+    return self.as_pdf()
+    
+
+def ALUntransformedDocument(ALDocument):
+  def init(self, *pargs, **kwargs):
+    super().init(*pargs, **kwargs)
+    self.has_addendum = False
+
+  def has_overflow(self):
+    """
+    Provided for signature compatibility with ALDocument.
+    """
+    return False
+  
+  def as_list(self, **kwargs) -> List[DAFile]:
+    return [self]
+
+  def as_pdf(self, **kwargs) -> DAFile:
+    """
+    Args:
+        key (str): unused, for signature compatibility with ALDocument
+    """
+    return self[key]
+  
+  def as_docx(self, **kwargs) -> DAFile:
+    return self.as_pdf()
+  
+    
 def unpack_dafilelist(the_file:DAFileList)->DAFile:
   """Creates a plain DAFile out of the first item in a DAFileList
   Args:
