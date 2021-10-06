@@ -15,7 +15,8 @@
 }
 @media only screen and (max-width: 766px) {
     .title {
-        display: normal; /*none
+        /*display: none */
+        font-weight: normal;
     }
   /*
     .ma_icon {
