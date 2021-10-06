@@ -89,6 +89,8 @@ class ALAddress(Address):
         Optionally, add a `show if` modifier to each field. The `show if` modifier
         will not be used if the `allow_no_address` modifier is used.
         """
+        if not country_code:
+            country_code = AL_DEFAULT_COUNTRY
         if allow_no_address:
             fields = [
                 {
@@ -127,6 +129,22 @@ class ALAddress(Address):
             fields[-2]["hide if"] = self.attr_name("has_no_address")
 
         fields.append({"label": str(self.city_label), "field": self.attr_name("city")})
+
+
+        if show_country:
+            state_field = {
+                "label": (f"% if not defined('{ self.attr_name('country') }'):\n" +
+                          str(self.state_label) + "\n" +
+                          f"% elif safe_subdivision_type({ self.attr_name('country')}):\n" +
+                          f"${{ safe_subdivision_type({ self.attr_name('country')}) }}\n" +
+                          "% else:\n" +
+                          str(self.state_label) + "\n" +
+                          "% endif"),
+                "field": self.attr_name("state"),
+                "default": default_state if default_state else ''
+            }
+            state_field["code"] = f"states_list(country_code={self.attr_name('country')}) if pycountry.subdivisions.get(country_code={self.attr_name('country')}) else ()"
+            fields.append(state_field)
         if country_code:
             fields.append(
                 {
@@ -136,7 +154,7 @@ class ALAddress(Address):
                     "default": default_state if default_state else "",
                 }
             )
-        else:
+        else: # not showing country and not showing country code
             fields.append(
                 {
                     "label": str(self.state_label),
@@ -396,6 +414,7 @@ class ALAddress(Address):
             return state_name(self.state, country_code=self.country)
         # Default to the AL_DEFAULT_COUNTRY_CODE as the code to use if other options fail
         return state_name(self.state, country_code=AL_DEFAULT_COUNTRY_CODE)
+
 
 class ALAddressList(DAList):
     """Store a list of Address objects"""
