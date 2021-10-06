@@ -31,7 +31,8 @@ default screen parts:
     <div data-variable="${ encode_name(str( user_info().variable )) }" id="trigger" aria-hidden="true" style="display: none;"></div>
 ---
 features:
-  small screen navigation: False
+  small screen navigation: dropdown
+  navigation back button: False
   javascript:
     - al_audio.js
     - docassemble.ALToolbox:copy_button.js
