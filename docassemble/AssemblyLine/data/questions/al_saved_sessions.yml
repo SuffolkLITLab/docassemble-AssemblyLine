@@ -96,7 +96,7 @@ code: |
   formatted_sessions_temp = []
   for index, session in enumerate(al_sessions_list):
     formatted_sessions_temp.append({
-      index: f"{session.get('title')}: {session.get('subtitle') if session.get('subtitle') else ''} ({ format_date(session.get('modtime')) })"
+      index: f"{session.get('title')}: {session.get('subtitle') if session.get('subtitle') else ''} ({ format_datetime(session.get('modtime'), format='MM/dd/yyyy hh:mm a') })"
     })
   formatted_sessions_temp.sort(key=lambda session: next(iter(session.values())))
   al_formatted_sessions = formatted_sessions_temp

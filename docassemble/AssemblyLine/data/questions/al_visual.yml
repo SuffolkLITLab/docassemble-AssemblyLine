@@ -21,7 +21,7 @@ default screen parts:
     `id: ${ user_info().question_id }`  
     `Package: ${ user_info().package } ${ package_version_number }; ${ al_version }`
     
-    [:save: Snapshot (dev)](${ url_ask(al_sessions_url_ask_snapshot) })
+    [:save: Take Snapshot (dev)](${ url_ask(al_sessions_url_ask_snapshot) })
     <span style="margin-right: 1em"></span>
     [:fast-forward: Fast forward (dev)](${ url_ask(al_sessions_url_ask_fast_forward) })
     <div data-variable="${ encode_name(str( user_info().variable )) }" id="sought_variable" aria-hidden="true" style="display: none;"></div>
