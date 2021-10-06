@@ -1,21 +1,10 @@
-/*.navbar {
-    height: 60px;
-}
-*/
-
-footer {
-  text-align: right
-}
-
-footer a {
-  padding-left: 2em;
-}
-
+/*---------------------------------------------------------*/
+/* Logo and title 
+/*---------------------------------------------------------*/
 .ma_icon {
     position: relative;
     margin-right: 0.5rem;
-}
-
+}  
 .title {
     display: inline;
     position: relative;
@@ -24,11 +13,9 @@ footer a {
     font-weight: bold;
     font-size: 20px;
 }
-
-
 @media only screen and (max-width: 766px) {
     .title {
-        display: none
+        display: normal; /*none
     }
   /*
     .ma_icon {
@@ -36,15 +23,28 @@ footer a {
     }
   */
 }
-
+/*---------------------------------------------------------*/
+/* Navigation bar and footer
+/*---------------------------------------------------------*/
+/*.navbar {
+    height: 60px;
+}
+*/
 .da-pad-for-navbar {
     padding-top: 70px;
 }
-
 .da-top-for-navbar {
     top: 70px;
 }
-
+footer {
+  text-align: right
+}
+footer a {
+  padding-left: 2em;
+}
+/*---------------------------------------------------------*/
+/* Content
+/*---------------------------------------------------------*/
 blockquote {
     background: #f9f9f9;
     border-left: 10px solid #ccc;
@@ -53,7 +53,6 @@ blockquote {
     quotes: "\201C""\201D""\2018""\2019";
     font-size: .75em;
 }
-
 blockquote:before {
     color: #ccc;
     content: open-quote;
@@ -62,7 +61,6 @@ blockquote:before {
     margin-right: 0.25em;
     vertical-align: -0.4em;
 }
-
 blockquote p {
     display: inline;
 }
