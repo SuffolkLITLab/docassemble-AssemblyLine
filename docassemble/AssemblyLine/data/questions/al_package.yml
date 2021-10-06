@@ -13,6 +13,8 @@ modules:
   - .al_general
   - .al_document
   - .al_courts
+  - docassemble.GithubFeedbackForm.github_issue
+---  
 #############################
 # Variables used in most interviews:
 # * trial_court
