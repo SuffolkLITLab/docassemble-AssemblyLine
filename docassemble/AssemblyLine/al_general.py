@@ -22,6 +22,8 @@ from docassemble.base.util import (
     this_thread,
     ensure_definition,
     DAFile,
+    state_name,
+    defined
 )
 import re
 import pycountry
@@ -385,6 +387,15 @@ class ALAddress(Address):
             return self.norm_long
         return self
 
+    @property
+    def state_name(self, country_code=None):
+        if country_code:
+            return state_name(self.state, country_code=country_code)
+        # Do a quick check for a valid ISO country code (alpha-2 or alpha-3)
+        if hasattr(self, 'country') and self.country and len(self.country) < 4:
+            return state_name(self.state, country_code=self.country)
+        # Default to the AL_DEFAULT_COUNTRY_CODE as the code to use if other options fail
+        return state_name(self.state, country_code=AL_DEFAULT_COUNTRY_CODE)
 
 class ALAddressList(DAList):
     """Store a list of Address objects"""
