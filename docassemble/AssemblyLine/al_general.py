@@ -313,6 +313,11 @@ class ALIndividual(Individual):
     Return field prompts for other contact info
     """
     pass
+  
+  @property
+  def initials(self):
+    """Return the individual's initials, like QKS for Quinten K Steenhuis"""
+    return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1]}"
 
 def section_links(nav: DANav) -> List[str]:
   """Returns a list of clickable navigation links without animation."""
