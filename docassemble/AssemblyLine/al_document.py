@@ -901,7 +901,7 @@ class ALDocumentBundle(DAList):
 
   def download_list_html(self, key:str='final', format:str='pdf', view:bool=True,
       refresh:bool=True, include_zip:bool = True, view_label="View", view_icon:str="eye",
-      download_label:str="Download", download_icon:str="download", zip_label:str="Download zip",
+      download_label:str="Download", download_icon:str="download", zip_label:str=None,
       zip_icon:str="file-archive") -> str:
     """
     Returns string of a table to display a list
@@ -959,6 +959,8 @@ class ALDocumentBundle(DAList):
     # Add a zip file row if there's more than one doc
     filename_root = os.path.splitext(str(self.filename))[0]
     if len(enabled_docs) > 1 and include_zip:
+      if not zip_label:
+        zip_label = str(self.zip_label)      
       zip = self.as_zip(key=key)
       zip_button = action_button_html(
           zip.url_for(attachment=False, display_filename = filename_root + ".zip"),
@@ -1031,14 +1033,14 @@ class ALDocumentBundle(DAList):
 
     return_str = f'''
   <div class="al_send_bundle {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
-    <h5 id="al_doc_email_header">Get a copy of the documents in email</h5> 
+    <h5 id="al_doc_email_header">{self.get_email_copy}</h5> 
     '''
     if show_editable_checkbox:
       return_str += f'''
     <div class="form-check-container">
       <div class="form-check">
         <input class="form-check-input" type="checkbox" class="al_wants_editable" id="{al_wants_editable_input_id}">
-        <label class="al_wants_editable form-check-label" for="{al_wants_editable_input_id}">{word("Include an editable copy")}
+        <label class="al_wants_editable form-check-label" for="{al_wants_editable_input_id}">{self.include_editable_documents}
         </label>
       </div>
     </div>
