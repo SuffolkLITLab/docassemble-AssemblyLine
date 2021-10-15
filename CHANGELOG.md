@@ -1,3 +1,7 @@
+# Version v2.4.1
+
+Add back in mistakenly removed AL_DEFAULT_OVERFLOW_MESSAGE
+
 # Version v2.4.0
 
 Allow ALDocumentBundles to set the value of auto_gather and gathered in object declaration
