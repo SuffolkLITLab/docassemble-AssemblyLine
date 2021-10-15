@@ -91,3 +91,8 @@ code: |
     package_version_number = str(importlib.import_module(user_info().package).__version__)
   except:
     package_version_number = "playground"    
+---
+code: |
+  AL_DEFAULT_OVERFLOW_MESSAGE = "..."
+  
+  
