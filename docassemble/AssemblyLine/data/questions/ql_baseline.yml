@@ -708,7 +708,7 @@ fields:
 ---
 id: attorney id number
 question: |
-  What is ${ attorneys[i] }'s attorney or bar number?
+  What is ${ attorneys[i] }'s ID or bar number?
 subquestion: |
   ${ collapse_template(help_what_is_attorney_id_template) }
 fields:
