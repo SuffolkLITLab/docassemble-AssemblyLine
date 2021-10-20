@@ -452,6 +452,8 @@ question: |
   What is your contact information?
 subquestion: |
   Include at least **one** way to reach you other than by mail.
+
+  ${ collapse_template(why_contact_info_needed_template) }
 fields:  
   - Mobile number: users[0].mobile_number
     required: False
@@ -474,8 +476,11 @@ validation code: |
       (not showifdef('users[0].email')) and \
       (not showifdef('users[0].other_contact_method'))):
     validation_error(word("You need to provide at least one contact method."), field="users[0].other_contact_method")
-# TODO: adjust this if the form is not a court form
-help: |
+---
+template: why_contact_info_needed_template
+subject: |
+  Why do I need to give my contact information?
+content: | 
   % if al_form_type in ['starts_case','existing_case','appeal']:
   The court **must** be able to reach you. So you have to give them some way to do this.
   
