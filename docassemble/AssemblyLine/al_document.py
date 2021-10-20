@@ -1059,7 +1059,7 @@ class ALDocumentBundle(DAList):
 
   def send_email(self, to:any=None, key:str='final', editable:bool=False, template:any=None, **kwargs) -> bool:
     """
-    Send an email with the current bundle as a single flat pdf or as editable documents.
+    Send an email with the current bundle as a series of flat pdfs (one per bundle entry) or as editable documents.
     Can be used the same as https://docassemble.org/docs/functions.html#send_email with
     two optional additional params.
 
