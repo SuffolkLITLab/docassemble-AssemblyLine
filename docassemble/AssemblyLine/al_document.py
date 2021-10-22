@@ -1059,7 +1059,7 @@ class ALDocumentBundle(DAList):
 
   def send_email(self, to:any=None, key:str='final', editable:bool=False, template:any=None, **kwargs) -> bool:
     """
-    Send an email with the current bundle as a single flat pdf or as editable documents.
+    Send an email with the current bundle as a series of flat pdfs (one per bundle entry) or as editable documents.
     Can be used the same as https://docassemble.org/docs/functions.html#send_email with
     two optional additional params.
 
@@ -1076,7 +1076,7 @@ class ALDocumentBundle(DAList):
     if editable:
       return send_email(to=to, template=template, attachments=self.as_editable_list(key=key), **kwargs)
     else:
-      return send_email(to=to, template=template, attachments=self.as_pdf(key=key), **kwargs)
+      return send_email(to=to, template=template, attachments=self.as_pdf_list(key=key), **kwargs)
 
   # I don't think this was actually ever used
   def table_css(self):
