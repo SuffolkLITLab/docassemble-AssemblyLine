@@ -102,6 +102,8 @@ question: |
   Did you file the first form in this dispute, or did you respond
   to a form that someone else filed first?
   % endif
+
+  ${ collapse_template(help_user_ask_role_template) }
 fields: 
   - no label: user_ask_role
     datatype: radio
@@ -120,15 +122,16 @@ fields:
     show if:
       variable: user_ask_role
       is: "defendant"
-help:
-  label: |
-    How do I know?
-  content: |
-    If you are the first person to file a form in the case, you 
-    started the case. You are the "Plaintiff" or the "Petitioner."
-  
-    If you are responding to a case or court papers someone else filed, you
-    are the "Defendant" or the "Respondent."
+---
+template: help_user_ask_role_template
+subject: |
+  How do I know?
+content: |
+  If you are the first person to file a form in the case, you 
+  started the case. You are the "Plaintiff" or the "Petitioner."
+
+  If you are responding to a case or court papers someone else filed, you
+  are the "Defendant" or the "Respondent."
 ---
 code: |
   if user_started_case:
@@ -162,6 +165,8 @@ question: |
   Did you file the first form in this dispute, or did you respond
   to a form that someone else filed first?
   % endif
+
+  ${ collapse_template(help_user_ask_role_template) }
 fields: 
   - no label: user_detailed_role_started_case
     datatype: radio
@@ -186,18 +191,6 @@ fields:
     show if:
       variable: user_detailed_role_started_case
       is: "responded"
-help:
-  label: |
-    How do I know?
-  content: |
-    If you are the first person to file a form in the case, you 
-    started the case. You are the "Plaintiff" or the "Petitioner."
-  
-    If you are responding to a case or court papers someone else filed, you
-    are the "Defendant" or the "Respondent."
-    
-    The exact name that applies to your kind of case may be listed on paperwork
-    that you filled out or that the court sent you.
 ---
 code: |
   # This will be considered after any code in the parent interview
@@ -452,6 +445,8 @@ question: |
   What is your contact information?
 subquestion: |
   Include at least **one** way to reach you other than by mail.
+
+  ${ collapse_template(why_contact_info_needed_template) }
 fields:  
   - Mobile number: users[0].mobile_number
     required: False
@@ -474,8 +469,11 @@ validation code: |
       (not showifdef('users[0].email')) and \
       (not showifdef('users[0].other_contact_method'))):
     validation_error(word("You need to provide at least one contact method."), field="users[0].other_contact_method")
-# TODO: adjust this if the form is not a court form
-help: |
+---
+template: why_contact_info_needed_template
+subject: |
+  Why do I need to give my contact information?
+content: | 
   % if al_form_type in ['starts_case','existing_case','appeal']:
   The court **must** be able to reach you. So you have to give them some way to do this.
   
@@ -710,16 +708,20 @@ fields:
 ---
 id: attorney id number
 question: |
-  What is ${ attorneys[i].possessive('ID number') }?
+  What is ${ attorneys[i] }'s ID or bar number?
+subquestion: |
+  ${ collapse_template(help_what_is_attorney_id_template) }
 fields:
-  - BBO: attorneys[i].id_number
-help: 
-  label: |
-    ID?
-  content: |
-    In some jurisdictions, attorneys will have an identification number. 
-    For example, in Massachusetts, all attorneys have a BBO (Board of 
-    Bar Overseers) number that is 6 digits long. 
+  - Attorney number: attorneys[i].id_number
+    required: False
+---
+template: help_what_is_attorney_id_template
+subject: |
+  What is an attorney ID?
+content: |
+  In some jurisdictions, attorneys will have an identification number. 
+  For example, in Massachusetts, all attorneys have a BBO (Board of 
+  Bar Overseers) number that is 6 digits long. 
 ---
 id: persons signature
 generic object: ALIndividual
@@ -867,6 +869,8 @@ code: |
   courts[0] = trial_court
 ---
 template: how_to_pick_court_help_template
+subject: |
+  How do I pick a court?
 content: |
   For some cases, you can choose your court.
   % if al_form_type == 'starts_case':  
@@ -896,6 +900,8 @@ subquestion: |
   % if not al_form_type == 'starts_case':
   Look at your court paperwork. Match the name listed there.
   % endif
+
+  ${ collapse_template(how_to_pick_court_help_template) }
 fields:
   - Name: trial_court_name
   - Address: trial_court_address.address
@@ -909,11 +915,6 @@ fields:
     required: False
   - Postal code: trial_court_address.zip    
     required: False
-help: 
-  label: |
-    How do I pick a court?
-  content: |
-    ${ how_to_pick_court_help_template }
 ---
 depends on:
   - trial_court_name
@@ -1017,7 +1018,7 @@ decoration: file-signature
 ---
 id: signature-phone
 question: |
-  Sign your forms
+  Sign your forms  
 fields:
   - note: |
       1. Open the camera app or barcode reader app on your phone.
@@ -1028,6 +1029,8 @@ fields:
       <center>
       ${interview_url_as_qr()}
       </center>
+
+      ${ collapse_template(help_using_qr_code_template) }
     show if: 
       code: |
         device() and device().is_pc
@@ -1045,7 +1048,11 @@ fields:
     show if: 
       code: |
         device() and not device().is_pc
-help: |
+---
+template: help_using_qr_code_template
+subject: |
+  How do I use this screen?
+content: |          
   Many smartphones will automatically find the link on this screen when you use
   the camera app. The link
   may "float" up from the screen into a small icon you can tap.
@@ -1082,24 +1089,27 @@ subquestion: |
 
   Are there any instructions that you would like to give to the clerk that will
   receive your forms?
+
+  ${ collapse_template(help_comments_to_clerk_template) }
 fields:
   - Information for clerk: comments_to_clerk
     datatype: area
     rows: 4
     required: False
-help:
-  label: |
-    What to include?
-  content: |
-    Include information that you want the clerk to know. The clerk is the person
-    who will receive your paperwork and put it in an official court file. The
-    clerk is not a decision maker on your case.
+---
+template: help_comments_to_clerk_template    
+subject: |
+  What to include?
+content: |
+  Include information that you want the clerk to know. The clerk is the person
+  who will receive your paperwork and put it in an official court file. The
+  clerk is not a decision maker on your case.
 
-    Do not include information that is meant for the judge or the other party.
-    Do not include information that is meant to be part of your official case.
+  Do not include information that is meant for the judge or the other party.
+  Do not include information that is meant to be part of your official case.
 
-    There is a chance this information may end up in the public court file, so
-    do not include sensitive or private information.
+  There is a chance this information may end up in the public court file, so
+  do not include sensitive or private information.
 ---
 code: |
   all_final_forms_combined = al_final_form_to_file.as_pdf(key='final')
@@ -1229,6 +1239,8 @@ comment: |
 question: |
   Did you start this case, or are you responding to a case
   that someone else started?
+
+  ${ collapse_template(help_user_ask_role_template) }
 fields: 
   - no label: user_ask_role
     datatype: radio
@@ -1247,15 +1259,6 @@ fields:
     show if:
       variable: user_ask_role
       is: "defendant"
-help:
-  label: |
-    How do I know?
-  content: |
-    If you are the first person to file a form in the case, you 
-    started the case. You are the "Plaintiff" or the "Petitioner."
-  
-    If you are responding to a case or court papers someone else filed, you
-    are the "Defendant" or the "Respondent."
 ---
 code: |
   # Every form has a user, at least as our default. You can override this
