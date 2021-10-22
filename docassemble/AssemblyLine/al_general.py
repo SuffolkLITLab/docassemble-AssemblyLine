@@ -95,6 +95,15 @@ class ALPeopleList(DAList):
 
   def familiar_or(self) -> str:
     return comma_and_list([person.name.familiar() for person in self],and_string=word("or"))
+  
+  def short_list(self, limit:int, truncate_string:str=', et. al.'):
+    """Return a subset of the list, as as string with a comma separating items, followed by 'et. al.' if the list exceeds the provided limit.
+    Otherwise just return the items in the list.
+    """
+    if len(self) > limit:
+      return comma_and_list(self[:limit]) + truncate_string
+    else:
+      return comma_and_list(self)
 
 class ALIndividual(Individual):
   """Used to represent an Individual on the assembly line project.
