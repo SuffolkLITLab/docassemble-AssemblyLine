@@ -147,7 +147,7 @@ project_name=$(echo "$repo_name" | cut -d - -f2)
 
 # This JSON was built using: https://messagecardplayground.azurewebsites.net/, 
 # and https://docs.microsoft.com/en-us/outlook/actionable-messages/message-card-reference
-link_ver=${ver//["."]}
+link_ver=${new_version//["."]}
 sed -e "s/{{version}}/$new_version/g; s/{{link_version}}/$link_ver/g; s/{{project_name}}/$project_name/g; s/{{org_name}}/$org_name/g; s/{{repo_name}}/$repo_name/g;" << EOF > /tmp/teams_msg_to_send.json
 {
 	"@type": "MessageCard",
