@@ -1,3 +1,10 @@
+# Version v2.6.0
+
+* Added new short_list method on ALPeopleList, to display abbreviated list of people
+* Remove some uses of question help button
+* send_button_html now triggers sending separate PDFs for each bundled item. Editable checkbox still sends Word DOCX files as appropriate
+* Improved bumpversion script link to changelog
+
 # Version v2.5.0
 
 * Use separate PDFs in send_button_html
