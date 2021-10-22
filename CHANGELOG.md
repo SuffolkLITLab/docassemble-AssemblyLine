@@ -1,3 +1,9 @@
+# Version v2.5.0
+
+* Use separate PDFs in send_button_html
+* Remove some question help buttons, per usability feedback
+* Fix bumpversion script
+
 # Version v2.4.1
 
 Add back in mistakenly removed AL_DEFAULT_OVERFLOW_MESSAGE
