@@ -1320,7 +1320,7 @@ class ALExhibitDocument(ALDocument):
     if not hasattr(self, 'include_exhibit_cover_pages'):
       self.include_exhibit_cover_pages = True
     self.has_addendum = False
-
+    
   def has_overflow(self):
     """
     Provided for signature compatibility with ALDocument. Exhibits do not have overflow.
@@ -1376,8 +1376,11 @@ class ALTableDocument(ALDocument):
     Args:
         key (str): unused, for signature compatibility with ALDocument
     """
-    return self.table.export(self.filename + '.xlsx', title=self.filename)
-  
+    if hasattr(self, 'file'):
+      return self.file
+    self.file = self.table.export(self.filename + '.xlsx', title=self.filename)
+    return self.file
+    
   def as_docx(self, **kwargs) -> DAFile:
     return self.as_pdf()
     
