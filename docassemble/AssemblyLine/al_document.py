@@ -771,6 +771,10 @@ class ALDocumentBundle(DAList):
       self.gathered=True
     self.initializeAttribute('cache', DALazyAttribute)
     self.always_enabled = hasattr(self, 'enabled') and self.enabled
+    # Pre-cache some DALazyTemplates we set up to aid translation that won't
+    # vary at runtime
+    self._cached_zip_label = str(self.zip_label)
+    
 
   def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
     safe_key = space_to_underscore(key)
@@ -960,7 +964,7 @@ class ALDocumentBundle(DAList):
     filename_root = os.path.splitext(str(self.filename))[0]
     if len(enabled_docs) > 1 and include_zip:
       if not zip_label:
-        zip_label = str(self.zip_label)      
+        zip_label = self._cached_zip_label      
       zip = self.as_zip(key=key)
       zip_button = action_button_html(
           zip.url_for(attachment=False, display_filename = filename_root + ".zip"),
