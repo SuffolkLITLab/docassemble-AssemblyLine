@@ -2,6 +2,11 @@
 include:
   - al_package.yml
 ---
+generic object: ALDocumentBundle
+template: x.zip_label
+content: |
+  Download zip
+---
 metadata:
   title: |
     Test ALDocument class
