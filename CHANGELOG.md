@@ -1,3 +1,7 @@
+# Version v2.6.1
+
+Increased caching for some translated strings
+
 # Version v2.6.0
 
 * Added new short_list method on ALPeopleList, to display abbreviated list of people
