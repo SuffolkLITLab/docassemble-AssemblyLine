@@ -771,6 +771,8 @@ class ALDocumentBundle(DAList):
       self.gathered=True
     self.initializeAttribute('cache', DALazyAttribute)
     self.always_enabled = hasattr(self, 'enabled') and self.enabled
+    # Pre-cache some DALazyTemplates we set up to aid translation that won't
+    # vary at runtime    
 
   def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
     safe_key = space_to_underscore(key)
@@ -912,6 +914,9 @@ class ALDocumentBundle(DAList):
     * docx
     * original
     """
+    if not hasattr(self, '_cached_zip_label'):
+      self._cached_zip_label = str(self.zip_label)
+    
     # Trigger some variables up top to avoid idempotency issues
     enabled_docs = self.enabled_documents(refresh=refresh)
     for doc in enabled_docs:
@@ -960,7 +965,7 @@ class ALDocumentBundle(DAList):
     filename_root = os.path.splitext(str(self.filename))[0]
     if len(enabled_docs) > 1 and include_zip:
       if not zip_label:
-        zip_label = str(self.zip_label)      
+        zip_label = self._cached_zip_label      
       zip = self.as_zip(key=key)
       zip_button = action_button_html(
           zip.url_for(attachment=False, display_filename = filename_root + ".zip"),
@@ -1020,6 +1025,10 @@ class ALDocumentBundle(DAList):
     Optionally, display a checkbox that allows someone to decide whether or not to
     include an editable (Word) copy of the file, iff it is available.
     """
+    if not hasattr(self, '_cached_get_email_copy'):
+      self._cached_get_email_copy = str(self.get_email_copy)
+    if not hasattr(self, '_cached_include_editable_documents'):
+      self._cached_include_editable_documents = str(self.include_editable_documents)    
     name = html_safe_str(self.instanceName)  
     al_wants_editable_input_id = '_ignore_al_wants_editable_' + name
     al_email_input_id = '_ignore_al_doc_email_' + name
@@ -1033,14 +1042,14 @@ class ALDocumentBundle(DAList):
 
     return_str = f'''
   <div class="al_send_bundle {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
-    <h5 id="al_doc_email_header">{self.get_email_copy}</h5> 
+    <h5 id="al_doc_email_header">{self._cached_get_email_copy}</h5> 
     '''
     if show_editable_checkbox:
       return_str += f'''
     <div class="form-check-container">
       <div class="form-check">
         <input class="form-check-input" type="checkbox" class="al_wants_editable" id="{al_wants_editable_input_id}">
-        <label class="al_wants_editable form-check-label" for="{al_wants_editable_input_id}">{self.include_editable_documents}
+        <label class="al_wants_editable form-check-label" for="{al_wants_editable_input_id}">{self._cached_include_editable_documents}
         </label>
       </div>
     </div>
