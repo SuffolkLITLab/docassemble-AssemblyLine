@@ -45,6 +45,24 @@ features:
   question back button: True
   progress bar: True
 ---
+initial: True
+code: |
+  # Set the dropdown/hamburger menu items
+  # by default we just add a "Start over" link
+  if _internal.get('steps') > 1:
+    menu_items = al_menu_items
+---
+code: |
+  al_menu_items = [
+    {"url": url_ask(['al_start_over_confirmation','al_start_over']),
+    "label": "Start over"
+    },
+  ]
+---
+event: al_start_over
+code: |
+  command('new_session')
+---
 code: |
   send_icon = "envelope"
 ---
@@ -262,3 +280,27 @@ content: |
   
   "${all_variables(special='metadata').get('title','').rstrip()}" includes code 
   from the [Document Assembly Line project](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/). 
+---
+id: start a new session
+question: |
+  Do you want to start over?
+subquestion: |
+  % if not user_logged_in():
+  You may lose access to your current answers. Make sure you have downloaded
+  any forms that you need.
+  % else:
+  You can still access your current answers by visiting the "My interviews"
+  page.
+  % endif
+  
+  Click "Start over" to start a new copy of the form you are working on,
+  or "Back" if you want to keep working.
+back button label: |
+  Back
+continue button label: |
+  Start over
+continue button field: al_start_over_confirmation
+  
+
+
+
