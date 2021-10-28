@@ -1,3 +1,8 @@
+# Version v2.6.2
+
+* Add "Start over" menu option
+* Merge and deprecate docassemble.LanguagePack - features are now part of AL Core
+
 # Version v2.6.1
 
 Increased caching for some translated strings
