@@ -31,3 +31,19 @@ subject: |
   % endif
 content: |
   Please find the document for ${ users } attached.
+---
+generic object: ALDocumentBundle
+template: x.get_email_copy
+content: |
+  Get a copy of the documents in email
+---
+generic object: ALDocumentBundle
+template: x.include_editable_documents
+content: |
+  Include an editable copy
+---
+generic object: ALDocumentBundle
+template: x.zip_label
+content: |
+  Download zip
+  

@@ -1,3 +1,29 @@
+# Version v2.6.2
+
+* Add "Start over" menu option
+* Merge and deprecate docassemble.LanguagePack - features are now part of AL Core
+
+# Version v2.6.1
+
+Increased caching for some translated strings
+
+# Version v2.6.0
+
+* Added new short_list method on ALPeopleList, to display abbreviated list of people
+* Remove some uses of question help button
+* send_button_html now triggers sending separate PDFs for each bundled item. Editable checkbox still sends Word DOCX files as appropriate
+* Improved bumpversion script link to changelog
+
+# Version v2.5.0
+
+* Use separate PDFs in send_button_html
+* Remove some question help buttons, per usability feedback
+* Fix bumpversion script
+
+# Version v2.4.1
+
+Add back in mistakenly removed AL_DEFAULT_OVERFLOW_MESSAGE
+
 # Version v2.4.0
 
 Allow ALDocumentBundles to set the value of auto_gather and gathered in object declaration

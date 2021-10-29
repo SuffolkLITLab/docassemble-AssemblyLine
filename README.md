@@ -14,6 +14,15 @@ https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/
 
 # Installation
 
+## Menu-driven installation
+
+The recommended installation method is with the [guided installation script](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/installation).
+
+## Manual installation
+
+Normally you do not need to manually install the Assembly Line. Use the [installation script](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/installation)
+if you can. The instructions below are for your optional reference.
+
 This package depends on the following configuration changes on your Docassemble server:
 
 * Ensure that [font-awesome](https://docassemble.org/docs/config.html#default%20icons) is enabled (this may be on by default:

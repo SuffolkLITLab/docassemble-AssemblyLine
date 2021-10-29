@@ -147,7 +147,8 @@ project_name=$(echo "$repo_name" | cut -d - -f2)
 
 # This JSON was built using: https://messagecardplayground.azurewebsites.net/, 
 # and https://docs.microsoft.com/en-us/outlook/actionable-messages/message-card-reference
-sed -e "s/{{version}}/$new_version/g; s/{{project_name}}/$project_name/g; s/{{org_name}}/$org_name/g; s/{{repo_name}}/$repo_name/g;" << EOF > /tmp/teams_msg_to_send.json
+link_ver=${new_version//["."]}
+sed -e "s/{{version}}/$new_version/g; s/{{link_version}}/$link_ver/g; s/{{project_name}}/$project_name/g; s/{{org_name}}/$org_name/g; s/{{repo_name}}/$repo_name/g;" << EOF > /tmp/teams_msg_to_send.json
 {
 	"@type": "MessageCard",
 	"@context": "https://schema.org/extensions",
@@ -178,7 +179,7 @@ sed -e "s/{{version}}/$new_version/g; s/{{project_name}}/$project_name/g; s/{{or
             "targets": [
                 {
                     "os": "default",
-                    "uri": "https://github.com/{{org_name}}/{{repo_name}}/blob/main/CHANGELOG.md#v{{version}}"
+                    "uri": "https://github.com/{{org_name}}/{{repo_name}}/blob/main/CHANGELOG.md#version-v{{link_version}}"
                 }
             ]
         },

@@ -16,7 +16,9 @@ code: |
 ---
 objects:
   - test_table: ALTableDocument.using(title="Table test", filename="test", enabled=True)
-  - al_court_bundle: ALDocumentBundle.using(elements=[test_table], filename='court_bundle.pdf', title='All forms to send to the court')
+---
+objects:
+  - al_court_bundle: ALDocumentBundle.using(elements=[test_table], filename='court_bundle.pdf', title='All forms to send to the court', enabled=False)
 ---
 field: intro
 question: |
