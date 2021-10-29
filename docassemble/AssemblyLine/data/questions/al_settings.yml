@@ -26,6 +26,8 @@ code: |
 features:
   navigation: True 
   cache documents: False
+  javascript:
+    - limit_upload_size.js  
 ---
 id: set basic options
 mandatory: True
