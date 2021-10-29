@@ -8,7 +8,7 @@ var dom_data = {};
 
 var clear_error = function () {
   /* Removes error message, enables continue button. */
-  var $error = $('.da-field-container-datatype-files label.da-has-error');
+  var $error = $('.da-field-container-datatype-files label.da-has-error, .da-field-container-datatype-file label.da-has-error');
   // We can fiddle with this behavior if desired.
   $error.css( 'display', 'none' );
   $error.text( '' );
@@ -35,7 +35,7 @@ var prevent_big_files = function () {
   }
   
   if ( total_size > max_bytes ) {
-    var $error = $('.da-field-container-datatype-files label.da-has-error');
+    var $error = $('.da-field-container-datatype-files label.da-has-error, .da-field-container-datatype-file label.da-has-error');
     $error.css( 'display', 'inline-block' );
     // TODO: make this translatable
     $error.text( 'You cannot upload files that are larger than ' + max_mb + ' MB' );
