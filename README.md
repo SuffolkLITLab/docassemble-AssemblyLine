@@ -10,7 +10,7 @@ This package supersedes [MAVirtualCourt](https://github.com/SuffolkLITLab/docass
 
 # Documentation
 
-https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/
+https://suffolklitlab.org/docassemble-AssemblyLine-documentation/
 
 # Installation
 
