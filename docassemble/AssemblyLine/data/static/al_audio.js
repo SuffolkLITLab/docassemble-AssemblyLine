@@ -98,19 +98,19 @@ al_js.replace_with_audio_minimal_controls = function( audio_node, id ) {
 
 // The DOM structure for every AL audio element with custom controls
 var audio_contents_html = '\
-  <button class="media-action play btn btn-sm btn-outline-secondary">\
+  <button class="media-action play btn btn-sm btn-outline-secondary" aria-label="play" value="play">\
     <i class="fas fa-volume-up"></i><span>&nbsp;Listen&nbsp;</span>\
     <i class="fas fa-play"></i>\
   </button>\
-  <button class="media-action restart btn btn-sm btn-outline-secondary">\
+  <button class="media-action restart btn btn-sm btn-outline-secondary" aria-label="restart" value="restart">\
     <i class="fas fa-volume-up"></i><span>&nbsp;Listen&nbsp;</span>\
     <i class="fas fa-undo"></i>\
   </button>\
-  <button class="media-action pause btn btn-sm btn-outline-secondary">\
+  <button class="media-action pause btn btn-sm btn-outline-secondary" aria-label="pause" value="pause">\
     <i class="fas fa-volume-up"></i><span>&nbsp;Listen&nbsp;</span>\
     <i class="fas fa-pause"></i>\
   </button>\
-  <button class="media-action stop btn btn-sm btn-outline-secondary">\
+  <button class="media-action stop btn btn-sm btn-outline-secondary" aria-label="stop" value="stop">\
     <i class="fas fa-stop"></i>\
   </button>\
 ';
