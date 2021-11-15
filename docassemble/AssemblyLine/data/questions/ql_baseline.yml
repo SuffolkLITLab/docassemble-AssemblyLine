@@ -1048,6 +1048,7 @@ fields:
     show if: 
       code: |
         device() and not device().is_pc
+continue button field: saw_signature_qrcode
 ---
 template: help_using_qr_code_template
 subject: |
@@ -1057,7 +1058,6 @@ content: |
   the camera app. The link
   may "float" up from the screen into a small icon you can tap.
   If your phone does not do this, use the text option instead.
-continue button field: saw_signature_qrcode
 ---
 id: signature phone followup
 question: |
