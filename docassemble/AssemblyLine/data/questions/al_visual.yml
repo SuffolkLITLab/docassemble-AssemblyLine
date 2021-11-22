@@ -4,12 +4,12 @@ metadata:
     CourtFormsOnline: MassAccess
   short title: |
     CourtFormsOnline
-  title url: https://courtformsonline.org
-  logo: |
-    <img src="/packagestatic/docassemble.AssemblyLine/ma_logo.png" class="ma_icon" alt="Assembly Line Logo"><div class="title">CourtFormsOnline</div>
+  title url: https://courtformsonline.org  
   exit url: https://courtformsonline.org
 ---
 default screen parts:
+  logo: |
+    <div id="top_nav"><span class="logo">CourtFormsOnline</span><span class="title">${ interview_short_title }</span></div>
   continue button label: |
     Next
   back button label: |
