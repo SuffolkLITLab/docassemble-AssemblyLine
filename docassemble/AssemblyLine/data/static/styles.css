@@ -1,42 +1,60 @@
 /*---------------------------------------------------------*/
 /* Logo and title 
 /*---------------------------------------------------------*/
-.title, .logo {
-    display: inline;        
+
+.title-container {
+  display: grid; 
+  grid-template-columns: min-content min-content; 
+  grid-template-rows: min-content; 
+  gap: 0px 0.5em; 
+  grid-template-areas: 
+    "logo title"; 
+  justify-items: start; 
+  align-items: center; 
+}
+.al-logo { grid-area: logo; }
+.al-title {
+  display: grid; 
+  grid-template-columns: min-content; 
+  grid-template-rows: 1fr 1fr; 
+  gap: 0px 0px; 
+  grid-template-areas: 
+    "title-row-1"
+    "title-row-2"; 
+  justify-content: start; 
+  align-content: start; 
+  justify-items: start; 
+  align-items: start; 
+  grid-area: title; 
+  line-height: 1em;
+}
+
+.title-row-1 { 
+    grid-area: title-row-1; 
     font-weight: bold;
-    font-size: 20px; 
-    padding: 0 5px;
+    font-size: .7em; 
     text-transform: none; /*prevent any bootstrap theme to transform it to uppercase */
-}
-.logo {
-    background-color: #e0e7ea; /* #0f364d; blue, #997416; golden*/
-    text-shadow: 1px 1px 2px black, 0 0 15px blue, 0 0 3px darkblue;
-    font-style: italic;        
-    color: red;
-    padding: 2px 3px 2px 1px;  
-    margin-right: 1%;
-    border-style: ridge;
-    border-width: 8px;
-    border-color: whitesmoke;    
-}
+  }
+
+.title-row-2 { 
+    grid-area: title-row-2;
+    font-weight: bold;
+    font-size: 1em; 
+    text-transform: none; /*prevent any bootstrap theme to transform it to uppercase */    
+  }
+
 @media only screen and (max-width: 800px) {
-  .title, .logo {
+  .al-title, .al-logo {
     font-weight: normal;
     font-size: 60%;    
   }
-  #top_nav {
-    -webkit-transform: rotateY(-25deg); 
-  }
-  .logo {    
+  .al-logo {    
     border-width: 4px; 
   }  
-  .d-block {    
-    margin-left: -15px;  
-  }
-  .danavbar-title {
-    overflow: visible !important;    
-  }
 }
+
+.danavbar-title { max-width: unset }
+
 /*---------------------------------------------------------*/
 /* Navigation bar and footer
 /*---------------------------------------------------------*/

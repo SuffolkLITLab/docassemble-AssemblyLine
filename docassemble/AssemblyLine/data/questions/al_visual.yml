@@ -7,9 +7,20 @@ metadata:
   title url: https://courtformsonline.org  
   exit url: https://courtformsonline.org
 ---
+objects:
+  - al_logo: DAStaticFile.using(filename="ma_logo.png")
+---
 default screen parts:
   logo: |
-    <div id="top_nav"><span class="logo">CourtFormsOnline</span><span class="title">${ interview_short_title }</span></div>
+    <div class="title-container">
+      <div class="al-logo">
+        <img src="${ al_logo.url_for() }"/>
+      </div>
+      <div class="al-title">
+        <div class="title-row-1">CourtFormsOnline</div>
+        <div class="title-row-2">${ interview_short_title }</div>
+      </div>
+    </div>  
   continue button label: |
     Next
   back button label: |
