@@ -1,3 +1,7 @@
+# Version v2.7.1
+
+Use metadata title, not the action title in navigation bar
+
 # Version v2.7.0
 
 * Add form title to the navigation bar per Theory & Principle UX audit
