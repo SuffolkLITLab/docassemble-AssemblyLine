@@ -27,6 +27,7 @@
   align-items: start; 
   grid-area: title; 
   line-height: 1em;
+  font-family: 'Inter Bold', 'Arial';
 }
 
 .title-row-1 { 
