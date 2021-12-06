@@ -20,6 +20,9 @@ code: |
 code: |
   AL_DEFAULT_LANGUAGE = "en"
 ---
+code: |
+  AL_ORGANIZATION_TITLE = get_config('appname', 'CourtFormsOnline')   
+---
 ###############################
 # Features
 ---
