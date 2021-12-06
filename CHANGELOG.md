@@ -1,3 +1,11 @@
+# Version v2.7.0
+
+* Add form title to the navigation bar per Theory & Principle UX audit
+* Limit upload size
+* Misc. accessibility fixes
+* Fix bug with signature screen
+* Make the "courtformsonline" a variable
+
 # Version v2.6.2
 
 * Add "Start over" menu option
