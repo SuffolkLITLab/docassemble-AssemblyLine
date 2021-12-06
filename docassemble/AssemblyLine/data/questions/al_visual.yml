@@ -18,9 +18,19 @@ default screen parts:
       </div>
       <div class="al-title">
         <div class="title-row-1">${ AL_ORGANIZATION_TITLE }</div>
-        <div class="title-row-2">${ interview_short_title }</div>
+        <div class="title-row-2">${all_variables(special='metadata').get('title','').rstrip()}</div>
       </div>
-    </div>  
+    </div> 
+  short logo: |
+    <div class="title-container">
+      <div class="al-logo">
+        <img src="${ al_logo.url_for() }"/>
+      </div>
+      <div class="al-title">
+        <div class="title-row-1">${ AL_ORGANIZATION_TITLE }</div>
+        <div class="title-row-2">${ all_variables(special='metadata').get('short title','').rstrip() }</div>
+      </div>
+    </div>   
   continue button label: |
     Next
   back button label: |
