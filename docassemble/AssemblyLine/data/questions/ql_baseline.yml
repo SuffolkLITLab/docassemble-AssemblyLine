@@ -361,6 +361,8 @@ id: your name
 sets:
     - users[0].name.first
     - users[0].name.last
+    - users[0].name.middle
+    - users[0].name.suffix
 question:  |
   What is your name?
 fields:
@@ -383,6 +385,8 @@ yesno: users.there_is_another
 sets:
   - users[i].name.first
   - users[i].name.last
+  - users[i].name.middle
+  - users[i].name.suffix    
 id: other users names
 question: |
   % if al_form_type in ['starts_case','existing_case','appeal']:
@@ -409,6 +413,9 @@ sets:
   - users[0].address.address
   - users[0].address.city
   - users[0].address.zip
+  - users[0].address.unit
+  - users[0].address.state
+  - users[0].address.country
 question: |
   What is your address?
 subquestion: |
@@ -422,6 +429,10 @@ sets:
   - users[0].mailing_address.address
   - users[0].mailing_address.city
   - users[0].mailing_address.zip
+  - users[0].mailing_address.unit
+  - users[0].mailing_address.state
+  - users[0].mailing_address.country
+  
 question: |
   What is your mailing address?
 fields:
@@ -434,6 +445,9 @@ sets:
   - x.mailing_address.address
   - x.mailing_address.city
   - x.mailing_address.zip
+  - x.mailing_address.state
+  - x.mailing_address.unit
+  - x.mailing_address.country 
 question: |
   What is ${x}'s mailing address?
 fields:
@@ -537,6 +551,8 @@ id: name of ALIndividual
 sets:
   - x.name.first
   - x.name.last
+  - x.name.middle
+  - x.name.suffix
 generic object: ALIndividual
 question: |
   What is ${x.object_possessive('name')}?
@@ -572,6 +588,8 @@ id: children names without birthdate
 sets:
   - children[0].name.first
   - children[0].name.last
+  - children[0].name.middle
+  - children[0].name.suffix
 question: |
   % if hasattr(children, 'ask_number') and children.ask_number and children.target_number == 1:
   Child's name
@@ -588,6 +606,8 @@ id: children names without birthdate
 sets:
   - children[i].name.first
   - children[i].name.last
+  - children[i].name.middle
+  - children[i].name.suffix
 question: |
   Name of ${ ordinal(i) } child
 fields:
@@ -610,6 +630,8 @@ validation code: |
 sets:
   - witnesses[i].name.first
   - witnesses[i].name.last
+  - witnesses[i].name.middle
+  - witnesses[i].name.suffix
 id: names of witnesses
 question: |
   % if hasattr(witnesses, 'ask_number') and witnesses.ask_number and witnesses.target_number == 1:
@@ -631,6 +653,8 @@ id: name of the first person
 sets:
   - x[0].name.first
   - x[0].name.last
+  - x[0].name.middle
+  - x[0].name.suffix
 generic object: ALPeopleList
 question: |
   % if hasattr(x, 'ask_number') and x.ask_number and x.target_number == 1:
@@ -646,6 +670,8 @@ id: names of people
 sets:
   - x[i].name.first
   - x[i].name.last
+  - x[i].name.middle
+  - x[i].name.suffix
 generic object: ALPeopleList
 question: |
   Name of the ${ ordinal(i) } ${ noun_plural(x.object_name(), 1) }
@@ -665,6 +691,9 @@ yesno: other_parties.there_is_another
 ---
 sets:
   - other_parties[i].name.first
+  - other_parties[i].name.last
+  - other_parties[i].name.middle
+  - other_parties[i].name.suffix
 id: names of opposing parties
 question: |
   % if users==plaintiffs:
@@ -683,6 +712,9 @@ sets:
   - x.address.address
   - x.address.city
   - x.address.zip
+  - x.address.unit
+  - x.address.state
+  - x.address.country
 id: persons address
 generic object: ALIndividual
 question: |
