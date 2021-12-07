@@ -3,11 +3,11 @@ include:
   - docassemble.GithubFeedbackForm:feedback.yml
 ---
 metadata:
-  title: CourtFormsOnline Feedback Form
+  title: ${ AL_ORGANIZATION_TITLE } Feedback Form
   short title: Feedback
 ---
 code: |
-  al_feedback_form_title = "CourtFormsOnline Feedback Form"  
+  al_feedback_form_title = f"{AL_ORGANIZATION_TITLE} Feedback Form"
 ---
 code: |
   # This email will be used ONLY if there is no valid GitHub config

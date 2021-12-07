@@ -1,11 +1,11 @@
 # TODO: come up with a nice-looking generic placeholder icon/label to go here
 metadata:
   title: |
-    CourtFormsOnline: MassAccess
+    ${ AL_ORGANIZATION_TITLE }: MassAccess
   short title: |
-    CourtFormsOnline
-  title url: https://courtformsonline.org  
-  exit url: https://courtformsonline.org
+    ${ AL_ORGANIZATION_TITLE }
+  title url: ${ AL_ORGANIZATION_HOMEPAGE }
+  exit url: ${ AL_ORGANIZATION_HOMEPAGE }
 ---
 objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png")
@@ -170,15 +170,15 @@ fields:
     datatype: area
     default: |
       Hi, I wanted to let you know about a free website that I learned about:
-      "${single_paragraph(all_variables(special='metadata').get('title','Court Forms Online'))}". I think this might
+      "${single_paragraph(all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE))}". I think this might
       help you, too. Check it out at the link in this message:       
     js show if: |
       val("al_how_share_link") === "email_or_sms" && val("al_sharing_type") === "tell_friend"
   - Message: share_interview_answers_message
     datatype: area
     default: |
-      Hi, I wanted to share my progress on a form on Court Forms Online,
-      "${single_paragraph(all_variables(special='metadata').get('title','Court Forms Online'))}".
+      Hi, I wanted to share my progress on a form on ,
+      "${single_paragraph(all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE))}".
       If you click this link, you can follow along or finish the form for me.
     js show if: |
       val("al_how_share_link") === "email_or_sms" && val("al_sharing_type") === "share_answers"      
@@ -246,7 +246,7 @@ content: |
 ---
 template: al_share_answers_message_template
 subject: |
-  Court Forms Online form from ${ al_share_form_from_name }
+  ${ AL_ORGANIZATION_TITLE } form from ${ al_share_form_from_name }
 content: |
   ${ share_interview_answers_message }
   Click the link below to view and edit ${ al_share_form_from_name }'s
@@ -256,7 +256,7 @@ content: |
 ---
 template: al_tell_a_friend_message_template
 subject: |
-  ${ al_share_form_from_name } wants to tell you about Court Forms Online
+  ${ al_share_form_from_name } wants to tell you about ${ AL_ORGANIZATION_TITLE }
 content: |
   ${ tell_a_friend_message }
   ${ interview_url(i=user_info().filename, style="short", new_session=1) }
