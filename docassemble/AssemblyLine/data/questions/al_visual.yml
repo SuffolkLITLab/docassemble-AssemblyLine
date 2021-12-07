@@ -1,16 +1,16 @@
-# TODO: come up with a nice-looking generic placeholder icon/label to go here
-metadata:
-  title: |
-    ${ AL_ORGANIZATION_TITLE }: MassAccess
-  short title: |
-    ${ AL_ORGANIZATION_TITLE }
-  title url: ${ AL_ORGANIZATION_HOMEPAGE }
-  exit url: ${ AL_ORGANIZATION_HOMEPAGE }
 ---
 objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png")
 ---
 default screen parts:
+  title: |
+    ${ AL_ORGANIZATION_TITLE }
+  short title: |
+    ${ AL_ORGANIZATION_TITLE }
+  title url: |
+    ${ AL_ORGANIZATION_HOMEPAGE }
+  exit url: |
+    ${ AL_ORGANIZATION_HOMEPAGE }
   logo: |
     <div class="title-container">
       <div class="al-logo">
