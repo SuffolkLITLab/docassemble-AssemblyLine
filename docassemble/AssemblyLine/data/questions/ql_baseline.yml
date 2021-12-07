@@ -56,7 +56,7 @@ subquestion: |
   (:comment-alt:) in the navigation bar to connect to a live advocate for help.
   % endif
 fields:
-  - To continue, you must accept our [terms of use](${ AL_ORGANIZATION_HOME_PAGE }/privacy/): acknowledged_information_use
+  - To continue, you must accept our [terms of use](${ AL_ORGANIZATION_HOMEPAGE }/privacy/): acknowledged_information_use
     datatype: checkboxes
     none of the above: False    
     minlength: 1
