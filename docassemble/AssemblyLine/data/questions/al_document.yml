@@ -26,15 +26,15 @@ code: |
   # interview title is "Guardianship Helper", the email
   # subject would be "Your Guardianship Helper document from CourtFormsOnline is ready".
   # Customize this if you prefer something like "Your guardianship document is ready"
-  x.document_label = all_variables(special='titles').get('title', all_variables(special='metadata').get('title', 'assembled'))
+  x.document_label = str(all_variables(special='titles').get('title', all_variables(special='metadata').get('title', 'assembled'))).strip()
 ---
 generic object: ALDocumentBundle
 template: x.send_email_template
 subject: |
   % if len(x) > 1:
-  Your ${ x.document_label  } document from ${ al_app_name } is ready
+  Your ${ x.document_label } documents from ${ al_app_name } is ready
   % else:
-  Your ${ x.document_label } documents from ${ al_app_name } are ready
+  Your ${ x.document_label } document from ${ al_app_name } are ready
   % endif
 content: |
   Your ${ x.document_label } document is attached.
