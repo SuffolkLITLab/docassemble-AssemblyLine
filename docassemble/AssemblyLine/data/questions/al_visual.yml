@@ -177,8 +177,7 @@ fields:
   - Message: share_interview_answers_message
     datatype: area
     default: |
-      Hi, I wanted to share my progress on a form on ,
-      "${ AL_ORGANIZATION_TITLE }".
+      Hi, I wanted to share my progress on a form on "${ AL_ORGANIZATION_TITLE }".
       If you click this link, you can follow along or finish the form for me.
     js show if: |
       val("al_how_share_link") === "email_or_sms" && val("al_sharing_type") === "share_answers"      
