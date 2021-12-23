@@ -102,7 +102,7 @@ question: |
   Did you file the first form in this dispute, or did you respond
   to a form that someone else filed first?
   % endif
-
+subquestion: |
   ${ collapse_template(help_user_ask_role_template) }
 fields: 
   - no label: user_ask_role
@@ -165,7 +165,7 @@ question: |
   Did you file the first form in this dispute, or did you respond
   to a form that someone else filed first?
   % endif
-
+subquestion: |
   ${ collapse_template(help_user_ask_role_template) }
 fields: 
   - no label: user_detailed_role_started_case
@@ -1219,7 +1219,7 @@ comment: |
 question: |
   Did you start this case, or are you responding to a case
   that someone else started?
-
+subquestion: |
   ${ collapse_template(help_user_ask_role_template) }
 fields: 
   - no label: user_ask_role
