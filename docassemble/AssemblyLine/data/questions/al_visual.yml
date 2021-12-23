@@ -4,13 +4,13 @@ objects:
 ---
 default screen parts:
   title: |
-    ${ AL_ORGANIZATION_TITLE }
+    ${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }
   short title: |
-    ${ AL_ORGANIZATION_TITLE }
+    ${ all_variables(special='metadata').get('short title', AL_ORGANIZATION_TITLE) }
   title url: |
-    ${ AL_ORGANIZATION_HOMEPAGE }
+    ${ all_variables(special='metadata').get('title url', AL_ORGANIZATION_HOMEPAGE) }
   exit url: |
-    ${ AL_ORGANIZATION_HOMEPAGE }
+    ${ all_variables(special='metadata').get('exit url', AL_ORGANIZATION_HOMEPAGE) }
   logo: |
     <div class="title-container">
       <div class="al-logo">
