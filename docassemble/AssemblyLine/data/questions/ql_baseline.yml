@@ -706,6 +706,29 @@ fields:
   - code: |
       other_parties[i].name_fields(person_or_business='unsure')
 ---
+id: generic address
+generic object: ALAddress
+sets:
+  - x.address
+  - x.city
+  - x.zip
+  - x.unit
+  - x.state
+  - x.country
+question: |
+  What is the ${ x.object_name() }?
+fields:
+  - code: |
+      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)  
+comment: |
+  This is left as just object_name() rather than "address of object_name()" because
+  commonly the word "address" would be included in the variable name.
+
+  You should generally consider overriding this question with one that will be easier
+  to read. This is here just as a placeholder. It will be difficult to translate and
+  the variable name will not always make sense to show the user even with the help
+  of object_name().
+---
 # TODO: consider removing default state
 # BUT: could be helpful to model how to set a default state
 sets:
