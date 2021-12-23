@@ -25,12 +25,12 @@ objects:
 id: basic questions intro screen
 decoration: form-lineal
 question: |
-  ${interview_short_title}: Court Forms Online
+  ${interview_short_title}: ${ AL_ORGANIZATION_TITLE}
 subquestion: |
   % if form_approved_for_email_filing:
-  The Court Forms Online Project can help you complete and file court forms in 3 steps:
+  The ${ AL_ORGANIZATION_TITLE } Project can help you complete and file court forms in 3 steps:
   % else:
-  The Court Forms Online Project can help you complete and download forms in 3 steps:
+  The ${ AL_ORGANIZATION_TITLE } Project can help you complete and download forms in 3 steps:
   % endif
   
   Step 1. Answer questions that will fill in your form for you.  
@@ -56,7 +56,7 @@ subquestion: |
   (:comment-alt:) in the navigation bar to connect to a live advocate for help.
   % endif
 fields:
-  - To continue, you must accept our [terms of use](https://courtformsonline.org/privacy/): acknowledged_information_use
+  - To continue, you must accept our [terms of use](${ AL_ORGANIZATION_HOMEPAGE }/privacy/): acknowledged_information_use
     datatype: checkboxes
     none of the above: False    
     minlength: 1
@@ -813,7 +813,7 @@ fields:
 id: accept terms of use
 decoration: form-lineal
 question: |
-  ${interview_short_title}: CourtFormsOnline
+  ${interview_short_title}: ${ AL_ORGANIZATION_TITLE }
 subquestion: |
   % if form_approved_for_email_filing:
   This website can be used to complete and deliver forms directly to the
@@ -841,7 +841,7 @@ subquestion: |
   % endif
 
 fields:
-  - To continue, you must accept the [terms of use](https://courtformsonline.org/privacy/): acknowledged_information_use
+  - To continue, you must accept the [terms of use](${ AL_ORGANIZATION_HOMEPAGE }/privacy/): acknowledged_information_use
     datatype: checkboxes
     none of the above: False    
     minlength: 1
