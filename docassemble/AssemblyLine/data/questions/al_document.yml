@@ -32,9 +32,9 @@ generic object: ALDocumentBundle
 template: x.send_email_template
 subject: |
   % if len(x) > 1:
-  Your ${ x.document_label } documents from ${ al_app_name } is ready
+  Your ${ x.document_label } documents from ${ al_app_name } are ready
   % else:
-  Your ${ x.document_label } document from ${ al_app_name } are ready
+  Your ${ x.document_label } document from ${ al_app_name } is ready
   % endif
 content: |
   Your ${ x.document_label } document is attached.
