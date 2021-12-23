@@ -425,34 +425,61 @@ fields:
       users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
 id: your mailing address
-sets:
-  - users[0].mailing_address.address
-  - users[0].mailing_address.city
-  - users[0].mailing_address.zip
-  - users[0].mailing_address.unit
-  - users[0].mailing_address.state
-  - users[0].mailing_address.country
-  
 question: |
   What is your mailing address?
 fields:
-  - code: |
-      users[0].mailing_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+  - My mailing address is: users[0].mailing_address
+    datatype: object_radio
+    choices:
+      - users[0].address
+    object labeler: |
+      lambda y: y.on_one_line()      
+    none of the above: |
+      Somewhere else
+    disable others: True      
+  - ${ users[0].address.address_label}: users[0].mailing_address.address
+    address autocomplete: True
+  - ${ users[0].address.unit_label}: users[0].mailing_address.unit
+    required: False
+  - ${ users[0].address.city_label}: users[0].mailing_address.city
+  - ${ users[0].address.state_label}: users[0].mailing_address.state
+    code: |
+      states_list(country_code=AL_DEFAULT_COUNTRY)
+    default: ${ AL_DEFAULT_STATE }
+  - ${ users[0].address.zip_label}: users[0].mailing_address.zip
+    required: False      
+  - ${ users[0].address.country_label}: users[0].mailing_address.country
+    code: countries_list()
+    default: ${ AL_DEFAULT_COUNTRY }
 ---
 generic object: ALIndividual
 id: any mailing address
-sets:
-  - x.mailing_address.address
-  - x.mailing_address.city
-  - x.mailing_address.zip
-  - x.mailing_address.state
-  - x.mailing_address.unit
-  - x.mailing_address.country 
 question: |
-  What is ${x}'s mailing address?
+  What is ${ x }'s mailing address?
 fields:
-  - code: |
-      x.mailing_address.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+  - ${ x }'s mailing address is: x.mailing_address
+    datatype: object_radio
+    choices:
+      - x.address
+    object labeler: |
+      lambda y: y.on_one_line()      
+    none of the above: |
+      Somewhere else
+    disable others: True      
+  - ${ x.address.address_label}: x.mailing_address.address
+    address autocomplete: True
+  - ${ x.address.unit_label}: x.mailing_address.unit
+    required: False
+  - ${ x.address.city_label}: x.mailing_address.city
+  - ${ x.address.state_label}: x.mailing_address.state
+    code: |
+      states_list(country_code=AL_DEFAULT_COUNTRY)
+    default: ${ AL_DEFAULT_STATE }
+  - ${ x.address.zip_label}: x.mailing_address.zip
+    required: False      
+  - ${ x.address.country_label}: x.mailing_address.country
+    code: countries_list()
+    default: ${ AL_DEFAULT_COUNTRY }
 ---
 id: your contact information
 question: |
