@@ -466,18 +466,18 @@ fields:
     none of the above: |
       Somewhere else
     disable others: True      
-  - ${ x.address.address_label}: x.mailing_address.address
+  - ${ x.address.address_label }: x.mailing_address.address
     address autocomplete: True
-  - ${ x.address.unit_label}: x.mailing_address.unit
+  - ${ x.address.unit_label }: x.mailing_address.unit
     required: False
-  - ${ x.address.city_label}: x.mailing_address.city
-  - ${ x.address.state_label}: x.mailing_address.state
+  - ${ x.address.city_label }: x.mailing_address.city
+  - ${ x.address.state_label }: x.mailing_address.state
     code: |
       states_list(country_code=AL_DEFAULT_COUNTRY)
     default: ${ AL_DEFAULT_STATE }
-  - ${ x.address.zip_label}: x.mailing_address.zip
+  - ${ x.address.zip_label }: x.mailing_address.zip
     required: False      
-  - ${ x.address.country_label}: x.mailing_address.country
+  - ${ x.address.country_label }: x.mailing_address.country
     code: countries_list()
     default: ${ AL_DEFAULT_COUNTRY }
 ---
