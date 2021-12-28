@@ -20,17 +20,26 @@ code: |
     log(word('E-mail failed'), 'error')
 ---
 generic object: ALDocumentBundle
+code: |
+  # Used in the email subject line when email is triggered on download screen.
+  # This defaults to the interview title. For example, if the 
+  # interview title is "Guardianship Helper", the email
+  # subject would be "Your Guardianship Helper document from CourtFormsOnline is ready".
+  # Customize this if you prefer something like "Your guardianship document is ready"
+  x.document_label = str(all_variables(special='titles').get('title', all_variables(special='metadata').get('title', 'assembled'))).strip()
+---
+generic object: ALDocumentBundle
 template: x.send_email_template
-# TODO: there may be a better default than "metadata_title".
-# In general, we could improve this template
 subject: |
   % if len(x) > 1:
-  Your "${ metadata_title}" document from ${ al_app_name } is ready
+  Your ${ x.document_label } documents from ${ al_app_name } are ready
   % else:
-  Your "${ metadata_title }" documents from ${ al_app_name } are ready
+  Your ${ x.document_label } document from ${ al_app_name } is ready
   % endif
 content: |
-  Please find the document for ${ users } attached.
+  Your ${ x.document_label } document is attached.
+  
+  Visit ${ AL_ORGANIZATION_HOMEPAGE } to learn more.
 ---
 generic object: ALDocumentBundle
 template: x.get_email_copy
