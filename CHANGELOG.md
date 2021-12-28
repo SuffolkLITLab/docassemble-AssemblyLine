@@ -1,3 +1,13 @@
+# Version v2.8.0
+
+Bug fixes:
+* email template does not trigger any extra screens, making it safer to use outside of AssemblyLine interviews
+* Improvements to address question + mailing address defaults to home address
+* Moved the help template for user role into the subquestion part to improve readability
+* new version of ALKiln
+* Remove some instances of CourtFormsOnline.org and add new variables to allow this to be customized for different jurisdictions (AL_ORGANIZATION_TITLE and AL_ORGANIZATION_HOMEPAGE)
+* Small cleanups in ql_baseline.yml
+
 # Version v2.7.1
 
 Use metadata title, not the action title in navigation bar
