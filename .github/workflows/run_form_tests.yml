@@ -2,6 +2,8 @@ name: Test the interview
 
 on:
   push:
+    tags-ignore:
+      - v*
   workflow_dispatch:
     inputs:
       extra_languages:
