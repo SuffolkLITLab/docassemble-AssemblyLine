@@ -788,7 +788,10 @@ class ALDocumentBundle(DAList):
     else:
       ending = '.pdf'
     files = self.enabled_documents(refresh=refresh)
-    if len(files) == 1:
+    if len(files) == 0:
+      # In the case of no enabled files, avoid errors
+      return None
+    elif len(files) == 1:
       # This case is simplest--we do not need to process the document at this level
       log_if_debug(f'Storing bundle for just one document {self.title} at {self.instanceName}.cache.{safe_key}')
       pdf = files[0].as_pdf(key=key, refresh=refresh)
