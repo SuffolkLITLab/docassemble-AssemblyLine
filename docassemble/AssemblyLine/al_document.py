@@ -3,6 +3,7 @@ import os
 import mimetypes
 from typing import Any, Dict, List, Union, Callable
 from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, send_email, docx_concatenate, get_config, space_to_underscore, DAStaticFile, alpha
+from docassemble.base.filter import html_filter
 
 __all__ = ['ALAddendumField',
            'ALAddendumFieldDict',
@@ -827,6 +828,53 @@ class ALDocumentBundle(DAList):
   
   def preview(self, refresh:bool=True) -> DAFile:
     return self.as_pdf(key='preview', refresh=refresh)
+  
+  def as_dimensioned_thumbnail(self,
+                               key:str='preview',
+                               refresh:bool=True,
+                               width:int=300,
+                               height:int=None
+                              ) -> str:
+    """
+    Returns an html string of an image with a pre-set `height` and
+    `width` so the page can load the appropriately sized html element.
+    Unless height is given, this function assumes a document with
+    letter proportions - a dimention ratio of 8.5 x 11.
+    
+    This all avoids html layout shift for better user experience. On the
+    other hand, it does have to hard-code the dimensions of the thumbnail
+    image since that's how the browser can tell exactly where to make
+    space for the image ahead of time.
+    
+    WARNING: This is using an undocumented da function - `html_filter()`.
+    
+    Args:
+      key(str): Which version of the bundle to get. Default is 'preview'.
+      refresh(bool): If True, reconsiders the 'enabled' attribute.
+      width(int): Width of the image in pixels. Default is 300.
+      [height](int): Optional. Height of the image in pixels. Default
+        is about 388, calculated from the width to give letter paper
+        dimensions.
+    """
+    # For now, assume the dimentions of a normal sheet of paper if
+    # other dimensions aren't given.
+    if height is None:
+      height = int( width * (11/8.5) )
+    
+    # Use the pdf FILE markdown to get the right html
+    show_markdown = self.as_pdf( key=key, refresh=refresh ).show()
+    img_html = html_filter( show_markdown )
+    
+    # Remove the width style, which might leave the image distorted
+    no_style = re.sub( r'style[^"]*.[^"]*"', '', img_html )
+    
+    # Insert the hard-coded width and height for the `img` just
+    # before the `src` attribute
+    split = no_style.split( ' src=' )
+    html = split[0]
+    html += f' width={ width } height={ height } src='
+    html += split[1]
+    return html
 
   def enabled_documents(self, refresh:bool=True) -> List[Any]:
     """
