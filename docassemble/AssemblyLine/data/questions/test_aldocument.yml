@@ -50,18 +50,13 @@ continue button field: as_foo_defaults
 question: |
   Get condensed bundle functions defaults
 subquestion: |
-
-  multi_bundle_1.as_dimensioned_thumbnail()
+  multi_bundle_1.show()
   
-  ${ multi_bundle_1.as_dimensioned_thumbnail() }
-
-  multi_bundle_1.as_dimensioned_thumbnail( width=400 )
+  ${ multi_bundle_1.show() }
   
-  ${ multi_bundle_1.as_dimensioned_thumbnail( width=400 ) }
-
-  multi_bundle_1.as_dimensioned_thumbnail( width=400, height=100 )
+  multi_bundle_1.show( ratio=2/1 ). This should look the same after loading, but should cause layout shift.
   
-  ${ multi_bundle_1.as_dimensioned_thumbnail( width=400, height=100 ) }
+  ${ multi_bundle_1.show( ratio=2/1 ) }
   
   multi_bundle_1.as_pdf()
   
@@ -77,9 +72,9 @@ subquestion: |
   
   ---
 
-  single_pdf_bundle_1.as_dimensioned_thumbnail()
+  single_pdf_bundle_1.show()
   
-  ${ single_pdf_bundle_1.as_dimensioned_thumbnail() }
+  ${ single_pdf_bundle_1.show() }
   
   single_pdf_bundle_1.as_pdf()
   
@@ -95,9 +90,9 @@ subquestion: |
   
   ---
 
-  single_docx_bundle_1.as_dimensioned_thumbnail()
+  single_docx_bundle_1.show()
   
-  ${ single_docx_bundle_1.as_dimensioned_thumbnail() }
+  ${ single_docx_bundle_1.show() }
   
   single_docx_bundle_1.as_pdf()
   

@@ -829,50 +829,52 @@ class ALDocumentBundle(DAList):
   def preview(self, refresh:bool=True) -> DAFile:
     return self.as_pdf(key='preview', refresh=refresh)
   
-  def as_dimensioned_thumbnail(self,
-                               key:str='preview',
-                               refresh:bool=True,
-                               width:int=300,
-                               height:int=None
-                              ) -> str:
+  def show(self,
+           key:str='preview',
+           refresh:bool=True,
+           ratio:float=8.5/11,
+           width:str=None,
+           alt_text:str=None ) -> str:
     """
-    Returns an html string of an image with a pre-set `height` and
-    `width` so the page can load the appropriately sized html element.
-    Unless height is given, this function assumes a document with
-    letter proportions - a dimention ratio of 8.5 x 11.
+    Returns an html string for the pdf thumbnail that will prevent
+    "layout shift" - where the size of the contents of a page changes
+    as it loads. `ratio` lets the page prepare a spot of the right size
+    for the thumbnail image of the document. This function assumes a
+    document with letter proportions - a dimention ratio of 8.5 x 11.
     
-    This all avoids html layout shift for better user experience. On the
-    other hand, it does have to hard-code the dimensions of the thumbnail
-    image since that's how the browser can tell exactly where to make
-    space for the image ahead of time.
+    Also takes the same arguments as DAFile's `.show()` - `width` and
+    `alt_text`. See https://docassemble.org/docs/objects.html#DAFile.
     
-    WARNING: This is using an undocumented da function - `html_filter()`.
+    WARNING: This is using an undocumented da function, `html_filter()`.
     
     Args:
       key(str): Which version of the bundle to get. Default is 'preview'.
       refresh(bool): If True, reconsiders the 'enabled' attribute.
-      width(int): Width of the image in pixels. Default is 300.
-      [height](int): Optional. Height of the image in pixels. Default
-        is about 388, calculated from the width to give letter paper
-        dimensions.
+      ratio(float): The width of the file divided by its height. It lets
+          the browser know how much room to leave for the image. Ex:
+          `ratio=8.5/11` for a letter-shaped document. Default is `8.5/11`
+      width(str): css `max-width` value.
+      alt_text(str): Accessiblility `alt` attribute for the html image/
     """
-    # For now, assume the dimentions of a normal sheet of paper if
-    # other dimensions aren't given.
-    if height is None:
-      height = int( width * (11/8.5) )
-    
     # Use the pdf FILE markdown to get the right html
-    show_markdown = self.as_pdf( key=key, refresh=refresh ).show()
+    show_markdown = self.as_pdf( key=key, refresh=refresh ).show( width=width, alt_text=alt_text )
     img_html = html_filter( show_markdown )
     
-    # Remove the width style, which might leave the image distorted
-    no_style = re.sub( r'style[^"]*.[^"]*"', '', img_html )
+    # Add height style to prevent warping while retaining responsiveness
+    split_style = img_html.split( ' style="' )
+    new_style = split_style[0]
+    new_style += ' style="height: auto; '
+    new_style += split_style[1]
     
-    # Insert the hard-coded width and height for the `img` just
-    # before the `src` attribute
-    split = no_style.split( ' src=' )
+    # HTML needs us to give the dimensions as `width` and `height`
+    dim_width = 1000  # Good big number to measure against
+    dim_height = int( dim_width/ratio )
+
+    # Insert the hard-coded width and height dimensions for the `img`
+    # just before the `src` attribute
+    split = new_style.split( ' src=' )
     html = split[0]
-    html += f' width={ width } height={ height } src='
+    html += f' width={ dim_width } height={ dim_height } src='
     html += split[1]
     return html
 
