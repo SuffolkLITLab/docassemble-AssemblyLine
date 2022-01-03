@@ -2,7 +2,7 @@ import re
 import os
 import mimetypes
 from typing import Any, Dict, List, Union, Callable, Optional
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, send_email, docx_concatenate, get_config, space_to_underscore, DAStaticFile, alpha
+from docassemble.base.util import log, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, send_email, docx_concatenate, get_config, space_to_underscore, DAStaticFile, alpha
 
 __all__ = ['ALAddendumField',
            'ALAddendumFieldDict',
@@ -1398,7 +1398,7 @@ class ALTableDocument(ALDocument):
     return self.as_pdf()
     
 
-def ALUntransformedDocument(ALDocument):
+class ALUntransformedDocument(ALDocument):
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
     self.has_addendum = False
