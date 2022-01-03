@@ -392,7 +392,7 @@ question: |
   % if al_form_type in ['starts_case','existing_case','appeal']:
   Who is the ${ ordinal(i) } person on your side of the case?
   % else:
-  What is the name of the ${ ordinal(i - 1) } person who is adding their name to
+  What is the name of the ${ ordinal_number(i) } person who is adding their name to
   this form with you?
   % endif
 fields:
