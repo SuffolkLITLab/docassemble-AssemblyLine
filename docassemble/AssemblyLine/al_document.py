@@ -1,8 +1,8 @@
 import re
 import os
 import mimetypes
-from typing import Any, Dict, List, Union, Callable
-from docassemble.base.util import log, word, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, send_email, docx_concatenate, get_config, space_to_underscore, DAStaticFile, alpha
+from typing import Any, Dict, List, Union, Callable, Optional
+from docassemble.base.util import log, DADict, DAList, DAObject, DAFile, DAFileCollection, DAFileList, defined, value, pdf_concatenate, zip_file, DAOrderedDict, action_button_html, include_docx_template, user_logged_in, user_info, send_email, docx_concatenate, get_config, space_to_underscore, DAStaticFile, alpha
 
 __all__ = ['ALAddendumField',
            'ALAddendumFieldDict',
@@ -774,7 +774,8 @@ class ALDocumentBundle(DAList):
     # Pre-cache some DALazyTemplates we set up to aid translation that won't
     # vary at runtime    
 
-  def as_pdf(self, key:str='final', refresh:bool=True) -> DAFile:
+  def as_pdf(self, key:str='final', refresh:bool=True) -> Optional[DAFile]:
+    """Returns the Bundle as a single PDF DAFile, or None if none of the documents are enabled."""
     safe_key = space_to_underscore(key)
 
     log_if_debug('Calling the as_pdf() method for bundle ' + str(self.title))
@@ -788,7 +789,10 @@ class ALDocumentBundle(DAList):
     else:
       ending = '.pdf'
     files = self.enabled_documents(refresh=refresh)
-    if len(files) == 1:
+    if len(files) == 0:
+      # In the case of no enabled files, avoid errors
+      return None
+    elif len(files) == 1:
       # This case is simplest--we do not need to process the document at this level
       log_if_debug(f'Storing bundle for just one document {self.title} at {self.instanceName}.cache.{safe_key}')
       pdf = files[0].as_pdf(key=key, refresh=refresh)
@@ -1394,7 +1398,7 @@ class ALTableDocument(ALDocument):
     return self.as_pdf()
     
 
-def ALUntransformedDocument(ALDocument):
+class ALUntransformedDocument(ALDocument):
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
     self.has_addendum = False

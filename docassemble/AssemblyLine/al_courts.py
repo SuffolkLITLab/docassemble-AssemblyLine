@@ -106,7 +106,7 @@ class ALCourt(Court):
             try:
               setattr(self, space_to_underscore(attribute_candidate), df_row[attribute_candidate])
             except:
-              log('Skipping invalid column name in court list: ' + attribute_name)
+              log('Skipping invalid column name in court list: ' + attribute_candidate)
               pass # People really need to use sensical column names that can be converted to attributes
                    # but we don't need to throw an exception about it.
         if ensure_lat_long and not (hasattr(self.location, 'latitude') and hasattr(self.location, 'longitude') and self.location.latitude and self.location.longitude):

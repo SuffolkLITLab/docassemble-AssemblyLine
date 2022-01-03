@@ -11,3 +11,4 @@ downloads_*
 _al_test_project_name.json
 .history
 __pycache__/
+docassemble.AssemblyLine.egg-info/*
