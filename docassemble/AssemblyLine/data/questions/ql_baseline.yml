@@ -1239,7 +1239,7 @@ question: |
   Review of your answers
 subquestion: |
   
-  ${showifdef('al_court_bundle')}
+  ${showifdef("al_court_bundle.as_pdf(key='final')")}
 
   % if defined('form_delivery_complete'):
   **Warning: your form has already been delivered.** Any changes you make
