@@ -800,9 +800,9 @@ class ALDocumentBundle(DAList):
     setattr(self.cache, safe_key, pdf)
     return pdf
 
-  def __str__(self):
+  def __str__(self) -> str:
     # Could be triggered in many different places unintenionally: don't refresh
-    return self.as_pdf(refresh=False)
+    return str(self.as_pdf(refresh=False))
 
   def as_zip(self, key:str = 'final', refresh:bool = True, title:str = '') -> DAFile:
     '''Returns a zip file containing the whole bundle'''
