@@ -543,7 +543,7 @@ class ALDocument(DADict):
   
   def init(self, *pargs, **kwargs):
     super(ALDocument, self).init(*pargs, **kwargs)
-    self.initializeAttribute('overflow_fields',ALAddendumFieldDict)
+    self.initializeAttribute('overflow_fields', ALAddendumFieldDict)
     if not hasattr(self, 'default_overflow_message'):
       self.default_overflow_message = '...'
     if not hasattr(self, 'has_addendum'):
@@ -714,10 +714,6 @@ class ALStaticDocument(DAStaticFile):
   
   def as_pdf(self, key:str='final', refresh:bool=True) -> DAStaticFile:
     return pdf_concatenate(self)
-    if self._is_pdf():
-      return self
-    else:
-      return pdf_concatenate(self)
     
   def as_docx(self, key:str='final', refresh:bool=True) -> Union[DAStaticFile, DAFile]:
     """
@@ -765,14 +761,14 @@ class ALDocumentBundle(DAList):
 
   def init(self, *pargs, **kwargs):
     super().init(*pargs, **kwargs)
-    if not hasattr(self, 'auto_gather'):
-      self.auto_gather=False
-    if not hasattr(self, 'gathered'):
-      self.gathered=True
+    if 'auto_gather' not in kwargs:
+      self.auto_gather = False
+    if 'gathered' not in kwargs:
+      self.gathered = True
     self.initializeAttribute('cache', DALazyAttribute)
     self.always_enabled = hasattr(self, 'enabled') and self.enabled
     # Pre-cache some DALazyTemplates we set up to aid translation that won't
-    # vary at runtime    
+    # vary at runtime
 
   def as_pdf(self, key:str='final', refresh:bool=True) -> Optional[DAFile]:
     """Returns the Bundle as a single PDF DAFile, or None if none of the documents are enabled."""
@@ -803,6 +799,10 @@ class ALDocumentBundle(DAList):
     pdf.title = self.title
     setattr(self.cache, safe_key, pdf)
     return pdf
+
+  def __str__(self):
+    # Could be triggered in many different places unintenionally: don't refresh
+    return self.as_pdf(refresh=False)
 
   def as_zip(self, key:str = 'final', refresh:bool = True, title:str = '') -> DAFile:
     '''Returns a zip file containing the whole bundle'''
