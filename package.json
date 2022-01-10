@@ -30,6 +30,7 @@
   "dependencies": {
     "bufferutil": "^4.0.1",
     "chai": "^4.2.0",
+    "colors": "1.4.0",
     "cucumber": "^6.0.5",
     "docassemble-cucumber": "^3.0.0",
     "dotenv": "^8.2.0",
