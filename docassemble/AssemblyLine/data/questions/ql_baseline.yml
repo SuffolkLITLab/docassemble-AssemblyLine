@@ -1516,3 +1516,8 @@ attachment:
   field code:
     exhibits: raw(x.exhibits)
     include_exhibit_cover_pages: raw(x.include_exhibit_cover_pages)
+---
+generic object: ALDocumentBundle
+code: |
+  x.there_is_another = False
+---
