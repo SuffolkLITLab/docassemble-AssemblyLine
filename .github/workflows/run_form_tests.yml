@@ -1,5 +1,4 @@
 name: Use the ALKiln testing framework
-description: "Use the ALKiln testing framework to test interviews. See https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/automated_integrated_testing."
 
 on:
   push:
