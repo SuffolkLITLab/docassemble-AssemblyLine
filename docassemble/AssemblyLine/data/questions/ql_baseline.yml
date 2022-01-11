@@ -780,6 +780,13 @@ question: |
 fields:
   - Phone: x.phone_number
 ---
+id: persons fax number
+generic object: ALIndividual
+question: |
+  What is ${x}'s fax number?
+fields:
+  - Phone: x.fax_number
+---
 id: email
 generic object: ALIndividual
 question: |
