@@ -1,0 +1,7 @@
+################
+# This was added on 1/11/2022
+# When enough packages point to this file instead of al_package.yml, we should change the
+# include order so this one is the main file instead of the alias
+---
+include:
+  - al_package.yml  

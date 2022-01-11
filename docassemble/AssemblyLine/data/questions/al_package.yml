@@ -1,3 +1,7 @@
+################
+# Deprecated as of 1/11/2022
+# When enough packages point to assembly_line.yml, this file should turn into an alias
+# that just includes assembly_line.yml
 ---
 include:
   - al_settings.yml
