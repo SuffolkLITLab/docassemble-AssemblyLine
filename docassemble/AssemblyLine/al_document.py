@@ -22,10 +22,6 @@ __all__ = ['ALAddendumField',
 
 DEBUG_MODE = get_config('debug')
 
-def log_if_debug(text:str)->None:
-  if DEBUG_MODE:
-    log(text)
-
 def label(dictionary):
   try:
     return list(dictionary.items())[0][1]
@@ -562,10 +558,7 @@ class ALDocument(DADict):
 
     safe_key = space_to_underscore(key)
 
-    log_if_debug('Calling the as_pdf() method for ' + str(self.title))
-
     if hasattr(self.cache, safe_key):
-      log_if_debug('Returning cached version of ' + self.title)
       return getattr(self.cache,  safe_key)
 
     if refresh:
@@ -587,11 +580,9 @@ class ALDocument(DADict):
         addendum_doc = addendum_doc.pdf
       concatenated = pdf_concatenate(main_doc, addendum_doc, filename=filename)
       concatenated.title = self.title
-      log_if_debug('Storing main file and addendum for ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
       setattr(self.cache,  safe_key, concatenated)
       return concatenated
     else:
-      log_if_debug('Storing main file only ' + self.title + ' at ' + self.instanceName + '.cache.' + safe_key)
       setattr(self.cache, safe_key, main_doc)
       return main_doc
 
@@ -774,10 +765,7 @@ class ALDocumentBundle(DAList):
     """Returns the Bundle as a single PDF DAFile, or None if none of the documents are enabled."""
     safe_key = space_to_underscore(key)
 
-    log_if_debug('Calling the as_pdf() method for bundle ' + str(self.title))
-
     if hasattr(self.cache, safe_key):
-      log_if_debug('Returning cached version of bundle ' + self.title)
       return getattr(self.cache,  safe_key)
 
     if self.filename.endswith('.pdf'):
@@ -790,11 +778,9 @@ class ALDocumentBundle(DAList):
       return None
     elif len(files) == 1:
       # This case is simplest--we do not need to process the document at this level
-      log_if_debug(f'Storing bundle for just one document {self.title} at {self.instanceName}.cache.{safe_key}')
       pdf = files[0].as_pdf(key=key, refresh=refresh)
       pdf.title = self.title
     else:
-      log_if_debug(f'Storing bundle {self.title} at {self.instanceName}.cache.{safe_key}')
       pdf = pdf_concatenate([document.as_pdf(key=key, refresh=refresh) for document in files], filename=self.filename + ending)
     pdf.title = self.title
     setattr(self.cache, safe_key, pdf)
@@ -806,13 +792,11 @@ class ALDocumentBundle(DAList):
 
   def as_zip(self, key:str = 'final', refresh:bool = True, title:str = '', format="pdf", include_pdf=True) -> DAFile:
     '''Returns a zip file containing the whole bundle'''
-    log_if_debug(f'Calling as_zip() for { str( self.title )}')
 
     zip_key = f'{ space_to_underscore( key )}_zip'
 
     # Speed up performance if can (docs say `zip_file` works like `pdf_concatenate`)
     if hasattr(self.cache, zip_key):
-      log_if_debug(f'Returning cached version of { str( self.title )} zip')
       return getattr(self.cache,  zip_key)
 
     # strip out a possible '.pdf' ending then add '.zip'
@@ -834,7 +818,6 @@ class ALDocumentBundle(DAList):
     else:
       zip.title = title    
     setattr(self.cache, zip_key, zip)
-    log_if_debug(f'Stored {self.title} zip at {self.instanceName}.cache.{zip_key}')
     
     return zip
   
