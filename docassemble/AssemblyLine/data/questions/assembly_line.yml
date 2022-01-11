@@ -1,7 +1,18 @@
-################
-# This was added on 1/11/2022
-# When enough packages point to this file instead of al_package.yml, we should change the
-# include order so this one is the main file instead of the alias
+# For usage, see https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/framework/magic_variables
 ---
 include:
-  - al_package.yml  
+  - al_settings.yml
+  - al_code.yml
+  - al_saved_sessions.yml  
+  - al_visual.yml
+  - al_document.yml
+  - ql_baseline.yml
+---
+modules:
+  - docassemble.ALToolbox.misc
+  - docassemble.ALToolbox.copy_button
+  - .al_general
+  - .al_document
+  - .al_courts
+  - docassemble.GithubFeedbackForm.github_issue
+  

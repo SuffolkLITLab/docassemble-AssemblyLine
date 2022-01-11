@@ -1,34 +1,4 @@
-################
-# Deprecated as of 1/11/2022
-# When enough packages point to assembly_line.yml, this file should turn into an alias
-# that just includes assembly_line.yml
+# Deprecated; use assembly_line.yml instead
 ---
 include:
-  - al_settings.yml
-  - al_code.yml
-  - al_saved_sessions.yml  
-  - al_visual.yml
-  - al_document.yml
-  - ql_baseline.yml
----
-modules:
-  - docassemble.ALToolbox.misc
-  - docassemble.ALToolbox.copy_button
-  - .al_general
-  - .al_document
-  - .al_courts
-  - docassemble.GithubFeedbackForm.github_issue
----  
-#############################
-# Variables used in most interviews:
-# * trial_court
-# * all_courts
-# * allowed_courts
-
-###########################
-# Changes from MAVirtualCourt package
-# * renamed courts[0] trial_court
-# * added variable al_form_type: enum, "starts_case", "existing_case", "appeal", "letter", "out_of_court", "other"
-# * renamed user_role to user_started_case
-# * made courts an object, not list and renamed to trial_court; appellate courts should override
-# * replaced macourts variable with all_courts
+  - assembly_line.yml
