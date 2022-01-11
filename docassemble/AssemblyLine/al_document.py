@@ -230,7 +230,7 @@ class ALAddendumField(DAObject):
   def __str__(self):
     return str(self.value_if_defined())
 
-  def columns(self, skip_empty_attributes:bool=True, skip_attributes:set = {'complete'} ) -> list:
+  def columns(self, skip_empty_attributes:bool=True, skip_attributes:set = {'complete'} ) -> Optional[list]:
     """
     Return a list of the columns in this object.
 
@@ -251,6 +251,8 @@ class ALAddendumField(DAObject):
             return [{key:key} for key in list( set(first_value.__dict__.keys()) - set(skip_attributes) - attr_to_ignore ) if safeattr(first_value, key)]
           else:
             return [{key:key} for key in list( set(first_value.__dict__.keys()) - set(skip_attributes) - attr_to_ignore )]
+        else:
+          return None
       except:
         return None
       # None means the value has no meaningful columns we can extract
@@ -287,7 +289,8 @@ class ALAddendumField(DAObject):
     but you also do not need to use this output if you want to independently control the format
     of the table.
     """
-    if not self.columns():
+    columns = self.columns()
+    if not columns:
       if self.overflow_value():
         retval = "* "
         retval += "\n* ".join(self.overflow_value())
@@ -295,14 +298,14 @@ class ALAddendumField(DAObject):
       else:
         return ""
 
-    num_columns = len(self.columns())
+    num_columns = len(columns)
 
-    header = " | ".join([list(item.items())[0][1] for item in self.columns()])
+    header = " | ".join([list(item.items())[0][1] for item in columns])
     header += "\n"
     header += "|".join(["-----"] * num_columns)
 
     flattened_columns = []
-    for column in self.columns():
+    for column in columns:
       flattened_columns.append(list(column.items())[0][0])
 
     rows = "\n"
@@ -709,8 +712,8 @@ class ALStaticDocument(DAStaticFile):
     # point to the same file.
     return self
   
-  def as_list(self, key:str='final', refresh:bool=True) -> List[DAFile]:
-    return [self]
+  def as_list(self, key:str='final', refresh:bool=True) -> List[DAStaticFile]:
+    return [self[key]]
   
   def as_pdf(self, key:str='final', refresh:bool=True) -> DAStaticFile:
     return pdf_concatenate(self)
@@ -838,7 +841,7 @@ class ALDocumentBundle(DAList):
     
     return zip
   
-  def preview(self, refresh:bool=True) -> DAFile:
+  def preview(self, refresh:bool=True) -> Optional[DAFile]:
     return self.as_pdf(key='preview', refresh=refresh)
 
   def enabled_documents(self, refresh:bool=True) -> List[Any]:
@@ -1012,14 +1015,18 @@ class ALDocumentBundle(DAList):
         size="md",
         classname='al_download')
     if view:
-      doc_view_button = action_button_html(
-          self.as_pdf(key=key).url_for(attachment=False),
-          label=view_label,
-          icon=view_icon,
-          color="secondary",
-          size="md",
-          classname='al_view')
-      buttons = [doc_view_button, doc_download_button]
+      pdf = self.as_pdf(key=key)
+      if not pdf:
+        buttons = [doc_download_button]
+      else:
+        doc_view_button = action_button_html(
+            pdf.url_for(attachment=False),
+            label=view_label,
+            icon=view_icon,
+            color="secondary",
+            size="md",
+            classname='al_view')
+        buttons = [doc_view_button, doc_download_button]
     else:
       buttons = [doc_download_button]
 
@@ -1080,7 +1087,7 @@ class ALDocumentBundle(DAList):
     return_str += '</div>'  # al_send_bundle
     return return_str
 
-  def send_email(self, to:any=None, key:str='final', editable:bool=False, template:any=None, **kwargs) -> bool:
+  def send_email(self, to:Any=None, key:str='final', editable:bool=False, template:Any=None, **kwargs) -> bool:
     """
     Send an email with the current bundle as a series of flat pdfs (one per bundle entry) or as editable documents.
     Can be used the same as https://docassemble.org/docs/functions.html#send_email with
@@ -1391,20 +1398,20 @@ class ALTableDocument(ALDocument):
     # point to the same file.
     return self.as_pdf()
   
-  def as_list(self, **kwargs) -> List[DAFile]:
-    return [self]
+  def as_list(self, key:str='final', refresh:bool=True, **kwargs) -> List[DAFile]:
+    return [self[key]]
 
-  def as_pdf(self, **kwargs) -> DAFile:
+  def as_pdf(self, key:str='final', refresh:bool=True, **kwargs) -> DAFile:
     """
     Args:
         key (str): unused, for signature compatibility with ALDocument
     """
     if hasattr(self, 'file'):
       return self.file
-    self.file = self.table.export(self.filename + '.xlsx', title=self.filename)
+    self.file:DAFile = self.table.export(self.filename + '.xlsx', title=self.filename)
     return self.file
     
-  def as_docx(self, **kwargs) -> DAFile:
+  def as_docx(self, key:str='final', refresh:bool=True, **kwargs) -> DAFile:
     return self.as_pdf()
     
 
@@ -1419,18 +1426,18 @@ class ALUntransformedDocument(ALDocument):
     """
     return False
   
-  def as_list(self, **kwargs) -> List[DAFile]:
-    return [self]
+  def as_list(self, key:str='final', refresh:bool=True, **kwargs) -> List[DAFile]:
+    return [self[key]]
 
-  def as_pdf(self, **kwargs) -> DAFile:
+  def as_pdf(self, key:str='final', refresh:bool=True, **kwargs) -> DAFile:
     """
     Args:
         key (str): unused, for signature compatibility with ALDocument
     """
     return self[key]
   
-  def as_docx(self, **kwargs) -> DAFile:
-    return self.as_pdf()
+  def as_docx(self, key:str='final', refresh:bool=True, **kwargs) -> DAFile:
+    return self.as_pdf(key, refresh, **kwargs)
   
     
 def unpack_dafilelist(the_file:DAFileList)->DAFile:
@@ -1443,6 +1450,8 @@ def unpack_dafilelist(the_file:DAFileList)->DAFile:
   """
   if isinstance(the_file, DAFileList):
     temp_name = the_file.instanceName
-    the_file = next(iter(the_file))
-    the_file.instanceName = temp_name # reset instance name to the whole object instead of index in list we got rid of
-  return the_file
+    inner_file = next(iter(the_file))
+    inner_file.instanceName = temp_name # reset instance name to the whole object instead of index in list we got rid of
+    return inner_file
+  else:
+    return the_file

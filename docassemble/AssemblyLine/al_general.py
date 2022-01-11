@@ -170,7 +170,7 @@ class ALIndividual(Individual):
     # TODO: move to 209A package
     """If the Individual has a child_letters attribute, add the new letters to the existing list"""
     if hasattr(self, 'child_letters'):
-      self.child_letters = filter_letters([new_letters, self.child_letters])
+      self.child_letters:str = filter_letters([new_letters, self.child_letters])
     else:
       self.child_letters = filter_letters(new_letters)
 
