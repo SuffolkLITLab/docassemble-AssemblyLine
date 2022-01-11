@@ -11,6 +11,7 @@ import re
 #import usaddress
 #from uszipcode import SearchEngine
 #from collections.abc import Iterable
+from typing import Any, Dict, List, Optional
 
 class ALCourt(Court):
     """Object representing a court in Massachusetts.
@@ -26,10 +27,10 @@ class ALCourt(Court):
         if 'location' not in kwargs:
             self.initializeAttribute('location', LatitudeLongitude)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.name)
       
-    def _map_info(self)->str:
+    def _map_info(self)->List[Dict[str, Any]]:
         the_info = str(self.name)
         the_info += "  [NEWLINE]  " + self.address.block()
         result = {'latitude': self.location.latitude, 'longitude': self.location.longitude, 'info': the_info}
@@ -136,7 +137,7 @@ class ALCourtLoader(DAObject):
   def all_courts(self)->list:
     return self.filter_courts(None)
   
-  def filter_courts(self, court_types: list, column='department')->list:
+  def filter_courts(self, court_types: Optional[List], column='department')->list:
     """
     Return a subset of courts, only the name column and index. 
     
