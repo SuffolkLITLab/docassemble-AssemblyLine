@@ -917,7 +917,7 @@ class ALDocumentBundle(DAList):
   def download_list_html(self, key:str='final', format:str='pdf', view:bool=True,
       refresh:bool=True, include_zip:bool = True, view_label="View", view_icon:str="eye",
       download_label:str="Download", download_icon:str="download", zip_label:str=None,
-      zip_icon:str="file-archive", include_original_in_zip=True) -> str:
+      zip_icon:str="file-archive") -> str:
     """
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
