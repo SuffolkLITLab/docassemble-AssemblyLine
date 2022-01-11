@@ -1,16 +1,11 @@
-#####################################
-# Package for a very simple / MVP list of courts that is mostly signature compatible w/ MACourts for now
+"""
+Package for a very simple / MVP list of courts that is mostly signature compatible w/ MACourts for now
+"""
 
-from docassemble.base.util import path_and_mimetype, Address, LatitudeLongitude, DAStaticFile, markdown_to_html, prevent_dependency_satisfaction, DAObject, DAList, DADict, log, space_to_underscore
+from docassemble.base.util import path_and_mimetype, Address, LatitudeLongitude, DAObject, log, space_to_underscore
 from docassemble.base.legal import Court
 import pandas as pd
 import os
-import re
-#import io, json, sys, requests, bs4, re, os
-# from docassemble.webapp.playground import PlaygroundSection
-#import usaddress
-#from uszipcode import SearchEngine
-#from collections.abc import Iterable
 from typing import Any, Dict, List, Optional
 
 class ALCourt(Court):
@@ -52,7 +47,7 @@ class ALCourt(Court):
         else:
           return str(self.name) + ' (' + self.address.city + ')'
       else:
-        return str( self.name )
+        return str(self.name)
     
     def short_label_and_address(self)->str:
       """
