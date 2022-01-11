@@ -1,0 +1,20 @@
+comment: |
+  The purpose of this YAML file is to allow you to make use of all of the Assembly
+  Line standard questions, etc. with one include, but eliminate all code that 
+  changes the visual appearance of your interview.
+---
+include:
+  - ql_baseline.yml
+  - al_settings.yml
+  - al_code.yml
+  - al_saved_sessions.yml  
+  - al_document.yml
+---
+modules:
+  - docassemble.ALToolbox.misc
+  - docassemble.ALToolbox.copy_button
+  - .al_general
+  - .al_document
+  - .al_courts
+  - docassemble.GithubFeedbackForm.github_issue
+  
