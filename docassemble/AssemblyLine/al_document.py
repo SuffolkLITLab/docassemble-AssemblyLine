@@ -804,7 +804,7 @@ class ALDocumentBundle(DAList):
     # Could be triggered in many different places unintenionally: don't refresh
     return str(self.as_pdf(refresh=False))
 
-  def as_zip(self, key:str = 'final', refresh:bool = True, title:str = '') -> DAFile:
+  def as_zip(self, key:str = 'final', refresh:bool = True, title:str = '', format="pdf", include_pdf=True) -> DAFile:
     '''Returns a zip file containing the whole bundle'''
     log_if_debug(f'Calling as_zip() for { str( self.title )}')
 
@@ -817,13 +817,22 @@ class ALDocumentBundle(DAList):
 
     # strip out a possible '.pdf' ending then add '.zip'
     zipname = os.path.splitext(self.filename)[0]
-    docs = [doc.as_pdf(key=key, refresh=refresh) for doc in self.enabled_documents(refresh=refresh)]
+    if format=="docx":
+      docs = []
+      for doc in self.enabled_documents(refresh=refresh):
+        docs.append(doc.as_docx(key=key, refresh=refresh))
+        if include_pdf and doc._is_docx():
+          docs.append(doc.as_pdf(key=key, refresh=refresh))
+    elif format=="original":
+      # We don't try to convert to PDF if format=="original" (for things like XLSX files)
+      docs = [doc[key] for doc in self.enabled_documents(refresh=refresh)]
+    else:          
+      docs = [doc.as_pdf(key=key, refresh=refresh) for doc in self.enabled_documents(refresh=refresh)]
     zip = zip_file( docs, filename=zipname + '.zip' )
     if title == '':
       zip.title = self.title
     else:
-      zip.title = title
-    
+      zip.title = title    
     setattr(self.cache, zip_key, zip)
     log_if_debug(f'Stored {self.title} zip at {self.instanceName}.cache.{zip_key}')
     
@@ -908,7 +917,7 @@ class ALDocumentBundle(DAList):
   def download_list_html(self, key:str='final', format:str='pdf', view:bool=True,
       refresh:bool=True, include_zip:bool = True, view_label="View", view_icon:str="eye",
       download_label:str="Download", download_icon:str="download", zip_label:str=None,
-      zip_icon:str="file-archive") -> str:
+      zip_icon:str="file-archive", include_original_in_zip=True) -> str:
     """
     Returns string of a table to display a list
     of pdfs with 'view' and 'download' buttons.
@@ -970,7 +979,8 @@ class ALDocumentBundle(DAList):
     if len(enabled_docs) > 1 and include_zip:
       if not zip_label:
         zip_label = self._cached_zip_label      
-      zip = self.as_zip(key=key)
+      # Zip file will match the format of the download table
+      zip = self.as_zip(key=key, format=format, include_pdf=view)
       zip_button = action_button_html(
           zip.url_for(attachment=False, display_filename = filename_root + ".zip"),
           label=zip_label, icon=zip_icon, color="primary", size="md", classname='al_zip' )

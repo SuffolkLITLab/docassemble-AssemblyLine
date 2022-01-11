@@ -6,8 +6,13 @@ metadata:
   title: |
     Test ALDocument class
 ---
+continue button field: intro_screen
+question: |
+  Intro screen
+---
 mandatory: True
 code: |
+  intro_screen
   as_foo_defaults
   download_list_html_defaults
   #download_html_defaults
@@ -15,6 +20,7 @@ code: |
   as_foo_custom
   download_list_html_custom_1
   download_list_html_custom_2
+  download_list_html_custom_3
   #download_html_custom_1
   #download_html_custom_2
   email_custom
@@ -22,9 +28,9 @@ code: |
 ---
 objects:
   # No addenda, all start enabled
-  - multi_bundle_1: ALDocumentBundle.using(elements=[pdf_1, docx_1], title="Multiple docs 1", filename="multi_bundle_1.pdf" )
-  - single_pdf_bundle_1: ALDocumentBundle.using(elements=[pdf_1], title="One pdf", filename="single_pdf_1.pdf" )
-  - single_docx_bundle_1: ALDocumentBundle.using(elements=[docx_1], title="One docx", filename="single_docx_1.docx" )
+  - multi_bundle_1: ALDocumentBundle.using(elements=[pdf_1, docx_1], title="Multiple docs 1", filename="multi_bundle_1" )
+  - single_pdf_bundle_1: ALDocumentBundle.using(elements=[pdf_1], title="One pdf", filename="single_pdf_1" )
+  - single_docx_bundle_1: ALDocumentBundle.using(elements=[docx_1], title="One docx", filename="single_docx_1" )
 ---
 objects:
   - pdf_1: ALDocument.using( title="PDF 1", filename="pdf_doc_1", enabled=True, has_addendum=False )
@@ -33,14 +39,14 @@ objects:
 attachment: 
   variable name: pdf_1[i]
   pdf template file: test_aldocument_pdf_1.pdf
-  filename: pdf_1.pdf
+  filename: pdf_1
   fields:
     - "sample_field": "Sample input"
 ---
 attachment: 
   variable name: docx_1[i]
   docx template file: test_aldocument_docx_1.docx
-  filename: docx_1.docx
+  filename: docx_1
 ---
 # TODO: Do we/how do we test that correct defaults have been used? Esp. for args like `refresh`
 ---
@@ -264,6 +270,26 @@ subquestion: |
   ${ single_docx_bundle_1.download_list_html( view=False, include_zip=False ) }
   
   ---
+---
+id: download_list_html_custom_3
+continue button field: download_list_html_custom_3
+question: |
+  download_list_html() with custom args (3)
+subquestion: |
+  
+  multi_bundle_1.download_list_html( view=True, format="docx" )
+  
+  ${ multi_bundle_1.download_list_html( view=True, format="docx" ) }  
+  
+  _Zip should contain 3 files: docx, pdf, and PDF conversion of docx._
+  
+  ---
+  
+  multi_bundle_1.download_list_html( view=False, format="docx" )
+  
+  ${ multi_bundle_1.download_list_html( view=False, format="docx" ) }  
+
+  _Zip should contain 2 files: docx, pdf._
 ---
 # Keeping these in here until method is completely removed just in case other decisions are made
 #comment: |
