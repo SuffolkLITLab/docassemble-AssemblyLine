@@ -1,0 +1,5 @@
+*DS_Store*
+.env
+.history
+__pycache__/
+docassemble.AssemblyLine.egg-info/*
