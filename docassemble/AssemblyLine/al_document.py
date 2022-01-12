@@ -713,7 +713,7 @@ class ALStaticDocument(DAStaticFile):
     return self
   
   def as_list(self, key:str='final', refresh:bool=True) -> List[DAStaticFile]:
-    return [self[key]]
+    return [self]
   
   def as_pdf(self, key:str='final', refresh:bool=True) -> DAStaticFile:
     return pdf_concatenate(self)
