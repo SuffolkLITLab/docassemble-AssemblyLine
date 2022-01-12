@@ -1,16 +1,12 @@
-#####################################
-# Package for a very simple / MVP list of courts that is mostly signature compatible w/ MACourts for now
+"""
+Package for a very simple / MVP list of courts that is mostly signature compatible w/ MACourts for now
+"""
 
-from docassemble.base.util import path_and_mimetype, Address, LatitudeLongitude, DAStaticFile, markdown_to_html, prevent_dependency_satisfaction, DAObject, DAList, DADict, log, space_to_underscore
+from docassemble.base.util import path_and_mimetype, Address, LatitudeLongitude, DAObject, log, space_to_underscore
 from docassemble.base.legal import Court
 import pandas as pd
 import os
-import re
-#import io, json, sys, requests, bs4, re, os
-# from docassemble.webapp.playground import PlaygroundSection
-#import usaddress
-#from uszipcode import SearchEngine
-#from collections.abc import Iterable
+from typing import Any, Dict, List, Optional
 
 class ALCourt(Court):
     """Object representing a court in Massachusetts.
@@ -26,10 +22,10 @@ class ALCourt(Court):
         if 'location' not in kwargs:
             self.initializeAttribute('location', LatitudeLongitude)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.name)
       
-    def _map_info(self)->str:
+    def _map_info(self)->List[Dict[str, Any]]:
         the_info = str(self.name)
         the_info += "  [NEWLINE]  " + self.address.block()
         result = {'latitude': self.location.latitude, 'longitude': self.location.longitude, 'info': the_info}
@@ -51,7 +47,7 @@ class ALCourt(Court):
         else:
           return str(self.name) + ' (' + self.address.city + ')'
       else:
-        return str( self.name )
+        return str(self.name)
     
     def short_label_and_address(self)->str:
       """
@@ -136,7 +132,7 @@ class ALCourtLoader(DAObject):
   def all_courts(self)->list:
     return self.filter_courts(None)
   
-  def filter_courts(self, court_types: list, column='department')->list:
+  def filter_courts(self, court_types: Optional[List], column='department')->list:
     """
     Return a subset of courts, only the name column and index. 
     

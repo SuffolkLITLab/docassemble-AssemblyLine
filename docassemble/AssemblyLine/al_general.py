@@ -1,5 +1,5 @@
 from typing import Dict, List, Union
-from docassemble.base.util import Address, Individual, DAList, date_difference, name_suffix, states_list, comma_and_list, word, comma_list, url_action, get_config, phone_number_is_valid, validation_error, DAWeb, get_config, as_datetime, DADateTime, subdivision_type
+from docassemble.base.util import Address, Individual, DAList, date_difference, name_suffix, comma_and_list, word, comma_list, url_action, get_config, phone_number_is_valid, validation_error, DAWeb, get_config, as_datetime, DADateTime, subdivision_type
 from docassemble.base.functions import DANav
 import re
 
@@ -170,7 +170,7 @@ class ALIndividual(Individual):
     # TODO: move to 209A package
     """If the Individual has a child_letters attribute, add the new letters to the existing list"""
     if hasattr(self, 'child_letters'):
-      self.child_letters = filter_letters([new_letters, self.child_letters])
+      self.child_letters:str = filter_letters([new_letters, self.child_letters])
     else:
       self.child_letters = filter_letters(new_letters)
 

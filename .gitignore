@@ -10,5 +10,14 @@ downloads_*
 *_report_*
 _al_test_project_name.json
 .history
+
+# Python related
 __pycache__/
 docassemble.AssemblyLine.egg-info/*
+**/*.pyi
+.mypy_cache/**
+**/.mypy_cache/**
+dist/**
+
+# IDE related
+.vscode/**
