@@ -1,0 +1,18 @@
+# For usage, see https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/framework/magic_variables
+---
+include:
+  - al_settings.yml
+  - al_code.yml
+  - al_saved_sessions.yml  
+  - al_visual.yml
+  - al_document.yml
+  - ql_baseline.yml
+---
+modules:
+  - docassemble.ALToolbox.misc
+  - docassemble.ALToolbox.copy_button
+  - .al_general
+  - .al_document
+  - .al_courts
+  - docassemble.GithubFeedbackForm.github_issue
+  
