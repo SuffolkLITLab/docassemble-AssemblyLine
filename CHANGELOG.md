@@ -1,3 +1,13 @@
+# Version v2.9.0
+
+* Bugfixes
+* Added additional comments and documentation of classes and variables
+* Slightly improved phrasing of some questions
+* .zip file includes DOCX files (configurable)
+* Better typing
+* Starting using the black autoreformatter to have more consistent Python coding style
+* Remove some debugging strings
+
 # Version v2.8.0
 
 Bug fixes:
