@@ -1,5 +1,9 @@
 # Version v2.9.0
 
+As of AssemblyLine v2.9.0, you can now include AssemblyLine code in your interview by 
+referencing `docassemble.AssemblyLine:assembly_line.yml` instead of `docassemble.AssemblyLine:al_package.yml`.
+The old reference is deprecated but there are no current plans to remove it.
+
 * Bugfixes
 * Added additional comments and documentation of classes and variables
 * Slightly improved phrasing of some questions
