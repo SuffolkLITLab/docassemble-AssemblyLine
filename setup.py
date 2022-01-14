@@ -58,7 +58,7 @@ def find_package_data(
 
 setup(
     name="docassemble.AssemblyLine",
-    version="2.8.0",
+    version="2.9.0",
     description=(
         "Runtime package that helps rapidly automate court forms, letters, and the like"
     ),
