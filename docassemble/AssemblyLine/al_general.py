@@ -259,7 +259,7 @@ class ALPeopleList(DAList):
     def names_and_addresses_on_one_line(self, comma_string: str = "; ", bare=False) -> str:
         """Returns the name of each person followed by their address, separated by a semicolon"""
         return comma_and_list(
-            [str(person) + ", " + person.address.on_one_line(bare=False) for person in self],
+            [str(person) + ", " + person.address.on_one_line(bare=bare) for person in self],
             comma_string=comma_string,
         )
 
