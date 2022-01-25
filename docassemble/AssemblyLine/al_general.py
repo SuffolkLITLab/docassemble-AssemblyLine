@@ -17,6 +17,7 @@ from docassemble.base.util import (
     as_datetime,
     DADateTime,
     subdivision_type,
+    this_thread
 )
 from docassemble.base.functions import DANav
 import re
@@ -124,7 +125,118 @@ class ALAddress(Address):
             )
             # NOTE: using , "datatype": "combobox" might be nice but does not play together well w/ address autocomplete
         return fields
-
+      
+    def formatted_unit(self, language=None, require=False, bare=False):
+        """Returns the unit, formatted appropriately"""
+        if not hasattr(self, 'unit') and not hasattr(self, 'floor') and not hasattr(self, 'room'):
+            if require:
+                self.unit
+            else:
+                return ''
+        if hasattr(self, 'unit') and self.unit != '' and self.unit is not None:
+            if not bare and  str(self.unit).isnumeric():
+                return word("Unit", language=language) + " " + str(self.unit)
+            return str(self.unit)
+        if hasattr(self, 'floor') and self.floor != '' and self.floor is not None:
+            return word("Floor", language=language) + " " + str(self.floor)
+        if hasattr(self, 'room') and self.room != '' and self.room is not None:
+            return word("Room", language=language) + " " + str(self.room)
+        return ''      
+  
+    def block(self, language=None, international=False, show_country=None, bare=False):
+        """Returns the address formatted as a block, as in a mailing."""
+        if this_thread.evaluation_context == 'docx':
+            line_breaker = '</w:t><w:br/><w:t xml:space="preserve">'
+        else:
+            line_breaker = " [NEWLINE] "
+        if international:
+            i18n_address = {}
+            if (not hasattr(self, 'address')) and hasattr(self, 'street_number') and hasattr(self, 'street'):
+                i18n_address['street_address'] = str(self.street_number) + " " + str(self.street)
+            else:
+                i18n_address['street_address'] = str(self.address)
+            the_unit = self.formatted_unit(language=language, bare=bare)
+            if the_unit != '':
+                i18n_address['street_address'] += '\n' + the_unit
+            if hasattr(self, 'sublocality_level_1') and self.sublocality_level_1:
+                i18n_address['city_area'] = str(self.sublocality_level_1)
+            i18n_address['city'] = str(self.city)
+            if hasattr(self, 'state') and self.state:
+                i18n_address['country_area'] = str(self.state)
+            if hasattr(self, 'zip') and self.zip:
+                i18n_address['postal_code'] = str(self.zip)
+            elif hasattr(self, 'postal_code') and self.postal_code:
+                i18n_address['postal_code'] = str(self.postal_code)
+            i18n_address['country_code'] = self._get_country()
+            return i18naddress.format_address(i18n_address).replace('\n', line_breaker)
+        output = ""
+        if self.city_only is False:
+            if (not hasattr(self, 'address')) and hasattr(self, 'street_number') and hasattr(self, 'street'):
+                output += str(self.street_number) + " " + str(self.street) + line_breaker
+            else:
+                output += str(self.address) + line_breaker
+            the_unit = self.formatted_unit(language=language)
+            if the_unit != '':
+                output += the_unit + line_breaker
+        if hasattr(self, 'sublocality_level_1') and self.sublocality_level_1:
+            output += str(self.sublocality_level_1) + line_breaker
+        output += str(self.city)
+        if hasattr(self, 'state') and self.state:
+            output += ", " + str(self.state)
+        if hasattr(self, 'zip') and self.zip:
+            output += " " + str(self.zip)
+        elif hasattr(self, 'postal_code') and self.postal_code:
+            output += " " + str(self.postal_code)
+        if show_country is None and hasattr(self, 'country') and self.country and get_country() != self.country:
+            show_country = True
+        if show_country:
+            output += line_breaker + country_name(self._get_country())
+        return output
+      
+    def line_one(self, language=None, bare=False):
+        """Returns the first line of the address, including the unit
+        number if there is one."""
+        if self.city_only:
+            return ''
+        if (not hasattr(self, 'address')) and hasattr(self, 'street_number') and hasattr(self, 'street'):
+            output = str(self.street_number) + " " + str(self.street)
+        else:
+            output = str(self.address)
+        the_unit = self.formatted_unit(language=language, bare=bare)
+        if the_unit != '':
+            output += ", " + the_unit
+        return output   
+      
+    def on_one_line(self, include_unit=True, omit_default_country=True, language=None, show_country=None, bare=False):
+        """Returns a one-line address.  Primarily used internally for geocoding."""
+        output = ""
+        if self.city_only is False:
+            if (not hasattr(self, 'address')) and hasattr(self, 'street_number') and hasattr(self, 'street'):
+                output += str(self.street_number) + " " + str(self.street)
+            else:
+                output += str(self.address)
+            if include_unit:
+                the_unit = self.formatted_unit(language=language, bare=bare)
+                if the_unit != '':
+                    output += ", " + the_unit
+            output += ", "
+        #if hasattr(self, 'sublocality') and self.sublocality:
+        #    output += str(self.sublocality) + ", "
+        if hasattr(self, 'sublocality_level_1') and self.sublocality_level_1:
+            if not (hasattr(self, 'street_number') and self.street_number == self.sublocality_level_1):
+                output += str(self.sublocality_level_1) + ", "
+        output += str(self.city)
+        if hasattr(self, 'state') and self.state:
+            output += ", " + str(self.state)
+        if hasattr(self, 'zip') and self.zip:
+            output += " " + str(self.zip)
+        elif hasattr(self, 'postal_code') and self.postal_code:
+            output += " " + str(self.postal_code)
+        if show_country is None and hasattr(self, 'country') and self.country and ((not omit_default_country) or get_country() != self.country):
+            show_country = True
+        if show_country:
+            output += ", " + country_name(self._get_country())
+        return output      
 
 class ALAddressList(DAList):
     """Store a list of Address objects"""
@@ -144,10 +256,10 @@ class ALPeopleList(DAList):
         super(ALPeopleList, self).init(*pargs, **kwargs)
         self.object_type = ALIndividual
 
-    def names_and_addresses_on_one_line(self, comma_string: str = "; ") -> str:
+    def names_and_addresses_on_one_line(self, comma_string: str = "; ", bare=False) -> str:
         """Returns the name of each person followed by their address, separated by a semicolon"""
         return comma_and_list(
-            [str(person) + ", " + person.address.on_one_line() for person in self],
+            [str(person) + ", " + person.address.on_one_line(bare=False) for person in self],
             comma_string=comma_string,
         )
 
@@ -473,6 +585,13 @@ class ALIndividual(Individual):
     def initials(self):
         """Return the individual's initials, like QKS for Quinten K Steenhuis"""
         return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1]}"
+      
+    
+    def address_block(self, language=None, international=False, show_country=False, bare=False):
+        """Returns the person name address as a block, for use in mailings."""
+        if this_thread.evaluation_context == 'docx':
+            return self.name.full() + '</w:t><w:br/><w:t xml:space="preserve">' + self.address.block(language=language, international=international, show_country=show_country)
+        return "[FLUSHLEFT] " + self.name.full() + " [NEWLINE] " + self.address.block(language=language, international=international, show_country=show_country, bare=bare)
 
 
 def section_links(nav: DANav) -> List[str]:
