@@ -1,6 +1,11 @@
 # coding=utf-8
 from docassemble.base.functions import url_action
 
+__all__ = [
+    "get_tuples",
+    "get_language_list",
+    "get_language_list_item",
+]
 
 def get_tuples(lang_codes):
     """Returns a list of tuples representing the language name, followed by language ISO 639-1 code.
