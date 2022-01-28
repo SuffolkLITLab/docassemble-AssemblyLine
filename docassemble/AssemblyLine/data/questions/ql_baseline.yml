@@ -773,6 +773,80 @@ fields:
   - code: |
       x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 ---
+generic object: ALIndividual
+id: x has other addresses
+question: |
+  Does ${ x } live at more than one address?
+fields:  
+  - ${ x } lives at more than one address: x.other_addresses.there_are_any
+    datatype: yesnoradio
+---
+generic object: ALIndividual
+sets:
+  - x.other_addresses[i].address
+  - x.other_addresses[i].city
+id: other address where x lives
+question: |
+  Tell us about the ${ordinal(i)} other address where ${ x } lives
+subquestion: |
+  You already told us about ${x.address.on_one_line()}
+  % if len(x.other_addresses.complete_elements()):
+  as well as ${x.other_addresses.complete_elements()}
+  % endif
+fields:
+  - code: |
+      x.other_addresses[i].address_fields(default_state=AL_DEFAULT_STATE)
+---
+generic object: ALIndividual
+id: x has another other address
+question: |
+  Does ${ x } have any other address where they currently live to tell us about?
+subquestion: |
+  You already told us about ${ x.address.on_one_line() }
+  % if len(x.other_addresses.complete_elements()):
+  as well as ${x.other_addresses.complete_elements()}
+  % endif
+fields:
+  - Does ${ x } have another address?: x.other_addresses.there_is_another  
+    datatype: yesnoradio
+---
+generic object: ALIndividual
+id: x has previous addresses
+question: |
+  Does ${ x } have any previous addresses?
+fields:  
+  - ${ x } has a previous address to list: x.previous_addresses.there_are_any
+    datatype: yesnoradio
+---
+generic object: ALIndividual
+sets:
+  - x.previous_addresses[i].address
+  - x.previous_addresses[i].city
+id: other previous address where x lives
+question: |
+  Tell us about the ${ordinal(i)} address where ${ x } used to live
+subquestion: |
+  You already told us about ${x.address.on_one_line()}
+  % if len(x.previous_addresses.complete_elements()):
+  as well as ${x.previous_addresses.complete_elements()}
+  % endif
+fields:
+  - code: |
+      x.previous_addresses[i].address_fields(default_state=AL_DEFAULT_STATE)
+---
+generic object: ALIndividual
+id: has another previous address
+question: |
+  Does ${ x } have any other address where they used to live to tell us about?
+subquestion: |
+  You already told us about ${ x.address.on_one_line() }
+  % if len(x.previous_addresses.complete_elements()):
+  as well as ${x.previous_addresses.complete_elements()}
+  % endif
+fields:
+  - Does ${ x } have another address where they used to live?: x.previous_addresses.there_is_another  
+    datatype: yesnoradio
+---
 id: persons contact information
 generic object: ALIndividual
 question: |
