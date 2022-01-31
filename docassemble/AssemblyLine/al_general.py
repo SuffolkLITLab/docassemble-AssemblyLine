@@ -19,7 +19,7 @@ from docassemble.base.util import (
     subdivision_type,
     this_thread,
 )
-from docassemble.base.functions import DANav, get_country
+from docassemble.base.util import DANav, get_country, country_name
 import re
 
 __all__ = [
