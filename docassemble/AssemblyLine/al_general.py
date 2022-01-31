@@ -14,12 +14,13 @@ from docassemble.base.util import (
     validation_error,
     DAWeb,
     get_config,
+    get_country, 
+    country_name,
     as_datetime,
     DADateTime,
     subdivision_type,
     this_thread,
 )
-from docassemble.base.util import DANav, get_country, country_name
 import re
 
 __all__ = [
@@ -178,7 +179,7 @@ class ALAddress(Address):
             elif hasattr(self, "postal_code") and self.postal_code:
                 i18n_address["postal_code"] = str(self.postal_code)
             i18n_address["country_code"] = self._get_country()
-            return i18naddress.format_address(i18n_address).replace("\n", line_breaker)
+            return i18n_address.format_address(i18n_address).replace("\n", line_breaker)
         output = ""
         if self.city_only is False:
             if (
@@ -663,7 +664,7 @@ class ALIndividual(Individual):
         )
 
 
-def section_links(nav: DANav) -> List[str]:
+def section_links(nav) -> List[str]:
     """Returns a list of clickable navigation links without animation."""
     sections = nav.get_sections()
     section_link = []
