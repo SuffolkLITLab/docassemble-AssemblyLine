@@ -1,3 +1,8 @@
+# Version v2.10.0
+
+Add questions for previous_addresses and other_addresses
+Fix preexisting bug with address methods--missing imports
+
 # Version v2.9.0
 
 As of AssemblyLine v2.9.0, you can now include AssemblyLine code in your interview by 
