@@ -7,11 +7,11 @@ def get_tuples(lang_codes):
     Right now only lists languages in use by Massachusetts Defense for Eviction (MADE)."""
     long_langs = {
         "en": "English",
-        "es": u"Español",
-        "vi": u"Tiếng Việt",
-        "ht": u"Kreyòl",
-        "zh-t": u"中文",
-        "pt": u"Português",
+        "es": "Español",
+        "vi": "Tiếng Việt",
+        "ht": "Kreyòl",
+        "zh-t": "中文",
+        "pt": "Português",
     }
     tuples = []
     for lang in lang_codes:
