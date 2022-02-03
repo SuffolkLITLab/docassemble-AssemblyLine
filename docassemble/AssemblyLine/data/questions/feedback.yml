@@ -1,6 +1,7 @@
 ---
 include:
   - docassemble.GithubFeedbackForm:feedback.yml
+  - al_settings.yml
 ---
 metadata:
   title: ${ AL_ORGANIZATION_TITLE } Feedback Form
