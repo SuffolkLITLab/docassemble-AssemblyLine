@@ -331,6 +331,18 @@ class ALPeopleList(DAList):
         else:
             return comma_and_list(self)
 
+    def full_names(self, comma_string=", ", and_string=word("and")):
+        """
+        Return a formatted list of names in the PeopleList, without shortening middle name to an initial.
+        Optional parameters `comma_string` and `and_string` will be passed to `comma_and_list` and allow
+        you to change the list separator and the word before the final list item, respectively.
+        """
+        return comma_and_list(
+            [person.name.full(middle="full") for person in self],
+            comma_string=comma_string,
+            and_string=and_string,
+        )
+
 
 class ALIndividual(Individual):
     """Used to represent an Individual on the assembly line project.
