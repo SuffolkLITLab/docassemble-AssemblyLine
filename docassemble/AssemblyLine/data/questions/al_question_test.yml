@@ -14,8 +14,19 @@ code: |
 code: |
   AL_DEFAULT_STATE = "MA"
 ---
+# Allow flexible customization of header logo titles
 code: |
-  interview_short_title = "AL Question Test"
+  AL_LOGO_TITLE_ROW_1 = "Title Row 1"
+---
+code: |
+  AL_LOGO_TITLE_ROW_2 = "Title Row 2"
+---
+# Allow flexible customization of header logo short titles
+code: |
+  AL_LOGO_SHORT_TITLE_ROW_1 = "Short Row 1"
+---
+code: |
+  AL_LOGO_SHORT_TITLE_ROW_2 = "Short Row 2"
 ---
 metadata:
   title: |

@@ -17,18 +17,18 @@ default screen parts:
         <img src="${ al_logo.url_for() }"/>
       </div>
       <div class="al-title">
-        <div class="title-row-1">${ AL_ORGANIZATION_TITLE }</div>
-        <div class="title-row-2">${all_variables(special='metadata').get('title','').rstrip()}</div>
+        <div class="title-row-1">${ AL_LOGO_TITLE_ROW_1 }</div>
+        <div class="title-row-2">${ AL_LOGO_TITLE_ROW_2 }</div>
       </div>
-    </div> 
+    </div>
   short logo: |
     <div class="title-container">
       <div class="al-logo">
         <img src="${ al_logo.url_for() }"/>
       </div>
       <div class="al-title">
-        <div class="title-row-1">${ AL_ORGANIZATION_TITLE }</div>
-        <div class="title-row-2">${ all_variables(special='metadata').get('short title','').rstrip() }</div>
+        <div class="title-row-1">${ AL_LOGO_SHORT_TITLE_ROW_1 }</div>
+        <div class="title-row-2">${ AL_LOGO_SHORT_TITLE_ROW_2 }</div>
       </div>
     </div>   
   continue button label: |
@@ -79,6 +79,20 @@ code: |
     "label": "Start over"
     },
   ]
+---
+# Allow flexible customization of header logo titles
+code: |
+  AL_LOGO_TITLE_ROW_1 = AL_ORGANIZATION_TITLE
+---
+code: |
+  AL_LOGO_TITLE_ROW_2 = all_variables(special='metadata').get('title','').rstrip()
+---
+# Allow flexible customization of header logo short titles
+code: |
+  AL_LOGO_SHORT_TITLE_ROW_1 = AL_ORGANIZATION_TITLE
+---
+code: |
+  AL_LOGO_SHORT_TITLE_ROW_2 = all_variables(special='metadata').get('short title','').rstrip()
 ---
 event: al_start_over
 code: |
