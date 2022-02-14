@@ -1,3 +1,14 @@
+# Version v2.10.1
+
+New features:
+
+* added `full_names` method to ALPeopleList class (always uses full middle name, not middle initial in list)
+
+Bug fixes:
+
+* ensure definition of `AL_ORGANIZATION_TITLE` for feedback page
+* Fix issue where you are not prompted to add additional pages to the second or more exhibit with default questions
+
 # Version v2.10.0
 
 Add questions for previous_addresses and other_addresses
