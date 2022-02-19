@@ -1301,6 +1301,7 @@ class ALDocumentBundle(DAList):
                 **kwargs,
             )
 
+
 class ALDocumentBundleDict(DADict):
     """
     A dictionary with named bundles of ALDocuments. In the assembly line, we
