@@ -1301,16 +1301,6 @@ class ALDocumentBundle(DAList):
                 **kwargs,
             )
 
-    # I don't think this was actually ever used
-    def table_css(self):
-        """
-        Return the css styles for the view/download table.
-        This will be hard to develop with and it will be a bit
-        harder to override for developers using this module.
-        """
-        return ""
-
-
 class ALDocumentBundleDict(DADict):
     """
     A dictionary with named bundles of ALDocuments. In the assembly line, we
