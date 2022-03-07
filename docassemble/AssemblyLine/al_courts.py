@@ -20,7 +20,6 @@ __all__ = [
 ]
 
 
-
 class ALCourt(Court):
     """Object representing a court in Massachusetts.
     TODO: it could be interesting to store a jurisdiction on a court. But this is non-trivial. Should it be geo boundaries?

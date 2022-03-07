@@ -7,6 +7,7 @@ __all__ = [
     "get_language_list_item",
 ]
 
+
 def get_tuples(lang_codes):
     """Returns a list of tuples representing the language name, followed by language ISO 639-1 code.
     Right now only lists languages in use by Massachusetts Defense for Eviction (MADE)."""
