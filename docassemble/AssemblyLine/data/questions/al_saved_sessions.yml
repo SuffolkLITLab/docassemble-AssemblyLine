@@ -159,6 +159,13 @@ code: |
     'simple_filtered_vars_tmp',
     'al_sessions_url_ask_snapshot',
     'al_sessions_url_ask_fast_forward',
+    'AL_ORGANIZATION_HOMEPAGE',
+    'AL_ORGANIZATION_TITLE',
+    'Any',
+    'Dict',
+    'List',
+    'Optional',
+    'al_logo',
     # Maybe we will want these to be optional? Depends on how good review screen is.
     # 'docket_number',
     # 'docket_numbers',
@@ -167,6 +174,12 @@ code: |
     #'user_started_case',
   ]
 ---
+code: |
+  def file_like(obj):
+    return isinstance(obj, DAFile) or isinstance(obj, DAFileCollection) or isinstance(obj, DAFileList) or isinstance(obj, ALDocument) or isinstance(obj, ALDocumentBundle)
+---
+need:
+  - file_like
 # For save snapshot
 code: |
   filtered_vars_tmp = all_variables(simplify=False)
@@ -174,24 +187,19 @@ code: |
   
   for var in al_sessions_variables_to_remove:
     filtered_vars_tmp.pop(var, None)
-    simple_filtered_vars_tmp.pop(var, None)
-  
-  # Make all top-level DAFiles and DAFileCollections public
-  # TODO: is it worth making this recursive and traversing all attributes?
-  for var in filtered_vars_tmp:
-    if isinstance(var, DAFile) or isinstance(var, DAFileCollection) or isinstance(var, DAFileList):
-      try:
-        var.set_attributes(private=False)
-      except:
-        pass
+    simple_filtered_vars_tmp.pop(var, None)   
   
   al_simple_filtered_vars = simple_filtered_vars_tmp
-  al_sessions_filtered_vars = filtered_vars_tmp
+  
+  # Delete all files and ALDocuments
+  al_sessions_filtered_vars = {item:filtered_vars_tmp[item] for item in filtered_vars_tmp if not file_like(filtered_vars_tmp[item])}
   del filtered_vars_tmp
   del simple_filtered_vars_tmp
 ---
 # For fast forward
 ---
+need:
+  - file_like
 code: |
   # vars = get_session_variables(filename, session_id, secret, simplify=False)
   al_sessions_source_session = int(al_sessions_source_session)
@@ -203,16 +211,9 @@ code: |
   for var in al_sessions_variables_to_remove:
     filtered_vars_tmp.pop(var, None)
 
-  # Mark all top-level files public so the new session can open them
-  # TODO: is it worth making this recursive and traversing all attributes?  
-  for var in filtered_vars_tmp:
-    if isinstance(var, DAFile) or isinstance(var, DAFileCollection) or isinstance(var, DAFileList):
-      try:
-        var.set_attributes(private=False)
-      except:
-        pass
+  # Delete all files and ALDocuments
+  al_sessions_fast_forward_filtered_vars = {item:filtered_vars_tmp[item] for item in filtered_vars_tmp if not file_like(filtered_vars_tmp[item])}
         
-  al_sessions_fast_forward_filtered_vars = filtered_vars_tmp
   del filtered_vars_tmp
 ---
 # Triggered by "save snapshot"
