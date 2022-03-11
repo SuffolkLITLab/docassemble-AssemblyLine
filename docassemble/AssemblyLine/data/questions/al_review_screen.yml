@@ -1,0 +1,23 @@
+# A dynamic review screen that provides a simple way to edit simple variables,
+# But it is quite limited
+---
+question: |
+  Edit your answers
+subquestion: |
+  % for variable, value in al_simple_filtered_vars.items():
+  
+  % if isinstance(value, (str, float, int)):
+  #### ${ variable }
+  ${ value } 
+  
+  ${ action_button_html(url_action(variable)) }
+  % elif isinstance(value, dict) and "_class" in value:
+  #### ${ variable }
+  &nbsp; | &nbsp;| &nbsp;
+  -------|-------|-------
+  % for attr, val in value.items():
+  ${ attr } | ${ val } | ${ action_button_html(url_action(f"{variable}.{attr}")) }
+  % endfor    
+  % endif
+  % endfor
+continue button field: al_dynamic_review_screen
