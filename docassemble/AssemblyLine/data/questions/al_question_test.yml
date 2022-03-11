@@ -7,6 +7,17 @@
 ---
 include:
   - al_package.yml
+  - al_review_screen.yml
+---
+code: |
+  al_menu_items = [
+    {"url": url_ask(['al_start_over_confirmation','al_start_over']),
+    "label": "Start over"
+    },
+    {"url": url_ask(['al_dynamic_review_screen']),
+    "label": "Edit answers"
+    },
+  ]
 ---
 code: |
   AL_DEFAULT_COUNTRY = "US"
