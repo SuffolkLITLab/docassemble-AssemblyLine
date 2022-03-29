@@ -1039,8 +1039,8 @@ class ALDocumentBundle(DAList):
         return [
             doc.as_docx(key=key, refresh=refresh)
             for doc in self.enabled_documents(refresh=refresh)
-        ]        
-        
+        ]
+
     def as_editable_list(
         self, key: str = "final", refresh: bool = True
     ) -> List[DAFile]:
@@ -1050,14 +1050,14 @@ class ALDocumentBundle(DAList):
         docs = self.as_flat_list(key=key, refresh=refresh)
         editable = []
         for doc in docs:
-            if hasattr(doc, 'docx'):
-              editable.append(doc.docx)
-            elif hasattr(doc, 'rtf'):
-              editable.append(doc.rtf)
+            if hasattr(doc, "docx"):
+                editable.append(doc.docx)
+            elif hasattr(doc, "rtf"):
+                editable.append(doc.rtf)
             else:
-              # The whole DAFile should still be appendable
-              # for custom filetypes like PNG, etc.
-              editable.append(doc)
+                # The whole DAFile should still be appendable
+                # for custom filetypes like PNG, etc.
+                editable.append(doc)
         return editable
 
     def download_list_html(
