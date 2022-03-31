@@ -1031,17 +1031,33 @@ class ALDocumentBundle(DAList):
             for doc in self.enabled_documents(refresh=refresh)
         ]
 
+    def as_docx_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
+        """
+        Returns the nested bundles as a list of DOCX files. If the file isn't able
+        to be represented as a DOCX, the original file or a PDF will be returned instead.
+        """
+        return [
+            doc.as_docx(key=key, refresh=refresh)
+            for doc in self.enabled_documents(refresh=refresh)
+        ]
+
     def as_editable_list(
         self, key: str = "final", refresh: bool = True
     ) -> List[DAFile]:
         """
-        Return a flat list of the editable versions of the docs in this bundle.
-        Not yet tested with editable PDFs.
+        Return a flat list of the DOCX versions of the docs in this bundle, if they exist.
         """
         docs = self.as_flat_list(key=key, refresh=refresh)
         editable = []
         for doc in docs:
-            editable.append(doc.docx if hasattr(doc, "docx") else doc.pdf)
+            if hasattr(doc, "docx"):
+                editable.append(doc.docx)
+            elif hasattr(doc, "rtf"):
+                editable.append(doc.rtf)
+            else:
+                # The whole DAFile should still be appendable
+                # for custom filetypes like PNG, etc.
+                editable.append(doc)
         return editable
 
     def download_list_html(
