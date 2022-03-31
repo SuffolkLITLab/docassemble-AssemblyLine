@@ -43,6 +43,7 @@ __all__ = [
     "ALTableDocument",
     "ALUntransformedDocument",
     "unpack_dafilelist",
+    "ALDocumentUpload",
 ]
 
 DEBUG_MODE = get_config("debug")
@@ -1351,9 +1352,8 @@ class ALDocumentBundleDict(DADict):
         """
         Return a list of PDF-ified documents, suitable to make an attachment to send_mail.
         """
-        return self[bundle].as_pdf_list(key="final")
-
-
+        return self[bundle].as_pdf_list(key="final")  
+      
 class ALExhibit(DAObject):
     """Class to represent a single exhibit, with cover page, which may contain multiple documents representing pages.
     Atributes:
@@ -1679,9 +1679,22 @@ class ALUntransformedDocument(ALDocument):
         return self[key]
 
     def as_docx(self, key: str = "final", refresh: bool = True, **kwargs) -> DAFile:
-        return self.as_pdf(key, refresh, **kwargs)
+        return self[key]
 
-
+      
+class ALDocumentUpload(ALUntransformedDocument):
+    """
+    Simplified class to handle uploaded documents, without any of the complexity of the 
+    ALExhibitDocument class.
+    """
+    def __getitem__(self, key):
+        # This overrides the .get() method so that the 'final' and 'private' key always exist and
+        # point to the same file.
+        # There's no need to have final/preview versions of an uploaded document
+        if isinstance(self.file, DAFileList):
+            self.file = unpack_dafilelist(self.file)
+        return self.file
+      
 def unpack_dafilelist(the_file: DAFileList) -> DAFile:
     """Creates a plain DAFile out of the first item in a DAFileList
     Args:
@@ -1697,3 +1710,6 @@ def unpack_dafilelist(the_file: DAFileList) -> DAFile:
         return inner_file
     else:
         return the_file
+
+      
+      

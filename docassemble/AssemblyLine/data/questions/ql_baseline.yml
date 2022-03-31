@@ -1670,3 +1670,20 @@ generic object: ALDocumentBundle
 code: |
   x.there_is_another = False
 ---
+################################### ALDocumentUpload questions #############################
+---
+generic object: ALDocumentUpload
+id: Upload a document for a bundle that will not be transformed
+question: |
+  ${ x.title.capitalize() }
+fields:
+  - I do not have a ${ x.title }: x.has_no_file
+    datatype: yesno
+  - Upload the ${ x.title } below: x.file
+    datatype: file
+    label above field: True
+    hide if: x.has_no_file
+---
+generic object: ALDocumentUpload
+code: |
+  x.enabled = not x.has_no_file
