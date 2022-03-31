@@ -16,6 +16,6 @@ jobs:
         uses: actions/checkout@v2
       - run: pip install virtualenv
       - run: virtualenv -p python3.8 venv
-      - run: venv/bin/pip install -r docassemble/ALWeaver/requirements.txt
+      - run: venv/bin/pip install -r docassemble/AssemblyLine/requirements.txt
       - run: venv/bin/pip install --editable .
       - run: venv/bin/python3 -m unittest discover
