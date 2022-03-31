@@ -1,3 +1,9 @@
+# Version v2.10.2
+
+Fixed:
+* More protection when using snapshot feature to avoid snapshotting files/file-like objects that can't be restored
+* fix some bad assumptions in the as_editable_list() method of ALDocumentBundle. Will work with all ALDocument subclasses now, including uploaded files
+
 # Version v2.10.1
 
 New features:
