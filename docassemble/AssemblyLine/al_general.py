@@ -813,13 +813,19 @@ def is_phone_or_email(text: str) -> bool:
 
 
 def github_modified_date(
-    github_user: str, github_repo_name: str
+    github_user: str, github_repo_name: str, auth=None
 ) -> Union[DADateTime, None]:
     """
     Returns the date that the given GitHub repository was modified or None if API call fails.
 
-    Will check for the presence of credentials in the configuration labeled "github readonly"
+    Will check for the presence of credentials in the configuration labeled "github issues"
     in this format:
+
+    github issues:
+      username: YOUR_GITHUB_USERNAME
+      token: YOUR_GITHUB_PRIVATE_TOKEN
+
+    If those credentials aren't found, it will then search for credentials in this format (deprecated):
 
     github readonly:
       username: YOUR_GITHUB_USERNAME
@@ -829,10 +835,20 @@ def github_modified_date(
     If no valid auth information is in the configuration, it will fall back to anonymous authentication.
     The GitHub API is rate-limited to 60 anonymous API queries/hour.
     """
+    if not auth:
+        issue_config = get_config("github issues")
+        if issue_config:
+            auth = {
+                "username": issue_config.get("username"),
+                "password": issue_config.get("token"),
+                "type": "basic",
+            }
+        else:
+            auth = get_config("github readonly")
     github_readonly_web = DAWeb(base_url="https://api.github.com")
     res = github_readonly_web.get(
         "repos/" + github_user + "/" + github_repo_name,
-        auth=get_config("github readonly"),
+        auth=auth,
     )
     if res and res.get("pushed_at"):
         return as_datetime(res.get("pushed_at"))
