@@ -43,6 +43,7 @@ __all__ = [
     "ALTableDocument",
     "ALUntransformedDocument",
     "unpack_dafilelist",
+    "ALDocumentUpload",
 ]
 
 DEBUG_MODE = get_config("debug")
@@ -1679,7 +1680,22 @@ class ALUntransformedDocument(ALDocument):
         return self[key]
 
     def as_docx(self, key: str = "final", refresh: bool = True, **kwargs) -> DAFile:
-        return self.as_pdf(key, refresh, **kwargs)
+        return self[key]
+
+
+class ALDocumentUpload(ALUntransformedDocument):
+    """
+    Simplified class to handle uploaded documents, without any of the complexity of the
+    ALExhibitDocument class.
+    """
+
+    def __getitem__(self, key):
+        # This overrides the .get() method so that the 'final' and 'private' key always exist and
+        # point to the same file.
+        # There's no need to have final/preview versions of an uploaded document
+        if isinstance(self.file, DAFileList):
+            self.file = unpack_dafilelist(self.file)
+        return self.file
 
 
 def unpack_dafilelist(the_file: DAFileList) -> DAFile:
