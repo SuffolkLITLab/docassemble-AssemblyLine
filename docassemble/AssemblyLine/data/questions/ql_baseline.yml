@@ -1670,3 +1670,8 @@ generic object: ALDocumentBundle
 code: |
   x.there_is_another = False
 ---
+generic object: ALIndividual
+code: |
+  # Set a default gender of a business to aid in methods like pronoun_possessive
+  if x.person_type == "business":
+    x.gender = "other"
