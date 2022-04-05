@@ -15,12 +15,20 @@ objects:
   - attorneys: ALPeopleList
   - translators: ALPeopleList
   - debt_collectors: ALPeopleList
-  - creditors: ALPeopleList
+  - creditors: ALPeopleList  
+  - spouses: ALPeopleList
+  - parents: ALPeopleList
+  - decedents: ALPeopleList
+  - interested_parties: ALPeopleList
+  - guardians: ALPeopleList
+  - adoptees: ALPeopleList  
   - allowed_courts: DAEmpty
   # Support old interviews that use `courts`
   - courts: DAList.using(auto_gather=False, target_number=1, gathered=True)
   - trial_court_address: Address
   - appeals_court_address: Address
+  
+  
 ---
 id: basic questions intro screen
 decoration: form-lineal
