@@ -1513,7 +1513,7 @@ class ALExhibitDocument(ALDocument):
         include_exhibit_cover_pages (bool): flag to control whether cover pages are included with each separate exhibit
         add_page_numbers (bool): Flag that controls whether the as_pdf() method
           also will add Bates-stamp style page numbers and labels on each page.
-        auto_labeler (callable): a Lambda or Python function that will be used to label exhibits.          
+        auto_labeler (callable): a Lambda or Python function that will be used to label exhibits.
 
     Todo:
         * Method of making a safe link in place of the attachment (e.g., filesize limits on email)
@@ -1532,13 +1532,13 @@ class ALExhibitDocument(ALDocument):
     objects:
       - al_user_bundle: ALDocumentBundle.using(elements=[my_instructions, my_main_attachment, exhibit_attachment], filename="user_bundle.pdf", title="All forms to download for your records")
     ```
-    
+
     Example of using a custom label function, https://docassemble.org/docs/functions.html#item_label:
     ```
     ---
     objects:
       - exhibit_attachment: ALExhibitDocument.using(title="Exhibits", filename="exhibits" , auto_labeler=item_label)
-    ```    
+    ```
     """
 
     def init(self, *pargs, **kwargs):
