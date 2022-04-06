@@ -53,7 +53,7 @@ setup(name='docassemble.AssemblyLine',
       url='https://courtformsonline.org',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.ALToolbox>=0.3.6', 'docassemble.GithubFeedbackForm>=0.1.3'],
+      install_requires=['docassemble.ALToolbox>=0.4.0', 'docassemble.GithubFeedbackForm>=0.1.3'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/AssemblyLine/', package='docassemble.AssemblyLine'),
      )
