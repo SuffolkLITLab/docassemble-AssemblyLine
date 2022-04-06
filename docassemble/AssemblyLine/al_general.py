@@ -595,16 +595,23 @@ class ALIndividual(Individual):
                 },
                 self_described_input,
             ]
-            
-    def language_fields(self, choices:List[Dict[str,str]]=[{"en":"English"}, {"es":"Spanish"}, {"other": "Other"}], style:str="radio"):
-        """Return a standard language picker with an "other" input. Language should be specified as ISO 639-2 or -3 codes so it is compatible with the language_name() function.
-        """
+
+    def language_fields(
+        self,
+        choices: List[Dict[str, str]] = [
+            {"en": "English"},
+            {"es": "Spanish"},
+            {"other": "Other"},
+        ],
+        style: str = "radio",
+    ):
+        """Return a standard language picker with an "other" input. Language should be specified as ISO 639-2 or -3 codes so it is compatible with the language_name() function."""
         other = {
             "label": str(self.language_other_label),
             "field": self.attr_name("language_other"),
             "show if": {"variable": self.attr_name("language"), "is": "other"},
         }
-        if style=="radio":
+        if style == "radio":
             return [
                 {
                     "label": str(self.language_label),
@@ -623,14 +630,14 @@ class ALIndividual(Individual):
                 },
                 other,
             ]
-            
+
     def language_name(self):
         """Return the human-readable version of the individual's language, handling the "other" option."""
         if self.language == "other":
             return self.language_other
         else:
             return language_name(self.language)
-                
+
     @property
     def gender_male(self):
         """Provide True/False for 'male' gender to assist with checkbox filling
@@ -893,8 +900,9 @@ def github_modified_date(
     else:
         return None
 
+
 # TODO(qs): remove if https://github.com/jhpyle/docassemble/pull/520 is merged
-def language_name(language_code:str)->str:
+def language_name(language_code: str) -> str:
     """Given a 2 digit language code abbreviation, returns the full
     name of the language. The language name will be passed through the `word()`
     function."""
