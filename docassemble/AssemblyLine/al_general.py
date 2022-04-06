@@ -623,6 +623,13 @@ class ALIndividual(Individual):
                 },
                 other,
             ]
+            
+    def language_name(self):
+        """Return the human-readable version of the individual's language, handling the "other" option."""
+        if self.language == "other":
+            return self.language_other
+        else:
+            return language_name(self.language)
                 
     @property
     def gender_male(self):
