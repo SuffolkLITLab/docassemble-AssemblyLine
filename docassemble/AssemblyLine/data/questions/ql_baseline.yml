@@ -1695,16 +1695,16 @@ comment: |
   Massachusetts. This differs widely across the world.
 variable name: al_language_user_choices
 data:
-  - en: English
-  - es: Spanish
-  - ar: Arabic
-  - kea: Cape Verdean
-  - yue: Chinese (Cantonese)  
-  - cmn: Chinese (Mandarin)
-  - fr: French
-  - ht: Haitian
-  - pt: Portuguese
-  - other: Other
+  - English: en
+  - Spanish: es
+  - Arabic: ar
+  - Cape Verdean: kea
+  - Chinese (Cantonese): yue
+  - Chinese (Mandarin): cmn
+  - French: fr
+  - Haitian: ht
+  - Portuguese: pt
+  - Other: other
 ---
 generic object: ALIndividual
 template: x.language_other_label

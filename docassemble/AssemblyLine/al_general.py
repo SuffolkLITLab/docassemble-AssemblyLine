@@ -20,6 +20,7 @@ from docassemble.base.util import (
     DADateTime,
     subdivision_type,
     this_thread,
+    ensure_definition,
 )
 import re
 import pycountry
