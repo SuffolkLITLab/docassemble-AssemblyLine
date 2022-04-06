@@ -53,7 +53,7 @@ def label(dictionary):
     Useful for working with the `columns` method of an ALAddendumField.
     """
     try:
-        return next(iter(dictionary.values()),"")
+        return next(iter(dictionary.values()), "")
     except:
         return ""
 
@@ -61,9 +61,9 @@ def label(dictionary):
 def key(dictionary):
     """Given a dictionary like: {"some_attribute":"Some label"}, return the `key` of the first dictionary item.
     Useful for working with the `columns` method of an ALAddendumField.
-    """  
+    """
     try:
-        return next(iter(dictionary.keys()),"")
+        return next(iter(dictionary.keys()), "")
     except:
         return ""
 
