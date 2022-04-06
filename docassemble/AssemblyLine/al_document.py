@@ -32,7 +32,6 @@ __all__ = [
     "ALAddendumFieldDict",
     "ALDocumentBundle",
     "ALDocument",
-    "ALDocumentBundleDict",
     "ALStaticDocument",
     "safeattr",
     "label",
@@ -1317,42 +1316,6 @@ class ALDocumentBundle(DAList):
                 attachments=self.as_pdf_list(key=key),
                 **kwargs,
             )
-
-
-class ALDocumentBundleDict(DADict):
-    """
-    A dictionary with named bundles of ALDocuments. In the assembly line, we
-    expect to find two predetermined bundles: court_bundle and user_bundle.
-
-    It may be helpful in some circumstances to have a "bundle" of bundles. E.g.,
-    you may want to present the user multiple combinations of documents for
-    different scenarios.
-    """
-
-    def init(self, *pargs, **kwargs):
-        super().init(*pargs, **kwargs)
-        self.auto_gather = False
-        self.gathered = True
-        self.object_type = ALDocumentBundle
-        if not hasattr(self, "gathered"):
-            self.gathered = True
-        if not hasattr(self, "auto_gather"):
-            self.auto_gather = False
-
-    def preview(self, format: str = "PDF", bundle: str = "user_bundle") -> DAFile:
-        """
-        Create a copy of the document as a single PDF that is suitable for a preview version of the
-        document (before signature is added).
-        """
-        return self[bundle].as_pdf(key="preview", format=format)
-
-    def as_attachment(
-        self, format: str = "PDF", bundle: str = "court_bundle"
-    ) -> List[DAFile]:
-        """
-        Return a list of PDF-ified documents, suitable to make an attachment to send_mail.
-        """
-        return self[bundle].as_pdf_list(key="final")
 
 
 class ALExhibit(DAObject):
