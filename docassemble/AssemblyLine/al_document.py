@@ -49,15 +49,21 @@ DEBUG_MODE = get_config("debug")
 
 
 def label(dictionary):
+    """Given a dictionary like: {"some_attribute":"Some label"}, return the `value` of the first dictionary item.
+    Useful for working with the `columns` method of an ALAddendumField.
+    """
     try:
-        return list(dictionary.items())[0][1]
+        return next(iter(dictionary.values()),"")
     except:
         return ""
 
 
 def key(dictionary):
+    """Given a dictionary like: {"some_attribute":"Some label"}, return the `key` of the first dictionary item.
+    Useful for working with the `columns` method of an ALAddendumField.
+    """  
     try:
-        return list(dictionary.items())[0][1]
+        return next(iter(dictionary.keys()),"")
     except:
         return ""
 
