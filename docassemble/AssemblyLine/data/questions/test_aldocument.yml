@@ -28,13 +28,14 @@ code: |
 ---
 objects:
   # No addenda, all start enabled
-  - multi_bundle_1: ALDocumentBundle.using(elements=[pdf_1, docx_1], title="Multiple docs 1", filename="multi_bundle_1" )
+  - multi_bundle_1: ALDocumentBundle.using(elements=[pdf_1, docx_1, notice_to_quit], title="Multiple docs 1", filename="multi_bundle_1" )
   - single_pdf_bundle_1: ALDocumentBundle.using(elements=[pdf_1], title="One pdf", filename="single_pdf_1" )
   - single_docx_bundle_1: ALDocumentBundle.using(elements=[docx_1], title="One docx", filename="single_docx_1" )
 ---
 objects:
   - pdf_1: ALDocument.using( title="PDF 1", filename="pdf_doc_1", enabled=True, has_addendum=False )
   - docx_1: ALDocument.using( title="Docx 1", filename="docx_doc_1", enabled=True, has_addendum=False )
+  - notice_to_quit: ALDocumentUpload.using(title="Notice to Quit", filename="notice_to_quit")
 ---
 attachment: 
   variable name: pdf_1[i]

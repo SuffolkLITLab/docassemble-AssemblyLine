@@ -928,7 +928,7 @@ generic object: ALIndividual
 question: |
   What is ${x}'s fax number?
 fields:
-  - Phone: x.fax_number
+  - Fax number: x.fax_number
 ---
 id: email
 generic object: ALIndividual
@@ -1675,3 +1675,21 @@ code: |
   # Set a default gender of a business to aid in methods like pronoun_possessive
   if x.person_type == "business":
     x.gender = "other"
+---    
+################################### ALDocumentUpload questions #############################
+---
+generic object: ALDocumentUpload
+id: Upload a document for a bundle that will not be transformed
+question: |
+  ${ x.title.capitalize() }
+fields:
+  - I do not have a ${ x.title }: x.has_no_file
+    datatype: yesno
+  - Upload the ${ x.title } below: x.file
+    datatype: file
+    label above field: True
+    hide if: x.has_no_file
+---
+generic object: ALDocumentUpload
+code: |
+  x.enabled = not x.has_no_file
