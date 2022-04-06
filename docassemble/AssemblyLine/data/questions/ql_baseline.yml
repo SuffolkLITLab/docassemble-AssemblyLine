@@ -1687,3 +1687,51 @@ fields:
 generic object: ALDocumentUpload
 code: |
   x.enabled = not x.has_no_file
+---
+##################################### Language helper variables ############################
+---
+comment: |
+  This list of languages represents the list of most commonly spoken languages in
+  Massachusetts. This differs widely across the world.
+variable name: al_language_user_choices
+data:
+  - en: English
+  - es: Spanish
+  - ar: Arabic
+  - kea: Cape Verdean
+  - yue: Chinese (Cantonese)  
+  - cmn: Chinese (Mandarin)
+  - fr: French
+  - ht: Haitian
+  - pt: Portuguese
+  - other: Other
+---
+generic object: ALIndividual
+template: x.language_other_label
+content: |
+  Other
+---  
+generic object: ALIndividual
+template: x.language_label
+content: |
+  Language
+---
+sets:
+  - users[0].language
+id: language of user
+question: |
+  What language do you speak?
+fields:
+  - code: |
+      users[0].language_fields(choices=al_language_user_choices)
+---
+generic object: ALIndividual
+sets:
+  - x.language
+id: language of individual
+question: |
+  What language does ${ x } speak?
+fields:
+  - code: |
+      x.language_fields(choices=al_language_user_choices)
+      

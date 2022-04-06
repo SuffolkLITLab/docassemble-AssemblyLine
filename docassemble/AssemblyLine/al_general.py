@@ -22,6 +22,7 @@ from docassemble.base.util import (
     this_thread,
 )
 import re
+import pycountry
 
 __all__ = [
     "ALAddress",
@@ -46,6 +47,7 @@ __all__ = [
     "github_modified_date",
     "will_send_to_real_court",
     "safe_subdivision_type",
+    "language_name",
 ]
 
 ##########################################################
@@ -592,7 +594,35 @@ class ALIndividual(Individual):
                 },
                 self_described_input,
             ]
-
+            
+    def language_fields(self, choices:List[Dict[str,str]]=[{"en":"English"}, {"es":"Spanish"}, {"other": "Other"}], style:str="radio"):
+        """Return a standard language picker with an "other" input. Language should be specified as ISO 639-2 or -3 codes so it is compatible with the language_name() function.
+        """
+        other = {
+            "label": str(self.language_other_label),
+            "field": self.attr_name("language_other"),
+            "show if": {"variable": self.attr_name("language"), "is": "other"},
+        }
+        if style=="radio":
+            return [
+                {
+                    "label": str(self.language_label),
+                    "field": self.attr_name("language"),
+                    "input type": "radio",
+                    "choices": choices,
+                },
+                other,
+            ]
+        else:
+            return [
+                {
+                    "label": str(self.language_label),
+                    "field": self.attr_name("language"),
+                    "choices": choices,
+                },
+                other,
+            ]
+                
     @property
     def gender_male(self):
         """Provide True/False for 'male' gender to assist with checkbox filling
@@ -854,3 +884,17 @@ def github_modified_date(
         return as_datetime(res.get("pushed_at"))
     else:
         return None
+
+# TODO(qs): remove if https://github.com/jhpyle/docassemble/pull/520 is merged
+def language_name(language_code:str)->str:
+    """Given a 2 digit language code abbreviation, returns the full
+    name of the language. The language name will be passed through the `word()`
+    function."""
+    ensure_definition(language_code)
+    try:
+        if len(language_code) == 2:
+            return word(pycountry.languages.get(alpha_2=language_code).name)
+        else:
+            return word(pycountry.languages.get(alpha_3=language_code).name)
+    except:
+        return language_code
