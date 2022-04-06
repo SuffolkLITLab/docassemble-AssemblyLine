@@ -599,9 +599,9 @@ class ALIndividual(Individual):
     def language_fields(
         self,
         choices: List[Dict[str, str]] = [
-            {"en": "English"},
-            {"es": "Spanish"},
-            {"other": "Other"},
+            {"English": "en"},
+            {"Spanish": "es"},
+            {"Other": "other"},
         ],
         style: str = "radio",
     ):
