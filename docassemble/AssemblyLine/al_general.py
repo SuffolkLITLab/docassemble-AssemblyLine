@@ -372,7 +372,7 @@ class ALIndividual(Individual):
         if not hasattr(self, "mailing_address"):
             self.initializeAttribute("mailing_address", ALAddress)
 
-    def signature_if_final(self, i: str):
+    def signature_if_final(self, i: str) -> Union[DAFile, str]:
         if i == "final":
             return self.signature
         else:
@@ -441,10 +441,10 @@ class ALIndividual(Individual):
 
     # This design helps us translate the prompts for common fields just once
     def name_fields(
-        self, person_or_business: str = "person", show_suffix=True
+        self, person_or_business: str = "person", show_suffix: bool = True
     ) -> List[Dict[str, str]]:
         """
-        Return suitable field prompts for a name. If `uses_parts` is None, adds the
+        Return suitable field prompts for a name. If `person_or_business` is None, adds the
         proper "show ifs" and uses both the parts and the single entry
         """
         if person_or_business == "person":

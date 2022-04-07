@@ -15,12 +15,20 @@ objects:
   - attorneys: ALPeopleList
   - translators: ALPeopleList
   - debt_collectors: ALPeopleList
-  - creditors: ALPeopleList
+  - creditors: ALPeopleList  
+  - spouses: ALPeopleList
+  - parents: ALPeopleList
+  - decedents: ALPeopleList
+  - interested_parties: ALPeopleList
+  - guardians: ALPeopleList
+  - adoptees: ALPeopleList  
   - allowed_courts: DAEmpty
   # Support old interviews that use `courts`
   - courts: DAList.using(auto_gather=False, target_number=1, gathered=True)
   - trial_court_address: Address
   - appeals_court_address: Address
+  
+  
 ---
 id: basic questions intro screen
 decoration: form-lineal
@@ -1670,6 +1678,12 @@ generic object: ALDocumentBundle
 code: |
   x.there_is_another = False
 ---
+generic object: ALIndividual
+code: |
+  # Set a default gender of a business to aid in methods like pronoun_possessive
+  if x.person_type == "business":
+    x.gender = "other"
+---    
 ################################### ALDocumentUpload questions #############################
 ---
 generic object: ALDocumentUpload
