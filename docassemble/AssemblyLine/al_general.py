@@ -21,6 +21,7 @@ from docassemble.base.util import (
     subdivision_type,
     this_thread,
     ensure_definition,
+    DAFile,
 )
 import re
 import pycountry
