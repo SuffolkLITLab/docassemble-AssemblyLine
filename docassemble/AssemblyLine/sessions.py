@@ -1,7 +1,8 @@
-from docassemble.base.util import DAFile, DAFileCollection, DAFileList
+from typing import List, Dict, Any
+from docassemble.base.util import DAFile, DAFileCollection, DAFileList, get_session_variables, set_session_variables
 from .al_document import ALDocument, ALDocumentBundle
 
-__all__ = ["file_like"]
+__all__ = ["file_like", "fast_forward_session"]
 
 al_sessions_variables_to_remove = [
     # Internal fields
@@ -117,3 +118,67 @@ al_sessions_variables_to_remove_from_new_interview = [
 def file_like(obj):
     return isinstance(obj, DAFile) or isinstance(obj, DAFileCollection) or isinstance(obj, DAFileList) or isinstance(obj, ALDocument) or isinstance(obj, ALDocumentBundle)
 
+  
+def store_variables_snapshot(filename:str, session_id:int, data=None, key=None, persistent=True):
+    """Stores a snapshot of the interview answers in non-encrypted JSON format."""
+    session = get_uid()
+    
+    filename = this_thread.current_info.get('yaml_filename', None)
+    if session is None or filename is None:
+        raise DAError("store_variables_snapshot: could not identify the session")
+    if key is not None and not isinstance(key, str):
+        raise DAError("store_variables_snapshot: key must be a string")
+    if data is None:
+        the_data = serializable_dict(get_user_dict(), include_internal=include_internal)
+    else:
+        the_data = safe_json(data)
+    server.write_answer_json(session, filename, the_data, tags=key, persistent=True if persistent else False)
+  
+
+def save_interview_answers(filename:str, variables_to_filter:List[str] = [], metadata:Dict = None) -> str:
+    """Copy the answers from the running session into a new session with the given
+    interview filename."""
+    # Avoid using mutable default parameter
+    if not variables_to_filter:
+        variables_to_filter = []
+    if not metadata:
+        metadata = {}
+    
+    
+def get_filtered_session_variables(
+        filename:str, 
+        session_id:int, 
+        variables_to_filter:List[str] = None
+    ) -> Dict[str, Any]:
+    """Get a filtered subset of the variables from the specified interview filename and session."""
+    if not variables_to_filter:
+        variables_to_filter = []
+    all_vars = get_session_variables(
+      filename,
+      session_id,
+      simplify=False)
+    
+    # Remove items that we were explicitly told to remove
+    for var in variables_to_filter:
+      all_vars.pop(var, None)
+
+    # Delete all files and ALDocuments
+    return {
+            item:all_vars[item] 
+            for item in all_vars 
+            if not file_like(all_vars[item])
+        }
+    
+  
+def load_interview_answers(
+        new_interview_filename:str, 
+        old_interview_filename:str,
+        old_session_id:str, 
+        variables_to_filter:List[str] = al_sessions_variables_to_remove
+    )->str:
+    """Create a new session with the variables from the specified session ID. Returns the ID of the newly
+    created and "filled" session.
+    """
+    new_session_id = create_session(interview_file_name)
+    
+    set_session_variables(al_sessions_destination_session, al_sessions_new_session_id, al_sessions_fast_forward_filtered_vars)
