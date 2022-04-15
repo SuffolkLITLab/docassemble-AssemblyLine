@@ -43,7 +43,7 @@ code: |
   # Set some variables that we need in all the interviews
   multi_user = True
   allow_cron = True
-  speak_text = config('voicerss').get('enable', False)
+  speak_text = get_config('voicerss').get('enable', False)
   set_live_help_status(availability='available', mode='help',partner_roles=['housing','family law'])
 ---
 code: |
