@@ -10,7 +10,7 @@ $(document).on('daPageLoad', function() {
       al_js.replace_with_audio_minimal_controls( audio_node, 'page_reader_substitute_' + id_count );
       id_count++;
     }
-  } catch ( error ) { console.log( 'AL audio intantiation error:', error ) }
+  } catch ( error ) { console.log( 'AL audio instantiation error:', error ) }
 });
 
 // We are not providing a way to rewind or scan through the audio.
