@@ -1,13 +1,14 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from docassemble.base.util import (
     DAFile, 
     DAFileCollection, 
     DAFileList, 
     get_session_variables, 
     set_session_variables,
+    set_variables,
     all_variables,
     user_info,
-    variables_snapshot_connection,  
+    variables_snapshot_connection,
 )
 
 from docassemble.base.functions import server, safe_json
@@ -16,7 +17,7 @@ from .al_document import ALDocument, ALDocumentBundle
 
 __all__ = [
     "file_like",
-    "add_interview_metadata",
+    "set_interview_metadata",
     "get_interview_metadata",
     "rename_interview_answers",
     "save_interview_answers",
@@ -139,7 +140,7 @@ def file_like(obj):
     return isinstance(obj, DAFile) or isinstance(obj, DAFileCollection) or isinstance(obj, DAFileList) or isinstance(obj, ALDocument) or isinstance(obj, ALDocumentBundle)
 
   
-def add_interview_metadata(filename:str, session_id:int, data:Dict, metadata_key_name="metadata") -> None:
+def set_interview_metadata(filename:str, session_id:int, data:Dict, metadata_key_name="metadata") -> None:
     """Add searchable interview metadata for the specified filename and session ID.
        Intended to be used to add an interview title, etc.
        Standardized metadata dictionary:
@@ -161,6 +162,93 @@ def get_interview_metadata(filename:str, session_id:int, metadata_key_name:str =
         val = cur.fetchone()
     conn.close()
     return val # is this a string or a dictionary?
+
+def get_saved_interview_list(filename:str, metadata_key_name:str = "metadata") -> Tuple[Dict, int]:
+    """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
+    to add metadata, the result list will include columns containing the metadata.
+    """
+    """
+    SELECT  indexno
+           ,userdict.filename as filename
+           ,num_keys
+           ,userdictkeys.user_id as user_id
+           ,userdict.modtime as modtime
+           ,userdict.key as key
+           ,jsonstorage.data->'title' as title
+           ,jsonstorage.data->'subtitle' as subtitle
+           ,jsonstorage.data->'steps' as steps
+           ,jsonstorage.data->'original_interview_filename' as original_interview_filename
+           ,jsonstorage.data->'question_id' as question_id
+           ,jsonstorage.data->'answer_count' as answer_count
+           ,jsonstorage.data as data
+    FROM userdict 
+    NATURAL JOIN 
+    (
+      SELECT  key
+             ,MAX(modtime) AS modtime
+             ,COUNT(key)   AS num_keys
+      FROM userdict
+      GROUP BY  key
+    ) mostrecent
+    LEFT JOIN userdictkeys
+    ON userdictkeys.key = userdict.key
+    LEFT JOIN jsonstorage
+    ON userdict.key = jsonstorage.key AND (jsonstorage.tags = 'metadata')
+    WHERE (userdict.user_id = 10)
+    
+    AND
+    (userdict.filename = :filename OR :filename is null)
+    ORDER BY modtime desc 
+    LIMIT 500;
+    """
+    pass
+
+def speedy_get_sessions(user_id:int=None, filename:str=None)->List[Tuple]:
+    """
+    Return a lsit of the most recent 500 sessions, optionally tied to a specific user ID.
+
+    Each session is a tuple with named columns:
+    filename,
+    user_id,
+    modtime,
+    key
+    """
+    get_sessions_query = text("""
+    SELECT  userdict.filename as filename
+           ,num_keys
+           ,userdictkeys.user_id as user_id
+           ,modtime
+           ,userdict.key as key
+    FROM userdict 
+    NATURAL JOIN 
+    (
+      SELECT  key
+             ,MAX(modtime) AS modtime
+             ,COUNT(key)   AS num_keys
+      FROM userdict
+      GROUP BY  key
+    ) mostrecent
+    LEFT JOIN userdictkeys
+    ON userdictkeys.key = userdict.key
+    WHERE (userdict.user_id = :user_id OR :user_id is null)
+    AND
+    (userdict.filename = :filename OR :filename is null)
+    ORDER BY modtime desc 
+    LIMIT 500;
+    """)
+    if not filename:
+      filename = None # Explicitly treat empty string as equivalent to None
+    if not user_id: # TODO: verify that 0 is not a valid value for user ID
+      user_id = None
+
+    with db.connect() as con:
+      rs = con.execute(get_sessions_query, user_id=user_id, filename=filename)
+    sessions = []
+    for session in rs:
+      sessions.append(session)
+
+    return sessions  
+
   
 def rename_interview_answers(filename:str, session_id:int, new_name:str, metadata_key_name:str = "metadata") -> None:
     """Function that changes just the 'title' of an interview, as stored in the dedicated `metadata` column."""
@@ -205,7 +293,7 @@ def save_interview_answers(filename:str, variables_to_filter:List[str] = None, m
     set_session_variables(filename, new_session_id, all_vars)
     
     # Add the metadata
-    add_interview_metadata(filename, new_session_id, metadata)
+    set_interview_metadata(filename, new_session_id, metadata)
     
     return new_session_id
     
@@ -236,20 +324,29 @@ def get_filtered_session_variables(
             for item in all_vars 
             if not file_like(all_vars[item])
         }
-    
-  
+
+
 def load_interview_answers(
-        new_interview_filename:str, 
         old_interview_filename:str,
-        old_session_id:str, 
-        variables_to_filter:List[str] = None
-    )->str:
-    """Create a new session with the variables from the specified session ID. Returns the ID of the newly
+        old_session_id:str,
+        new_session:bool = False,
+        new_interview_filename:str = None,
+        variables_to_filter:List[str] = None,
+    ) -> Optional[int] :
+    """
+    Load answers from the specified session. If the parameter new_session = True, create a new session of
+    the specified or current interview filename. Otherwise, load the answers into the active session.
+    Returns the ID of the newly created session
+    Create a new session with the variables from the specified session ID. Returns the ID of the newly
     created and "filled" session.
     """
-    new_session_id = create_session(new_interview_filename)
     old_variables = get_filtered_session_variables(old_interview_filename, old_session_id, variables_to_filter)
     
-    set_session_variables(new_interview_filename, new_session_id, old_variables)
-    
-    return new_session_id
+    if new_session:
+        if not new_interview_filename:
+            new_interview_filename = user_info().filename
+        new_session_id = create_session(new_interview_filename)
+        set_session_variables(new_interview_filename, new_session_id, old_variables)
+        return new_session_id
+    else:
+        set_variables(old_variables)
