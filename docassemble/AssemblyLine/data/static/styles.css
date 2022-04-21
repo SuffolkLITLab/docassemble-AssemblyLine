@@ -112,3 +112,8 @@ input[type=number] {
 .btn[type='submit'] {
   min-width: 8em;
 }
+
+/* Make the footer links slightly darker for better contrast */
+footer a {
+  color: #0264F7
+}
