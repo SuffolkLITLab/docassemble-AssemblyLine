@@ -141,6 +141,8 @@ content: |
   If you are responding to a case or court papers someone else filed, you
   are the "Defendant" or the "Respondent."
 ---
+depends on:
+  - user_started_case
 code: |
   if user_started_case:
     plaintiffs = users
@@ -153,6 +155,8 @@ code: |
     plaintiffs = other_parties
     petitioners = other_parties
 ---
+depends on:
+  - user_ask_role
 code: |
   # If the interview author didn't specify and it's a "court" or "other" case, we just ask
   user_started_case = user_ask_role == 'plaintiff'
