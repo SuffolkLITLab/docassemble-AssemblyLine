@@ -1,6 +1,6 @@
 ---
 objects:
-  - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="")
+  - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="Assembly Line Logo")
 ---
 default screen parts:
   title: |
