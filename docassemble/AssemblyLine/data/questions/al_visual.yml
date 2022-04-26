@@ -1,6 +1,6 @@
 ---
 objects:
-  - al_logo: DAStaticFile.using(filename="ma_logo.png")
+  - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="Assembly Line Logo")
 ---
 default screen parts:
   title: |
@@ -14,7 +14,7 @@ default screen parts:
   logo: |
     <div class="title-container">
       <div class="al-logo">
-        <img src="${ al_logo.url_for() }"/>
+        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
       </div>
       <div class="al-title">
         <div class="title-row-1">${ AL_ORGANIZATION_TITLE }</div>
@@ -24,7 +24,7 @@ default screen parts:
   short logo: |
     <div class="title-container">
       <div class="al-logo">
-        <img src="${ al_logo.url_for() }"/>
+        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
       </div>
       <div class="al-title">
         <div class="title-row-1">${ AL_ORGANIZATION_TITLE }</div>
