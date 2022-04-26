@@ -98,7 +98,7 @@ al_js.replace_with_audio_minimal_controls = function( audio_node, id ) {
 
 // The DOM structure for every AL audio element with custom controls
 var audio_contents_html = '\
-  <button class="media-action play btn btn-sm btn-outline-secondary" aria-label="play" value="play">\
+  <button class="media-action play btn btn-sm btn-outline-secondary" aria-label="Listen" value="play">\
     <i class="fas fa-volume-up"></i><span>&nbsp;Play&nbsp;</span>\
     <i class="fas fa-play"></i>\
   </button>\
