@@ -15,6 +15,7 @@ from docassemble.base.util import (
     interview_url,
     action_button_html,
     url_action,
+    url_ask,
     as_datetime,
 )
 from docassemble.webapp.users.models import UserModel
@@ -257,13 +258,17 @@ def interview_list_html(filename:str, user_id:int = None, metadata_key_name:str=
       <th scope="col">{ actions_label }</th>
       </th>
     </thead>
+    <tbody>
 """
     answers = get_saved_interview_list(filename=filename, user_id=user_id, metadata_key_name=metadata_key_name )
     for answer in answers:
         answer = dict(answer)
+        # Never display the current interview session
+        if answer.get("key") == user_info().session:
+            continue
         table += """<tr class="al-saved-answer-table-row">"""
         table += f"""
-        <td><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{answer.get("title") or answer.get("filename") or "Untitled interview" }</a></td>
+        <td><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{answer.get("title") or answer.get("filename").replace(":", " ") or "Untitled interview" }</a></td>
         <td>{ as_datetime(answer.get("modtime")) }</td>
         <td>Page { answer.get("steps") or answer.get("num_keys") } <br/>
             {answer.get("original_interview_filename") or answer.get("filename") or "" }
@@ -281,7 +286,7 @@ def interview_list_html(filename:str, user_id:int = None, metadata_key_name:str=
         </td>
         """
         table += "</tr>"
-    table += "</table></div>"
+    table += "</tbody></table></div>"
     
     return table  
   

@@ -38,7 +38,7 @@ question: |
 subquestion: |
   ${ interview_list_html(None) }
 continue button field: al_load_saved_session
-continue button label: ${ word("Resume") }
+continue button label: Resume
 ---
 event: al_sessions_fast_forward_session
 code: |
