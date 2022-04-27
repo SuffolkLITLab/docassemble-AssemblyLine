@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from docassemble.base.util import (
     DAFile, 
     DAFileCollection, 
@@ -9,10 +9,18 @@ from docassemble.base.util import (
     all_variables,
     user_info,
     variables_snapshot_connection,
+    word,
+    user_has_privilege,
+    log,
+    interview_url,
+    action_button_html,
+    url_action,
+    as_datetime,
 )
-
+from docassemble.webapp.users.models import UserModel
+from docassemble.webapp.db_object import init_sqlalchemy
+from sqlalchemy.sql import text
 from docassemble.base.functions import server, safe_json
-
 from .al_document import ALDocument, ALDocumentBundle
 
 __all__ = [
@@ -23,7 +31,12 @@ __all__ = [
     "save_interview_answers",
     "get_filtered_session_variables",
     "load_interview_answers",
+    "al_sessions_variables_to_remove",
+    "get_saved_interview_list",
+    "interview_list_html",
 ]
+
+db = init_sqlalchemy()
 
 al_sessions_variables_to_remove = [
     # Internal fields
@@ -161,24 +174,25 @@ def get_interview_metadata(filename:str, session_id:int, metadata_key_name:str =
         cur.execute(query, {"filename": filename, "tags": metadata_key_name})
         val = cur.fetchone()
     conn.close()
-    return val # is this a string or a dictionary?
-
-def get_saved_interview_list(filename:str, metadata_key_name:str = "metadata") -> Tuple[Dict, int]:
+    return val # is this a string or a dictionary?  
+  
+def get_saved_interview_list(filename:str, user_id:int = None, metadata_key_name:str = "metadata") -> Tuple[Dict, int]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
     to add metadata, the result list will include columns containing the metadata.
+    If the user is a developer or administrator, setting user_id = None will list all interviews on the server. Otherwise,
+    the user is limited to 
     """
-    """
-    SELECT  indexno
+    get_sessions_query = text("""
+           SELECT  userdict.indexno
            ,userdict.filename as filename
            ,num_keys
            ,userdictkeys.user_id as user_id
            ,userdict.modtime as modtime
            ,userdict.key as key
            ,jsonstorage.data->'title' as title
-           ,jsonstorage.data->'subtitle' as subtitle
+           ,jsonstorage.data->'description' as description
            ,jsonstorage.data->'steps' as steps
            ,jsonstorage.data->'original_interview_filename' as original_interview_filename
-           ,jsonstorage.data->'question_id' as question_id
            ,jsonstorage.data->'answer_count' as answer_count
            ,jsonstorage.data as data
     FROM userdict 
@@ -193,68 +207,93 @@ def get_saved_interview_list(filename:str, metadata_key_name:str = "metadata") -
     LEFT JOIN userdictkeys
     ON userdictkeys.key = userdict.key
     LEFT JOIN jsonstorage
-    ON userdict.key = jsonstorage.key AND (jsonstorage.tags = 'metadata')
-    WHERE (userdict.user_id = 10)
+    ON userdict.key = jsonstorage.key AND (jsonstorage.tags = :metadata)
+    WHERE (userdictkeys.user_id = :user_id or :user_id is null)
     
     AND
     (userdict.filename = :filename OR :filename is null)
     ORDER BY modtime desc 
     LIMIT 500;
-    """
-    pass
-
-def speedy_get_sessions(user_id:int=None, filename:str=None)->List[Tuple]:
-    """
-    Return a lsit of the most recent 500 sessions, optionally tied to a specific user ID.
-
-    Each session is a tuple with named columns:
-    filename,
-    user_id,
-    modtime,
-    key
-    """
-    get_sessions_query = text("""
-    SELECT  userdict.filename as filename
-           ,num_keys
-           ,userdictkeys.user_id as user_id
-           ,modtime
-           ,userdict.key as key
-    FROM userdict 
-    NATURAL JOIN 
-    (
-      SELECT  key
-             ,MAX(modtime) AS modtime
-             ,COUNT(key)   AS num_keys
-      FROM userdict
-      GROUP BY  key
-    ) mostrecent
-    LEFT JOIN userdictkeys
-    ON userdictkeys.key = userdict.key
-    WHERE (userdict.user_id = :user_id OR :user_id is null)
-    AND
-    (userdict.filename = :filename OR :filename is null)
-    ORDER BY modtime desc 
-    LIMIT 500;
     """)
+    
+    # TODO: decide if we need to handle paging
+    
     if not filename:
-      filename = None # Explicitly treat empty string as equivalent to None
-    if not user_id: # TODO: verify that 0 is not a valid value for user ID
-      user_id = None
-
+        filename = None # Explicitly treat empty string as equivalent to None
+    if user_id is None:
+        user_id = user_info().id
+        
+    if user_id == "all":
+        if user_has_privilege(['developer', 'admin']):
+            user_id = None
+        else:
+            user_id = user_info().id
+            log(f"User {user_info().email} does not have permission to list interview sessions belonging to other users")
+            
     with db.connect() as con:
-      rs = con.execute(get_sessions_query, user_id=user_id, filename=filename)
+        rs = con.execute(get_sessions_query, metadata=metadata_key_name, user_id=user_id, filename=filename)
     sessions = []
     for session in rs:
-      sessions.append(session)
+        sessions.append(session)
+    
+    return sessions
 
-    return sessions  
-
+def interview_list_html(filename:str, user_id:int = None, metadata_key_name:str="metadata", name_label:str = word("Title"), date_label:str = word("Date"), details_label:str = word("Details"), actions_label:str = word("Actions"), load_action:str = "al_sessions_fast_forward_session", delete_action:str = "al_sessions_delete_session", rename_action:str = "al_sessions_rename_session") -> str:
+    """Return a string containing an HTML-formatted table with the list of saved answers.
+    Clicking the "load" icon
+    """
+    
+    # TODO: think through how to translate this function. Templates probably work best but aren't
+    # convenient to pass around
+    
+    table = "<div class=\"table-responsive\"><table class=\"table table-striped al-saved-answer-table\">"
+    table += f"""
+    <thead>
+      <th scope="col">
+        { name_label }
+      </th>
+      <th scope="col">{ date_label }</th>
+      <th scope="col">{ details_label }</th>
+      <th scope="col">{ actions_label }</th>
+      </th>
+    </thead>
+"""
+    answers = get_saved_interview_list(filename=filename, user_id=user_id, metadata_key_name=metadata_key_name )
+    for answer in answers:
+        answer = dict(answer)
+        table += """<tr class="al-saved-answer-table-row">"""
+        table += f"""
+        <td><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{answer.get("title") or answer.get("filename") or "Untitled interview" }</a></td>
+        <td>{ as_datetime(answer.get("modtime")) }</td>
+        <td>Page { answer.get("steps") or answer.get("num_keys") } <br/>
+            {answer.get("original_interview_filename") or answer.get("filename") or "" }
+        </td>
+        <td>
+          <a href="{ url_action(delete_action, i=answer.get("filename"), session=answer.get("session")) }">
+              <i class="far fa-trash-alt" title="Delete" aria-hidden="true"></i>
+              <span class="sr-only">Delete</span>
+          </a>
+          &nbsp;
+          <a href="{ url_action(rename_action, i=answer.get("filename"), session=answer.get("session"), name=answer.get("title")) }">
+              <i class="far fa-edit" title="Rename" aria-hidden="true"></i>
+              <span class="sr-only">Rename</span>
+          </a>
+        </td>
+        """
+        table += "</tr>"
+    table += "</table></div>"
+    
+    return table  
   
 def rename_interview_answers(filename:str, session_id:int, new_name:str, metadata_key_name:str = "metadata") -> None:
     """Function that changes just the 'title' of an interview, as stored in the dedicated `metadata` column."""
     existing_metadata = get_interview_metadata(filename, session_id, metadata_key_name=metadata_key_name)
     existing_metadata["title"] = new_name
     add_interview_metadata(filename, session_id, existing_metadata, metadata_key_name=metadata_key_name)
+    try:
+        set_session_variables(filename, session_id, {"_internal['subtitle']": new_name})
+    except:
+        log(f"Unable to update internal interview subtitle for session {filename}:{session_id} with new name {new_name}")
 
 def save_interview_answers(filename:str, variables_to_filter:List[str] = None, metadata:Dict = None, metadata_key_name:str = "metadata") -> str:
     """Copy the answers from the running session into a new session with the given

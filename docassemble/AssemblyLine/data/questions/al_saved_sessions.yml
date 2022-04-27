@@ -2,193 +2,51 @@
 modules:
   - .sessions
 ---
-variable name: al_sessions_url_ask_snapshot
-data:
-  - undefine: 
-    - al_sessions_save_session_snapshot
-    - al_sessions_new_session_id
-  - al_sessions_snapshot_label
-  - al_sessions_save_session_snapshot
-  - al_sessions_snapshot_results
----
-variable name: al_sessions_url_ask_fast_forward
-data:
-  - undefine:
-    - al_sessions_new_session_id
-  - al_sessions_source_session
-  - al_sessions_fast_forward_session
-  - al_sessions_launch_new_session
----
-template: al_sessions_preview_variables
-subject: |
-  Preview
-content: |
-  <pre>
-  ${ verbatim(json.dumps(al_simple_filtered_vars, sort_keys=True, indent=4)) }
-  </pre>  
----
 id: save answer snapshot
 # Save a copy
-comment: |
-  Copy the answers from the "current session" into the 
-  "al_saved_session_store.yml" interview.
+decoration: save
 question: |
-  Save answer snapshot
+  Save an answer set
 subquestion: |
-  You have visited ${ all_variables(include_internal=True).get('_internal',{}).get('steps',1) }
-  screens so far and defined ${ len(al_sessions_filtered_vars) } fields.
-  
-  ${ collapse_template(al_sessions_preview_variables) }
-
-  Save a copy of your current answer progress, including any files, to load into
-  this interview or a different interview later.
-  
-  **Warning**: this feature is for developers only. A snapshot is not a replacement
-  for starting the interview from the beginning. Some features may not work the 
-  same when loaded from a snapshot.
+  Save your answers from "${ all_variables(special='titles').get('full') }" so that you can use them later for a different form.
+    
+  #### Your progress
+  You visited ${ all_variables(include_internal=True).get('_internal',{}).get('steps',1) }
+  screens so far.
 fields:
-  - Label: al_sessions_snapshot_label
-    default: |
+  - Name your answer set: al_sessions_snapshot_label
+    default: |      
+      % if defined('users[0].name.first'):
+      ${ comma_and_list(users.complete_elements()) }
+      % if defined('other_parties[0].name.first'):
+      v. ${ comma_and_list(other_parties.complete_elements()) }
+      % endif
+      % else:
       ${ all_variables(special='titles').get('full') }
       % if all_variables(special='titles').get('sub'):
       : ${ all_variables(special='titles').get('sub') }
       % endif
-      % if defined('users[0].name.first'):
-      - ${ comma_and_list(users.complete_elements()) }
-      % endif
-      % if defined('other_parties[0].name.first'):
-      - ${ comma_and_list(other_parties.complete_elements()) }
       % endif
     help: |
-      This can help you identify the snapshot later.
-      Use a cue like "10 children" or "No adverse party"
+      Give this answer set a name you can remember later
+continue button label: |
+  :save: Save
 ---
-id: fast forward answers
-# fast forward
-comment: |
-  Copy the answers from any saved session into the current interview filename,
-  by creating a new session of the interview and copying answers into it.
+decoration: folder-open
 question: |
-  Fast Forward
+  Load answers
 subquestion: |
-  Choose an interview below to load into a copy of the currently running
-  interview (${ all_variables(special='titles').get('full') }).
-  
-  **Warning**: this feature is for developers only. A snapshot is not a replacement
-  for starting the interview from the beginning. Some features may not work the 
-  same when loaded from a snapshot into a new interview.
-fields:
-  - Copy my answers from: al_sessions_source_session
-    datatype: combobox
-    code: al_formatted_sessions  
-under: |
-  ${ action_button_html(url_of('interviews'),label="Manage saved answers") }
+  ${ interview_list_html(None) }
+continue button field: al_load_saved_session
+continue button label: ${ word("Resume") }
 ---
+event: al_sessions_fast_forward_session
 code: |
-  sessions_list_temp = []
-  next_id = None
-  while True:
-      (items, next_id) = interview_list(next_id=next_id)
-      sessions_list_temp.extend(items)
-      if not next_id:
-          break
-  al_sessions_list = sessions_list_temp
-  del sessions_list_temp
+  load_interview_answers(action_argument("i"), action_argument("session"), new_session=False)
+  al_sessions_load_status
 ---
-code: |
-  formatted_sessions_temp = []
-  for index, session in enumerate(al_sessions_list):
-    formatted_sessions_temp.append({
-      index: f"{session.get('title')}: {session.get('subtitle') if session.get('subtitle') else ''} ({ format_datetime(session.get('modtime'), format='MM/dd/yyyy hh:mm a') })"
-    })
-  formatted_sessions_temp.sort(key=lambda session: next(iter(session.values())))
-  al_formatted_sessions = formatted_sessions_temp
-  del formatted_sessions_temp
----
-need:
-  - file_like
-# For save snapshot
-code: |
-  filtered_vars_tmp = all_variables(simplify=False)
-  simple_filtered_vars_tmp = all_variables()
-  
-  for var in al_sessions_variables_to_remove:
-    filtered_vars_tmp.pop(var, None)
-    simple_filtered_vars_tmp.pop(var, None)   
-  
-  al_simple_filtered_vars = simple_filtered_vars_tmp
-  
-  # Delete all files and ALDocuments
-  al_sessions_filtered_vars = {item:filtered_vars_tmp[item] for item in filtered_vars_tmp if not file_like(filtered_vars_tmp[item])}
-  del filtered_vars_tmp
-  del simple_filtered_vars_tmp
----
-# For fast forward
----
-need:
-  - file_like
-code: |
-  # vars = get_session_variables(filename, session_id, secret, simplify=False)
-  al_sessions_source_session = int(al_sessions_source_session)
-  filtered_vars_tmp = get_session_variables(
-    al_sessions_list[al_sessions_source_session].get('filename'),
-    al_sessions_list[al_sessions_source_session].get('session'),
-    simplify=False)
-   
-  for var in al_sessions_variables_to_remove:
-    filtered_vars_tmp.pop(var, None)
-
-  # Delete all files and ALDocuments
-  al_sessions_fast_forward_filtered_vars = {item:filtered_vars_tmp[item] for item in filtered_vars_tmp if not file_like(filtered_vars_tmp[item])}
-        
-  del filtered_vars_tmp
----
-# Triggered by "save snapshot"
-need:
-  - al_sessions_filtered_vars
-  - al_sessions_snapshot_label
-code: |
-  al_sessions_destination_session = f"{user_info().current_package}:al_saved_sessions_store.yml"
-  if not defined("al_sessions_new_session_id"):
-    al_sessions_new_session_id = create_session(al_sessions_destination_session)
-  al_sessions_filtered_vars["_internal['subtitle']"] = al_sessions_snapshot_label
-  try:
-    set_session_variables(al_sessions_destination_session, al_sessions_new_session_id, al_sessions_filtered_vars)
-    al_sessions_save_session_snapshot_success = True
-  except:
-    al_sessions_save_session_snapshot_success = False
-    log(f"Unable to save a copy of session {user_info().session}")
-  al_sessions_save_session_snapshot = True  
----
-# Triggered by "Save snapshot"
-continue button field: al_sessions_snapshot_results
+continue button field: al_sessions_load_status
 question: |
-  % if al_sessions_save_session_snapshot_success:
-  Your snapshot was saved
-  % else:
-  Something went wrong saving your snapshot
-  % endif
+  Click "next" to continue
 subquestion: |
-  ${ action_button_html(url_of('interviews'),label="Manage saved answers") }
----
-# Triggered by "Fast forward"
-# We still need to create a new session with the current variables
-need:
-  - al_sessions_fast_forward_filtered_vars
-code: |
-  al_sessions_destination_session = user_info().filename
-  if not defined("al_sessions_new_session_id"):
-    al_sessions_new_session_id = create_session(al_sessions_destination_session)
-  try:
-    set_session_variables(al_sessions_destination_session, al_sessions_new_session_id, al_sessions_fast_forward_filtered_vars)
-    al_sessions_copy_success = True
-  except:
-    al_sessions_copy_success = False
-  al_sessions_fast_forward_session = True  
----
-# This is triggered by the "Fast forward" button
-need:
-  - al_sessions_new_session_id
-event: al_sessions_launch_new_session
-code: |
-  response(url=interview_url(i=user_info().filename, session=al_sessions_new_session_id ))
+  The answers you selected are now loaded into this session.

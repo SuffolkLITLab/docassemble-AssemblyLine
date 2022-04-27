@@ -1,9 +1,9 @@
 ---
 metadata:
   title: |
-    Answer Snapshots
+    Your saved answer sets
   description: |
-    This is just a place to store saved sessions.
+    An interview that is the target for saving and loading answer sets.
 ---
 modules:
   - docassemble.ALToolbox.misc
@@ -29,8 +29,6 @@ help:
   content: |
     This is a special interview for developers to store "snapshots"
     of interviews during the development process for quick testing.
-    
-    It does not do anything else yet.
 ---
 template: preview_variables
 subject: |
