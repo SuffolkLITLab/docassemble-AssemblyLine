@@ -66,13 +66,24 @@ initial: True
 code: |
   # Set the dropdown/hamburger menu items
   # by default we just add a "Start over" link
-  if _internal.get('steps') > 1:
+  if _internal.get('steps') >= 1:
     menu_items = al_menu_items
+  else:
+    menu_items = al_menu_items[1:] # Skip the "start over" menu item
 ---
 code: |
   al_menu_items = [
     {"url": url_ask(['al_start_over_confirmation','al_start_over']),
     "label": "Start over"
+    },
+    {"url": url_ask([
+        'al_sessions_snapshot_label',
+        'al_sessions_save_session_snapshot',
+        'al_sessions_save_status']),
+     "label": "Save answer set"
+    },
+    {"url": url_action("al_load_saved_session"),
+     "label": "Load answer set"
     },
   ]
 ---

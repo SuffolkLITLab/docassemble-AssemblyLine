@@ -8,7 +8,7 @@ decoration: save
 question: |
   Save an answer set
 subquestion: |
-  Save your answers from "${ all_variables(special='titles').get('full') }" so that you can use them later for a different form.
+  You can load this answer set in a new interview later. Save your answers from "${ all_variables(special='titles').get('full') }" so that you can use them later for a different form.
     
   #### Your progress
   You visited ${ all_variables(include_internal=True).get('_internal',{}).get('steps',1) }
@@ -32,21 +32,49 @@ fields:
 continue button label: |
   :save: Save
 ---
+event: al_sessions_save_session_snapshot
+code: |
+  set_save_status('ignore')
+  new_session_id = save_interview_answers(
+    metadata = {
+      "title": al_sessions_snapshot_label
+      }
+    )
+  log(f"Saved interview {al_sessions_snapshot_label} with id {new_session_id}")  
+---
 decoration: folder-open
 question: |
   Load answers
 subquestion: |
-  ${ interview_list_html(None) }
-continue button field: al_load_saved_session
+  ${ interview_list_html() }
+continue button field: al_load_saved_session_screen
 continue button label: Resume
+---
+event: al_load_saved_session
+code: |
+  # Using this code block that then loads a screen is critical to get this to work
+  # without taking people back to the screen after they load the answers
+  set_save_status('ignore')
+  al_load_saved_session_screen  
 ---
 event: al_sessions_fast_forward_session
 code: |
+  set_save_status('ignore')
   load_interview_answers(action_argument("i"), action_argument("session"), new_session=False)
-  al_sessions_load_status
+  force_ask('al_sessions_load_status')
+---
+continue button field: al_sessions_save_status
+comment: |
+  #TODO There's no error handling yet so this might be a lie
+question: |
+  Your answer set was successfully saved
+subquestion: |
+  Tap "next" to keep answering any unanswered questions and finish the interview.
 ---
 continue button field: al_sessions_load_status
+comment: |
+  #TODO There's no error handling yet so this might be a lie
 question: |
-  Click "next" to continue
+  Your answer set was successfully loaded
 subquestion: |
-  The answers you selected are now loaded into this session.
+  Tap "next" to keep answering any unanswered questions and finish the interview.

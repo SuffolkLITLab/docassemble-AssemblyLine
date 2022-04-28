@@ -17,6 +17,7 @@ from docassemble.base.util import (
     url_action,
     url_ask,
     as_datetime,
+    create_session,
 )
 from docassemble.webapp.users.models import UserModel
 from docassemble.webapp.db_object import init_sqlalchemy
@@ -150,6 +151,9 @@ al_sessions_variables_to_remove_from_new_interview = [
     'user_ask_role',
 ]
 
+# f"{user_info().current_package}:al_saved_sessions_store.yml"
+al_session_store_default_filename = f"{user_info().package}:al_saved_sessions_store.yml"
+
 def file_like(obj):
     return isinstance(obj, DAFile) or isinstance(obj, DAFileCollection) or isinstance(obj, DAFileList) or isinstance(obj, ALDocument) or isinstance(obj, ALDocumentBundle)
 
@@ -177,7 +181,7 @@ def get_interview_metadata(filename:str, session_id:int, metadata_key_name:str =
     conn.close()
     return val # is this a string or a dictionary?  
   
-def get_saved_interview_list(filename:str, user_id:int = None, metadata_key_name:str = "metadata") -> Tuple[Dict, int]:
+def get_saved_interview_list(filename:str=al_session_store_default_filename, user_id:int = None, metadata_key_name:str = "metadata") -> Tuple[Dict, int]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
     to add metadata, the result list will include columns containing the metadata.
     If the user is a developer or administrator, setting user_id = None will list all interviews on the server. Otherwise,
@@ -239,7 +243,7 @@ def get_saved_interview_list(filename:str, user_id:int = None, metadata_key_name
     
     return sessions
 
-def interview_list_html(filename:str, user_id:int = None, metadata_key_name:str="metadata", name_label:str = word("Title"), date_label:str = word("Date"), details_label:str = word("Details"), actions_label:str = word("Actions"), load_action:str = "al_sessions_fast_forward_session", delete_action:str = "al_sessions_delete_session", rename_action:str = "al_sessions_rename_session") -> str:
+def interview_list_html(filename:str=al_session_store_default_filename, user_id:int = None, metadata_key_name:str="metadata", name_label:str = word("Title"), date_label:str = word("Date"), details_label:str = word("Details"), actions_label:str = word("Actions"), load_action:str = "al_sessions_fast_forward_session", delete_action:str = "al_sessions_delete_session", rename_action:str = "al_sessions_rename_session") -> str:
     """Return a string containing an HTML-formatted table with the list of saved answers.
     Clicking the "load" icon
     """
@@ -300,7 +304,7 @@ def rename_interview_answers(filename:str, session_id:int, new_name:str, metadat
     except:
         log(f"Unable to update internal interview subtitle for session {filename}:{session_id} with new name {new_name}")
 
-def save_interview_answers(filename:str, variables_to_filter:List[str] = None, metadata:Dict = None, metadata_key_name:str = "metadata") -> str:
+def save_interview_answers(filename:str=al_session_store_default_filename, variables_to_filter:List[str] = None, metadata:Dict = None, metadata_key_name:str = "metadata") -> str:
     """Copy the answers from the running session into a new session with the given
     interview filename."""
     # Avoid using mutable default parameter
@@ -338,6 +342,13 @@ def save_interview_answers(filename:str, variables_to_filter:List[str] = None, m
     
     # Add the metadata
     set_interview_metadata(filename, new_session_id, metadata)
+    # Make the title display as the subtitle on the "My interviews" page
+    if metadata.get("title"):
+      try:
+          set_session_variables(filename, new_session_id, {"_internal['subtitle']": metadata.get("title")})
+      except:
+          log(f"Unable to set internal interview subtitle for session {filename}:{new_session_id} with name {metadata.get('title')}")
+    
     
     return new_session_id
     
