@@ -33,7 +33,6 @@ __all__ = [
     "save_interview_answers",
     "get_filtered_session_variables",
     "load_interview_answers",
-    "al_sessions_variables_to_remove",
     "get_saved_interview_list",
     "interview_list_html",
 ]
@@ -155,7 +154,7 @@ al_sessions_variables_to_remove_from_new_interview = [
 al_session_store_default_filename = f"{user_info().package}:al_saved_sessions_store.yml"
 
 def file_like(obj):
-    return isinstance(obj, DAFile) or isinstance(obj, DAFileCollection) or isinstance(obj, DAFileList) or isinstance(obj, ALDocument) or isinstance(obj, ALDocumentBundle)
+    return isinstance(obj, (DAFile, DAFileCollection, DAFileList, ALDocument, ALDocumentBundle))
 
   
 def set_interview_metadata(filename:str, session_id:int, data:Dict, metadata_key_name="metadata") -> None:

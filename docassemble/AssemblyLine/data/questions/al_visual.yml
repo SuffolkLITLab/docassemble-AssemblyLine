@@ -82,9 +82,7 @@ code: |
         'al_sessions_save_status']),
      "label": "Save answer set"
     },
-    {"url": url_action("al_load_saved_session"),
-     "label": "Load answer set"
-    },
+    action_menu_item("Load answer set", "al_load_saved_session"),
   ]
 ---
 event: al_start_over

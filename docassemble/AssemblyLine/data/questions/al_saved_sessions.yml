@@ -34,7 +34,7 @@ continue button label: |
 ---
 event: al_sessions_save_session_snapshot
 code: |
-  set_save_status('ignore')
+  # set_save_status('ignore')
   new_session_id = save_interview_answers(
     metadata = {
       "title": al_sessions_snapshot_label
@@ -54,12 +54,12 @@ event: al_load_saved_session
 code: |
   # Using this code block that then loads a screen is critical to get this to work
   # without taking people back to the screen after they load the answers
-  set_save_status('ignore')
+  # set_save_status('ignore')
   al_load_saved_session_screen  
 ---
 event: al_sessions_fast_forward_session
 code: |
-  set_save_status('ignore')
+  # set_save_status('ignore')
   load_interview_answers(action_argument("i"), action_argument("session"), new_session=False)
   force_ask('al_sessions_load_status')
 ---
