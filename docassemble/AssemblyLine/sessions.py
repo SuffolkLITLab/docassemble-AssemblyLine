@@ -24,10 +24,10 @@ from docassemble.webapp.users.models import UserModel
 from docassemble.webapp.db_object import init_sqlalchemy
 from sqlalchemy.sql import text
 from docassemble.base.functions import server, safe_json
-from .al_document import ALDocument, ALDocumentBundle
+from .al_document import ALDocument, ALDocumentBundle, ALStaticDocument, ALExhibit
 
 __all__ = [
-    "file_like",
+    "is_file_like",
     "set_interview_metadata",
     "get_interview_metadata",
     "rename_interview_answers",
@@ -103,7 +103,7 @@ al_sessions_variables_to_remove = {
     'al_sessions_url_ask_snapshot',
     'al_sessions_url_ask_fast_forward',
     'al_sessions_variables_to_remove_from_new_interview',
-    'file_like',
+    'is_file_like',
     # Some type annotations from Typing that seem plausible we'll use (not everything)
     'Any',
     'Callable',
@@ -143,6 +143,8 @@ al_sessions_variables_to_remove = {
     # Variables that should always be created by code, so safe to recalculate
     'user_started_case',    
     'user_role',
+    'menu_items',
+    'al_menu_items',
 }
 
 al_sessions_variables_to_remove_from_new_interview = [
@@ -151,13 +153,20 @@ al_sessions_variables_to_remove_from_new_interview = [
     'user_ask_role',
 ]
 
-# f"{user_info().current_package}:al_saved_sessions_store.yml"
 al_session_store_default_filename = f"{user_info().package}:al_saved_sessions_store.yml"
 
-def file_like(obj):
-    return isinstance(obj, (DAFile, DAFileCollection, DAFileList, ALDocument, ALDocumentBundle))
+def is_file_like(obj):
+    return isinstance(obj, 
+                      (DAFile,
+                       DAFileCollection,
+                       DAFileList,
+                       ALDocument,
+                       ALDocumentBundle,
+                       ALStaticDocument,
+                       ALExhibit,
+                       ALExhibitList)
+                     )
 
-  
 def set_interview_metadata(filename:str, session_id:int, data:Dict, metadata_key_name="metadata") -> None:
     """Add searchable interview metadata for the specified filename and session ID.
        Intended to be used to add an interview title, etc.
@@ -185,7 +194,7 @@ def get_saved_interview_list(filename:str=al_session_store_default_filename, use
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
     to add metadata, the result list will include columns containing the metadata.
     If the user is a developer or administrator, setting user_id = None will list all interviews on the server. Otherwise,
-    the user is limited to 
+    the user is limited to their own sessions.
     """
     get_sessions_query = text("""
            SELECT  userdict.indexno
@@ -314,14 +323,14 @@ def save_interview_answers(filename:str=al_session_store_default_filename, varia
         metadata = {}    
     
     # Get variables from the current session
-    all_vars = all_variables()
+    all_vars = all_variables(simplify=False)
     
     all_vars = {
             item:all_vars[item] 
             for item in all_vars 
-            if not item in variables_to_filter and not file_like(all_vars[item])
+            if not item in variables_to_filter and not is_file_like(all_vars[item])
         }
-    
+
     try:
         # Sometimes include_internal breaks things
         metadata["steps"] = all_variables(include_internal=True).get("_internal").get("steps", -1)
@@ -366,17 +375,13 @@ def get_filtered_session_variables(
     )
     
     # Remove items that we were explicitly told to remove
-    for var in variables_to_filter:
-        all_vars.pop(var, None)
-
     # Delete all files and ALDocuments
     return {
             item:all_vars[item] 
             for item in all_vars 
-            if not file_like(all_vars[item])
+            if not item in variables_to_filter and not is_file_like(all_vars[item])
         }
-
-
+    
 def load_interview_answers(
         old_interview_filename:str,
         old_session_id:str,
@@ -401,3 +406,6 @@ def load_interview_answers(
         return new_session_id
     else:
         set_variables(old_variables)
+
+def save_interview_answers_dummy_test():
+    all_variables()        

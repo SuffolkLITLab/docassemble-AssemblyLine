@@ -76,7 +76,9 @@ code: |
     {"url": url_ask(['al_start_over_confirmation','al_start_over']),
     "label": "Start over"
     },
-    {"url": url_ask(["al_sessions_snapshot_label","al_sessions_save_session_snapshot", "al_sessions_save_status"]),
+    # This tricky url_ask needs to be exactly like this to work
+    # correctly. See bullet #4 https://docassemble.org/docs/functions.html#url_ask
+    {"url": url_ask(["al_sessions_snapshot_label", {"recompute": ["al_sessions_save_session_snapshot"]}, "al_sessions_save_status"]),
     "label": "Save answer set"
     },
     action_menu_item("Load answer set", "al_load_saved_session"),

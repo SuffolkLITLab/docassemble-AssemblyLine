@@ -44,6 +44,9 @@ code: |
   test_label_functions
   feature_tests_1
   al_user_bundle
+  log(f"al_user_bundle is an ALDocumentBundle: { isinstance(al_user_bundle, ALDocumentBundle) }")
+  if defined('chiropractors.name.first'):
+    log(f"chiropractors is an ALPeopleList: {isinstance(chiropractors, ALPeopleList)}")
   chiropractors.gather()
   other_parties.gather()
   users.gather()
