@@ -68,14 +68,7 @@ fields:
 continue button field: al_intro_screen
 terms:
   green words: |
-    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words.
-right: |
-  % if user_has_saved_answers:
-  ${fa_icon("bell", color="primary", size="sm")}
-  Saved answers available!  
-  
-  ${action_button_html(url_action('load_answer'), icon="folder-open", label=word("View answers"), size="sm" )}
-  % endif    
+    Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words. 
 ---
 ##### Backwards compatibility #####
 code: |
@@ -866,19 +859,6 @@ fields:
     datatype: yesnoradio
   - My preferred language is: user_preferred_language 
     show if: user_needs_interpreter
----
-id: load saved answers
-event: load_answer
-# TODO: we can make this more capable interface to rename, copy, load from file, download, etc.
-question: |
-  You have saved answers available for this online form
-subquestion: |
-  % for interview in interview_list(filename=user_info().filename)[0]:
-  * ${'<a class="xyz" href="' + interview_url(i=user_info().filename, session=interview['session']) + '">' +  interview['title'] +  (' (' + interview.get("subtitle",'') + ')' if interview.get('subtitle') else '')  +"</a>" }  Last visited ${format_date(interview['modtime'])}, currently on page **${interview['dict'].get('_internal',{}).get('steps')}**
-  % endfor
-  
-  [View all of your saved online forms](${url_of('interviews')})
-
 ---
 id: affirmation and oath of no perjury
 question: |

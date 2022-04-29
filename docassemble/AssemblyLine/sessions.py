@@ -337,7 +337,7 @@ def save_interview_answers(filename:str=al_session_store_default_filename, varia
     except:
         metadata["steps"] = -1
     
-    metadata["original_interview_filename"] = user_info().filename
+    # metadata["original_interview_filename"] = all_variables(special='metadata').get('title', user_info().filename.replace(':', ' ').replace('.',' '))
     metadata["answer_count"] = len(all_vars)
     
     # Create a new session
