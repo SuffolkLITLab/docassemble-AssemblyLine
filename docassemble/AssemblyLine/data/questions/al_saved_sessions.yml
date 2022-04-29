@@ -8,11 +8,11 @@ decoration: save
 question: |
   Save an answer set
 subquestion: |
-  You can load this answer set in a new interview later. Save your answers from "${ all_variables(special='titles').get('full') }" so that you can use them later for a different form.
+  You can load this answer set in a new interview later.
     
   #### Your progress
   You visited ${ all_variables(include_internal=True).get('_internal',{}).get('steps',1) }
-  screens so far.
+  screens in "${ all_variables(special='titles').get('full') }" so far.
 fields:
   - Name your answer set: al_sessions_snapshot_label
     default: |      
@@ -31,16 +31,7 @@ fields:
       Give this answer set a name you can remember later
 continue button label: |
   :save: Save
----
-event: al_sessions_save_session_snapshot
-code: |
-  # set_save_status('ignore')
-  new_session_id = save_interview_answers(
-    metadata = {
-      "title": al_sessions_snapshot_label
-      }
-    )
-  log(f"Saved interview {al_sessions_snapshot_label} with id {new_session_id}")  
+
 ---
 decoration: folder-open
 question: |
@@ -62,6 +53,20 @@ code: |
   # set_save_status('ignore')
   load_interview_answers(action_argument("i"), action_argument("session"), new_session=False)
   force_ask('al_sessions_load_status')
+---
+code: |
+  if task_not_yet_performed("save session"):
+    try:
+      new_session_id = save_interview_answers(
+      metadata = {
+        "title": al_sessions_snapshot_label
+        }
+      )
+      log(f"Saved interview {al_sessions_snapshot_label} with id {new_session_id}")
+    except:
+      pass
+    mark_task_as_performed("save session")
+  al_sessions_save_session_snapshot = True
 ---
 continue button field: al_sessions_save_status
 comment: |

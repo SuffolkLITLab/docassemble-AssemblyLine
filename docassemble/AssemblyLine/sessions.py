@@ -1,4 +1,5 @@
-from typing import List, Dict, Any, Optional, Tuple
+from collections.abc import Iterable
+from typing import List, Dict, Any, Optional, Tuple, Set
 from docassemble.base.util import (
     DAFile, 
     DAFileCollection, 
@@ -39,7 +40,7 @@ __all__ = [
 
 db = init_sqlalchemy()
 
-al_sessions_variables_to_remove = [
+al_sessions_variables_to_remove = {
     # Internal fields
     '_internal',
     'nav',
@@ -142,7 +143,7 @@ al_sessions_variables_to_remove = [
     # Variables that should always be created by code, so safe to recalculate
     'user_started_case',    
     'user_role',
-]
+}
 
 al_sessions_variables_to_remove_from_new_interview = [
     'docket_number',
@@ -303,7 +304,7 @@ def rename_interview_answers(filename:str, session_id:int, new_name:str, metadat
     except:
         log(f"Unable to update internal interview subtitle for session {filename}:{session_id} with new name {new_name}")
 
-def save_interview_answers(filename:str=al_session_store_default_filename, variables_to_filter:List[str] = None, metadata:Dict = None, metadata_key_name:str = "metadata") -> str:
+def save_interview_answers(filename:str=al_session_store_default_filename, variables_to_filter:Iterable = None, metadata:Dict = None, metadata_key_name:str = "metadata") -> str:
     """Copy the answers from the running session into a new session with the given
     interview filename."""
     # Avoid using mutable default parameter
@@ -314,13 +315,11 @@ def save_interview_answers(filename:str=al_session_store_default_filename, varia
     
     # Get variables from the current session
     all_vars = all_variables()
-    for var in variables_to_filter:
-        all_vars.pop(var, None)    
     
     all_vars = {
             item:all_vars[item] 
             for item in all_vars 
-            if not file_like(all_vars[item])
+            if not item in variables_to_filter and not file_like(all_vars[item])
         }
     
     try:
@@ -330,7 +329,6 @@ def save_interview_answers(filename:str=al_session_store_default_filename, varia
         metadata["steps"] = -1
     
     metadata["original_interview_filename"] = user_info().filename
-    metadata["question_id"] = user_info().question_id
     metadata["answer_count"] = len(all_vars)
     
     # Create a new session
@@ -347,7 +345,6 @@ def save_interview_answers(filename:str=al_session_store_default_filename, varia
           set_session_variables(filename, new_session_id, {"_internal['subtitle']": metadata.get("title")})
       except:
           log(f"Unable to set internal interview subtitle for session {filename}:{new_session_id} with name {metadata.get('title')}")
-    
     
     return new_session_id
     
