@@ -605,7 +605,9 @@ class ALDocument(DADict):
         ---
         question: |
           Do you want the extra document included?
-        yesno: include_extra_document
+        fields:
+          - no label: include_extra_document
+            datatype: yesnoradio
         ---
         code: |
           extra_document.enabled = include_extra_document

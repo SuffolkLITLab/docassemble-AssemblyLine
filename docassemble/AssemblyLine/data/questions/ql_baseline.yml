@@ -229,7 +229,9 @@ subquestion: |
 
   Answer yes if someone else has sued you or is bringing you to court.
   % endif
-yesno: other_parties.there_are_any
+fields:
+  - no label: other_parties.there_are_any
+    datatype: yesnoradio
 ---
 code: |
   # If the form is a letter, it _always_ is addressed to someone.
@@ -391,8 +393,10 @@ question: |
 subquestion: |
   % if len(users.elements) > 1:  
   So far you have told us about ${comma_and_list(users.complete_elements())}.
-  % endif  
-yesno: users.there_is_another 
+  % endif
+fields:
+  - no label: users.there_is_another
+    datatype: yesnoradio
 ---
 sets:
   - users[i].name.first
@@ -553,7 +557,9 @@ validation code: |
 ---
 question: |
   Do you have a docket number for this case?
-yesno: docket_numbers.there_are_any
+fields:
+  - no label: docket_numbers.there_are_any
+    datatype: yesnoradio
 ---
 id: docket numbers
 question: |
@@ -570,12 +576,16 @@ id: who will be on this form
 generic object: ALPeopleList
 question: |
   Will this form include any ${noun_plural(x.object_name())}?
-yesno: x.there_are_any
+fields:
+  - no label: x.there_are_any
+    datatype: yesnoradio
 ---
 id: any witnesses
 question: |
   Do you need to list a witness for this form?
-yesno: witnesses.there_are_any
+fields:
+  - no label: witnesses.there_are_any
+    datatype: yesnoradio
 ---
 #id: witness name
 #question: |
@@ -584,7 +594,9 @@ yesno: witnesses.there_are_any
 id: another witness
 question: |
   Do you need to add another witness?
-yesno: witnesses.there_is_another
+fields:
+  - no label: witnesses.there_is_another
+    datatype: yesnoradio
 ---
 id: name of ALIndividual
 sets:
@@ -686,7 +698,9 @@ generic object: ALPeopleList
 id: any other people
 question: |
   Do you have any other ${ noun_plural(x.object_name()) } to tell us about?
-yesno: x.there_is_another  
+fields:
+  - no label: x.there_is_another
+    datatype: yesnoradio
 ---
 id: name of the first person
 sets:
@@ -726,7 +740,9 @@ question: |
   % else:
   Is there any other **plaintiff** or petitioner in this matter?
   % endif
-yesno: other_parties.there_is_another  
+fields:
+  - no label: other_parties.there_is_another
+    datatype: yesnoradio
 ---
 sets:
   - other_parties[i].name.first
