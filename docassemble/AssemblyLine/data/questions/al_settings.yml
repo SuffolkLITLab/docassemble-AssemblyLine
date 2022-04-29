@@ -57,9 +57,6 @@ code: |
   al_form_type = "other" # We won't assume this is a court case
 ---
 code: |
-  user_has_saved_answers = len(interview_list(filename=user_info().filename)[0]) > 1 if interview_list(filename=user_info().filename) else False
----
-code: |
   if len(other_parties):
     set_parts(subtitle=str(users) + ' op. ' + str(other_parties))
   else:

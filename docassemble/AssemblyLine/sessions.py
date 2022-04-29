@@ -24,7 +24,7 @@ from docassemble.webapp.users.models import UserModel
 from docassemble.webapp.db_object import init_sqlalchemy
 from sqlalchemy.sql import text
 from docassemble.base.functions import server, safe_json
-from .al_document import ALDocument, ALDocumentBundle, ALStaticDocument, ALExhibit
+from .al_document import ALDocument, ALDocumentBundle, ALStaticDocument, ALExhibit, ALExhibitList
 
 __all__ = [
     "is_file_like",
@@ -337,7 +337,7 @@ def save_interview_answers(filename:str=al_session_store_default_filename, varia
     except:
         metadata["steps"] = -1
     
-    # metadata["original_interview_filename"] = all_variables(special='metadata').get('title', user_info().filename.replace(':', ' ').replace('.',' '))
+    metadata["original_interview_filename"] = all_variables(special='metadata').get('title', user_info().filename.replace(':', ' ').replace('.',' '))
     metadata["answer_count"] = len(all_vars)
     
     # Create a new session

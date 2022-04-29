@@ -22,13 +22,14 @@ question: |
 subquestion: |
   ${ collapse_template(preview_variables) }
 
-  ${ action_button_html(url_of('interviews'),label="Manage saved answers") }
+  ${ action_button_html(url_of('interviews'),label="View all interviews in progress") }
 help:
   label: |
     What's this?
   content: |
-    This is a special interview for developers to store "snapshots"
-    of interviews during the development process for quick testing.
+    This is an answer set that you saved by visiting "Save answer set" in an existing interview.
+    To use this answer set in a new interview, start the interview. Then use the menu next
+    to your username to visit "Load answer set".
 ---
 template: preview_variables
 subject: |
