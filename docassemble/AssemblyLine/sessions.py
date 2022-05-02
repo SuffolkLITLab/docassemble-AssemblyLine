@@ -362,7 +362,7 @@ def rename_interview_answers(
         filename, session_id, metadata_key_name=metadata_key_name
     )
     existing_metadata["title"] = new_name
-    add_interview_metadata(
+    set_interview_metadata(
         filename, session_id, existing_metadata, metadata_key_name=metadata_key_name
     )
     try:
