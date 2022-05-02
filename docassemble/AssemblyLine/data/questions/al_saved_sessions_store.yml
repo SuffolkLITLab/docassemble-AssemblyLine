@@ -1,12 +1,13 @@
 ---
 metadata:
   title: |
-    Your saved answer sets
+    Saved answer set
   description: |
     An interview that is the target for saving and loading answer sets.
 ---
 modules:
   - docassemble.ALToolbox.misc
+  - .sessions
 ---
 features:
   css:
@@ -15,25 +16,28 @@ features:
 ---
 mandatory: True
 question: |
-  ${ all_variables(special='titles').get('full') }
+  Saved answer set
   % if all_variables(special='titles').get('sub'):
   : ${ all_variables(special='titles').get('sub') }
   % endif
 subquestion: |
-  ${ collapse_template(preview_variables) }
+  
+  &nbsp; | &nbsp;
+  -------|---------
+  Page   | ${ get_interview_metadata(user_info().filename, user_info().session).get('steps') }
+  Answered questions | ${ get_interview_metadata(user_info().filename, user_info().session).get('answer_count') }
+  % if get_config('debug') or user_has_privilege('admin', 'developer'):
+  Developer information | ${ collapse_template(preview_variables) }
+  % endif
+  
+  You can use the answer in this answer set by visiting a new form and selecting
+  "Load answer set" from the main menu.
 
-  ${ action_button_html(url_of('interviews'),label="View all interviews in progress") }
-help:
-  label: |
-    What's this?
-  content: |
-    This is an answer set that you saved by visiting "Save answer set" in an existing interview.
-    To use this answer set in a new interview, start the interview. Then use the menu next
-    to your username to visit "Load answer set".
+  ${ action_button_html(url_of('interviews'),label="Visit in progress forms") }
 ---
 template: preview_variables
 subject: |
-  Preview contents
+  Preview variables and values
 content: |
   <pre>
   ${ verbatim(json.dumps(all_variables(), sort_keys=True, indent=4)) }

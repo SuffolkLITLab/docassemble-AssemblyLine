@@ -193,7 +193,6 @@ def set_interview_metadata(
         session_id, filename, safe_json(data), tags=metadata_key_name, persistent=True
     )
 
-
 def get_interview_metadata(
     filename: str, session_id: int, metadata_key_name: str = "metadata"
 ) -> Dict:
@@ -202,15 +201,18 @@ def get_interview_metadata(
     """
     conn = variables_snapshot_connection()
     with conn.cursor() as cur:
-        query = (
-            "select data from jsonstorage where filename=%(filename)s and tags=%(tags)s"
+        query = "select data from jsonstorage where filename=%(filename)s and tags=%(tags)s and key=%(session_id)s"
+        cur.execute(
+            query,
+            {"filename": filename, "tags": metadata_key_name, "session_id": session_id},
         )
-        cur.execute(query, {"filename": filename, "tags": metadata_key_name})
         val = cur.fetchone()
     conn.close()
-    return val  # is this a string or a dictionary?
+    if val and len(val):
+        return val[0]  # cur.fetchone() returns a tuple
+    return val or {}
 
-
+  
 def get_saved_interview_list(
     filename: str = al_session_store_default_filename,
     user_id: int = None,
@@ -335,12 +337,12 @@ def interview_list_html(
             {answer.get("original_interview_filename") or answer.get("filename") or "" }
         </td>
         <td>
-          <a href="{ url_action(delete_action, i=answer.get("filename"), session=answer.get("session")) }">
+          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("session")) }">
               <i class="far fa-trash-alt" title="Delete" aria-hidden="true"></i>
               <span class="sr-only">Delete</span>
           </a>
           &nbsp;
-          <a href="{ url_action(rename_action, i=answer.get("filename"), session=answer.get("session"), name=answer.get("title")) }">
+          <a href="{ url_action(rename_action, filename=answer.get("filename"), session=answer.get("session"), old_label=answer.get("title")) }">
               <i class="far fa-edit" title="Rename" aria-hidden="true"></i>
               <span class="sr-only">Rename</span>
           </a>
