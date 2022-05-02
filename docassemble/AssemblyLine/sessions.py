@@ -41,7 +41,7 @@ __all__ = [
     "get_filtered_session_variables",
     "load_interview_answers",
     "get_saved_interview_list",
-    "interview_list_html",    
+    "interview_list_html",
 ]
 
 db = init_sqlalchemy()
