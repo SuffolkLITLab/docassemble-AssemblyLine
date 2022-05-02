@@ -35,7 +35,7 @@ __all__ = [
     "get_filtered_session_variables",
     "load_interview_answers",
     "get_saved_interview_list",
-    "interview_list_html",
+    "interview_list_html",    
 ]
 
 db = init_sqlalchemy()
@@ -184,11 +184,13 @@ def get_interview_metadata(filename:str, session_id:int, metadata_key_name:str =
     """
     conn = variables_snapshot_connection()
     with conn.cursor() as cur:
-        query = "select data from jsonstorage where filename=%(filename)s and tags=%(tags)s"
-        cur.execute(query, {"filename": filename, "tags": metadata_key_name})
+        query = "select data from jsonstorage where filename=%(filename)s and tags=%(tags)s and key=%(session_id)s"
+        cur.execute(query, {"filename": filename, "tags": metadata_key_name, "session_id": session_id})
         val = cur.fetchone()
     conn.close()
-    return val # is this a string or a dictionary?  
+    if len(val):
+      return val[0] # is this a string or a dictionary?
+    return val
   
 def get_saved_interview_list(filename:str=al_session_store_default_filename, user_id:int = None, metadata_key_name:str = "metadata") -> Tuple[Dict, int]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
@@ -287,12 +289,12 @@ def interview_list_html(filename:str=al_session_store_default_filename, user_id:
             {answer.get("original_interview_filename") or answer.get("filename") or "" }
         </td>
         <td>
-          <a href="{ url_action(delete_action, i=answer.get("filename"), session=answer.get("session")) }">
+          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("session")) }">
               <i class="far fa-trash-alt" title="Delete" aria-hidden="true"></i>
               <span class="sr-only">Delete</span>
           </a>
           &nbsp;
-          <a href="{ url_action(rename_action, i=answer.get("filename"), session=answer.get("session"), name=answer.get("title")) }">
+          <a href="{ url_action(rename_action, filename=answer.get("filename"), session=answer.get("session"), old_label=answer.get("title")) }">
               <i class="far fa-edit" title="Rename" aria-hidden="true"></i>
               <span class="sr-only">Rename</span>
           </a>
@@ -311,7 +313,7 @@ def rename_interview_answers(filename:str, session_id:int, new_name:str, metadat
     try:
         set_session_variables(filename, session_id, {"_internal['subtitle']": new_name})
     except:
-        log(f"Unable to update internal interview subtitle for session {filename}:{session_id} with new name {new_name}")
+        log(f"Unable to update internal interview subtitle for session {filename}:{session_id} with new name {new_name}")        
 
 def save_interview_answers(filename:str=al_session_store_default_filename, variables_to_filter:Iterable = None, metadata:Dict = None, metadata_key_name:str = "metadata") -> str:
     """Copy the answers from the running session into a new session with the given

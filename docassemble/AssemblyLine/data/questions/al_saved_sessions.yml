@@ -8,11 +8,38 @@ decoration: save
 question: |
   Save an answer set
 subquestion: |
-  You can load this answer set in a new interview later.
-    
+  % if not user_logged_in():
+  <div class="alert alert-danger fade show d-flex" role="alert">
+  :exclamation-triangle: &nbsp;
+  <div>
+  You need to be signed in to save an answer set.
+  </div>
+  </div>
+  
+  The "answer set" feature lets you make a copy of your answers to
+  use again and again. You can load this answer set in a new interview later.
+  
+  ${ action_button_html(url_of('login'), label="Sign in", icon="sign-in-alt", size="md", color="primary") }
+  % else:
+
+  <div class="alert alert-info alert-dismissible fade show d-flex" role="alert">
+  :info-circle: &nbsp;
+  <div>
+  Clicking the "next" button automatically saves your progress. You can
+  <a href="${ url_of('interviews') }" class="alert-link">visit in-progress forms</a>
+  to keep working on a form that you started earlier.
+  </div>
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  
+  The "answer set" feature lets you make a copy of your answers to
+  use again and again. You can load this answer set in a new interview later.
+  
   #### Your progress
   You visited ${ all_variables(include_internal=True).get('_internal',{}).get('steps',1) }
   screens in "${ all_variables(special='titles').get('full') }" so far.
+  
+  % endif
 fields:
   - Name your answer set: al_sessions_snapshot_label
     default: |      
@@ -30,9 +57,37 @@ fields:
     help: |
       Give this answer set a name you can remember later
 continue button label: |
-  :save: Save
-
+  :save: Save answer set
+script: |
+  <script>
+  % if not user_logged_in():
+    $(".da-field-buttons .btn-primary").attr("disabled", true);
+    $(".da-form-group input").attr("disabled", true);
+  % endif
+  </script>  
 ---
+id: rename answer
+question: |
+  Rename answer set
+fields:
+  - New name: al_sessions_snapshot_new_label
+    default: |
+      ${ action_argument('old_label') }
+continue button label: |
+  :save: Save and rename
+---
+event: al_sessions_rename_session
+code: |
+  rename_interview_answers(action_argument('filename'), action_argument('session'), new_name=al_sessions_snapshot_new_label)
+  log("New name saved", "success")
+  # al_sessions_renamed_interview_answers = True
+---
+code: |
+  interview_list(action="delete", filename=action_argument("filename"), session=action_argument("session"))
+  log("Answer set deleted", "success")
+  al_sessions_delete_interview = True
+---
+id: load answer
 decoration: folder-open
 question: |
   Load answers
@@ -63,6 +118,7 @@ code: |
       mark_task_as_performed("save session")
   al_sessions_save_session_snapshot = True
 ---
+id: al sessions save status
 continue button field: al_sessions_save_status
 comment: |
   #TODO There's no error handling yet so this might be a lie
@@ -71,6 +127,7 @@ question: |
 subquestion: |
   Tap "next" to keep answering any unanswered questions and finish the interview.
 ---
+id: al sessions load status
 continue button field: al_sessions_load_status
 comment: |
   #TODO There's no error handling yet so this might be a lie
