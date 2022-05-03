@@ -194,6 +194,7 @@ def set_interview_metadata(
         session_id, filename, safe_json(data), tags=metadata_key_name, persistent=True
     )
 
+
 def get_interview_metadata(
     filename: str, session_id: int, metadata_key_name: str = "metadata"
 ) -> Dict:
@@ -213,7 +214,7 @@ def get_interview_metadata(
         return val[0]  # cur.fetchone() returns a tuple
     return val or {}
 
-  
+
 def get_saved_interview_list(
     filename: str = al_session_store_default_filename,
     user_id: int = None,
@@ -310,10 +311,10 @@ def interview_list_html(
     answers = get_saved_interview_list(
         filename=filename, user_id=user_id, metadata_key_name=metadata_key_name
     )
-    
+
     if not answers:
         return ""
-    
+
     table = '<div class="table-responsive"><table class="table table-striped al-saved-answer-table">'
     table += f"""
     <thead>
@@ -355,7 +356,10 @@ def interview_list_html(
 
 
 def rename_interview_answers(
-    filename: str, session_id: int, new_name: str, metadata_key_name: str = "metadata",
+    filename: str,
+    session_id: int,
+    new_name: str,
+    metadata_key_name: str = "metadata",
 ) -> None:
     """Function that changes just the 'title' of an interview, as stored in the dedicated `metadata` column."""
     existing_metadata = get_interview_metadata(
@@ -369,7 +373,9 @@ def rename_interview_answers(
         set_parts(subtitle=new_name)
     else:
         try:
-            set_session_variables(filename, session_id, {"_internal['subtitle']": new_name})
+            set_session_variables(
+                filename, session_id, {"_internal['subtitle']": new_name}
+            )
         except:
             log(
                 f"Unable to update internal interview subtitle for session {filename}:{session_id} with new name {new_name}"
