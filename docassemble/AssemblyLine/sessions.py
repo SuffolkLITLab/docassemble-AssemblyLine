@@ -193,6 +193,7 @@ def set_interview_metadata(
         session_id, filename, safe_json(data), tags=metadata_key_name, persistent=True
     )
 
+
 def get_interview_metadata(
     filename: str, session_id: int, metadata_key_name: str = "metadata"
 ) -> Dict:
@@ -212,7 +213,7 @@ def get_interview_metadata(
         return val[0]  # cur.fetchone() returns a tuple
     return val or {}
 
-  
+
 def get_saved_interview_list(
     filename: str = al_session_store_default_filename,
     user_id: int = None,
