@@ -76,6 +76,19 @@ decoration: folder-open
 question: |
   Load answer set
 subquestion: |
+  % if not user_logged_in():
+  <div class="alert alert-danger fade show d-flex" role="alert">
+  :exclamation-triangle: &nbsp;
+  <div>
+  You need to be signed in to save an answer set.
+  </div>
+  </div>
+  
+  The "answer set" feature lets you make a copy of your answers to
+  use again and again. You can load this answer set in a new interview later.
+  
+  ${ action_button_html(url_of('login'), label="Sign in", icon="sign-in-alt", size="md", color="primary") }
+  % else:
   % if not interview_list_html():
   You haven't created any answer sets yet. 
   
@@ -90,6 +103,7 @@ subquestion: |
   to keep working on a form that you started earlier.
 
   ${ interview_list_html() }
+  % endif
   % endif
 event:  al_load_saved_session_screen
 back button label: Back
