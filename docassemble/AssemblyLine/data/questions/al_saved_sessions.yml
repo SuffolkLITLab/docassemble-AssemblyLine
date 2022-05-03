@@ -83,10 +83,10 @@ code: |
   log("New name saved", "success")
   al_sessions_rename_session = True
 ---
+event: al_sessions_delete_session
 code: |
   interview_list(action="delete", filename=action_argument("filename"), session=action_argument("session"))
   log("Answer set deleted", "success")
-  al_sessions_delete_interview = True
 ---
 id: load answer
 decoration: folder-open
