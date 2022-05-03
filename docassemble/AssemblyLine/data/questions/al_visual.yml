@@ -2,6 +2,9 @@
 objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="Assembly Line Logo")
 ---
+code: |
+  al_logo.alt_text = "Assembly Line Logo"
+---
 default screen parts:
   title: |
     ${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }
