@@ -66,23 +66,6 @@ script: |
   % endif
   </script>  
 ---
-id: rename answer
-question: |
-  Rename answer set
-fields:
-  - New name: al_sessions_snapshot_new_label
-    default: |
-      ${ action_argument('old_label') }
-continue button label: |
-  :save: Save changes
----
-need:
-  - al_sessions_snapshot_new_label
-code: |
-  rename_interview_answers(action_argument('filename'), action_argument('session'), new_name = al_sessions_snapshot_new_label)
-  log("New name saved", "success")
-  al_sessions_rename_session = True
----
 event: al_sessions_delete_session
 code: |
   interview_list(action="delete", filename=action_argument("filename"), session=action_argument("session"))
@@ -94,15 +77,17 @@ question: |
   Load answers
 subquestion: |
   ${ interview_list_html() }
-continue button field: al_load_saved_session_screen
-continue button label: Resume
+event:  al_load_saved_session_screen
+back button label: Back
 ---
+#reconsider:
+#  - al_load_saved_session_screen
 event: al_load_saved_session
 code: |
   # Using this code block that then loads a screen is critical to get this to work
   # without taking people back to the screen after they load the answers
   # set_save_status('ignore')
-  al_load_saved_session_screen  
+  al_load_saved_session_screen
 ---
 event: al_sessions_fast_forward_session
 code: |

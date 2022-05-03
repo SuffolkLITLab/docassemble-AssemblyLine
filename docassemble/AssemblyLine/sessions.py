@@ -19,6 +19,7 @@ from docassemble.base.util import (
     url_ask,
     as_datetime,
     create_session,
+    set_parts,
 )
 from docassemble.webapp.users.models import UserModel
 from docassemble.webapp.db_object import init_sqlalchemy
@@ -293,13 +294,12 @@ def interview_list_html(
     filename: str = al_session_store_default_filename,
     user_id: int = None,
     metadata_key_name: str = "metadata",
-    name_label: str = word("Title"),
+    # name_label: str = word("Title"),
     date_label: str = word("Date"),
     details_label: str = word("Details"),
     actions_label: str = word("Actions"),
     load_action: str = "al_sessions_fast_forward_session",
     delete_action: str = "al_sessions_delete_session",
-    rename_action: str = "al_sessions_rename_session",
 ) -> str:
     """Return a string containing an HTML-formatted table with the list of saved answers.
     Clicking the "load" icon
@@ -312,7 +312,7 @@ def interview_list_html(
     table += f"""
     <thead>
       <th scope="col">
-        { name_label }
+        &nbsp;
       </th>
       <th scope="col">{ date_label }</th>
       <th scope="col">{ details_label }</th>
@@ -337,14 +337,10 @@ def interview_list_html(
             {answer.get("original_interview_filename") or answer.get("filename") or "" }
         </td>
         <td>
-          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }">
-              <i class="far fa-trash-alt" title="Delete" aria-hidden="true"></i>
-              <span class="sr-only">Delete</span>
-          </a>
-          &nbsp;
-          <a href="{ url_action(rename_action, filename=answer.get("filename"), session=answer.get("key"), old_label=answer.get("title")) }">
-              <i class="far fa-edit" title="Rename" aria-hidden="true"></i>
-              <span class="sr-only">Rename</span>
+          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }"><i class="far fa-trash-alt" title="Delete" aria-hidden="true"></i><span class="sr-only">Delete</span></a>
+          <a target="_blank" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">
+              <i class="far fa-eye" aria-hidden="true" title="View"></i>
+              <span class="sr-only">View</span>
           </a>
         </td>
         """
@@ -355,7 +351,7 @@ def interview_list_html(
 
 
 def rename_interview_answers(
-    filename: str, session_id: int, new_name: str, metadata_key_name: str = "metadata"
+    filename: str, session_id: int, new_name: str, metadata_key_name: str = "metadata",
 ) -> None:
     """Function that changes just the 'title' of an interview, as stored in the dedicated `metadata` column."""
     existing_metadata = get_interview_metadata(
@@ -365,12 +361,15 @@ def rename_interview_answers(
     set_interview_metadata(
         filename, session_id, existing_metadata, metadata_key_name=metadata_key_name
     )
-    try:
-        set_session_variables(filename, session_id, {"_internal['subtitle']": new_name})
-    except:
-        log(
-            f"Unable to update internal interview subtitle for session {filename}:{session_id} with new name {new_name}"
-        )
+    if session_id == user_info().session:
+        set_parts(subtitle=new_name)
+    else:
+        try:
+            set_session_variables(filename, session_id, {"_internal['subtitle']": new_name})
+        except:
+            log(
+                f"Unable to update internal interview subtitle for session {filename}:{session_id} with new name {new_name}"
+            )
 
 
 def save_interview_answers(
