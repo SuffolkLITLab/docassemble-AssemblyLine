@@ -307,7 +307,13 @@ def interview_list_html(
 
     # TODO: think through how to translate this function. Templates probably work best but aren't
     # convenient to pass around
-
+    answers = get_saved_interview_list(
+        filename=filename, user_id=user_id, metadata_key_name=metadata_key_name
+    )
+    
+    if not answers:
+        return ""
+    
     table = '<div class="table-responsive"><table class="table table-striped al-saved-answer-table">'
     table += f"""
     <thead>
@@ -321,9 +327,7 @@ def interview_list_html(
     </thead>
     <tbody>
 """
-    answers = get_saved_interview_list(
-        filename=filename, user_id=user_id, metadata_key_name=metadata_key_name
-    )
+
     for answer in answers:
         answer = dict(answer)
         # Never display the current interview session

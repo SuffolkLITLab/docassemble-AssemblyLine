@@ -74,9 +74,23 @@ code: |
 id: load answer
 decoration: folder-open
 question: |
-  Load answers
+  Load answer set
 subquestion: |
+  % if not interview_list_html():
+  You haven't created any answer sets yet. 
+  
+  You can
+  <a href="${ url_of('interviews') }" class="alert-link">visit in-progress forms</a>
+  to keep working on a form that you started earlier. To create an answer set, use the
+  "Save answer set" link in the main menu.
+  % else:
+  Tap the name of an answer set below to re-use the answers in the form you are working
+  on now. You can
+  <a href="${ url_of('interviews') }" class="alert-link">visit in-progress forms</a>
+  to keep working on a form that you started earlier.
+
   ${ interview_list_html() }
+  % endif
 event:  al_load_saved_session_screen
 back button label: Back
 ---
