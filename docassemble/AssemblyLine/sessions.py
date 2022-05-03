@@ -337,12 +337,12 @@ def interview_list_html(
             {answer.get("original_interview_filename") or answer.get("filename") or "" }
         </td>
         <td>
-          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("session")) }">
+          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }">
               <i class="far fa-trash-alt" title="Delete" aria-hidden="true"></i>
               <span class="sr-only">Delete</span>
           </a>
           &nbsp;
-          <a href="{ url_action(rename_action, filename=answer.get("filename"), session=answer.get("session"), old_label=answer.get("title")) }">
+          <a href="{ url_action(rename_action, filename=answer.get("filename"), session=answer.get("key"), old_label=answer.get("title")) }">
               <i class="far fa-edit" title="Rename" aria-hidden="true"></i>
               <span class="sr-only">Rename</span>
           </a>

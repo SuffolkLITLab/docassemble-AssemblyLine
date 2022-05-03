@@ -76,10 +76,12 @@ fields:
 continue button label: |
   :save: Save changes
 ---
-event: al_sessions_rename_session
+need:
+  - al_sessions_snapshot_new_label
 code: |
   rename_interview_answers(action_argument('filename'), action_argument('session'), new_name = al_sessions_snapshot_new_label)
   log("New name saved", "success")
+  al_sessions_rename_session = True
 ---
 code: |
   interview_list(action="delete", filename=action_argument("filename"), session=action_argument("session"))
