@@ -217,7 +217,7 @@ def get_interview_metadata(
 
 def get_saved_interview_list(
     filename: str = al_session_store_default_filename,
-    user_id: int = None,
+    user_id: Union[int, str] = None,
     metadata_key_name: str = "metadata",
 ) -> Tuple[Dict, int]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
