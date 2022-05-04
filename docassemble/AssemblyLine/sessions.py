@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import List, Dict, Any, Optional, Tuple, Set
+from typing import List, Dict, Any, Optional, Tuple, Set, Union
 from docassemble.base.util import (
     DAFile,
     DAFileCollection,
