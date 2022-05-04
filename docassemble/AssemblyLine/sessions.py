@@ -293,7 +293,7 @@ def get_saved_interview_list(
 
 def interview_list_html(
     filename: str = al_session_store_default_filename,
-    user_id: int = None,
+    user_id: Union[int, str] = None,
     metadata_key_name: str = "metadata",
     # name_label: str = word("Title"),
     date_label: str = word("Date"),
