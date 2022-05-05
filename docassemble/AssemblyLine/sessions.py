@@ -20,6 +20,7 @@ from docassemble.base.util import (
     as_datetime,
     create_session,
     set_parts,
+    user_logged_in,
 )
 from docassemble.webapp.users.models import UserModel
 from docassemble.webapp.db_object import init_sqlalchemy
@@ -266,16 +267,24 @@ def get_saved_interview_list(
     if not filename:
         filename = None  # Explicitly treat empty string as equivalent to None
     if user_id is None:
-        user_id = user_info().id
+        if user_logged_in():
+            user_id = user_info().id
+        else:
+            log("Asked to get interview list for user that is not logged in")
+            return []
+            
 
     if user_id == "all":
         if user_has_privilege(["developer", "admin"]):
             user_id = None
-        else:
+        elif user_logged_in():
             user_id = user_info().id
             log(
                 f"User {user_info().email} does not have permission to list interview sessions belonging to other users"
             )
+        else:
+            log("Asked to get interview list for user that is not logged in")
+            return []              
 
     with db.connect() as con:
         rs = con.execute(
