@@ -120,32 +120,39 @@ code: |
 event: al_sessions_fast_forward_session
 code: |
   # set_save_status('ignore')
-  load_interview_answers(action_argument("i"), action_argument("session"), new_session=False)
+  al_sessions_snapshot_results = load_interview_answers(action_argument("i"), action_argument("session"), new_session=False)
   force_ask('al_sessions_load_status')
 ---
 code: |
-  if task_not_yet_performed("save session"):
-      new_session_id = save_interview_answers(
-            metadata = { "title": al_sessions_snapshot_label }
-          )
-      log(f"Saved interview {al_sessions_snapshot_label} with id {new_session_id}")
-      mark_task_as_performed("save session")
+  new_session_id = save_interview_answers(
+        metadata = { "title": al_sessions_snapshot_label }
+      )
+  log(f"Saved interview {al_sessions_snapshot_label} with id {new_session_id}")
   al_sessions_save_session_snapshot = True
 ---
 id: al sessions save status
 continue button field: al_sessions_save_status
-comment: |
-  #TODO There's no error handling yet so this might be a lie
 question: |
+  % if new_session_id:
   Your answer set was successfully saved
+  % else:
+  Something went wrong when we tried to save your answer set.
+  You can try again.
+  % endif
 subquestion: |
   Tap "next" to keep answering any unanswered questions and finish the interview.
+back button: False  
 ---
 id: al sessions load status
 continue button field: al_sessions_load_status
 comment: |
   #TODO There's no error handling yet so this might be a lie
 question: |
-  Your answer set was successfully loaded
+  % if al_sessions_snapshot_results:
+  Your answer set was loaded
+  % else:
+  Your answer set was not loaded. You can try again.
+  % endif
 subquestion: |
   Tap "next" to keep answering any unanswered questions and finish the interview.
+back button: False  
