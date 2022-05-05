@@ -66,7 +66,7 @@ initial: True
 code: |
   # Set the dropdown/hamburger menu items
   # by default we just add a "Start over" link
-  if _internal.get('steps') >= 1:
+  if _internal.get('steps') > 1:
     menu_items = al_menu_items
   else:
     menu_items = al_menu_items[1:] # Skip the "start over" menu item

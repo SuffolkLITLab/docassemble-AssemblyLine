@@ -25,15 +25,15 @@ subquestion: |
   <div class="alert alert-info alert-dismissible fade show d-flex" role="alert">
   :info-circle: &nbsp;
   <div>
-  Clicking the "next" button automatically saves your progress. You can
-  <a href="${ url_of('interviews') }" class="alert-link">visit in-progress forms</a>
-  to keep working on a form that you started earlier.
+  You do not need to use this feature to save your progress. Your progress is saved
+  automatically as you answer questions on this site.
   </div>
   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
   
   The "answer set" feature lets you make a copy of your answers to
-  use again and again. You can load this answer set in a new interview later.
+  use again and again. You can load this answer set in a new interview that uses
+  some of the same questions later.
   
   #### Your progress
   You visited ${ all_variables(include_internal=True).get('_internal',{}).get('steps',1) }
