@@ -80,12 +80,12 @@ subquestion: |
   <div class="alert alert-danger fade show d-flex" role="alert">
   :exclamation-triangle: &nbsp;
   <div>
-  You need to be signed in to save an answer set.
+  You need to be signed in to load an answer set.
   </div>
   </div>
   
   The "answer set" feature lets you make a copy of your answers to
-  use again and again. You can load this answer set in a new interview later.
+  use again and again. You can load the answer set in a new interview later.
   
   ${ action_button_html(url_of('login'), label="Sign in", icon="sign-in-alt", size="md", color="primary") }
   % else:
@@ -124,16 +124,19 @@ code: |
   force_ask('al_sessions_load_status')
 ---
 code: |
-  new_session_id = save_interview_answers(
-        metadata = { "title": al_sessions_snapshot_label }
-      )
-  log(f"Saved interview {al_sessions_snapshot_label} with id {new_session_id}")
+  if user_logged_in():
+    new_session_id = save_interview_answers(
+          metadata = { "title": al_sessions_snapshot_label }
+        )
+    log(f"Saved interview {al_sessions_snapshot_label} with id {new_session_id}")
+  else:
+    log(f"Anonymous user tried to save session snapshot, ignoring.")
   al_sessions_save_session_snapshot = True
 ---
 id: al sessions save status
 continue button field: al_sessions_save_status
 question: |
-  % if new_session_id:
+  % if showifdef('new_session_id'):
   Your answer set was successfully saved
   % else:
   Something went wrong when we tried to save your answer set.
