@@ -487,8 +487,8 @@ def load_interview_answers(
         set_session_variables(new_interview_filename, new_session_id, old_variables)
         return new_session_id
     else:
-        set_variables(old_variables)
-
-
-def save_interview_answers_dummy_test():
-    all_variables()
+        try:
+            set_variables(old_variables)
+            return True
+        except:
+            return False
