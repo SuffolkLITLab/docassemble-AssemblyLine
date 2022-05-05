@@ -272,7 +272,6 @@ def get_saved_interview_list(
         else:
             log("Asked to get interview list for user that is not logged in")
             return []
-            
 
     if user_id == "all":
         if user_has_privilege(["developer", "admin"]):
@@ -284,7 +283,7 @@ def get_saved_interview_list(
             )
         else:
             log("Asked to get interview list for user that is not logged in")
-            return []              
+            return []
 
     with db.connect() as con:
         rs = con.execute(
