@@ -856,6 +856,7 @@ def is_phone_or_email(text: str) -> bool:
         return True
     else:
         validation_error("Enter a valid phone number or email address")
+        assert False, "unreachable"
 
 
 def github_modified_date(
