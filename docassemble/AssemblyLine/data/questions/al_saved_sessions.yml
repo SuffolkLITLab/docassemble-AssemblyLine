@@ -2,6 +2,12 @@
 modules:
   - .sessions
 ---
+modules:
+  - docassemble.ALToolbox.misc
+---
+features:
+  css: docassemble.ALToolbox:collapse_template.css  
+---
 id: save answer snapshot
 # Save a copy
 decoration: save
@@ -17,7 +23,8 @@ subquestion: |
   </div>
   
   The "answer set" feature lets you make a copy of your answers to
-  use again and again. You can load this answer set in a new interview later.
+  use again and again. You can load this answer set in a new interview 
+  later.
   
   ${ action_button_html(url_of('login'), label="Sign in", icon="sign-in-alt", size="md", color="primary") }
   % else:
@@ -31,9 +38,41 @@ subquestion: |
   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
   
+  
+  <a class="collapsed" data-bs-toggle="collapse" href="#al_sessions_explain_answer_set_template" role="button" aria-expanded="false" aria-controls="collapseExample"><span class="pdcaretopen"><i class="fas fa-caret-down"></i></span><span class="pdcaretclosed"><i class="fas fa-caret-right"></i></span>What is this?</a>
+  <div class="collapse" id="al_sessions_explain_answer_set_template"><div class="card card-body pb-1">
+  <p>
   The "answer set" feature lets you make a copy of your answers to
-  use again and again. You can load this answer set in a new interview that uses
-  some of the same questions later.
+  use again and again. You can load this answer set in a new interview later.
+  </p>
+  <p>
+  This feature is designed to help people who work on multiple forms that have
+  shared questions, such as names, addresses, and information about 
+  family members.
+  </p>
+  <p>
+  You will only be able to copy some of your answers:
+  </p>
+  <ul>
+  <li>Copying answers depends on the way each form was designed. The author may
+    not have written both forms in a way that is compatible with this feature.
+    </li>
+    <li>Images, file uploads, and signatures are never copied by this feature. You
+    will need to sign the document again and upload any exhibits again.
+    </li>
+    </ul>
+  <p>    
+  It may not be possible to edit some answers:
+  </p>
+  <ul>
+  <li>
+  Editing depends on features in each form. Some forms may not have edit
+    features that cover all of your answers.
+  </li>
+  </ul>
+
+  </div></div>
+  
   
   #### Your progress
   You visited ${ all_variables(include_internal=True).get('_internal',{}).get('steps',1) }
