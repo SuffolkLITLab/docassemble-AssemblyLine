@@ -41,9 +41,7 @@ subquestion: |
   "Load answer set" from the main menu.
 
   ${ action_button_html(url_of("interviews"),label="List in progress forms", color="link", size="md") } ${ action_button_html(url_of("dispatch"), label="List available forms", icon="list", color="primary", size="md") }
-  
-  <a href="javascript:window.close();" class="btn btn-primary" role="button">Close</a>
-
+    
 ---
 id: rename answer
 question: |
