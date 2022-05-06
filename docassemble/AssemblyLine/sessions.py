@@ -382,7 +382,10 @@ def rename_interview_answers(
     else:
         try:
             set_session_variables(
-                filename, session_id, {"_internal['subtitle']": new_name}, overwrite=True
+                filename,
+                session_id,
+                {"_internal['subtitle']": new_name},
+                overwrite=True,
             )
         except:
             log(
