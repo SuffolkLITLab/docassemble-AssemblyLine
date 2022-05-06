@@ -5,7 +5,7 @@ metadata:
   description: |
     An interview that is the target for saving and loading answer sets.
   tags:
-    - Answer set
+    - Answer_set
 ---
 modules:
   - docassemble.ALToolbox.misc
@@ -14,7 +14,8 @@ modules:
 features:
   css:
     - docassemble.ALToolbox:collapse_template.css
-  question help button: True      
+  question help button: True
+  navigation back button: False
 ---
 mandatory: True
 question: |
@@ -40,6 +41,9 @@ subquestion: |
   "Load answer set" from the main menu.
 
   ${ action_button_html(url_of("interviews"),label="List in progress forms", color="link", size="md") } ${ action_button_html(url_of("dispatch"), label="List available forms", icon="list", color="primary", size="md") }
+  
+  <a href="javascript:window.close();" class="btn btn-primary" role="button">Close</a>
+
 ---
 id: rename answer
 question: |

@@ -382,7 +382,7 @@ def rename_interview_answers(
     else:
         try:
             set_session_variables(
-                filename, session_id, {"_internal['subtitle']": new_name}
+                filename, session_id, {"_internal['subtitle']": new_name}, overwrite=True
             )
         except:
             log(
@@ -430,7 +430,7 @@ def save_interview_answers(
     new_session_id = create_session(filename)
 
     # Copy in the variables from this session
-    set_session_variables(filename, new_session_id, all_vars)
+    set_session_variables(filename, new_session_id, all_vars, overwrite=True)
 
     # Add the metadata
     set_interview_metadata(filename, new_session_id, metadata)
@@ -441,6 +441,7 @@ def save_interview_answers(
                 filename,
                 new_session_id,
                 {"_internal['subtitle']": metadata.get("title")},
+                overwrite=True,
             )
         except:
             log(
