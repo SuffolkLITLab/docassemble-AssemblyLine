@@ -1,40 +1,66 @@
 ---
 metadata:
   title: |
-    Answer Snapshots
+    Saved answer set
   description: |
-    This is just a place to store saved sessions.
+    An interview that is the target for saving and loading answer sets.
+  tags:
+    - Answer_set
 ---
 modules:
   - docassemble.ALToolbox.misc
+  - .sessions
 ---
 features:
   css:
     - docassemble.ALToolbox:collapse_template.css
-  question help button: True      
+  question help button: True
+  navigation back button: False
 ---
 mandatory: True
 question: |
-  ${ all_variables(special='titles').get('full') }
+  Saved answer set
   % if all_variables(special='titles').get('sub'):
   : ${ all_variables(special='titles').get('sub') }
   % endif
+  ${ action_button_html(url_ask(["al_sessions_snapshot_new_label", {"recompute": ["al_sessions_rename_session"]}]), icon="edit", label="Rename", color="secondary") }
 subquestion: |
-  ${ collapse_template(preview_variables) }
+  
+  &nbsp; | &nbsp;
+  -------|---------
+  User or client | ${ bold(users.complete_elements()) if defined('users') else ''}
+  Opposing party | ${ bold(other_parties.complete_elements()) if defined('other_parties') else '' }
+  Page   | ${ get_interview_metadata(user_info().filename, user_info().session).get('steps') }
+  Answered questions | ${ get_interview_metadata(user_info().filename, user_info().session).get('answer_count') }
+  % if get_config('debug') or user_has_privilege('admin', 'developer'):
+  Developer information | ${ collapse_template(preview_variables) }
+  % endif
+  
 
-  ${ action_button_html(url_of('interviews'),label="Manage saved answers") }
-help:
-  label: |
-    What's this?
-  content: |
-    This is a special interview for developers to store "snapshots"
-    of interviews during the development process for quick testing.
+  You can re-use the answers in this answer set by visiting a new form and selecting
+  "Load answer set" from the main menu.
+
+  ${ action_button_html(url_of("interviews"),label="List in progress forms", color="link", size="md") } ${ action_button_html(url_of("dispatch"), label="List available forms", icon="list", color="primary", size="md") }
     
-    It does not do anything else yet.
+---
+id: rename answer
+question: |
+  Rename answer set
+fields:
+  - New name: al_sessions_snapshot_new_label
+    default: |
+      ${ all_variables(special='titles').get('sub') }
+continue button label: |
+  :save: Save changes
+---
+code: |
+  rename_interview_answers(user_info().filename, user_info().session, new_name = al_sessions_snapshot_new_label)
+  log("New name saved", "success")
+  al_sessions_rename_session = True
 ---
 template: preview_variables
 subject: |
-  Preview contents
+  Preview variables and values
 content: |
   <pre>
   ${ verbatim(json.dumps(all_variables(), sort_keys=True, indent=4)) }
