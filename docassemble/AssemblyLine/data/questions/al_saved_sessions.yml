@@ -1,4 +1,9 @@
 ---
+code: |
+  # HACK
+  # Create a placeholder value to avoid playground errors
+  al_sessions_snapshot_results = DAEmpty() 
+---
 modules:
   - .sessions
 ---
