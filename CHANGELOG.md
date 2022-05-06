@@ -1,3 +1,23 @@
+# Version v2.11.0
+
+New:
+
+- Added "answer set" feature that is available on production forms
+- Accessibility improvements
+- Minor API additions to improve developer experience with ALDocument class
+- `language_fields()` method
+- ALDocumentUpload class
+
+Fixed:
+
+- businesses have a default gender of "other" (helps language methods work correctly)
+- Added some missing objects for nouns created by the Weaver
+- Fixed label for "fax number" field
+- return proper value when `key` function called in an addendum file
+
+Changed:
+- Types are now checked for safe usage with mypy on commit
+
 # Version v2.10.2
 
 Fixed:
