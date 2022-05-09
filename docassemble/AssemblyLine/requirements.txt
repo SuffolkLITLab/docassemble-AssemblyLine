@@ -2,3 +2,4 @@ docassemble.base>=1.3
 docassemble.webapp
 mypy
 pandas-stubs
+sqlalchemy[mypy]
