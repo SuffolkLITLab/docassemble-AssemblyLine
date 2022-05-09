@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import List, Dict, Any, Optional, Tuple, Set, Union
+from typing import List, Dict, Any, Optional, Set, Union, Optional
 from docassemble.base.util import (
     DAFile,
     DAFileCollection,
@@ -48,7 +48,7 @@ __all__ = [
 
 db = init_sqlalchemy()
 
-al_sessions_variables_to_remove = {
+al_sessions_variables_to_remove: Set = {
     # Internal fields
     "_internal",
     "nav",
@@ -217,10 +217,10 @@ def get_interview_metadata(
 
 
 def get_saved_interview_list(
-    filename: str = al_session_store_default_filename,
+    filename: Optional[str] = al_session_store_default_filename,
     user_id: Union[int, str] = None,
     metadata_key_name: str = "metadata",
-) -> Tuple[Dict, int]:
+) -> List[Dict]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
     to add metadata, the result list will include columns containing the metadata.
     If the user is a developer or administrator, setting user_id = None will list all interviews on the server. Otherwise,
@@ -344,7 +344,7 @@ def interview_list_html(
             continue
         table += """<tr class="al-saved-answer-table-row">"""
         table += f"""
-        <td><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{answer.get("title") or answer.get("filename").replace(":", " ") or "Untitled interview" }</a></td>
+        <td><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{answer.get("title") or answer.get("filename","").replace(":", " ") or "Untitled interview" }</a></td>
         <td>{ as_datetime(answer.get("modtime")) }</td>
         <td>Page { answer.get("steps") or answer.get("num_keys") } <br/>
             {answer.get("original_interview_filename") or answer.get("filename") or "" }
@@ -455,7 +455,9 @@ def save_interview_answers(
 
 
 def get_filtered_session_variables(
-    filename: str, session_id: int, variables_to_filter: List[str] = None
+    filename: str,
+    session_id: int,
+    variables_to_filter: Union[List[str], Set[str]] = None,
 ) -> Dict[str, Any]:
     """
     Get a filtered subset of the variables from the specified interview filename and session.
@@ -476,7 +478,7 @@ def get_filtered_session_variables(
 
 def load_interview_answers(
     old_interview_filename: str,
-    old_session_id: str,
+    old_session_id: int,
     new_session: bool = False,
     new_interview_filename: str = None,
     variables_to_filter: List[str] = None,
