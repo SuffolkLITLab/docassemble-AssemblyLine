@@ -85,6 +85,9 @@ code: |
     "label": "Save answer set"
     },
     action_menu_item("Load answer set", "al_load_saved_session"),
+    {"url": url_ask(["al_sessions_json_file", {"recompute": ["al_sessions_import_json"]}, "al_sessions_load_status"]),
+    "label": "Import answer set"
+    },    
   ]
 ---
 event: al_start_over

@@ -21,11 +21,12 @@ from docassemble.base.util import (
     create_session,
     set_parts,
     user_logged_in,
+    validation_error,
 )
 from docassemble.webapp.users.models import UserModel
 from docassemble.webapp.db_object import init_sqlalchemy
 from sqlalchemy.sql import text
-from docassemble.base.functions import server, safe_json
+from docassemble.base.functions import server, safe_json, serializable_dict
 from .al_document import (
     ALDocument,
     ALDocumentBundle,
@@ -33,6 +34,7 @@ from .al_document import (
     ALExhibit,
     ALExhibitList,
 )
+import json
 
 __all__ = [
     "is_file_like",
@@ -44,6 +46,10 @@ __all__ = [
     "load_interview_answers",
     "get_saved_interview_list",
     "interview_list_html",
+    "get_filtered_session_variables_string",
+    "load_interview_json",
+    "export_interview_variables",
+    "is_valid_json",
 ]
 
 db = init_sqlalchemy()
@@ -455,15 +461,20 @@ def save_interview_answers(
 
 
 def get_filtered_session_variables(
-    filename: str, session_id: int, variables_to_filter: List[str] = None
+    filename: Optional[str] = None, session_id: Optional[int] = None, variables_to_filter: List[str] = None
 ) -> Dict[str, Any]:
     """
     Get a filtered subset of the variables from the specified interview filename and session.
+    
+    If no filename and session ID are specified, return filtered list of variables from the current interview.
     """
     if not variables_to_filter:
         variables_to_filter = al_sessions_variables_to_remove
 
-    all_vars = get_session_variables(filename, session_id, simplify=False)
+    if filename and session_id:        
+        all_vars = get_session_variables(filename, session_id, simplify=False)        
+    else:
+        all_vars = all_variables(simplify=False)        
 
     # Remove items that we were explicitly told to remove
     # Delete all files and ALDocuments
@@ -474,6 +485,15 @@ def get_filtered_session_variables(
     }
 
 
+def get_filtered_session_variables_string(filename: Optional[str] = None, session_id: Optional[int] = None, variables_to_filter: List[str] = None) -> str:
+    """
+    Get a JSON string representing the filtered contents of the specified filename and session_id. If no filename and session_id
+    are provided, the output will contain the variables from the current session.
+    """
+    simple_vars = serializable_dict(get_filtered_session_variables(filename, session_id, variables_to_filter))
+    return json.dumps(simple_vars)
+
+  
 def load_interview_answers(
     old_interview_filename: str,
     old_session_id: str,
@@ -504,3 +524,64 @@ def load_interview_answers(
             return True
         except:
             return False
+
+          
+def load_interview_json(
+    json_string: str,
+    new_session: bool = False,
+    new_interview_filename: str = None,
+    variables_to_filter: List[str] = None,
+) -> Optional[int]:
+    """
+    Provided a JSON string, load the specified variables into a Docassemble session. JSON with annotated class names
+    will be processed into Docassemble objects.
+    
+    If new_session is not provided, the JSON answers will be loaded into the current interview.
+    """
+    json_processed = json.loads(json_string)
+    
+    if new_session:
+        if not new_interview_filename:
+            new_interview_filename = user_info().filename
+        new_session_id = create_session(new_interview_filename)
+        set_session_variables(new_interview_filename, new_session_id, json_processed, process_objects=True)
+        return new_session_id
+    else:
+        try:
+            set_variables(json_processed, process_objects=True)
+            return True
+        except:
+            return False
+    
+          
+def export_interview_variables(
+    filename: Optional[str] = None, 
+    session_id: Optional[int] = None, 
+    variables_to_filter: Union[Set, List[str]] = None, 
+    output: DAFile = None,
+) -> DAFile:
+    """
+    Get a DAFile with the JSON representation of the specified session's interview answers. The output is compatible with
+    set_session_variables(process_objects=True) and set_variables(process_objects=True)
+    """
+    if not output:
+        output = DAFile()
+    output.initialize(filename="variables.json")
+    variables_string = get_filtered_session_variables_string(
+        filename,
+        session_id,
+        variables_to_filter,
+    )
+
+    output.write(variables_string)
+    output.commit()
+    return output
+  
+
+def is_valid_json(json_string: str) -> bool:
+    try:
+        json.loads(json_string)
+    except:
+        validation_error("Enter a valid JSON-formatted string")
+        return False
+    return True
