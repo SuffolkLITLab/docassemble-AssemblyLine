@@ -455,7 +455,9 @@ def save_interview_answers(
 
 
 def get_filtered_session_variables(
-    filename: str, session_id: int, variables_to_filter: Union[List[str], Set[str]] = None
+    filename: str,
+    session_id: int,
+    variables_to_filter: Union[List[str], Set[str]] = None,
 ) -> Dict[str, Any]:
     """
     Get a filtered subset of the variables from the specified interview filename and session.
