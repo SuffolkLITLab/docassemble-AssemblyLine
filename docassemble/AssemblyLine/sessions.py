@@ -467,16 +467,16 @@ def get_filtered_session_variables(
 ) -> Dict[str, Any]:
     """
     Get a filtered subset of the variables from the specified interview filename and session.
-    
+
     If no filename and session ID are specified, return filtered list of variables from the current interview.
     """
     if not variables_to_filter:
         variables_to_filter = al_sessions_variables_to_remove
 
-    if filename and session_id:        
-        all_vars = get_session_variables(filename, session_id, simplify=False)        
+    if filename and session_id:
+        all_vars = get_session_variables(filename, session_id, simplify=False)
     else:
-        all_vars = all_variables(simplify=False)        
+        all_vars = all_variables(simplify=False)
 
     # Remove items that we were explicitly told to remove
     # Delete all files and ALDocuments
@@ -487,15 +487,21 @@ def get_filtered_session_variables(
     }
 
 
-def get_filtered_session_variables_string(filename: Optional[str] = None, session_id: Optional[int] = None, variables_to_filter: List[str] = None) -> str:
+def get_filtered_session_variables_string(
+    filename: Optional[str] = None,
+    session_id: Optional[int] = None,
+    variables_to_filter: List[str] = None,
+) -> str:
     """
     Get a JSON string representing the filtered contents of the specified filename and session_id. If no filename and session_id
     are provided, the output will contain the variables from the current session.
     """
-    simple_vars = serializable_dict(get_filtered_session_variables(filename, session_id, variables_to_filter))
+    simple_vars = serializable_dict(
+        get_filtered_session_variables(filename, session_id, variables_to_filter)
+    )
     return json.dumps(simple_vars)
 
-  
+
 def load_interview_answers(
     old_interview_filename: str,
     old_session_id: int,
@@ -527,7 +533,7 @@ def load_interview_answers(
         except:
             return False
 
-          
+
 def load_interview_json(
     json_string: str,
     new_session: bool = False,
@@ -537,16 +543,18 @@ def load_interview_json(
     """
     Provided a JSON string, load the specified variables into a Docassemble session. JSON with annotated class names
     will be processed into Docassemble objects.
-    
+
     If new_session is not provided, the JSON answers will be loaded into the current interview.
     """
     json_processed = json.loads(json_string)
-    
+
     if new_session:
         if not new_interview_filename:
             new_interview_filename = user_info().filename
         new_session_id = create_session(new_interview_filename)
-        set_session_variables(new_interview_filename, new_session_id, json_processed, process_objects=True)
+        set_session_variables(
+            new_interview_filename, new_session_id, json_processed, process_objects=True
+        )
         return new_session_id
     else:
         try:
@@ -554,12 +562,12 @@ def load_interview_json(
             return True
         except:
             return False
-    
-          
+
+
 def export_interview_variables(
-    filename: Optional[str] = None, 
-    session_id: Optional[int] = None, 
-    variables_to_filter: Union[Set, List[str]] = None, 
+    filename: Optional[str] = None,
+    session_id: Optional[int] = None,
+    variables_to_filter: Union[Set, List[str]] = None,
     output: DAFile = None,
 ) -> DAFile:
     """
@@ -578,7 +586,7 @@ def export_interview_variables(
     output.write(variables_string)
     output.commit()
     return output
-  
+
 
 def is_valid_json(json_string: str) -> bool:
     try:
