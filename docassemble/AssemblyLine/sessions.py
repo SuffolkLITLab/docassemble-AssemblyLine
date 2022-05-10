@@ -167,7 +167,18 @@ al_sessions_variables_to_remove_from_new_interview = [
     "user_ask_role",
 ]
 
-al_session_store_default_filename = f"{user_info().package}:al_saved_sessions_store.yml"
+def _package_name(package_name: str = None):
+    """Get package name without the name of the current module, like: docassemble.ALWeaver instead of
+    docassemble.ALWeaver.advertise_capabilities"""
+    if not package_name:
+        package_name = __name__
+    try:
+        return ".".join(package_name.split(".")[:-1])
+    except:
+        return package_name
+
+
+al_session_store_default_filename = f"{_package_name()}:al_saved_sessions_store.yml"
 
 
 def is_file_like(obj):
