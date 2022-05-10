@@ -475,7 +475,7 @@ def save_interview_answers(
 def get_filtered_session_variables(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
-    variables_to_filter: List[str] = None,
+    variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
 ) -> Dict[str, Any]:
     """
     Get a filtered subset of the variables from the specified interview filename and session.
@@ -502,7 +502,7 @@ def get_filtered_session_variables(
 def get_filtered_session_variables_string(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
-    variables_to_filter: List[str] = None,
+    variables_to_filter: Optional[Union[Set[str],List[str]]] = None,
 ) -> str:
     """
     Get a JSON string representing the filtered contents of the specified filename and session_id. If no filename and session_id
