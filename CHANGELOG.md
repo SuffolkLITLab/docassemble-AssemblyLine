@@ -1,3 +1,7 @@
+# Version v2.11.2
+
+Incorrect reference to save session location in the new "Answer set" feature
+
 # Version v2.11.1
 
 Correct the priority of the new default gender for a business; it was taking priority over the gender question
