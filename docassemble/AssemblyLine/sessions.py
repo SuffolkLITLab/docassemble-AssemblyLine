@@ -167,6 +167,7 @@ al_sessions_variables_to_remove_from_new_interview = [
     "user_ask_role",
 ]
 
+
 def _package_name(package_name: str = None):
     """Get package name without the name of the current module, like: docassemble.ALWeaver instead of
     docassemble.ALWeaver.advertise_capabilities"""
