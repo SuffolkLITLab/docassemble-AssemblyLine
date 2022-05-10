@@ -502,7 +502,7 @@ def get_filtered_session_variables(
 def get_filtered_session_variables_string(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
-    variables_to_filter: Optional[Union[Set[str],List[str]]] = None,
+    variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
 ) -> str:
     """
     Get a JSON string representing the filtered contents of the specified filename and session_id. If no filename and session_id
