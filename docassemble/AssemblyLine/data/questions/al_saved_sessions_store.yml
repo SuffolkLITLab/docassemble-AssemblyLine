@@ -32,7 +32,7 @@ subquestion: |
   Opposing party | ${ bold(other_parties.complete_elements()) if defined('other_parties') else '' }
   Page   | ${ get_interview_metadata(user_info().filename, user_info().session).get('steps') }
   Answered questions | ${ get_interview_metadata(user_info().filename, user_info().session).get('answer_count') }
-  Export | <a class="btn btn-primary btn-sm btn-secondary" href="${ export_interview_variables().url_for() }" role="button"><i class="far fa-file-code"></i> Export in JSON format</a>
+  Export | <a class="btn btn-primary btn-sm btn-secondary" href="${ export_interview_variables().url_for(attachment=True) }" role="button"><i class="far fa-file-code"></i> Export in JSON format</a>
   % if get_config('debug') or user_has_privilege('admin', 'developer'):
   Developer information | ${ collapse_template(preview_variables) }
   % endif
