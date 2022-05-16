@@ -15,25 +15,25 @@ default screen parts:
   exit url: |
     ${ all_variables(special='metadata').get('exit url', AL_ORGANIZATION_HOMEPAGE) }
   logo: |
-    <div class="title-container">
-      <div class="al-logo">
+    <span class="title-container">
+      <span class="al-logo">
         <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
-      </div>
-      <div class="al-title">
-        <div class="title-row-1">${ AL_ORGANIZATION_TITLE }</div>
-        <div class="title-row-2">${all_variables(special='metadata').get('title','').rstrip()}</div>
-      </div>
-    </div> 
+      </span>
+      <span class="al-title">
+        <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>
+        <span class="title-row-2">${all_variables(special='metadata').get('title','').rstrip()}</span>
+      </span>
+    </span>
   short logo: |
-    <div class="title-container">
-      <div class="al-logo">
+    <span class="title-container">
+      <span class="al-logo">
         <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
-      </div>
-      <div class="al-title">
-        <div class="title-row-1">${ AL_ORGANIZATION_TITLE }</div>
-        <div class="title-row-2">${ all_variables(special='metadata').get('short title','').rstrip() }</div>
-      </div>
-    </div>   
+      </span>
+      <span class="al-title">
+        <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>
+        <span class="title-row-2">${ all_variables(special='metadata').get('short title','').rstrip() }</span>
+      </span>
+    </span>
   continue button label: |
     Next
   back button label: |
