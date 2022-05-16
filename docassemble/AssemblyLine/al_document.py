@@ -653,7 +653,9 @@ class ALDocument(DADict):
         self.initializeAttribute("cache", DALazyAttribute)
         self.always_enabled = hasattr(self, "enabled") and self.enabled
 
-    def as_pdf(self, key: str = "final", refresh: bool = True, pdfa: bool = False) -> DAFile:
+    def as_pdf(
+        self, key: str = "final", refresh: bool = True, pdfa: bool = False
+    ) -> DAFile:
         # Trigger some stuff up front to avoid idempotency problems
         filename = self.filename
         self.title
@@ -662,10 +664,10 @@ class ALDocument(DADict):
             filename += ".pdf"
 
         safe_key = space_to_underscore(key)
-        # The PDF/A version of the document is a different file than the normal PDF, 
+        # The PDF/A version of the document is a different file than the normal PDF,
         # so differentiate that when checking the cache
         if pdfa:
-          safe_key = safe_key + '-pdfa'
+            safe_key = safe_key + "-pdfa"
 
         if hasattr(self.cache, safe_key):
             return getattr(self.cache, safe_key)
@@ -687,13 +689,15 @@ class ALDocument(DADict):
                 addendum_doc = self.addendum
             if isinstance(main_doc, DAFileCollection):
                 addendum_doc = addendum_doc.pdf
-            concatenated = pdf_concatenate(main_doc, addendum_doc, filename=filename, pdfa=pdfa)
+            concatenated = pdf_concatenate(
+                main_doc, addendum_doc, filename=filename, pdfa=pdfa
+            )
             concatenated.title = self.title
             setattr(self.cache, safe_key, concatenated)
             return concatenated
         else:
             if pdfa:
-              pdf_to_pdfa(main_doc.path())
+                pdf_to_pdfa(main_doc.path())
             setattr(self.cache, safe_key, main_doc)
             return main_doc
 
@@ -836,7 +840,9 @@ class ALStaticDocument(DAStaticFile):
     def as_list(self, key: str = "final", refresh: bool = True) -> List[DAStaticFile]:
         return [self]
 
-    def as_pdf(self, key: str = "final", pdfa: bool = False, refresh: bool = True) -> DAStaticFile:
+    def as_pdf(
+        self, key: str = "final", pdfa: bool = False, refresh: bool = True
+    ) -> DAStaticFile:
         return pdf_concatenate(self, pdfa=pdfa)
 
     def as_docx(
@@ -901,11 +907,13 @@ class ALDocumentBundle(DAList):
         # Pre-cache some DALazyTemplates we set up to aid translation that won't
         # vary at runtime
 
-    def as_pdf(self, key: str = "final", refresh: bool = True, pdfa: bool = False) -> Optional[DAFile]:
+    def as_pdf(
+        self, key: str = "final", refresh: bool = True, pdfa: bool = False
+    ) -> Optional[DAFile]:
         """Returns the Bundle as a single PDF DAFile, or None if none of the documents are enabled."""
         safe_key = space_to_underscore(key)
         if pdfa:
-          safe_key = safe_key + '-pdfa'
+            safe_key = safe_key + "-pdfa"
 
         if hasattr(self.cache, safe_key):
             return getattr(self.cache, safe_key)
@@ -926,7 +934,7 @@ class ALDocumentBundle(DAList):
             pdf = pdf_concatenate(
                 [document.as_pdf(key=key, refresh=refresh) for document in files],
                 filename=self.filename + ending,
-                pdfa=pdfa
+                pdfa=pdfa,
             )
         pdf.title = self.title
         setattr(self.cache, safe_key, pdf)
@@ -1041,7 +1049,9 @@ class ALDocumentBundle(DAList):
                 flat_list.append(document.title)
         return flat_list
 
-    def as_pdf_list(self, key: str = "final", refresh: bool = True, pdfa: bool = False) -> List[DAFile]:
+    def as_pdf_list(
+        self, key: str = "final", refresh: bool = True, pdfa: bool = False
+    ) -> List[DAFile]:
         """
         Returns the nested bundles as a list of PDFs that is only one level deep.
         """
@@ -1398,7 +1408,9 @@ class ALExhibit(DAObject):
                 self.cover_page, self.ocr_pages(), filename=filename, pdfa=pdfa
             )
         else:
-            self._cache._file = pdf_concatenate(self.ocr_pages(), filename=filename, pdfa=pdfa)
+            self._cache._file = pdf_concatenate(
+                self.ocr_pages(), filename=filename, pdfa=pdfa
+            )
         return self._cache._file
 
     def num_pages(self) -> int:
@@ -1436,7 +1448,9 @@ class ALExhibitList(DAList):
         self.object_type = ALExhibit
         self.complete_attribute = "complete"
 
-    def as_pdf(self, filename="file.pdf", pdfa: bool = False, add_cover_pages: bool = True) -> DAFile:
+    def as_pdf(
+        self, filename="file.pdf", pdfa: bool = False, add_cover_pages: bool = True
+    ) -> DAFile:
         """
         Return a single PDF containing all exhibits.
         Args:
@@ -1448,7 +1462,7 @@ class ALExhibitList(DAList):
         return pdf_concatenate(
             [exhibit.as_pdf(add_cover_page=add_cover_pages) for exhibit in self],
             filename=filename,
-            pdfa=pdfa
+            pdfa=pdfa,
         )
 
     def add_numbers(self, prefix: str = "", starting_number: int = 1) -> None:
@@ -1608,7 +1622,9 @@ class ALExhibitDocument(ALDocument):
                 )
             else:
                 return self.exhibits.as_pdf(
-                    add_cover_pages=self.include_exhibit_cover_pages, filename=filename, pdfa=pdfa
+                    add_cover_pages=self.include_exhibit_cover_pages,
+                    filename=filename,
+                    pdfa=pdfa,
                 )
         # pdf_concatenate([a.as_pdf() for a in self.exhibits], filename=self.filename)
 
@@ -1637,7 +1653,9 @@ class ALTableDocument(ALDocument):
     ) -> List[DAFile]:
         return [self[key]]
 
-    def as_pdf(self, key: str = "final", refresh: bool = True, pdfa: bool = False, **kwargs) -> DAFile:
+    def as_pdf(
+        self, key: str = "final", refresh: bool = True, pdfa: bool = False, **kwargs
+    ) -> DAFile:
         """
         Args:
             key (str): unused, for signature compatibility with ALDocument
@@ -1669,7 +1687,9 @@ class ALUntransformedDocument(ALDocument):
     ) -> List[DAFile]:
         return [self[key]]
 
-    def as_pdf(self, key: str = "final", refresh: bool = True, pdfa: bool = False, **kwargs) -> DAFile:
+    def as_pdf(
+        self, key: str = "final", refresh: bool = True, pdfa: bool = False, **kwargs
+    ) -> DAFile:
         """
         Args:
             key (str): unused, for signature compatibility with ALDocument
