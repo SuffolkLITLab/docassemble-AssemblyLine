@@ -75,17 +75,24 @@ code: |
     menu_items = al_menu_items[1:] # Skip the "start over" menu item
 ---
 code: |
-  al_menu_items = [
+  al_menu_items_tmp = [
     {"url": url_ask(['al_start_over_confirmation','al_start_over']),
     "label": "Start over"
     },
-    # This tricky url_ask needs to be exactly like this to work
-    # correctly. See bullet #4 https://docassemble.org/docs/functions.html#url_ask
     {"url": url_ask(["al_sessions_snapshot_label", {"recompute": ["al_sessions_save_session_snapshot"]}, "al_sessions_save_status"]),
     "label": "Save answer set"
     },
     action_menu_item("Load answer set", "al_load_saved_session"),
   ]
+  
+  if get_config('assembly line',{}).get('enable answer set imports'):
+    al_menu_items_tmp.append(
+      {"url": url_ask(["al_sessions_json_file", {"recompute": ["al_sessions_import_json"]}, "al_sessions_load_status"]),
+      "label": "Import answer set"
+      }
+    )
+  al_menu_items = al_menu_items_tmp
+  del al_menu_items_tmp
 ---
 event: al_start_over
 code: |

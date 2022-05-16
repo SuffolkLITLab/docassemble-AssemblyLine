@@ -203,3 +203,22 @@ question: |
 subquestion: |
   Tap "next" to keep answering any unanswered questions and finish the interview.
 back button: False  
+---
+question: |
+  Upload a JSON file
+subquestion: |
+  You can upload a file containing an answer set that you exported from this or a different server.
+fields:
+  - Upload a JSON file: al_sessions_json_file
+    datatype: file
+    accept: |
+      "application/json, text/json, text/*, .json"
+validation code: |
+  try:
+    json.loads(al_sessions_json_file.slurp())
+  except:
+    validation_error("Upload a file with valid JSON")
+---
+code: |
+  al_sessions_snapshot_results = load_interview_json(al_sessions_json_file.slurp())
+  al_sessions_import_json = True
