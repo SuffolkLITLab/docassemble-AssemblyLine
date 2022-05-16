@@ -11,6 +11,7 @@ include:
 modules:
   - docassemble.ALToolbox.misc
   - docassemble.ALToolbox.copy_button
+  - docassemble.ALToolbox.save_input_data
   - .al_general
   - .al_document
   - .al_courts
