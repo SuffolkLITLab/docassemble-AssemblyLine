@@ -74,6 +74,7 @@ code: |
   else:
     menu_items = al_menu_items[1:] # Skip the "start over" menu item
 ---
+reconsider: True
 code: |
   al_menu_items_tmp = [
     {"url": url_ask(['al_start_over_confirmation','al_start_over']),
