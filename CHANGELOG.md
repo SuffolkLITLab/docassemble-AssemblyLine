@@ -1,3 +1,9 @@
+# Version v2.11.3
+
+* Move the "answer set" feature behind a global configuration option (opt-in)
+* Accessibility improvements
+* Add PDF/A support to ALDocument class
+
 # Version v2.11.2
 
 Incorrect reference to save session location in the new "Answer set" feature
