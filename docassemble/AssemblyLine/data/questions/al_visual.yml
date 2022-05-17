@@ -74,16 +74,23 @@ code: |
   else:
     menu_items = al_menu_items[1:] # Skip the "start over" menu item
 ---
+reconsider: True
 code: |
   al_menu_items_tmp = [
     {"url": url_ask(['al_start_over_confirmation','al_start_over']),
     "label": "Start over"
     },
+  ]
+  
+  # Answer set feature is behind a server-wide configuration option
+  if get_config('assembly line',{}).get('enable answer sets'):
+    al_menu_items_tmp.extend([
     {"url": url_ask(["al_sessions_snapshot_label", {"recompute": ["al_sessions_save_session_snapshot"]}, "al_sessions_save_status"]),
     "label": "Save answer set"
     },
     action_menu_item("Load answer set", "al_load_saved_session"),
   ]
+  )
   
   if get_config('assembly line',{}).get('enable answer set imports'):
     al_menu_items_tmp.append(
@@ -91,6 +98,7 @@ code: |
       "label": "Import answer set"
       }
     )
+    
   al_menu_items = al_menu_items_tmp
   del al_menu_items_tmp
 ---
