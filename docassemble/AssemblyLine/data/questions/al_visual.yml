@@ -164,14 +164,14 @@ fields:
      choices:
        - Email or text message: email_or_sms
        - Just show me the link. I will share it myself.: link_only
+       - Export my answers to a file: download_json
      js show if: |
        val("al_sharing_type") === "tell_friend" || val("al_sharing_type") === "share_answers" 
   - note: |
       **Note**: the person you share this link with will be able to see and
       edit your answers on this form.
-    show if:
-      variable: al_sharing_type
-      is: share_answers
+    js show if: |
+      val("al_sharing_type") === "share_answers" &&  ( val("al_how_share_link") === "email_or_sms" || val("al_how_share_link") === "link_only" )
   - note: |
       You can copy and share this link
       
@@ -207,7 +207,12 @@ fields:
     default: ${ str(users[0]) if defined('users[0].name.first') else '' } 
     show if:
       variable: al_how_share_link
-      is: email_or_sms    
+      is: email_or_sms
+  - note: |
+      <a class="btn btn-primary btn-sm btn-secondary" href="${ export_interview_variables().url_for(attachment=True) }" role="button"><i class="far fa-file-code"></i> Export in JSON format</a>  
+    show if:
+      variable: al_how_share_link
+      is: download_json
 back button label: |
   Back to your form
 ---
