@@ -1748,4 +1748,8 @@ question: |
 fields:
   - code: |
       x.language_fields(choices=al_language_user_choices)
-      
+---
+################### Backwards compatibility ####################################
+---
+objects:
+  - user_has_saved_answers: DAEmpty

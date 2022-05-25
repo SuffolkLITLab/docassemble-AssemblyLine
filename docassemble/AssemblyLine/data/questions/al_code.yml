@@ -9,6 +9,8 @@
 # Placeholder
 objects:
   - court_emails: DADict.using(auto_gather=False, gathered=True)
+  ################### Backwards compatibility ####################################
+  - user_has_saved_answers: DAEmpty # For people who forked the pre-2.11.0 intro screen  
 ---
 code: |
   ready_to_email
