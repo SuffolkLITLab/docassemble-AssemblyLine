@@ -397,6 +397,11 @@ class ALIndividual(Individual):
         else:
             return ""
 
+    @property
+    def all_phone_numbers(self) -> str:
+        """A property getter for phone_numbers(). Useful for when you can't use functions, like in 'showifdef'"""
+        return self.phone_numbers()
+
     def contact_methods(self) -> str:
         """Method to return a formatted string with all provided contact methods of the individual:
             * Phone number(s)
