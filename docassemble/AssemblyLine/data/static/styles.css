@@ -113,7 +113,10 @@ input[type=number] {
   min-width: 8em;
 }
 
-/* Make the footer links slightly darker for better contrast */
+/* Make the footer links and da terms slightly darker for better contrast */
 footer a {
   color: #0264F7
+}
+.daterm {
+  color: #3b842c
 }
