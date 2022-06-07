@@ -1395,6 +1395,8 @@ class ALExhibit(DAObject):
         for page in self.pages:
             if hasattr(page, "ocr_status") and not page.ocr_status.ready():
                 return False
+            if not hasattr(page, "ocr_status"):
+                log("developer warning: ocr_ready was called but _ocr_start wasn't!")
         return True
 
     def ocr_pages(self):
@@ -1419,7 +1421,7 @@ class ALExhibit(DAObject):
         self,
         *,
         refresh: bool = False,
-        prefix: str ="",
+        bates_prefix: str ="",
         pdfa: bool = False,
         add_page_numbers: bool = True,
         add_cover_page: bool = True,
@@ -1445,7 +1447,7 @@ class ALExhibit(DAObject):
             )
 
         if add_page_numbers:
-            concatenated_pages.bates_number(prefix=prefix, start=self.start_page)
+            concatenated_pages.bates_number(prefix=bates_prefix, start=self.start_page)
 
         setattr(self._cache, safe_key, concatenated_pages)
         return getattr(self._cache, safe_key)
@@ -1481,17 +1483,20 @@ class ALExhibitList(DAList):
         if not hasattr(self, "auto_labeler"):
             self.auto_labeler = alpha
         if not hasattr(self, "auto_ocr"):
-            self.auto_ocr = True
+            self.auto_ocr = False
         if not hasattr(self, "include_table_of_contents"):
             self.include_table_of_contents = True
         if not hasattr(self, "include_exhibit_cover_pages"):
-            self.include_cover_pages =  True
+            self.include_exhibit_cover_pages = True
+        if not hasattr(self, "bates_prefix"):
+            self.bates_prefix = ""
         self.object_type = ALExhibit
         self.complete_attribute = "complete"
 
     def as_pdf(
-        self, filename="file.pdf", pdfa: bool = False, add_cover_pages: bool = True,
-        add_page_numbers: bool = True
+        self, filename="file.pdf", pdfa: bool = False,
+        add_page_numbers: bool = False,
+        toc_pages: int = 0
     ) -> DAFile:
         """
         Return a single PDF containing all exhibits.
@@ -1501,8 +1506,14 @@ class ALExhibitList(DAList):
         Returns:
             A DAfile containing the rendered exhibit list as a single file.
         """
+        if self.include_table_of_contents and toc_pages != 1:
+            self._update_page_numbers(toc_guess_pages=toc_pages)
         return pdf_concatenate(
-            [exhibit.as_pdf(add_cover_page=add_cover_pages, add_page_numbers=add_page_numbers) for exhibit in self],
+            [exhibit.as_pdf(
+              add_cover_page=self.include_exhibit_cover_pages, 
+              add_page_numbers=add_page_numbers,
+              bates_prefix=self.bates_prefix
+              ) for exhibit in self],
             filename=filename,
             pdfa=pdfa,
         )
@@ -1521,27 +1532,25 @@ class ALExhibitList(DAList):
 
     def ocr_ready(self) -> bool:
         """
-        Returns:
-            True iff OCR process has finished on all pages. OCR is non-blocking, and assembly will work
-            even if OCR is not complete. Check this status if you want to wait to deliver a document until
-            OCR is complete.
+        Combines the results of all the ALExhibit.ocr_ready calls.
+        See ALExhibi.ocr_ready for more details.
         """
         ready = True
         for exhibit in self.elements:
             ready &= exhibit.ocr_ready()
         return ready
 
-    def _update_page_numbers(self, starting_number: Optional[int] = None) -> None:
+    def _update_page_numbers(self, starting_number: Optional[int] = None, toc_guess_pages: int = 1) -> None:
         """
         Update the `start_page` attribute of all exhibits so it reflects current position in the list + number of pages of each document.
         """
-        toc_pages = 1 if self.include_table_of_contents else 0
-        cover_pages = 1 if self.include_cover_pages else 0
+        toc_pages = toc_guess_pages if self.include_table_of_contents else 0
+        cover_pages = 1 if self.include_exhibit_cover_pages else 0
         current_index = starting_number if starting_number else 1
         current_index += toc_pages
         for exhibit in self.elements:
             exhibit.start_page = current_index
-            current_index = current_index + exhibit.num_pages() + toc_pages
+            current_index = current_index + exhibit.num_pages() + cover_pages
 
     def _start_ocr(self):
         for exhibit in self.elements:
@@ -1607,12 +1616,18 @@ class ALExhibitDocument(ALDocument):
             self.exhibits.auto_labeler = self.auto_labeler
         if hasattr(self, "auto_ocr"):
             self.exhibits.auto_ocr = self.auto_ocr
-        if not hasattr(self, "include_table_of_contents"):
+        if hasattr(self, "bates_prefix"):
+            self.exhibits.bates_prefix = self.bates_prefix
+        if hasattr(self, "include_exhibit_cover_pages"):
+            self.exhibits.include_exhibit_cover_pages = self.include_exhibit_cover_pages
+        else:
+            self.include_exhibit_cover_pages = True
+            self.exhibits.include_exhibit_cover_pages = True
+        if hasattr(self, "include_table_of_contents"):
+            self.exhibits.include_table_of_contents = self.include_table_of_contents
+        else:
             self.include_table_of_contents = True
             self.exhibits.include_table_of_contents = True
-        if not hasattr(self, "include_exhibit_cover_pages"):
-            self.include_exhibit_cover_pages = True
-            self.exhibits.include_cover_pages =  True
         if not hasattr(self, "add_page_numbers"):
             self.add_page_numbers = False
         self.has_addendum = False
@@ -1622,6 +1637,12 @@ class ALExhibitDocument(ALDocument):
         Provided for signature compatibility with ALDocument. Exhibits do not have overflow.
         """
         return False
+
+    def ocr_ready(self) -> bool:
+        """
+        See ALExhibitList.ocr_ready
+        """
+        return self.exhibits.ocr_ready()
 
     def __getitem__(self, key):
         # This overrides the .get() method so that the 'final' and 'private' key always exist and
@@ -1641,23 +1662,22 @@ class ALExhibitDocument(ALDocument):
 
         if len(self.exhibits):
             if self.include_table_of_contents:
+                toc_pages = self.table_of_contents.num_pages()
                 return pdf_concatenate(
                     self.table_of_contents,
                     self.exhibits.as_pdf(
-                        add_cover_pages=self.include_exhibit_cover_pages,
-                        add_page_numbers=self.add_page_numbers
+                        add_page_numbers=self.add_page_numbers,
+                        toc_pages=toc_pages
                     ),
                     filename=filename,
                     pdfa=pdfa,
                 )
             else:
                 return self.exhibits.as_pdf(
-                    add_cover_pages=self.include_exhibit_cover_pages,
                     add_page_numbers=self.add_page_numbers,
                     filename=filename,
                     pdfa=pdfa,
                 )
-        # pdf_concatenate([a.as_pdf() for a in self.exhibits], filename=self.filename)
 
     def as_docx(self, key: str = "bool", refresh: bool = True) -> DAFile:
         return self.as_pdf()
