@@ -1421,7 +1421,7 @@ class ALExhibit(DAObject):
         self,
         *,
         refresh: bool = False,
-        bates_prefix: str ="",
+        bates_prefix: str = "",
         pdfa: bool = False,
         add_page_numbers: bool = True,
         add_cover_page: bool = True,
@@ -1429,9 +1429,9 @@ class ALExhibit(DAObject):
     ) -> DAFile:
         safe_key = "_file"
         if pdfa:
-          safe_key = safe_key + "_pdfa"
+            safe_key = safe_key + "_pdfa"
         if add_page_numbers:
-          safe_key = safe_key + "_page_nums"
+            safe_key = safe_key + "_page_nums"
 
         if hasattr(self._cache, safe_key):
             return getattr(self._cache, safe_key)
@@ -1494,9 +1494,11 @@ class ALExhibitList(DAList):
         self.complete_attribute = "complete"
 
     def as_pdf(
-        self, filename="file.pdf", pdfa: bool = False,
+        self,
+        filename="file.pdf",
+        pdfa: bool = False,
         add_page_numbers: bool = False,
-        toc_pages: int = 0
+        toc_pages: int = 0,
     ) -> DAFile:
         """
         Return a single PDF containing all exhibits.
@@ -1509,11 +1511,14 @@ class ALExhibitList(DAList):
         if self.include_table_of_contents and toc_pages != 1:
             self._update_page_numbers(toc_guess_pages=toc_pages)
         return pdf_concatenate(
-            [exhibit.as_pdf(
-              add_cover_page=self.include_exhibit_cover_pages, 
-              add_page_numbers=add_page_numbers,
-              bates_prefix=self.bates_prefix
-              ) for exhibit in self],
+            [
+                exhibit.as_pdf(
+                    add_cover_page=self.include_exhibit_cover_pages,
+                    add_page_numbers=add_page_numbers,
+                    bates_prefix=self.bates_prefix,
+                )
+                for exhibit in self
+            ],
             filename=filename,
             pdfa=pdfa,
         )
@@ -1540,7 +1545,9 @@ class ALExhibitList(DAList):
             ready &= exhibit.ocr_ready()
         return ready
 
-    def _update_page_numbers(self, starting_number: Optional[int] = None, toc_guess_pages: int = 1) -> None:
+    def _update_page_numbers(
+        self, starting_number: Optional[int] = None, toc_guess_pages: int = 1
+    ) -> None:
         """
         Update the `start_page` attribute of all exhibits so it reflects current position in the list + number of pages of each document.
         """
@@ -1565,7 +1572,7 @@ class ALExhibitList(DAList):
             if self.auto_label:
                 self._update_labels()
             if self.auto_ocr:
-              self._start_ocr()
+                self._start_ocr()
 
 
 class ALExhibitDocument(ALDocument):
@@ -1666,8 +1673,7 @@ class ALExhibitDocument(ALDocument):
                 return pdf_concatenate(
                     self.table_of_contents,
                     self.exhibits.as_pdf(
-                        add_page_numbers=self.add_page_numbers,
-                        toc_pages=toc_pages
+                        add_page_numbers=self.add_page_numbers, toc_pages=toc_pages
                     ),
                     filename=filename,
                     pdfa=pdfa,
