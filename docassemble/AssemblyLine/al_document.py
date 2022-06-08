@@ -1646,7 +1646,7 @@ class ALExhibitDocument(ALDocument):
 
     def ocr_ready(self) -> bool:
         """
-        See ALExhibitList.ocr_ready
+        Returns `True` iff each individual exhibit has been OCRed, or if the OCR process was not started.
         """
         return self.exhibits.ocr_ready()
 
