@@ -1537,8 +1537,7 @@ class ALExhibitList(DAList):
 
     def ocr_ready(self) -> bool:
         """
-        Combines the results of all the ALExhibit.ocr_ready calls.
-        See ALExhibi.ocr_ready for more details.
+        Returns `True` iff all individual exhibit pages have been OCRed, or if the OCR process hasn't started.
         """
         ready = True
         for exhibit in self.elements:
