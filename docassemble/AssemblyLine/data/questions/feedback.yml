@@ -4,6 +4,11 @@ include:
   - al_settings.yml
 ---
 metadata:
+  title: Feedback Form
+  short title: Feedback
+---
+# Default screen parts always has precedence over metadata
+default screen parts:
   title: ${ AL_ORGANIZATION_TITLE } Feedback Form
   short title: Feedback
 ---
