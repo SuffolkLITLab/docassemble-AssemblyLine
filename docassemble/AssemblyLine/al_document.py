@@ -797,6 +797,25 @@ class ALDocument(DADict):
             input_width=input_width,
         )
 
+    def is_enabled(self, refresh=True):
+        """
+        A document can be considered "enabled" if:
+        - the .always_enabled attribute is true (enabled at init)
+        - the .enabled attribute is true (calculated fresh once per page load)
+        - the cache.enabled attribute is true
+        """
+        if hasattr(self, "always_enabled") and self.always_enabled:
+            return True
+        if hasattr(self.cache, "enabled"):
+            return self.cache.enabled
+        if refresh:
+            self.cache.enabled = self.enabled
+            if hasattr(self, "enabled"):
+                del self.enabled
+            return self.cache.enabled
+        else:
+            return self.enabled
+
 
 class ALStaticDocument(DAStaticFile):
     """A class that allows one-line initialization of static documents to include in an ALDocumentBundle.
@@ -871,6 +890,9 @@ class ALStaticDocument(DAStaticFile):
         # TODO: this explicit conversion shouldn't be needed
         # Workaround for problem generating thumbnails without it
         return pdf_concatenate(self).show(**kwargs)
+    
+    def is_enabled(self, **kwargs) -> bool:
+        return self.enabled
 
 
 class ALDocumentBundle(DAList):
@@ -989,6 +1011,14 @@ class ALDocumentBundle(DAList):
     def preview(self, refresh: bool = True) -> Optional[DAFile]:
         return self.as_pdf(key="preview", refresh=refresh)
 
+    def has_enabled_documents(self, refresh=False) -> bool:
+        """
+        Return True iff there is at least one enabled document
+        in this bundle.
+        """
+        # Use a generator expression for speed
+        return any(document.is_enabled(refresh=refresh) for document in self.elements)
+
     def enabled_documents(self, refresh: bool = True) -> List[Any]:
         """
         Returns the enabled documents
@@ -996,29 +1026,11 @@ class ALDocumentBundle(DAList):
         Args:
             refresh(bool): Controls whether the 'enabled' attribute is reconsidered.
         """
-        if refresh:
-            retval = []
-            for document in self.elements:
-                if document.always_enabled:
-                    enabled = True
-                else:
-                    if hasattr(document.cache, "enabled"):
-                        enabled = document.cache.enabled
-                    else:
-                        document.cache.enabled = document.enabled
-                        enabled = document.cache.enabled
-                    if hasattr(document, "enabled"):
-                        del document.enabled
-                if enabled:
-                    retval.append(document)
-            return retval
-        else:
-            return [
-                document
-                for document in self.elements
-                if (hasattr(document, "always_enabled") and document.always_enabled)
-                or document.enabled
-            ]
+        return [
+            document
+            for document in self.elements
+            if document.is_enabled(refresh=refresh)
+        ]
 
     def as_flat_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
         """
@@ -1266,7 +1278,9 @@ class ALDocumentBundle(DAList):
 
         Optionally, display a checkbox that allows someone to decide whether or not to
         include an editable (Word) copy of the file, iff it is available.
-        """
+        """        
+        if not self.has_enabled_documents():
+            return "" # Don't let people email an empty set of documents
         if not hasattr(self, "_cached_get_email_copy"):
             self._cached_get_email_copy = str(self.get_email_copy)
         if not hasattr(self, "_cached_include_editable_documents"):
