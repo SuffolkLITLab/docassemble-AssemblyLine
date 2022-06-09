@@ -1421,12 +1421,20 @@ class ALExhibit(DAObject):
         self,
         *,
         refresh: bool = False,
-        bates_prefix: str = "",
+        prefix: str = "",
         pdfa: bool = False,
         add_page_numbers: bool = True,
         add_cover_page: bool = True,
         filename: str = None,
     ) -> DAFile:
+        """
+        Params:
+            prefix (str): the prefix for the bates numbering that is applied if
+              add_page_numbers is true
+            add_page_numbers (bool): adds bates numbering to the exhibit if true,
+              starting at the number self.start_page
+            add_cover_page (bool): adds a cover to this exhibit if true
+        """
         safe_key = "_file"
         if pdfa:
             safe_key = safe_key + "_pdfa"
@@ -1447,7 +1455,7 @@ class ALExhibit(DAObject):
             )
 
         if add_page_numbers:
-            concatenated_pages.bates_number(prefix=bates_prefix, start=self.start_page)
+            concatenated_pages.bates_number(prefix=prefix, start=self.start_page)
 
         setattr(self._cache, safe_key, concatenated_pages)
         return getattr(self._cache, safe_key)
@@ -1515,7 +1523,7 @@ class ALExhibitList(DAList):
                 exhibit.as_pdf(
                     add_cover_page=self.include_exhibit_cover_pages,
                     add_page_numbers=add_page_numbers,
-                    bates_prefix=self.bates_prefix,
+                    prefix=self.bates_prefix,
                 )
                 for exhibit in self
             ],
