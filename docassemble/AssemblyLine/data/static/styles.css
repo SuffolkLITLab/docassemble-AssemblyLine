@@ -115,8 +115,10 @@ input[type=number] {
 
 /* Make the footer links and da terms slightly darker for better contrast */
 footer a {
-  color: #0264F7
+  color: #0264F7;
 }
 .daterm {
-  color: #3b842c
+  color: #3b842c;
+  text-decoration: dashed;
+  text-decoration-line: underline;
 }
