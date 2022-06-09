@@ -890,7 +890,7 @@ class ALStaticDocument(DAStaticFile):
         # TODO: this explicit conversion shouldn't be needed
         # Workaround for problem generating thumbnails without it
         return pdf_concatenate(self).show(**kwargs)
-    
+
     def is_enabled(self, **kwargs) -> bool:
         return self.enabled
 
@@ -1278,9 +1278,9 @@ class ALDocumentBundle(DAList):
 
         Optionally, display a checkbox that allows someone to decide whether or not to
         include an editable (Word) copy of the file, iff it is available.
-        """        
+        """
         if not self.has_enabled_documents():
-            return "" # Don't let people email an empty set of documents
+            return ""  # Don't let people email an empty set of documents
         if not hasattr(self, "_cached_get_email_copy"):
             self._cached_get_email_copy = str(self.get_email_copy)
         if not hasattr(self, "_cached_include_editable_documents"):
