@@ -225,3 +225,5 @@ subquestion: |
   **Single file**
   
   ${ al_single_doc_bundle.download_list_html() }
+
+  ${ al_single_doc_bundle.send_button_html() }
