@@ -1,0 +1,105 @@
+---
+# Provide a replacement for the /interviews endpoint in Docassemble
+---
+include: 
+  - docassemble.ALToolbox:display_template.yml
+  - al_settings.yml
+---
+features:
+  small screen navigation: dropdown
+  navigation back button: False
+  javascript:
+    - al_audio.js
+  css:
+    - styles.css
+    - al_audio.css
+  question help button: True
+  question back button: True
+---
+metadata:
+  title: |
+    View saved forms
+  short title: |
+    Saved forms
+  unique session: True    
+---
+modules:
+  - .sessions
+  - docassemble.ALToolbox.misc
+---
+objects:
+  - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="Assembly Line Logo")
+---
+code: |
+  al_logo.alt_text = "Assembly Line Logo"
+---
+default screen parts:
+  title: |
+    ${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }
+  short title: |
+    ${ all_variables(special='metadata').get('short title', AL_ORGANIZATION_TITLE) }
+  title url: |
+    ${ all_variables(special='metadata').get('title url', AL_ORGANIZATION_HOMEPAGE) }
+  exit url: |
+    ${ all_variables(special='metadata').get('exit url', AL_ORGANIZATION_HOMEPAGE) }
+  logo: |
+    <span class="title-container">
+      <span class="al-logo">
+        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+      </span>
+      <span class="al-title">
+        <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>
+        <span class="title-row-2">${all_variables(special='metadata').get('title','').rstrip()}</span>
+      </span>
+    </span>
+  short logo: |
+    <span class="title-container">
+      <span class="al-logo">
+        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+      </span>
+      <span class="al-title">
+        <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>
+        <span class="title-row-2">${ all_variables(special='metadata').get('short title','').rstrip() }</span>
+      </span>
+    </span>    
+---
+mandatory: True
+id: interview list
+question: |
+  View saved progress <span style="float: right;">${ action_button_html(get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE), label="Start a new form", icon="plus-circle", color="primary", size="md") }</span>
+subquestion: |
+  ${ tabbed_templates_html("al-", resume_sessions_template, saved_answer_sets_template, ) }
+---
+template: saved_answer_sets_template
+subject: |
+  Your answer sets :clone:
+content: |
+  View, delete, or rename your answer sets below. To copy an answer set into a
+  new form:
+  
+  1. [Start a new 
+  form](${ get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE) })
+  1. Then, use the menu to load your answer set.
+
+  ${ interview_list_html(view_only=True, delete_action="interview_list_delete_session") }
+---
+template: resume_sessions_template
+subject: |
+  Your forms :folder-open:
+content: |
+  Tap the title of a form to keep working on it or to download your completed
+  documents.
+
+  ${ session_list_html(filename=None, limit=20, offset=session_page) }
+  
+  % if session_page > 0:
+  [< Previous page](${ url_action("update_page_event", page_increment=-1) })
+  % endif  
+  [Next page >](${ url_action("update_page_event", page_increment=1) })
+---
+code: |
+  session_page = 0
+---
+event: update_page_event
+code: |
+  session_page += action_argument("page_increment")

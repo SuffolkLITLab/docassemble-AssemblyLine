@@ -22,6 +22,7 @@ from docassemble.base.util import (
     set_parts,
     user_logged_in,
     validation_error,
+    format_time,
 )
 from docassemble.webapp.users.models import UserModel
 from docassemble.webapp.db_object import init_sqlalchemy
@@ -35,6 +36,7 @@ from .al_document import (
     ALExhibitList,
 )
 import json
+import os
 
 __all__ = [
     "is_file_like",
@@ -50,6 +52,7 @@ __all__ = [
     "load_interview_json",
     "export_interview_variables",
     "is_valid_json",
+    "session_list_html",
 ]
 
 db = init_sqlalchemy()
@@ -238,12 +241,19 @@ def get_saved_interview_list(
     filename: Optional[str] = al_session_store_default_filename,
     user_id: Union[int, str] = None,
     metadata_key_name: str = "metadata",
+    limit:int = 50,
+    offset:int = 0,
+    filename_to_exclude: str = None,
+    exclude_current_filename: bool = True,
 ) -> List[Dict]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
     to add metadata, the result list will include columns containing the metadata.
     If the user is a developer or administrator, setting user_id = None will list all interviews on the server. Otherwise,
     the user is limited to their own sessions.
     """
+    # We use an `offset` instead of a cursor because it is simpler and clearer
+    # while it appears to be performant enough for real-world usage.
+    # Up to ~ 1,000 sessions performs well and is higher than expected for an end-user
     get_sessions_query = text(
         """
            SELECT  userdict.indexno
@@ -275,12 +285,16 @@ def get_saved_interview_list(
     
     AND
     (userdict.filename = :filename OR :filename is null)
+    AND userdict.filename != :filename_to_exclude
+    AND userdict.filename != :current_filename OR :exclude_current_filename is false
     ORDER BY modtime desc 
-    LIMIT 500;
+    LIMIT :limit
+    OFFSET :offset;
     """
     )
 
-    # TODO: decide if we need to handle paging
+    if offset < 0:
+        offset = 0
 
     if not filename:
         filename = None  # Explicitly treat empty string as equivalent to None
@@ -309,6 +323,11 @@ def get_saved_interview_list(
             metadata=metadata_key_name,
             user_id=user_id,
             filename=filename,
+            limit=limit,
+            offset=offset,
+            filename_to_exclude=filename_to_exclude,
+            current_filename=user_info().filename,
+            exclude_current_filename=exclude_current_filename,
         )
     sessions = []
     for session in rs:
@@ -325,18 +344,29 @@ def interview_list_html(
     date_label: str = word("Date"),
     details_label: str = word("Details"),
     actions_label: str = word("Actions"),
+    delete_label: str = word("Delete"),
+    view_label: str = word("View"),
     load_action: str = "al_sessions_fast_forward_session",
     delete_action: str = "al_sessions_delete_session",
-    view_only=False,
+    view_only: bool = False,
+    limit:int = 50,
+    offset:int = 0,
 ) -> str:
-    """Return a string containing an HTML-formatted table with the list of saved answers.
-    Clicking the "load" icon
-    """
+    """Return a string containing an HTML-formatted table with the list of saved answers
+    associated with the specified filename.
 
-    # TODO: think through how to translate this function. Templates probably work best but aren't
-    # convenient to pass around
+    Designed to return a list of "answer sets" and by default clicking a title will
+    trigger an action to load the answers into the current session. This only works as
+    designed when inside an AssemblyLine line interview.
+    """
+    # TODO: Currently, using the `word()` function for translation, but templates
+    # might be more flexible
     answers = get_saved_interview_list(
-        filename=filename, user_id=user_id, metadata_key_name=metadata_key_name
+        filename=filename,
+        user_id=user_id,
+        metadata_key_name=metadata_key_name,
+        limit=limit,
+        offset=offset,
     )
 
     if not answers:
@@ -376,10 +406,10 @@ def interview_list_html(
             {answer.get("original_interview_filename") or answer.get("filename") or "" }
         </td>
         <td>
-          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }"><i class="far fa-trash-alt" title="Delete" aria-hidden="true"></i><span class="sr-only">Delete</span></a>
+          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }"><i class="far fa-trash-alt" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only">{ delete_label }</span></a>
           <a target="_blank" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">
-              <i class="far fa-eye" aria-hidden="true" title="View"></i>
-              <span class="sr-only">View</span>
+              <i class="far fa-eye" aria-hidden="true" title="{ view_label }"></i>
+              <span class="sr-only">{ view_label }</span>
           </a>
         </td>
         """
@@ -388,6 +418,96 @@ def interview_list_html(
 
     return table
 
+def nice_interview_title(
+    answer: Dict[str, str],
+) -> str:
+    if answer.get("title"):
+        return answer.get("title","")
+    if answer.get("filename"):
+        filename = os.path.splitext(os.path.basename(answer.get("filename","")))[0]
+        if ":" in filename:
+            filename = filename.split(":")[1]
+        return filename.replace("_", " ").capitalize()
+    else:
+        return word("Untitled interview")
+
+def session_list_html(
+    filename: Optional[str] = None,
+    user_id: Union[int, str] = None,
+    metadata_key_name: str = "metadata",
+    filename_to_exclude: str = al_session_store_default_filename,
+    exclude_current_filename:bool = True,
+    # name_label: str = word("Title"),
+    date_label: str = word("Date"),
+    details_label: str = word("Details"),
+    actions_label: str = word("Actions"),
+    delete_label: str = word("Delete"),
+    delete_action: str = "interview_list_delete_session",
+    view_label: str = word("View"),
+    limit:int = 50,
+    offset:int = 0,    
+) -> str:
+    """Return a string containing an HTML-formatted table with the list of user sessions.
+    While interview_list_html() is for answer sets, this feature is for standard
+    user sessions. The results exclude the answer set filename by default.
+    """
+
+    # TODO: think through how to translate this function. Templates probably work best but aren't
+    # convenient to pass around
+    answers = get_saved_interview_list(
+        filename=filename,
+        user_id=user_id,
+        metadata_key_name=metadata_key_name,
+        limit=limit,
+        offset=offset,
+        filename_to_exclude=filename_to_exclude,
+        exclude_current_filename=exclude_current_filename,
+    )
+
+    if not answers:
+        return ""
+
+    table = '<div class="table-responsive"><table class="table table-striped al-saved-answer-table">'
+    table += f"""
+    <thead>
+      <th scope="col">
+        &nbsp;
+      </th>
+      <th scope="col">{ date_label }</th>
+      <th scope="col">{ details_label }</th>
+      <th scope="col">{ actions_label }</th>
+      </th>
+    </thead>
+    <tbody>
+"""
+
+    for answer in answers:
+        answer = dict(answer)
+        # Never display the current interview session
+        if answer.get("key") == user_info().session:
+            continue
+        table += """<tr class="al-saved-answer-table-row">"""
+        table += f"""
+        <td><a href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{ nice_interview_title(answer) }</a></td>
+        """
+        table += f"""
+        <td>{ as_datetime(answer.get("modtime")) } <br/>
+            { format_time(as_datetime(answer.get("modtime")).time(), format="h:mm a") }
+        </td>
+        <td>Page { answer.get("steps") or answer.get("num_keys") }
+        </td>
+        <td>
+          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }"><i class="far fa-trash-alt" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only">{ delete_label }</span></a>
+          <a target="_blank" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">
+              <i class="far fa-eye" aria-hidden="true" title="{ view_label }"></i>
+              <span class="sr-only">{ view_label }</span>
+          </a>
+        </td>
+        """
+        table += "</tr>"
+    table += "</tbody></table></div>"
+
+    return table
 
 def rename_interview_answers(
     filename: str,
