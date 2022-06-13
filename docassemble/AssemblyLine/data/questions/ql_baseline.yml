@@ -18,7 +18,7 @@ objects:
   - creditors: ALPeopleList  
   - spouses: ALPeopleList
   - parents: ALPeopleList
-  - decedents: ALPeopleList
+  - decedents: ALPeopleList.using(ask_number=True, target_number=1)
   - interested_parties: ALPeopleList
   - guardians: ALPeopleList
   - adoptees: ALPeopleList  
@@ -631,6 +631,13 @@ question: |
 fields:
   - code: |
       x.name_fields()
+---
+id: name of decedent
+question: |
+  What is the name of the person who died?
+fields:
+  - code: |
+      decedents[0].name_fields()
 ---
 id: how many children
 comment: |
