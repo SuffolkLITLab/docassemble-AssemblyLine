@@ -125,7 +125,7 @@ code: |
   # Username or organization name for Github repositories
   # Used to direct feedback to the right place and to check for
   # the last commit date.
-  github_user = "suffolklitlab" 
+  github_user = get_config("github issues",{}).get("default repository owner","").strip() or "suffolklitlab"
 ---
 code: |
   feedback_form = "docassemble.AssemblyLine:feedback.yml"
