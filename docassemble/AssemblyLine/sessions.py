@@ -327,6 +327,7 @@ def interview_list_html(
     actions_label: str = word("Actions"),
     load_action: str = "al_sessions_fast_forward_session",
     delete_action: str = "al_sessions_delete_session",
+    view_only=False,
 ) -> str:
     """Return a string containing an HTML-formatted table with the list of saved answers.
     Clicking the "load" icon
@@ -361,8 +362,15 @@ def interview_list_html(
         if answer.get("key") == user_info().session:
             continue
         table += """<tr class="al-saved-answer-table-row">"""
+        if view_only:
+            table += f"""
+            <td>{answer.get("title") or answer.get("filename","").replace(":", " ") or "Untitled interview" }</td>
+            """
+        else:
+            table += f"""
+            <td><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{answer.get("title") or answer.get("filename","").replace(":", " ") or "Untitled interview" }</a></td>
+            """
         table += f"""
-        <td><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{answer.get("title") or answer.get("filename","").replace(":", " ") or "Untitled interview" }</a></td>
         <td>{ as_datetime(answer.get("modtime")) }</td>
         <td>Page { answer.get("steps") or answer.get("num_keys") } <br/>
             {answer.get("original_interview_filename") or answer.get("filename") or "" }
@@ -387,7 +395,8 @@ def rename_interview_answers(
     new_name: str,
     metadata_key_name: str = "metadata",
 ) -> None:
-    """Function that changes just the 'title' of an interview, as stored in the dedicated `metadata` column."""
+    """Update the 'title' metadata of an interview, as stored in the dedicated `metadata` column, without touching other
+    metadata that may be present."""
     existing_metadata = get_interview_metadata(
         filename, session_id, metadata_key_name=metadata_key_name
     )
@@ -409,6 +418,36 @@ def rename_interview_answers(
             log(
                 f"Unable to update internal interview subtitle for session {filename}:{session_id} with new name {new_name}"
             )
+
+
+def set_current_session_metadata(
+    data: Dict[str, Any],
+    metadata_key_name: str = "metadata",
+) -> None:
+    """
+    Set metadata for the current session, such as the title, in an unencrypted database entry.
+    This may be helpful for faster SQL queries and reports, such as listing interview answers.
+    """
+    return set_interview_metadata(
+        user_info().filename,
+        user_info().session,
+        data,
+        metadata_key_name=metadata_key_name,
+    )
+
+
+def rename_current_session(
+    new_name: str,
+    metadata_key_name: str = "metadata",
+) -> None:
+    """Update the "title" metadata entry for the current session without changing any other
+    metadata that might be present."""
+    return rename_interview_answers(
+        user_info().filename,
+        user_info().session,
+        new_name,
+        metadata_key_name=metadata_key_name,
+    )
 
 
 def save_interview_answers(
