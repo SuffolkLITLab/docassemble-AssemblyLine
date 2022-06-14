@@ -23,6 +23,7 @@ from docassemble.base.util import (
     user_logged_in,
     validation_error,
     format_time,
+    interview_menu,
 )
 from docassemble.webapp.users.models import UserModel
 from docassemble.webapp.db_object import init_sqlalchemy
@@ -170,6 +171,8 @@ al_sessions_variables_to_remove_from_new_interview = [
     "user_ask_role",
 ]
 
+system_interviews:List[Dict[str, Any]] = interview_menu()
+
 
 def _package_name(package_name: str = None):
     """Get package name without the name of the current module, like: docassemble.ALWeaver instead of
@@ -243,7 +246,7 @@ def get_saved_interview_list(
     metadata_key_name: str = "metadata",
     limit:int = 50,
     offset:int = 0,
-    filename_to_exclude: str = None,
+    filename_to_exclude: str = "",
     exclude_current_filename: bool = True,
 ) -> List[Dict]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
@@ -286,7 +289,7 @@ def get_saved_interview_list(
     AND
     (userdict.filename = :filename OR :filename is null)
     AND userdict.filename != :filename_to_exclude
-    AND userdict.filename != :current_filename OR :exclude_current_filename is false
+    AND userdict.filename != :current_filename
     ORDER BY modtime desc 
     LIMIT :limit
     OFFSET :offset;
@@ -298,6 +301,12 @@ def get_saved_interview_list(
 
     if not filename:
         filename = None  # Explicitly treat empty string as equivalent to None
+    if exclude_current_filename:
+        current_filename = user_info().filename        
+    else:
+        current_filename = ""
+    if not filename_to_exclude:
+        filename_to_exclude = ""
     if user_id is None:
         if user_logged_in():
             user_id = user_info().id
@@ -326,8 +335,7 @@ def get_saved_interview_list(
             limit=limit,
             offset=offset,
             filename_to_exclude=filename_to_exclude,
-            current_filename=user_info().filename,
-            exclude_current_filename=exclude_current_filename,
+            current_filename=current_filename,
         )
     sessions = []
     for session in rs:
@@ -367,6 +375,7 @@ def interview_list_html(
         metadata_key_name=metadata_key_name,
         limit=limit,
         offset=offset,
+        exclude_current_filename=False,        
     )
 
     if not answers:
@@ -394,7 +403,7 @@ def interview_list_html(
         table += """<tr class="al-saved-answer-table-row">"""
         if view_only:
             table += f"""
-            <td>{answer.get("title") or answer.get("filename","").replace(":", " ") or "Untitled interview" }</td>
+            <td>{ nice_interview_title(answer) }</td>
             """
         else:
             table += f"""
@@ -418,18 +427,32 @@ def interview_list_html(
 
     return table
 
+
 def nice_interview_title(
     answer: Dict[str, str],
+    use_metadata: bool = True,
 ) -> str:
-    if answer.get("title"):
-        return answer.get("title","")
+    """
+    Return a human readable version of the interview name. Will try several strategies
+    in descending priority order.
+    1. If the "title" metadata is set, use that
+    2. If no "title" metadata, try looking up the interview title from the `dispatch` directive
+    3. Try removing the package and path from the filename and replace _ with spaces.
+    4. Finally, return "Untitled interview" or translated phrase from system-wide words.yml
+    """
+    if use_metadata and answer.get("title"):
+        return answer.get("title","")    
     if answer.get("filename"):
+        for interview in system_interviews:
+            if answer.get("filename") == interview.get("filename"):
+                return interview.get("title")
         filename = os.path.splitext(os.path.basename(answer.get("filename","")))[0]
         if ":" in filename:
             filename = filename.split(":")[1]
         return filename.replace("_", " ").capitalize()
     else:
         return word("Untitled interview")
+
 
 def session_list_html(
     filename: Optional[str] = None,
@@ -442,8 +465,10 @@ def session_list_html(
     details_label: str = word("Details"),
     actions_label: str = word("Actions"),
     delete_label: str = word("Delete"),
+    rename_label: str = word("Rename"),
     delete_action: str = "interview_list_delete_session",
-    view_label: str = word("View"),
+    copy_action: str = "interview_list_copy_action",
+    clone_label: str = word("Copy as answer set"),
     limit:int = 50,
     offset:int = 0,    
 ) -> str:
@@ -497,11 +522,11 @@ def session_list_html(
         <td>Page { answer.get("steps") or answer.get("num_keys") }
         </td>
         <td>
+          <a href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }"><i class="fa-solid fa-i-cursor" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
+          &nbsp;
+          <a href="{ url_action(copy_action) }"><i class="fa-regular fa-clone" aria-hidden="true" title="{clone_label}"></i><span class="sr-only">{ clone_label }</span></a>
+          &nbsp;
           <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }"><i class="far fa-trash-alt" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only">{ delete_label }</span></a>
-          <a target="_blank" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">
-              <i class="far fa-eye" aria-hidden="true" title="{ view_label }"></i>
-              <span class="sr-only">{ view_label }</span>
-          </a>
         </td>
         """
         table += "</tr>"
