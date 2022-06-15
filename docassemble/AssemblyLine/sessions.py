@@ -403,11 +403,11 @@ def interview_list_html(
         table += """<tr class="al-saved-answer-table-row">"""
         if view_only:
             table += f"""
-            <td>{ nice_interview_title(answer) }</td>
+            <td>{ nice_interview_subtitle(answer) }</td>
             """
         else:
             table += f"""
-            <td><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{answer.get("title") or answer.get("filename","").replace(":", " ") or "Untitled interview" }</a></td>
+            <td><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{ nice_interview_subtitle(answer) }</a></td>
             """
         table += f"""
         <td>{ as_datetime(answer.get("modtime")) }</td>
@@ -430,28 +430,34 @@ def interview_list_html(
 
 def nice_interview_title(
     answer: Dict[str, str],
-    use_metadata: bool = True,
 ) -> str:
     """
     Return a human readable version of the interview name. Will try several strategies
     in descending priority order.
-    1. If the "title" metadata is set, use that
-    2. If no "title" metadata, try looking up the interview title from the `dispatch` directive
-    3. Try removing the package and path from the filename and replace _ with spaces.
+    1. Try looking up the interview title from the `dispatch` directive
+    1. Try removing the package and path from the filename and replace _ with spaces.
     4. Finally, return "Untitled interview" or translated phrase from system-wide words.yml
     """
-    if use_metadata and answer.get("title"):
-        return answer.get("title","")    
     if answer.get("filename"):
         for interview in system_interviews:
-            if answer.get("filename") == interview.get("filename"):
-                return interview.get("title")
+            if answer.get("filename") == interview.get("filename") and interview.get("title"):
+                return interview["title"]
         filename = os.path.splitext(os.path.basename(answer.get("filename","")))[0]
         if ":" in filename:
             filename = filename.split(":")[1]
         return filename.replace("_", " ").capitalize()
     else:
         return word("Untitled interview")
+
+
+def nice_interview_subtitle(answer: Dict[str, str]):
+    """
+    Return either the "title" metadata, or the results of nice_interview_title if undefined
+    """
+    if answer.get("title"):
+        return answer.get("title")
+    else:
+        return nice_interview_title(answer)
 
 
 def session_list_html(
@@ -513,7 +519,10 @@ def session_list_html(
             continue
         table += """<tr class="al-saved-answer-table-row">"""
         table += f"""
-        <td><a href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{ nice_interview_title(answer) }</a></td>
+        <td>
+        <a href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{ nice_interview_title(answer) }</a>
+        { nice_interview_subtitle(answer) if answer.get("title") else "" }
+        </td>
         """
         table += f"""
         <td>{ as_datetime(answer.get("modtime")) } <br/>
@@ -597,26 +606,26 @@ def rename_current_session(
 
 def save_interview_answers(
     filename: str = al_session_store_default_filename,
-    variables_to_filter: Iterable = None,
+    variables_to_filter: Union[Set[str], List[str]] = None,
     metadata: Dict = None,
     metadata_key_name: str = "metadata",
+    source_filename = None,
+    source_session = None,
+
 ) -> str:
-    """Copy the answers from the running session into a new session with the given
-    interview filename."""
+    """Copy the answers from the specified session into a new session with the given
+    interview filename. Typically used to create an answer set."""
     # Avoid using mutable default parameter
     if not variables_to_filter:
         variables_to_filter = al_sessions_variables_to_remove
     if not metadata:
         metadata = {}
 
-    # Get variables from the current session
-    all_vars = all_variables(simplify=False)
-
-    all_vars = {
-        item: all_vars[item]
-        for item in all_vars
-        if not item in variables_to_filter and not is_file_like(all_vars[item])
-    }
+    # Get session variables, from either the specified or current session
+    all_vars = get_filtered_session_variables(
+        filename=source_filename,
+        session_id=source_session,
+        variables_to_filter=variables_to_filter)
 
     try:
         # Sometimes include_internal breaks things
@@ -634,11 +643,11 @@ def save_interview_answers(
     # Create a new session
     new_session_id = create_session(filename)
 
-    # Copy in the variables from this session
+    # Copy in the variables from the specified session
     set_session_variables(filename, new_session_id, all_vars, overwrite=True)
 
     # Add the metadata
-    set_interview_metadata(filename, new_session_id, metadata)
+    set_interview_metadata(filename, new_session_id, metadata, metadata_key_name=metadata_key_name)
     # Make the title display as the subtitle on the "My interviews" page
     if metadata.get("title"):
         try:

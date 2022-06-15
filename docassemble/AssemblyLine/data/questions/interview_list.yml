@@ -107,15 +107,40 @@ code: |
 event: update_page_event
 code: |
   session_page += action_argument("page_increment")
+---
+code: |
+  # Get the existing form's subtitle
+  session_vars = get_session_variables(filename, session_id)
+  existing_subtitle = session_vars.get("_internal",{}).get("subtitle", session_vars.get("_internal",{}).get("title", "Untitled interview"))
+---
+id: copy to answer set
+question: |
+  Copy as answer set
+subquestion: |
+  Before saving your answer set, give the answers a name.
 
+  Pick a name that will help you choose the right answers to use on a new form.
+fields:
+  - Name: al_sessions_copy_as_answer_set_label
+    default: ${ existing_subtitle }
+continue button label: |
+  :save: Save copy
+---
+code: |
+  save_interview_answers(
+      source_filename=existing_filename,
+      source_session=existing_session_id,
+      metadata={
+        "title": al_sessions_copy_as_answer_set_label
+        }
+      )
+  copy_as_answer_set = True
 ---
 id: rename answer
 question: |
   Rename saved answers
 fields:
   - New name: al_sessions_snapshot_new_label
-    default: |
-      ${ all_variables(special='titles').get('sub') }
 continue button label: |
   :save: Save changes
 ---
