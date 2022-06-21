@@ -730,9 +730,9 @@ class ALDocument(DADict):
         Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
         """
         if append_matching_suffix and key == self.suffix_to_append:
-            filename = f"{basename(self.filename)}_{key}"
+            filename = f"{base_name(self.filename)}_{key}"
         else:
-            filename = f"{basename(self.filename)}"
+            filename = f"{base_name(self.filename)}"
         if self.need_addendum():
             try:
                 the_file = docx_concatenate(self.as_list(key=key, refresh=refresh, filename=filename+".docx"))
