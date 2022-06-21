@@ -583,7 +583,7 @@ class ALIndividual(Individual):
             show_if=show_if,
         )
 
-    def gender_fields(self, show_help=False, show_if: str = None):
+    def gender_fields(self, show_help=False, show_if: Union[str, Dict[str, str]] = None):
         """
         Return a standard gender input with "self described" option.
         """
