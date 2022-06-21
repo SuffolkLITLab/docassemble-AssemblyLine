@@ -884,14 +884,10 @@ class ALStaticDocument(DAStaticFile):
         append_matching_suffix: bool = True,
         refresh: bool = False,
     ) -> Union[DAStaticFile, DAFile]:
-        if append_matching_suffix and key == self.suffix_to_append:
-            append_suffix: str = f"_{key}"
-        else:
-            append_suffix = ""
         if not filename:
             filename = self.filename
         return pdf_concatenate(
-            self, pdfa=pdfa, filename=f"{base_name(filename)}{append_suffix}.pdf"
+            self, pdfa=pdfa, filename=f"{base_name(filename)}.pdf"
         )
 
     def as_docx(
