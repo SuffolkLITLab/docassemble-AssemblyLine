@@ -69,7 +69,13 @@ class ALAddress(Address):
     # the built-in address object requires some fields to be defined that we don't want to require of
     # international addresses when you want to render it to text.
 
-    def address_fields(self, country_code=None, default_state=None, show_country=False):
+    def address_fields(
+        self,
+        country_code: str = None,
+        default_state: str = None,
+        show_country: bool = False,
+        show_if: Union[str, Dict[str, str]] = None,
+    ):
         fields = [
             {
                 "label": str(self.address_label),
@@ -129,6 +135,9 @@ class ALAddress(Address):
                 }
             )
             # NOTE: using , "datatype": "combobox" might be nice but does not play together well w/ address autocomplete
+        if show_if:
+            for field in fields:
+                field["show if"] = show_if
         return fields
 
     def formatted_unit(self, language=None, require=False, bare=False):
@@ -442,7 +451,10 @@ class ALIndividual(Individual):
 
     # This design helps us translate the prompts for common fields just once
     def name_fields(
-        self, person_or_business: str = "person", show_suffix: bool = True
+        self,
+        person_or_business: str = "person",
+        show_suffix: bool = True,
+        show_if: Union[str, Dict[str, str]] = None,
     ) -> List[Dict[str, str]]:
         """
         Return suitable field prompts for a name. If `person_or_business` is None, adds the
@@ -473,16 +485,22 @@ class ALIndividual(Individual):
                         "required": False,
                     }
                 )
+            if show_if:
+                for field in fields:
+                    field["show if"] = show_if
             return fields
         elif person_or_business == "business":
             # Note: we don't make use of the name.text field for simplicity
             # TODO: this could be reconsidered`, but name.text tends to lead to developer error
-            return [
+            fields = [
                 {
                     "label": str(self.business_name_label),
                     "field": self.attr_name("name.first"),
                 }
             ]
+            if show_if:
+                fields[0]["show if"] = show_if
+            return fields
         else:
             # Note: the labels are template block objects: if they are keys,
             # they should be converted to strings first
@@ -523,6 +541,9 @@ class ALIndividual(Individual):
                     "show if": show_if_indiv,
                 },
             ]
+            if show_if:
+                fields[0]["show if"] = show_if
+
             if show_suffix:
                 fields.append(
                     {
@@ -548,6 +569,7 @@ class ALIndividual(Individual):
         country_code: str = "US",
         default_state: str = None,
         show_country: bool = False,
+        show_if: Union[str, Dict[str, str]] = None,
     ) -> List[Dict[str, str]]:
         """
         Return field prompts for address.
@@ -558,9 +580,12 @@ class ALIndividual(Individual):
             country_code=country_code,
             default_state=default_state,
             show_country=show_country,
+            show_if=show_if,
         )
 
-    def gender_fields(self, show_help=False):
+    def gender_fields(
+        self, show_help=False, show_if: Union[str, Dict[str, str]] = None
+    ):
         """
         Return a standard gender input with "self described" option.
         """
@@ -577,60 +602,53 @@ class ALIndividual(Individual):
             "field": self.attr_name("gender"),
             "show if": {"variable": self.attr_name("gender"), "is": "self-described"},
         }
+        fields = [
+            {
+                "label": str(self.gender_label),
+                "field": self.attr_name("gender"),
+                "choices": choices,
+            },
+            self_described_input,
+        ]
+
         if show_help:
-            return [
-                {
-                    "label": str(self.gender_label),
-                    "field": self.attr_name("gender"),
-                    "choices": choices,
-                    "help": str(self.gender_help_text),
-                },
-                self_described_input,
-            ]
-        else:
-            return [
-                {
-                    "label": self.gender_label,
-                    "field": self.attr_name("gender"),
-                    "choices": choices,
-                },
-                self_described_input,
-            ]
+            fields[0]["help"] = str(self.gender_help_text)
+        if show_if:
+            fields[0]["show if"] = show_if
+
+        return fields
 
     def language_fields(
         self,
-        choices: List[Dict[str, str]] = [
-            {"English": "en"},
-            {"Spanish": "es"},
-            {"Other": "other"},
-        ],
+        choices: List[Dict[str, str]] = None,
         style: str = "radio",
+        show_if: Union[str, Dict[str, str]] = None,
     ):
         """Return a standard language picker with an "other" input. Language should be specified as ISO 639-2 or -3 codes so it is compatible with the language_name() function."""
+        if not choices:
+            choices = [
+                {"English": "en"},
+                {"Spanish": "es"},
+                {"Other": "other"},
+            ]
         other = {
             "label": str(self.language_other_label),
             "field": self.attr_name("language_other"),
             "show if": {"variable": self.attr_name("language"), "is": "other"},
         }
+        fields = [
+            {
+                "label": str(self.language_label),
+                "field": self.attr_name("language"),
+                "choices": choices,
+            },
+            other,
+        ]
         if style == "radio":
-            return [
-                {
-                    "label": str(self.language_label),
-                    "field": self.attr_name("language"),
-                    "input type": "radio",
-                    "choices": choices,
-                },
-                other,
-            ]
-        else:
-            return [
-                {
-                    "label": str(self.language_label),
-                    "field": self.attr_name("language"),
-                    "choices": choices,
-                },
-                other,
-            ]
+            fields[0]["input type"] = "radio"
+        if show_if:
+            fields[0]["show if"] = show_if
+        return fields
 
     def language_name(self):
         """Return the human-readable version of the individual's language, handling the "other" option."""
