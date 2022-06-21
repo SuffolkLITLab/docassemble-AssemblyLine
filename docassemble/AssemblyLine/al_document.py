@@ -737,7 +737,8 @@ class ALDocument(DADict):
         if self.need_addendum():
             try:
                 the_file = docx_concatenate(
-                    self.as_list(key=key, refresh=refresh, filename=filename + ".docx")
+                    self.as_list(key=key, refresh=refresh),
+                    filename=filename + ".docx",
                 )
                 the_file.title = self.title
                 return the_file
@@ -1802,7 +1803,12 @@ class ALExhibitDocument(ALDocument):
                     pdfa=pdfa,
                 )
 
-    def as_docx(self, key: str = "bool", refresh: bool = True) -> DAFile:
+    def as_docx(
+        self,
+        key: str = "bool",
+        refresh: bool = True,
+        append_matching_suffix: bool = True,
+    ) -> DAFile:
         return self.as_pdf()
 
 
@@ -1852,7 +1858,12 @@ class ALTableDocument(ALDocument):
         )
         return self.file
 
-    def as_docx(self, key: str = "final", refresh: bool = True, **kwargs) -> DAFile:
+    def as_docx(
+        self,
+        key: str = "bool",
+        refresh: bool = True,
+        append_matching_suffix: bool = True,
+    ) -> DAFile:
         return self.as_pdf()
 
 
@@ -1888,7 +1899,12 @@ class ALUntransformedDocument(ALDocument):
         """
         return self[key]
 
-    def as_docx(self, key: str = "final", refresh: bool = True, **kwargs) -> DAFile:
+    def as_docx(
+        self,
+        key: str = "bool",
+        refresh: bool = True,
+        append_matching_suffix: bool = True,
+    ) -> DAFile:
         return self[key]
 
 
