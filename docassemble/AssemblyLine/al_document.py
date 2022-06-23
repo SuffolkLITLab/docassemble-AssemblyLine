@@ -905,9 +905,7 @@ class ALStaticDocument(DAStaticFile):
     ) -> Union[DAStaticFile, DAFile]:
         if not filename:
             filename = self.filename
-        return pdf_concatenate(
-            self, pdfa=pdfa, filename=f"{base_name(filename)}.pdf"
-        )
+        return pdf_concatenate(self, pdfa=pdfa, filename=f"{base_name(filename)}.pdf")
 
     def as_docx(
         self,
