@@ -49,6 +49,10 @@ __all__ = [
 DEBUG_MODE = get_config("debug")
 
 
+def base_name(filename: str) -> str:
+    return os.path.splitext(filename)[0]
+
+
 def label(dictionary):
     """Given a dictionary like: {"some_attribute":"Some label"}, return the `value` of the first dictionary item.
     Useful for working with the `columns` method of an ALAddendumField.
@@ -652,18 +656,29 @@ class ALDocument(DADict):
             self.has_addendum = False
         self.initializeAttribute("cache", DALazyAttribute)
         self.always_enabled = hasattr(self, "enabled") and self.enabled
+        if not hasattr(self, "suffix_to_append"):
+            # When the key is "preview", append it to the file name
+            self.suffix_to_append = "preview"
 
     def as_pdf(
-        self, key: str = "final", refresh: bool = True, pdfa: bool = False
+        self,
+        key: str = "final",
+        refresh: bool = True,
+        pdfa: bool = False,
+        append_matching_suffix: bool = True,
     ) -> DAFile:
         # Trigger some stuff up front to avoid idempotency problems
-        filename = self.filename
         self.title
         self.need_addendum()
-        if not filename.endswith(".pdf"):
-            filename += ".pdf"
 
         safe_key = space_to_underscore(key)
+
+        if append_matching_suffix and key == self.suffix_to_append:
+            append_suffix: str = f"_{safe_key}"
+        else:
+            append_suffix = ""
+        filename = f"{base_name(self.filename)}{append_suffix}.pdf"
+
         # The PDF/A version of the document is a different file than the normal PDF,
         # so differentiate that when checking the cache
         if pdfa:
@@ -680,7 +695,12 @@ class ALDocument(DADict):
         if isinstance(main_doc, DAFileCollection):
             main_doc = main_doc.pdf
             main_doc.title = self.title
-            main_doc.filename = filename  # Not sure if this works?
+            main_doc.filename = filename
+            try:
+                main_doc.set_attributes(filename=filename)
+                main_doc.set_mimetype("application/pdf")
+            except:
+                pass
 
         if self.need_addendum():
             if refresh:
@@ -701,13 +721,25 @@ class ALDocument(DADict):
             setattr(self.cache, safe_key, main_doc)
             return main_doc
 
-    def as_docx(self, key: str = "final", refresh: bool = True) -> DAFile:
+    def as_docx(
+        self,
+        key: str = "final",
+        refresh: bool = True,
+        append_matching_suffix: bool = True,
+    ) -> DAFile:
         """
         Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
         """
+        if append_matching_suffix and key == self.suffix_to_append:
+            filename = f"{base_name(self.filename)}_{key}"
+        else:
+            filename = f"{base_name(self.filename)}"
         if self.need_addendum():
             try:
-                the_file = docx_concatenate(self.as_list(key=key, refresh=refresh))
+                the_file = docx_concatenate(
+                    self.as_list(key=key, refresh=refresh),
+                    filename=filename + ".docx",
+                )
                 the_file.title = self.title
                 return the_file
             except:
@@ -716,9 +748,10 @@ class ALDocument(DADict):
         if self._is_docx(key=key):
             the_file = self[key].docx
             the_file.title = self.title
+            the_file.set_attributes(filename=filename + ".docx")
             return the_file
 
-        return self.as_pdf(key=key)
+        return self.as_pdf(key=key, append_matching_suffix=append_matching_suffix)
 
     def _is_docx(self, key: str = "final"):
         """Returns True iff the file is a DOCX."""
@@ -850,6 +883,9 @@ class ALStaticDocument(DAStaticFile):
         self.gathered = True
         self.initializeAttribute("cache", DALazyAttribute)
         self.always_enabled = hasattr(self, "enabled") and self.enabled
+        if not hasattr(self, "suffix_to_append"):
+            # When the key is "preview", append it to the file name
+            self.suffix_to_append = "preview"
 
     def __getitem__(self, key):
         # This overrides the .get() method so that the 'final' and 'private' key always exist and
@@ -860,20 +896,37 @@ class ALStaticDocument(DAStaticFile):
         return [self]
 
     def as_pdf(
-        self, key: str = "final", pdfa: bool = False, refresh: bool = True
-    ) -> DAStaticFile:
-        return pdf_concatenate(self, pdfa=pdfa)
+        self,
+        key: str = "final",
+        pdfa: bool = False,
+        filename: str = "",
+        append_matching_suffix: bool = True,
+        refresh: bool = False,
+    ) -> Union[DAStaticFile, DAFile]:
+        if not filename:
+            filename = self.filename
+        return pdf_concatenate(
+            self, pdfa=pdfa, filename=f"{base_name(filename)}.pdf"
+        )
 
     def as_docx(
-        self, key: str = "final", refresh: bool = True
+        self,
+        key: str = "final",
+        refresh: bool = True,
+        append_matching_suffix: bool = False,
     ) -> Union[DAStaticFile, DAFile]:
         """
         Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
+        The "append_matching_suffix" parameter is not used for static documents. They are always
+        left unchanged.
         """
         if self._is_docx():
             return self
         else:
-            return self.as_pdf(key=key)
+            # Don't apply the append_matching_suffix strategy to static files because it would
+            # be difficult to make consistent between DOCX and PDF, and would have
+            # negative performance implications. By definition static files have only one version
+            return self.as_pdf(key=key, append_matching_suffix=False)
 
     def _is_docx(self, key: str = "final"):
         if hasattr(self, "extension") and self.extension.lower() == "docx":
@@ -928,9 +981,16 @@ class ALDocumentBundle(DAList):
         self.always_enabled = hasattr(self, "enabled") and self.enabled
         # Pre-cache some DALazyTemplates we set up to aid translation that won't
         # vary at runtime
+        if not hasattr(self, "suffix_to_append"):
+            # When the key is "preview", append it to the file name
+            self.suffix_to_append = "preview"
 
     def as_pdf(
-        self, key: str = "final", refresh: bool = True, pdfa: bool = False
+        self,
+        key: str = "final",
+        refresh: bool = True,
+        pdfa: bool = False,
+        append_matching_suffix: bool = True,
     ) -> Optional[DAFile]:
         """Returns the Bundle as a single PDF DAFile, or None if none of the documents are enabled."""
         safe_key = space_to_underscore(key)
@@ -940,22 +1000,33 @@ class ALDocumentBundle(DAList):
         if hasattr(self.cache, safe_key):
             return getattr(self.cache, safe_key)
 
-        if self.filename.endswith(".pdf"):
-            ending = ""
+        # When running automated tests, the "preview" version of the file is
+        # downloaded along with the final. Previously, the final version
+        # ovewrote the preview version. This makes the tests more useful by
+        # appending _preview to the name of the preview document.
+        if not hasattr(self, "suffix_to_append"):  # for existing interviews
+            self.suffix_to_append = "preview"
+        if append_matching_suffix and key == self.suffix_to_append:
+            append_suffix: str = f"_{key}"
         else:
-            ending = ".pdf"
+            append_suffix = ""
         files = self.enabled_documents(refresh=refresh)
         if len(files) == 0:
             # In the case of no enabled files, avoid errors
             return None
         elif len(files) == 1:
             # This case is simplest--we do not need to process the document at this level
-            pdf = files[0].as_pdf(key=key, refresh=refresh, pdfa=pdfa)
+            pdf = files[0].as_pdf(
+                key=key,
+                refresh=refresh,
+                pdfa=pdfa,
+                append_matching_suffix=append_matching_suffix,
+            )
             pdf.title = self.title
         else:
             pdf = pdf_concatenate(
                 [document.as_pdf(key=key, refresh=refresh) for document in files],
-                filename=self.filename + ending,
+                filename=f"{base_name(self.filename)}{append_suffix}.pdf",
                 pdfa=pdfa,
             )
         pdf.title = self.title
@@ -996,7 +1067,11 @@ class ALDocumentBundle(DAList):
             docs = [doc[key] for doc in self.enabled_documents(refresh=refresh)]
         else:
             docs = [
-                doc.as_pdf(key=key, refresh=refresh, pdfa=pdfa)
+                doc.as_pdf(
+                    key=key,
+                    refresh=refresh,
+                    pdfa=pdfa,
+                )
                 for doc in self.enabled_documents(refresh=refresh)
             ]
         zip = zip_file(docs, filename=zipname + ".zip")
@@ -1115,6 +1190,7 @@ class ALDocumentBundle(DAList):
         download_icon: str = "download",
         zip_label: str = None,
         zip_icon: str = "file-archive",
+        append_matching_suffix: bool = True,
     ) -> str:
         """
         Returns string of a table to display a list
@@ -1134,7 +1210,10 @@ class ALDocumentBundle(DAList):
             doc.title
             if format == "pdf":
                 doc.as_pdf(
-                    key=key, refresh=refresh, pdfa=pdfa
+                    key=key,
+                    refresh=refresh,
+                    pdfa=pdfa,
+                    append_matching_suffix=append_matching_suffix,
                 )  # Generate cached file for this session
 
         html = f'<table class="al_table" id="{ html_safe_str(self.instanceName) }">'
@@ -1146,10 +1225,14 @@ class ALDocumentBundle(DAList):
                 download_doc = doc[key]
                 download_filename = doc.filename
             if format == "docx" and doc._is_docx(key=key):
-                download_doc = doc.as_docx(key=key)
+                download_doc = doc.as_docx(
+                    key=key, append_matching_suffix=append_matching_suffix
+                )
                 download_filename = filename_root + ".docx"
             else:
-                download_doc = doc.as_pdf(key=key)
+                download_doc = doc.as_pdf(
+                    key=key, append_matching_suffix=append_matching_suffix
+                )
                 download_filename = filename_root + ".pdf"
 
             try:
@@ -1180,7 +1263,9 @@ class ALDocumentBundle(DAList):
             if view and doc.as_pdf().url_for().endswith(".pdf"):
                 doc_view_button = action_button_html(
                     doc.as_pdf(key=key).url_for(
-                        attachment=False, display_filename=filename_root + ".pdf"
+                        attachment=False,
+                        display_filename=filename_root + ".pdf",
+                        append_matching_suffix=append_matching_suffix,
                     ),
                     label=view_label,
                     icon=view_icon,
@@ -1379,6 +1464,9 @@ class ALExhibit(DAObject):
         self.object_type = DAFileList
         if not hasattr(self, "starting_page"):
             self.start_page = 1
+        if not hasattr(self, "suffix_to_append"):
+            # When the key is "preview", append it to the file name
+            self.suffix_to_append = "preview"
 
     def _start_ocr(self):
         """
@@ -1440,6 +1528,7 @@ class ALExhibit(DAObject):
         add_page_numbers: bool = True,
         add_cover_page: bool = True,
         filename: str = None,
+        append_matching_suffix: bool = True,
     ) -> DAFile:
         """
         Params:
@@ -1514,6 +1603,9 @@ class ALExhibitList(DAList):
             self.bates_prefix = ""
         self.object_type = ALExhibit
         self.complete_attribute = "complete"
+        if not hasattr(self, "suffix_to_append"):
+            # When the key is "preview", append it to the file name
+            self.suffix_to_append = "preview"
 
     def as_pdf(
         self,
@@ -1521,6 +1613,7 @@ class ALExhibitList(DAList):
         pdfa: bool = False,
         add_page_numbers: bool = False,
         toc_pages: int = 0,
+        append_matching_suffix: bool = True,
     ) -> DAFile:
         """
         Return a single PDF containing all exhibits.
@@ -1659,6 +1752,9 @@ class ALExhibitDocument(ALDocument):
         if not hasattr(self, "add_page_numbers"):
             self.add_page_numbers = False
         self.has_addendum = False
+        if not hasattr(self, "suffix_to_append"):
+            # When the key is "preview", append it to the file name
+            self.suffix_to_append = "preview"
 
     def has_overflow(self):
         """
@@ -1680,13 +1776,24 @@ class ALExhibitDocument(ALDocument):
     def as_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
         return [self]
 
-    def as_pdf(self, key="final", refresh: bool = True, pdfa: bool = False) -> DAFile:
+    def as_pdf(
+        self,
+        key="final",
+        refresh: bool = True,
+        pdfa: bool = False,
+        append_matching_suffix: bool = True,
+    ) -> DAFile:
         """
         Args:
             key (str): unused, for signature compatibility with ALDocument
             refresh (bool): unused, for signature compatibility with ALDocument
         """
-        filename = os.path.splitext(self.filename)[0] + ".pdf"
+        if not hasattr(self, "suffix_to_append"):
+            self.suffix_to_append = "preview"
+        if append_matching_suffix and key == self.suffix_to_append:
+            filename = f"{base_name(self.filename)}_{key}.pdf"
+        else:
+            filename = base_name(self.filename) + ".pdf"
 
         if len(self.exhibits):
             if self.include_table_of_contents:
@@ -1706,7 +1813,12 @@ class ALExhibitDocument(ALDocument):
                     pdfa=pdfa,
                 )
 
-    def as_docx(self, key: str = "bool", refresh: bool = True) -> DAFile:
+    def as_docx(
+        self,
+        key: str = "bool",
+        refresh: bool = True,
+        append_matching_suffix: bool = True,
+    ) -> DAFile:
         return self.as_pdf()
 
 
@@ -1714,6 +1826,9 @@ class ALTableDocument(ALDocument):
     def init(self, *pargs, **kwargs):
         super().init(*pargs, **kwargs)
         self.has_addendum = False
+        if not hasattr(self, "suffix_to_append"):
+            # When the key is "preview", append it to the file name
+            self.suffix_to_append = "preview"
 
     def has_overflow(self):
         """
@@ -1732,20 +1847,33 @@ class ALTableDocument(ALDocument):
         return [self[key]]
 
     def as_pdf(
-        self, key: str = "final", refresh: bool = True, pdfa: bool = False, **kwargs
+        self,
+        key: str = "final",
+        refresh: bool = True,
+        pdfa: bool = False,
+        append_matching_suffix: bool = True,
+        **kwargs,
     ) -> DAFile:
         """
         Args:
             key (str): unused, for signature compatibility with ALDocument
         """
+        if not hasattr(self, "suffix_to_append"):
+            # When the key is "preview", append it to the file name
+            self.suffix_to_append = "preview"
         if hasattr(self, "file"):
             return self.file
         self.file: DAFile = self.table.export(
-            self.filename + ".xlsx", title=self.filename
+            base_name(self.filename) + ".xlsx", title=self.filename
         )
         return self.file
 
-    def as_docx(self, key: str = "final", refresh: bool = True, **kwargs) -> DAFile:
+    def as_docx(
+        self,
+        key: str = "bool",
+        refresh: bool = True,
+        append_matching_suffix: bool = True,
+    ) -> DAFile:
         return self.as_pdf()
 
 
@@ -1753,6 +1881,8 @@ class ALUntransformedDocument(ALDocument):
     def init(self, *pargs, **kwargs):
         super().init(*pargs, **kwargs)
         self.has_addendum = False
+        if not hasattr(self, "suffix_to_append"):
+            self.suffix_to_append = "preview"
 
     def has_overflow(self):
         """
@@ -1766,7 +1896,12 @@ class ALUntransformedDocument(ALDocument):
         return [self[key]]
 
     def as_pdf(
-        self, key: str = "final", refresh: bool = True, pdfa: bool = False, **kwargs
+        self,
+        key: str = "final",
+        refresh: bool = True,
+        pdfa: bool = False,
+        append_matching_suffix: bool = True,
+        **kwargs,
     ) -> DAFile:
         """
         Args:
@@ -1774,7 +1909,12 @@ class ALUntransformedDocument(ALDocument):
         """
         return self[key]
 
-    def as_docx(self, key: str = "final", refresh: bool = True, **kwargs) -> DAFile:
+    def as_docx(
+        self,
+        key: str = "bool",
+        refresh: bool = True,
+        append_matching_suffix: bool = True,
+    ) -> DAFile:
         return self[key]
 
 
