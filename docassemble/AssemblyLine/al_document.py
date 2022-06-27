@@ -1445,6 +1445,9 @@ class ALDocumentBundle(DAList):
                 **kwargs,
             )
 
+    def is_enabled(self, refresh=True):
+        return self.has_enabled_documents(refresh=refresh)
+
 
 class ALExhibit(DAObject):
     """Class to represent a single exhibit, with cover page, which may contain multiple documents representing pages.
