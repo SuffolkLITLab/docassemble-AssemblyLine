@@ -4,6 +4,7 @@ from docassemble.base.util import (
     DAFile,
     DAFileCollection,
     DAFileList,
+    DADateTime,
     get_session_variables,
     set_session_variables,
     set_variables,
@@ -23,7 +24,9 @@ from docassemble.base.util import (
     user_logged_in,
     validation_error,
     format_time,
+    get_default_timezone,
     interview_menu,
+    get_config,
 )
 from docassemble.webapp.users.models import UserModel
 from docassemble.webapp.db_object import init_sqlalchemy
@@ -38,6 +41,7 @@ from .al_document import (
 )
 import json
 import os
+import backports.zoneinfo as zoneinfo
 
 __all__ = [
     "is_file_like",
@@ -54,6 +58,7 @@ __all__ = [
     "export_interview_variables",
     "is_valid_json",
     "session_list_html",
+    "delete_interview_sessions",
 ]
 
 db = init_sqlalchemy()
@@ -268,6 +273,7 @@ def get_saved_interview_list(
            ,jsonstorage.data->'title' as title
            ,jsonstorage.data->'description' as description
            ,jsonstorage.data->'steps' as steps
+           ,jsonstorage.data->'progress' as progress
            ,jsonstorage.data->'original_interview_filename' as original_interview_filename
            ,jsonstorage.data->'answer_count' as answer_count
            ,jsonstorage.data as data
@@ -344,6 +350,53 @@ def get_saved_interview_list(
     return sessions
 
 
+def delete_interview_sessions(
+    user_id:int=None,
+    filename_to_exclude: str = al_session_store_default_filename,
+    exclude_current_filename: bool = True,
+)->None:
+    """
+    Delete all sessions for the specified user, excluding the current filename
+    and by default, the intentionally saved "answer sets". Created because
+    interview_list(action="delete_all") is both quite slow and because it deletes answer sets.
+    """
+    if not user_logged_in():
+          log("User that is not logged in does not have permission to delete any sessions")
+          return None        
+    delete_sessions_query = text(
+        """
+        DELETE FROM userdictkeys
+        WHERE user_id = :user_id
+        AND
+        filename != :filename_to_exclude
+        AND
+        filename != :current_filename
+        ;
+        """
+    )
+    if not user_id:
+        user_id = user_info().id
+    if user_id != user_info().id and not user_has_privilege(["developer", "admin"]):
+      user_id = user_info().id
+      log(f"User {user_info().id} does not have permission to delete sessions that do not belong to them.")
+    if exclude_current_filename:
+        current_filename = user_info().filename or ""
+    else:
+        current_filename = ""
+    if not filename_to_exclude:
+        filename_to_exclude = ""
+        
+    log(f"Deleting sessions with {user_id} {filename_to_exclude} {current_filename}")        
+    
+    with db.connect() as connection:
+        connection.execute(
+            delete_sessions_query,
+            user_id=user_id,
+            filename_to_exclude=filename_to_exclude,
+            current_filename=current_filename,
+        )
+
+        
 def interview_list_html(
     filename: str = al_session_store_default_filename,
     user_id: Union[int, str] = None,
@@ -460,18 +513,47 @@ def nice_interview_subtitle(answer: Dict[str, str]):
         return nice_interview_title(answer)
 
 
+def radial_progress(answer: Dict[str,str]):
+    """
+    Return HTML for a radial progress bar, or the number of steps if progress isn't available in the metadata.
+    """
+    if not answer.get("progress"):
+        return f"Page {answer.get('steps') or answer.get('num_keys') or 1}"
+    
+    # For simulation purposes, assume a form is complete at page 30
+    progress = answer.get("progress") or (answer.get("steps") or answer.get("num_keys") or 1) * 4
+    
+    # Get a number divisible by 10 and between 0 and 100 (percentage)        
+    nearest_10 = min(max(round(progress/10)*10, 0), 100)
+    return f"""
+      <div class="radialProgressBar progress-{ nearest_10 }">
+          <div class="overlay">{ nearest_10 }%</div>
+        </div>
+    """
+
+  
+def local_date(utcstring:str)-> DADateTime:
+    return as_datetime(
+        utcstring
+    ).replace(
+        tzinfo=zoneinfo.ZoneInfo("UTC")
+    ).astimezone(
+        zoneinfo.ZoneInfo(get_default_timezone())
+    )
+  
 def session_list_html(
     filename: Optional[str] = None,
     user_id: Union[int, str] = None,
     metadata_key_name: str = "metadata",
     filename_to_exclude: str = al_session_store_default_filename,
     exclude_current_filename:bool = True,
-    # name_label: str = word("Title"),
-    date_label: str = word("Date"),
-    details_label: str = word("Details"),
+    name_label: str = word("Title"),
+    date_label: str = word("Date modified"),
+    details_label: str = word("Progress"),
     actions_label: str = word("Actions"),
     delete_label: str = word("Delete"),
     rename_label: str = word("Rename"),
+    rename_action: str = "interview_list_rename_action",
     delete_action: str = "interview_list_delete_session",
     copy_action: str = "interview_list_copy_action",
     clone_label: str = word("Copy as answer set"),
@@ -502,7 +584,7 @@ def session_list_html(
     table += f"""
     <thead>
       <th scope="col">
-        &nbsp;
+       { name_label }
       </th>
       <th scope="col">{ date_label }</th>
       <th scope="col">{ details_label }</th>
@@ -517,25 +599,66 @@ def session_list_html(
         # Never display the current interview session
         if answer.get("key") == user_info().session:
             continue
+        url_ask_rename = url_ask(
+            [
+                {"undefine": ["al_sessions_snapshot_new_label"]}, 
+                {"action": rename_action, "arguments": 
+                    {
+                        "session": answer.get("key"), 
+                        "filename": answer.get("filename"), 
+                        "title": answer.get("title") or ""}
+                }
+            ]
+        )
+        url_ask_copy = url_ask(
+            [
+                {"undefine": ["al_sessions_copy_as_answer_set_label"]}, 
+                {"action": copy_action, "arguments": 
+                    {
+                        "session": answer.get("key"), 
+                        "filename": answer.get("filename"), 
+                        "title": answer.get("title") or "",
+                        "original_interview_filename": nice_interview_title(answer),
+                    }
+                }
+            ]
+        )
+        url_ask_delete = url_ask(
+            [
+                {"action": delete_action, "arguments": 
+                    {
+                        "session": answer.get("key"), 
+                        "filename": answer.get("filename"), 
+                    }
+                }
+            ]
+        )
+        
         table += """<tr class="al-saved-answer-table-row">"""
         table += f"""
         <td>
         <a href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{ nice_interview_title(answer) }</a>
-        { nice_interview_subtitle(answer) if answer.get("title") else "" }
+        {"<br/>" if answer.get("title") else ""}
+        <span class="al-session-title">{ nice_interview_subtitle(answer) if answer.get("title") else "" }</span>
         </td>
         """
         table += f"""
-        <td>{ as_datetime(answer.get("modtime")) } <br/>
-            { format_time(as_datetime(answer.get("modtime")).time(), format="h:mm a") }
+        <td>{ local_date(answer.get("modtime")) } <br/>
+            { format_time(local_date(answer.get("modtime")).time(), format="h:mm a") }
         </td>
-        <td>Page { answer.get("steps") or answer.get("num_keys") }
+        <td class="al-progress-box">{ radial_progress(answer) }
         </td>
         <td>
-          <a href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }"><i class="fa-solid fa-i-cursor" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
+          <a href="{ url_ask_rename }"><i class="fa-solid fa-i-cursor" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
+        """
+        if get_config("assembly line",{}).get("enable answer sets"):
+          table += f"""
           &nbsp;
-          <a href="{ url_action(copy_action) }"><i class="fa-regular fa-clone" aria-hidden="true" title="{clone_label}"></i><span class="sr-only">{ clone_label }</span></a>
+          <a href="{ url_ask_copy }"><i class="fa-regular fa-clone" aria-hidden="true" title="{clone_label}"></i><span class="sr-only">{ clone_label }</span></a>
+          """
+        table += f"""
           &nbsp;
-          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }"><i class="far fa-trash-alt" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only">{ delete_label }</span></a>
+          <a href="{ url_ask_delete }"><i class="far fa-trash-alt" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only">{ delete_label }</span></a>
         </td>
         """
         table += "</tr>"
@@ -609,6 +732,7 @@ def save_interview_answers(
     variables_to_filter: Union[Set[str], List[str]] = None,
     metadata: Dict = None,
     metadata_key_name: str = "metadata",
+    original_interview_filename = None,
     source_filename = None,
     source_session = None,
 
@@ -634,10 +758,13 @@ def save_interview_answers(
         )
     except:
         metadata["steps"] = -1
-
-    metadata["original_interview_filename"] = all_variables(special="metadata").get(
-        "title", user_info().filename.replace(":", " ").replace(".", " ")
-    )
+    
+    if original_interview_filename:
+        metadata["original_interview_filename"] = original_interview_filename
+    else:
+        metadata["original_interview_filename"] = all_variables(special="metadata").get(
+            "title", user_info().filename.replace(":", " ").replace(".", " ")
+        )
     metadata["answer_count"] = len(all_vars)
 
     # Create a new session
@@ -800,3 +927,6 @@ def is_valid_json(json_string: str) -> bool:
         validation_error("Enter a valid JSON-formatted string")
         return False
     return True
+
+  
+  

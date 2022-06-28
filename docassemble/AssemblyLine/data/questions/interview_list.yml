@@ -14,6 +14,7 @@ features:
   css:
     - styles.css
     - al_audio.css
+    - interview_list.css    
   question help button: True
   question back button: False
 ---
@@ -22,7 +23,7 @@ metadata:
     In progress forms
   short title: |
     In progress forms
-  unique session: True    
+  temporary session: True    
 ---
 modules:
   - .sessions
@@ -36,9 +37,17 @@ code: |
 ---
 default screen parts:
   title: |
-    ${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }
+    % if get_config("interview page title"):
+    ${ get_config("interview page title") }
+    % else:    
+    ${ AL_ORGANIZATION_TITLE }
+    % endif
   short title: |
-    ${ all_variables(special='metadata').get('short title', AL_ORGANIZATION_TITLE) }
+    % if get_config("interview page title"):
+    ${ get_config("interview page title") }
+    % else:    
+    ${ AL_ORGANIZATION_TITLE }
+    % endif 
   title url: |
     ${ all_variables(special='metadata').get('title url', AL_ORGANIZATION_HOMEPAGE) }
   exit url: |
@@ -64,27 +73,45 @@ default screen parts:
       </span>
     </span>
 ---
+mandatory: True
+code: |
+  if get_config("assembly line",{}).get("enable answer sets"):
+    nav.unhide()
+  else:
+    nav.hide()
+  section_in_progress_forms
+---
 sections:
   - section_in_progress_forms: In progress forms
   - section_answer_sets: Answer sets
 progressive: False
 ---
-mandatory: True
 event: section_in_progress_forms
 id: interview list
 question: |
-  In progress forms <span style="float: right;">${ action_button_html(get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE), label="Start a new form", icon="plus-circle", color="primary", size="md") }</span>
+  % if get_config("interview page heading"):
+  ${ get_config("interview page heading") }
+  % else:
+  In progress forms 
+  % endif
+  <span style="float: right;">${ action_button_html(get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE), label="Start a new form", icon="plus-circle", color="primary", size="md") }</span>
 subquestion: |
+  % if get_config("interview page pre"):
+  ${ get_config("interview page pre") }
+  % else:
   Tap the title of a form to keep working on it or to download your completed
   documents.
+  % endif
 
   ${ session_list_html(filename=None, limit=20, offset=session_page) }
   
   % if session_page > 0:
   [< Previous page](${ url_action("update_page_event", page_increment=-1) })
   % endif  
-  [Next page >](${ url_action("update_page_event", page_increment=1) })
+  [Next page >](${ url_action("update_page_event", page_increment=1) })  
 section: section_in_progress_forms
+under: |
+  ${ action_button_html(url_action("interview_list_delete_all"), label="Delete All", size="md", color="danger", icon="trash-can") }
 ---
 event: section_answer_sets
 id: answer set list
@@ -122,25 +149,28 @@ subquestion: |
   Pick a name that will help you choose the right answers to use on a new form.
 fields:
   - Name: al_sessions_copy_as_answer_set_label
-    default: ${ existing_subtitle }
+    default: ${ action_argument("title") or "" }
 continue button label: |
   :save: Save copy
 ---
 code: |
   save_interview_answers(
-      source_filename=existing_filename,
-      source_session=existing_session_id,
+      source_filename=action_argument("filename"),
+      source_session=action_argument("session"),
       metadata={
         "title": al_sessions_copy_as_answer_set_label
-        }
+      },
+      original_interview_filename=action_argument("original_interview_filename"),        
       )
-  copy_as_answer_set = True
+  log("Copied answers", "success")      
+  interview_list_copy_action = True
 ---
 id: rename answer
 question: |
   Rename saved answers
 fields:
   - New name: al_sessions_snapshot_new_label
+    default: ${ action_argument("title") or "" }
 continue button label: |
   :save: Save changes
 ---
@@ -148,3 +178,25 @@ code: |
   rename_interview_answers(user_info().filename, user_info().session, new_name = al_sessions_snapshot_new_label)
   log("New name saved", "success")
   al_sessions_rename_session = True
+---
+code: |
+  al_sessions_snapshot_new_label
+  try:
+      rename_interview_answers(action_argument("filename"), action_argument("session"), new_name = al_sessions_snapshot_new_label)
+      log(f"New name saved", "success")
+  except:
+      log("Problem saving new name", "danger")
+  interview_list_rename_action = True
+---
+code: |
+  interview_list(action="delete", filename=action_argument("filename"), session=action_argument("session"))  
+  log("Deleted answers", "success")
+  interview_list_delete_session = True
+---
+code: |
+  try:
+      delete_interview_sessions(filename_to_exclude="docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml")      
+      log("Deleted answers", "success")
+  except:
+      log("Problem deleting answers", "danger")
+  interview_list_delete_all = True
