@@ -1,3 +1,24 @@
+# Version v2.13.0
+
+Added
+* Export to JSON button on "share" screen
+* Offer the user's address as default for second, third, etc user
+* New baseline questions for probate matters
+* new "show_if" parameter for all *_fields() methods on ALIndividuals
+* Added include reference to new ALToolbox InterviewStats module
+
+Changed
+* Better contrast for accessibility
+* "terms" now have a dotted underline instead of solid
+* Improvements to exhibit code (OCR, etc)
+* send_button_html() is no longer displayed if the bundle has no enabled documents
+* default value of `github_user` comes from configuration instead of defaulting to `suffolklitlab`
+* when the key is equal to "preview", "_preview" is appended to filenames (to generate unique filenames in tests)
+* improvements to typing (mypy)
+
+Fixed
+* the default feedback form title had literal mako tags
+
 # Version v2.11.3
 
 * Move the "answer set" feature behind a global configuration option (opt-in)
