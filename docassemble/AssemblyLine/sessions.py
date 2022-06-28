@@ -515,7 +515,7 @@ def radial_progress(answer: Dict[str,str]):
     Return HTML for a radial progress bar, or the number of steps if progress isn't available in the metadata.
     """
     if not answer.get("progress"):
-        return f"Page {answer.get('steps') or answer.get("num_keys") or 1}"
+        return f"Page {answer.get('steps') or answer.get('num_keys') or 1}"
     
     # For simulation purposes, assume a form is complete at page 30
     progress = answer.get("progress") or (answer.get("steps") or answer.get("num_keys") or 1) * 4
