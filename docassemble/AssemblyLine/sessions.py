@@ -351,7 +351,7 @@ def get_saved_interview_list(
 
 
 def delete_interview_sessions(
-    user_id=None,
+    user_id:int=None,
     filename_to_exclude: str = al_session_store_default_filename,
     exclude_current_filename: bool = True,
 )->None:
@@ -365,12 +365,13 @@ def delete_interview_sessions(
           return None        
     delete_sessions_query = text(
         """
-        DELETE FROM userdict
-        WHERE user_id=:user_id
+        DELETE FROM userdictkeys
+        WHERE user_id = :user_id
         AND
-        userdict.filename != :filename_to_exclude
+        filename != :filename_to_exclude
         AND
-        userdict.filename != :current_filename
+        filename != :current_filename
+        ;
         """
     )
     if not user_id:
@@ -379,14 +380,16 @@ def delete_interview_sessions(
       user_id = user_info().id
       log(f"User {user_info().id} does not have permission to delete sessions that do not belong to them.")
     if exclude_current_filename:
-        current_filename = user_info().filename
+        current_filename = user_info().filename or ""
     else:
         current_filename = ""
     if not filename_to_exclude:
         filename_to_exclude = ""
+        
+    log(f"Deleting sessions with {user_id} {filename_to_exclude} {current_filename}")        
     
-    with db.connect() as con:
-        rs = con.execute(
+    with db.connect() as connection:
+        connection.execute(
             delete_sessions_query,
             user_id=user_id,
             filename_to_exclude=filename_to_exclude,

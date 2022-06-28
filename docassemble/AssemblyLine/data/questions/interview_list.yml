@@ -23,7 +23,7 @@ metadata:
     In progress forms
   short title: |
     In progress forms
-  unique session: True    
+  temporary session: True    
 ---
 modules:
   - .sessions
