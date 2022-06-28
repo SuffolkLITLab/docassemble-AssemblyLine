@@ -176,7 +176,7 @@ al_sessions_variables_to_remove_from_new_interview = [
     "user_ask_role",
 ]
 
-system_interviews:List[Dict[str, Any]] = interview_menu()
+system_interviews: List[Dict[str, Any]] = interview_menu()
 
 
 def _package_name(package_name: str = None):
@@ -249,8 +249,8 @@ def get_saved_interview_list(
     filename: Optional[str] = al_session_store_default_filename,
     user_id: Union[int, str] = None,
     metadata_key_name: str = "metadata",
-    limit:int = 50,
-    offset:int = 0,
+    limit: int = 50,
+    offset: int = 0,
     filename_to_exclude: str = "",
     exclude_current_filename: bool = True,
 ) -> List[Dict]:
@@ -308,7 +308,7 @@ def get_saved_interview_list(
     if not filename:
         filename = None  # Explicitly treat empty string as equivalent to None
     if exclude_current_filename:
-        current_filename = user_info().filename        
+        current_filename = user_info().filename
     else:
         current_filename = ""
     if not filename_to_exclude:
@@ -351,18 +351,20 @@ def get_saved_interview_list(
 
 
 def delete_interview_sessions(
-    user_id:int=None,
+    user_id: int = None,
     filename_to_exclude: str = al_session_store_default_filename,
     exclude_current_filename: bool = True,
-)->None:
+) -> None:
     """
     Delete all sessions for the specified user, excluding the current filename
     and by default, the intentionally saved "answer sets". Created because
     interview_list(action="delete_all") is both quite slow and because it deletes answer sets.
     """
     if not user_logged_in():
-          log("User that is not logged in does not have permission to delete any sessions")
-          return None        
+        log(
+            "User that is not logged in does not have permission to delete any sessions"
+        )
+        return None
     delete_sessions_query = text(
         """
         DELETE FROM userdictkeys
@@ -377,17 +379,19 @@ def delete_interview_sessions(
     if not user_id:
         user_id = user_info().id
     if user_id != user_info().id and not user_has_privilege(["developer", "admin"]):
-      user_id = user_info().id
-      log(f"User {user_info().id} does not have permission to delete sessions that do not belong to them.")
+        user_id = user_info().id
+        log(
+            f"User {user_info().id} does not have permission to delete sessions that do not belong to them."
+        )
     if exclude_current_filename:
         current_filename = user_info().filename or ""
     else:
         current_filename = ""
     if not filename_to_exclude:
         filename_to_exclude = ""
-        
-    log(f"Deleting sessions with {user_id} {filename_to_exclude} {current_filename}")        
-    
+
+    log(f"Deleting sessions with {user_id} {filename_to_exclude} {current_filename}")
+
     with db.connect() as connection:
         connection.execute(
             delete_sessions_query,
@@ -396,7 +400,7 @@ def delete_interview_sessions(
             current_filename=current_filename,
         )
 
-        
+
 def interview_list_html(
     filename: str = al_session_store_default_filename,
     user_id: Union[int, str] = None,
@@ -410,8 +414,8 @@ def interview_list_html(
     load_action: str = "al_sessions_fast_forward_session",
     delete_action: str = "al_sessions_delete_session",
     view_only: bool = False,
-    limit:int = 50,
-    offset:int = 0,
+    limit: int = 50,
+    offset: int = 0,
 ) -> str:
     """Return a string containing an HTML-formatted table with the list of saved answers
     associated with the specified filename.
@@ -428,7 +432,7 @@ def interview_list_html(
         metadata_key_name=metadata_key_name,
         limit=limit,
         offset=offset,
-        exclude_current_filename=False,        
+        exclude_current_filename=False,
     )
 
     if not answers:
@@ -493,9 +497,11 @@ def nice_interview_title(
     """
     if answer.get("filename"):
         for interview in system_interviews:
-            if answer.get("filename") == interview.get("filename") and interview.get("title"):
+            if answer.get("filename") == interview.get("filename") and interview.get(
+                "title"
+            ):
                 return interview["title"]
-        filename = os.path.splitext(os.path.basename(answer.get("filename","")))[0]
+        filename = os.path.splitext(os.path.basename(answer.get("filename", "")))[0]
         if ":" in filename:
             filename = filename.split(":")[1]
         return filename.replace("_", " ").capitalize()
@@ -513,40 +519,45 @@ def nice_interview_subtitle(answer: Dict[str, str]):
         return nice_interview_title(answer)
 
 
-def radial_progress(answer: Dict[str,str]):
+def radial_progress(answer: Dict[str, Union[str, int]]):
     """
     Return HTML for a radial progress bar, or the number of steps if progress isn't available in the metadata.
     """
     if not answer.get("progress"):
         return f"Page {answer.get('steps') or answer.get('num_keys') or 1}"
-    
+
     # For simulation purposes, assume a form is complete at page 30
-    progress = answer.get("progress") or (answer.get("steps") or answer.get("num_keys") or 1) * 4
-    
-    # Get a number divisible by 10 and between 0 and 100 (percentage)        
-    nearest_10 = min(max(round(progress/10)*10, 0), 100)
+    progress: int = (
+        int(answer["progress"])
+        or int(answer["steps"])
+        or (int(answer["num_keys"]) or 1) * 4
+    )
+
+    # Get a number divisible by 10 and between 0 and 100 (percentage)
+    nearest_10 = min(max(round(progress / 10) * 10, 0), 100)
     return f"""
       <div class="radialProgressBar progress-{ nearest_10 }">
           <div class="overlay">{ nearest_10 }%</div>
         </div>
     """
 
-  
-def local_date(utcstring:str)-> DADateTime:
-    return as_datetime(
-        utcstring
-    ).replace(
-        tzinfo=zoneinfo.ZoneInfo("UTC")
-    ).astimezone(
-        zoneinfo.ZoneInfo(get_default_timezone())
+
+def local_date(utcstring: Optional[str]) -> DADateTime:
+    if not utcstring:
+        return DADateTime()
+    return (
+        as_datetime(utcstring)
+        .replace(tzinfo=zoneinfo.ZoneInfo("UTC"))
+        .astimezone(zoneinfo.ZoneInfo(get_default_timezone()))
     )
-  
+
+
 def session_list_html(
     filename: Optional[str] = None,
     user_id: Union[int, str] = None,
     metadata_key_name: str = "metadata",
     filename_to_exclude: str = al_session_store_default_filename,
-    exclude_current_filename:bool = True,
+    exclude_current_filename: bool = True,
     name_label: str = word("Title"),
     date_label: str = word("Date modified"),
     details_label: str = word("Progress"),
@@ -557,8 +568,8 @@ def session_list_html(
     delete_action: str = "interview_list_delete_session",
     copy_action: str = "interview_list_copy_action",
     clone_label: str = word("Copy as answer set"),
-    limit:int = 50,
-    offset:int = 0,    
+    limit: int = 50,
+    offset: int = 0,
 ) -> str:
     """Return a string containing an HTML-formatted table with the list of user sessions.
     While interview_list_html() is for answer sets, this feature is for standard
@@ -601,39 +612,43 @@ def session_list_html(
             continue
         url_ask_rename = url_ask(
             [
-                {"undefine": ["al_sessions_snapshot_new_label"]}, 
-                {"action": rename_action, "arguments": 
-                    {
-                        "session": answer.get("key"), 
-                        "filename": answer.get("filename"), 
-                        "title": answer.get("title") or ""}
-                }
+                {"undefine": ["al_sessions_snapshot_new_label"]},
+                {
+                    "action": rename_action,
+                    "arguments": {
+                        "session": answer.get("key"),
+                        "filename": answer.get("filename"),
+                        "title": answer.get("title") or "",
+                    },
+                },
             ]
         )
         url_ask_copy = url_ask(
             [
-                {"undefine": ["al_sessions_copy_as_answer_set_label"]}, 
-                {"action": copy_action, "arguments": 
-                    {
-                        "session": answer.get("key"), 
-                        "filename": answer.get("filename"), 
+                {"undefine": ["al_sessions_copy_as_answer_set_label"]},
+                {
+                    "action": copy_action,
+                    "arguments": {
+                        "session": answer.get("key"),
+                        "filename": answer.get("filename"),
                         "title": answer.get("title") or "",
                         "original_interview_filename": nice_interview_title(answer),
-                    }
-                }
+                    },
+                },
             ]
         )
         url_ask_delete = url_ask(
             [
-                {"action": delete_action, "arguments": 
-                    {
-                        "session": answer.get("key"), 
-                        "filename": answer.get("filename"), 
-                    }
+                {
+                    "action": delete_action,
+                    "arguments": {
+                        "session": answer.get("key"),
+                        "filename": answer.get("filename"),
+                    },
                 }
             ]
         )
-        
+
         table += """<tr class="al-saved-answer-table-row">"""
         table += f"""
         <td>
@@ -651,8 +666,8 @@ def session_list_html(
         <td>
           <a href="{ url_ask_rename }"><i class="fa-solid fa-i-cursor" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
         """
-        if get_config("assembly line",{}).get("enable answer sets"):
-          table += f"""
+        if get_config("assembly line", {}).get("enable answer sets"):
+            table += f"""
           &nbsp;
           <a href="{ url_ask_copy }"><i class="fa-regular fa-clone" aria-hidden="true" title="{clone_label}"></i><span class="sr-only">{ clone_label }</span></a>
           """
@@ -665,6 +680,7 @@ def session_list_html(
     table += "</tbody></table></div>"
 
     return table
+
 
 def rename_interview_answers(
     filename: str,
@@ -732,10 +748,9 @@ def save_interview_answers(
     variables_to_filter: Union[Set[str], List[str]] = None,
     metadata: Dict = None,
     metadata_key_name: str = "metadata",
-    original_interview_filename = None,
-    source_filename = None,
-    source_session = None,
-
+    original_interview_filename=None,
+    source_filename=None,
+    source_session=None,
 ) -> str:
     """Copy the answers from the specified session into a new session with the given
     interview filename. Typically used to create an answer set."""
@@ -749,7 +764,8 @@ def save_interview_answers(
     all_vars = get_filtered_session_variables(
         filename=source_filename,
         session_id=source_session,
-        variables_to_filter=variables_to_filter)
+        variables_to_filter=variables_to_filter,
+    )
 
     try:
         # Sometimes include_internal breaks things
@@ -758,7 +774,7 @@ def save_interview_answers(
         )
     except:
         metadata["steps"] = -1
-    
+
     if original_interview_filename:
         metadata["original_interview_filename"] = original_interview_filename
     else:
@@ -774,7 +790,9 @@ def save_interview_answers(
     set_session_variables(filename, new_session_id, all_vars, overwrite=True)
 
     # Add the metadata
-    set_interview_metadata(filename, new_session_id, metadata, metadata_key_name=metadata_key_name)
+    set_interview_metadata(
+        filename, new_session_id, metadata, metadata_key_name=metadata_key_name
+    )
     # Make the title display as the subtitle on the "My interviews" page
     if metadata.get("title"):
         try:
@@ -927,6 +945,3 @@ def is_valid_json(json_string: str) -> bool:
         validation_error("Enter a valid JSON-formatted string")
         return False
     return True
-
-  
-  
