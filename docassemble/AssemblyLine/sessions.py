@@ -664,7 +664,7 @@ def session_list_html(
         <td class="al-progress-box">{ radial_progress(answer) }
         </td>
         <td>
-          <a href="{ url_ask_rename }"><i class="fa-solid fa-i-cursor" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
+          <a href="{ url_ask_rename }"><i class="fa-solid fa-tag" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
         """
         if get_config("assembly line", {}).get("enable answer sets"):
             table += f"""
