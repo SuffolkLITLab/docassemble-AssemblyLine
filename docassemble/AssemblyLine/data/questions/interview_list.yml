@@ -180,6 +180,7 @@ code: |
   al_sessions_rename_session = True
 ---
 code: |
+  al_sessions_snapshot_new_label
   try:
       rename_interview_answers(action_argument("filename"), action_argument("session"), new_name = al_sessions_snapshot_new_label)
       log(f"New name saved", "success")

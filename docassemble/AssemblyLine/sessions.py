@@ -4,6 +4,7 @@ from docassemble.base.util import (
     DAFile,
     DAFileCollection,
     DAFileList,
+    DADateTime,
     get_session_variables,
     set_session_variables,
     set_variables,
@@ -23,6 +24,7 @@ from docassemble.base.util import (
     user_logged_in,
     validation_error,
     format_time,
+    get_default_timezone,
     interview_menu,
     get_config,
 )
@@ -39,6 +41,7 @@ from .al_document import (
 )
 import json
 import os
+import backports.zoneinfo as zoneinfo
 
 __all__ = [
     "is_file_like",
@@ -270,6 +273,7 @@ def get_saved_interview_list(
            ,jsonstorage.data->'title' as title
            ,jsonstorage.data->'description' as description
            ,jsonstorage.data->'steps' as steps
+           ,jsonstorage.data->'progress' as progress
            ,jsonstorage.data->'original_interview_filename' as original_interview_filename
            ,jsonstorage.data->'answer_count' as answer_count
            ,jsonstorage.data as data
@@ -506,6 +510,34 @@ def nice_interview_subtitle(answer: Dict[str, str]):
         return nice_interview_title(answer)
 
 
+def radial_progress(answer: Dict[str,str]):
+    """
+    Return HTML for a radial progress bar, or the number of steps if progress isn't available in the metadata.
+    """
+    if not answer.get("progress"):
+        return f"Page {answer.get('steps') or answer.get("num_keys") or 1}"
+    
+    # For simulation purposes, assume a form is complete at page 30
+    progress = answer.get("progress") or (answer.get("steps") or answer.get("num_keys") or 1) * 4
+    
+    # Get a number divisible by 10 and between 0 and 100 (percentage)        
+    nearest_10 = min(max(round(progress/10)*10, 0), 100)
+    return f"""
+      <div class="radialProgressBar progress-{ nearest_10 }">
+          <div class="overlay">{ nearest_10 }%</div>
+        </div>
+    """
+
+  
+def local_date(utcstring:str)-> DADateTime:
+    return as_datetime(
+        utcstring
+    ).replace(
+        tzinfo=zoneinfo.ZoneInfo("UTC")
+    ).astimezone(
+        zoneinfo.ZoneInfo(get_default_timezone())
+    )
+  
 def session_list_html(
     filename: Optional[str] = None,
     user_id: Union[int, str] = None,
@@ -608,10 +640,10 @@ def session_list_html(
         </td>
         """
         table += f"""
-        <td>{ as_datetime(answer.get("modtime")) } <br/>
-            { format_time(as_datetime(answer.get("modtime")).time(), format="h:mm a") }
+        <td>{ local_date(answer.get("modtime")) } <br/>
+            { format_time(local_date(answer.get("modtime")).time(), format="h:mm a") }
         </td>
-        <td>Page { answer.get("steps") or answer.get("num_keys") }
+        <td class="al-progress-box">{ radial_progress(answer) }
         </td>
         <td>
           <a href="{ url_ask_rename }"><i class="fa-solid fa-i-cursor" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
