@@ -1,0 +1,92 @@
+---
+mandatory: True
+code: |
+  import docassemble.base.util
+  import keyword 
+  import docassemble.AssemblyLine.al_general
+  import docassemble.AssemblyLine.al_document
+  import docassemble.AssemblyLine.language
+  import docassemble.AssemblyLine.sessions
+  import docassemble.ALToolbox.misc
+  
+  all_reserved = set(docassemble.base.util.__all__ +
+      docassemble.AssemblyLine.al_general.__all__ +
+      docassemble.AssemblyLine.al_document.__all__ +
+      docassemble.AssemblyLine.language.__all__ +
+      docassemble.AssemblyLine.sessions.__all__ +
+      docassemble.ALToolbox.misc.__all__ +
+      keyword.kwlist +
+      list(dir(__builtins__)) +  [
+        "_attachment_email_address",
+        "_attachment_include_editable",
+        "_back_one",
+        "_checkboxes",
+        "_datatypes",
+        "_email_attachments",
+        "_files",
+        "_question_number",
+        "_question_name",
+        "_save_as",
+        "_success",
+        "_the_image",
+        "_track_location",
+        "_tracker",
+        "_varnames",
+        "_internal",
+        "nav",
+        "session_local",
+        "device_local",
+        "user_local",
+        "url_args",
+        "role_needed",
+        "x",
+        "i",
+        "j",
+        "k",
+        "l",
+        "m",
+        "n",
+        "role",
+        "speak_text",
+        "track_location",
+        "multi_user",
+        "menu_items",
+        "allow_cron",
+        "incoming_email",
+        "role_event",
+        "cron_hourly",
+        "cron_daily",
+        "cron_weekly",
+        "cron_monthly",
+        "_internal",
+        "allow_cron",
+        "cron_daily",
+        "cron_hourly",
+        "cron_monthly",
+        "cron_weekly",
+        "caller",
+        "device_local",
+        "loop",
+        "incoming_email",
+        "menu_items",
+        "multi_user",
+        "nav",
+        "role_event",
+        "role_needed",
+        "row_index",
+        "row_item",
+        "self",
+        "session_local",
+        "speak_text",
+        "STOP_RENDERING",
+        "track_location",
+        "url_args",
+        "user_local",
+        "user_dict",
+        "allow_cron",
+      ]
+  )   
+---
+mandatory: True
+code: |
+  json_response(sorted(all_reserved))
