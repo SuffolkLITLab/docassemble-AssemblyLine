@@ -197,6 +197,7 @@ code: |
   try:
       delete_interview_sessions(filename_to_exclude="docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml")      
       log("Deleted answers", "success")
-  except:
+  except Exception as ex:
       log("Problem deleting answers", "danger")
+      log(f"Problem deleting answers for a user: {ex}")
   interview_list_delete_all = True
