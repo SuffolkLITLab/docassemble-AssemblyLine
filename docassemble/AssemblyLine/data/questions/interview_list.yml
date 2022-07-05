@@ -32,6 +32,13 @@ modules:
 objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="Assembly Line Logo")
 ---
+# Clear some Playground invalid variable reference errors
+objects:
+  - ex: DAEmpty
+  - interview_metadata: DAEmpty
+  - other_parties: DAEmpty
+  - users: DAEmpty
+---
 code: |
   al_logo.alt_text = "Assembly Line Logo"
 ---
@@ -134,11 +141,6 @@ code: |
 event: update_page_event
 code: |
   session_page += action_argument("page_increment")
----
-code: |
-  # Get the existing form's subtitle
-  session_vars = get_session_variables(filename, session_id)
-  existing_subtitle = session_vars.get("_internal",{}).get("subtitle", session_vars.get("_internal",{}).get("title", "Untitled interview"))
 ---
 id: copy to answer set
 question: |
