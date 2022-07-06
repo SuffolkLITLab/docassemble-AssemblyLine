@@ -1,0 +1,205 @@
+---
+# Provide a replacement for the /interviews endpoint in Docassemble
+---
+include: 
+  - docassemble.ALToolbox:display_template.yml
+  - al_settings.yml
+---
+features:
+  small screen navigation: dropdown
+  navigation: True
+  navigation back button: False
+  javascript:
+    - al_audio.js
+  css:
+    - styles.css
+    - al_audio.css
+    - interview_list.css    
+  question help button: True
+  question back button: False
+---
+metadata:
+  title: |
+    In progress forms
+  short title: |
+    In progress forms
+  temporary session: True    
+---
+modules:
+  - .sessions
+  - docassemble.ALToolbox.misc
+---
+objects:
+  - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="Assembly Line Logo")
+---
+# Clear some Playground invalid variable reference errors
+objects:
+  - ex: DAEmpty
+  - interview_metadata: DAEmpty
+  - other_parties: DAEmpty
+  - users: DAEmpty
+---
+code: |
+  al_logo.alt_text = "Assembly Line Logo"
+---
+default screen parts:
+  title: |
+    % if get_config("interview page title"):
+    ${ get_config("interview page title") }
+    % else:    
+    ${ AL_ORGANIZATION_TITLE }
+    % endif
+  short title: |
+    % if get_config("interview page title"):
+    ${ get_config("interview page title") }
+    % else:    
+    ${ AL_ORGANIZATION_TITLE }
+    % endif 
+  title url: |
+    ${ all_variables(special='metadata').get('title url', AL_ORGANIZATION_HOMEPAGE) }
+  exit url: |
+    ${ all_variables(special='metadata').get('exit url', AL_ORGANIZATION_HOMEPAGE) }
+  logo: |
+    <span class="title-container">
+      <span class="al-logo">
+        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+      </span>
+      <span class="al-title">
+        <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>
+        <span class="title-row-2">${all_variables(special='metadata').get('title','').rstrip()}</span>
+      </span>
+    </span>
+  short logo: |
+    <span class="title-container">
+      <span class="al-logo">
+        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+      </span>
+      <span class="al-title">
+        <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>
+        <span class="title-row-2">${ all_variables(special='metadata').get('short title','').rstrip() }</span>
+      </span>
+    </span>
+---
+mandatory: True
+code: |
+  if get_config("assembly line",{}).get("enable answer sets"):
+    nav.unhide()
+  else:
+    nav.hide()
+  section_in_progress_forms
+---
+sections:
+  - section_in_progress_forms: In progress forms
+  - section_answer_sets: Answer sets
+progressive: False
+---
+event: section_in_progress_forms
+id: interview list
+question: |
+  % if get_config("interview page heading"):
+  ${ get_config("interview page heading") }
+  % else:
+  In progress forms 
+  % endif
+  <span style="float: right;">${ action_button_html(get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE), label="Start a new form", icon="plus-circle", color="primary", size="md") }</span>
+subquestion: |
+  % if get_config("interview page pre"):
+  ${ get_config("interview page pre") }
+  % else:
+  Tap the title of a form to keep working on it or to download your completed
+  documents.
+  % endif
+
+  ${ session_list_html(filename=None, limit=20, offset=session_page) }
+  
+  % if session_page > 0:
+  [< Previous page](${ url_action("update_page_event", page_increment=-1) })
+  % endif  
+  [Next page >](${ url_action("update_page_event", page_increment=1) })  
+section: section_in_progress_forms
+under: |
+  ${ action_button_html(url_action("interview_list_delete_all"), label="Delete All", size="md", color="danger", icon="trash-can") }
+---
+event: section_answer_sets
+id: answer set list
+question: |
+  Answer sets <span style="float: right;">${ action_button_html(get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE), label="Start a new form", icon="plus-circle", color="primary", size="md") }</span>
+subquestion: |
+  View, delete, or rename your answer sets below. To copy an answer set into a
+  new form:
+  
+  1. [Start a new 
+  form](${ get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE) })
+  1. Then, use the menu to load your answer set.
+
+  ${ interview_list_html(view_only=True, delete_action="interview_list_delete_session") }
+section: section_answer_sets
+---
+code: |
+  session_page = 0
+---
+event: update_page_event
+code: |
+  session_page += action_argument("page_increment")
+---
+id: copy to answer set
+question: |
+  Copy as answer set
+subquestion: |
+  Before saving your answer set, give the answers a name.
+
+  Pick a name that will help you choose the right answers to use on a new form.
+fields:
+  - Name: al_sessions_copy_as_answer_set_label
+    default: ${ action_argument("title") or "" }
+continue button label: |
+  :save: Save copy
+---
+code: |
+  save_interview_answers(
+      source_filename=action_argument("filename"),
+      source_session=action_argument("session"),
+      metadata={
+        "title": al_sessions_copy_as_answer_set_label
+      },
+      original_interview_filename=action_argument("original_interview_filename"),        
+      )
+  log("Copied answers", "success")      
+  interview_list_copy_action = True
+---
+id: rename answer
+question: |
+  Rename saved answers
+fields:
+  - New name: al_sessions_snapshot_new_label
+    default: ${ action_argument("title") or "" }
+continue button label: |
+  :save: Save changes
+---
+code: |
+  rename_interview_answers(user_info().filename, user_info().session, new_name = al_sessions_snapshot_new_label)
+  log("New name saved", "success")
+  al_sessions_rename_session = True
+---
+code: |
+  al_sessions_snapshot_new_label
+  try:
+      rename_interview_answers(action_argument("filename"), action_argument("session"), new_name = al_sessions_snapshot_new_label)
+      log(f"New name saved", "success")
+  except:
+      log("Problem saving new name", "danger")
+  interview_list_rename_action = True
+---
+code: |
+  interview_list(action="delete", filename=action_argument("filename"), session=action_argument("session"))  
+  log("Deleted answers", "success")
+  interview_list_delete_session = True
+---
+code: |
+  try:
+      interview_list(action="delete_all", query=(~DA.Or(DA.Sessions.filename == f"{user_info().current_package}:al_saved_sessions_store.yml", DA.Sessions.filename == "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml")))
+      log("Deleted answers", "success")
+  except Exception as ex:
+      log("Problem deleting answers", "danger")
+      log(f"Problem deleting answers for a user: {ex}")
+  interview_list_delete_all = True
