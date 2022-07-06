@@ -41,7 +41,7 @@ subquestion: |
   You can re-use the answers in this answer set by visiting a new form and selecting
   "Load answer set" from the main menu.
 
-  ${ action_button_html(interview_url(i=f"{user_info().current_package}:data/questions/interview_list.yml", label="List in progress forms", color="link", size="md") } ${ action_button_html(get_config("assembly line",{}).get("new form url", url_of("dispatch")), label="List available forms", icon="list", color="primary", size="md") }
+  ${ action_button_html(interview_url(i=f"{user_info().current_package}:data/questions/interview_list.yml", label="List in progress forms", color="link", size="md")) } ${ action_button_html(get_config("assembly line",{}).get("new form url", url_of("dispatch")), label="List available forms", icon="list", color="primary", size="md") }
 ---
 id: rename answer
 question: |
