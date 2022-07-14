@@ -2,7 +2,7 @@ name: Use ALKiln testing framework v4 to run tests
 
 on:
   push:
-      tags-ignore:
+    tags-ignore:
       - v*
   workflow_dispatch:
     inputs:
