@@ -16,6 +16,7 @@ Scenario: No ALDocument page errors
     | download_list_html_defaults | True |  |
     | email_custom | True |  |
     | email_defaults | True |  |
+    | x.has_no_file | True | notice_to_quit.has_no_file |
 
 @alexhibits @e1
 Scenario: User can upload exhibits
