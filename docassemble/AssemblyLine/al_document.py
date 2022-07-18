@@ -1444,19 +1444,25 @@ class ALDocumentBundle(DAList):
                 attachments=self.as_pdf_list(key=key),
                 **kwargs,
             )
+    
+    def _is_self_enabled(self, refresh=True) -> bool:
+        """The same as ALDocument.is_enabled"""
+        if hasattr(self, "always_enabled") and self.always_enabled:
+            return True
+        if hasattr(self.cache, "enabled"):
+            return self.cache.enabled
+        if refresh:
+            self.cache.enabled = self.enabled
+            if hasattr(self, "enabled"):
+                del self.enabled
+            return self.cache.enabled
+        else:
+            return self.enabled
+      
 
     def is_enabled(self, refresh=True) -> bool:
         """Returns true if the bundle itself is enabled, and it has at least one enabled child document"""
-        self_enabled = (hasattr(self, "always_enabled") and self.always_enabled) or \
-            (hasattr(self.cache, "enabled") and self.cache.enabled)
-        if not self_enabled:
-            if refresh:
-                self.cache.enabled = self.enabled
-                self_enabled = self_enabled or self.cache.enabled
-                if hasattr(self, "enabled"):
-                    del self.enabled
-            else:
-                self_enabled = self_enabled or self.enabled
+        self_enabled = self._is_self_enabled(refresh=refresh)
         return self_enabled and self.has_enabled_documents(refresh=refresh)
 
 
