@@ -1445,8 +1445,19 @@ class ALDocumentBundle(DAList):
                 **kwargs,
             )
 
-    def is_enabled(self, refresh=True):
-        return self.has_enabled_documents(refresh=refresh)
+    def is_enabled(self, refresh=True) -> bool:
+        """Returns true if the bundle itself is enabled, and it has at least one enabled child document"""
+        self_enabled = (hasattr(self, "always_enabled") and self.always_enabled) or \
+            (hasattr(self.cache, "enabled") and self.cache.enabled)
+        if not self_enabled:
+            if refresh:
+                self.cache.enabled = self.enabled
+                self_enabled = self_enabled or self.cache.enabled
+                if hasattr(self, "enabled"):
+                    del self.enabled
+            else:
+                self_enabled = self_enabled or self.enabled
+        return self_enabled and self.has_enabled_documents(refresh=refresh)
 
 
 class ALExhibit(DAObject):
