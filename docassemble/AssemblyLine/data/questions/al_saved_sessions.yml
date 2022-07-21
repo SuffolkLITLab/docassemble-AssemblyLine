@@ -202,7 +202,7 @@ question: |
   % endif
 subquestion: |
   Tap "next" to keep answering any unanswered questions and finish the interview.
-back button: False  
+back button: False
 ---
 question: |
   Upload a JSON file
