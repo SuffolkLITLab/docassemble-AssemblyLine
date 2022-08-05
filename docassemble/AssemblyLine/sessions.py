@@ -41,10 +41,11 @@ from .al_document import (
 )
 import json
 import os
+
 try:
-  import zoneinfo # type: ignore
+    import zoneinfo  # type: ignore
 except ImportError:
-  import backports.zoneinfo as zoneinfo # type: ignore
+    import backports.zoneinfo as zoneinfo  # type: ignore
 
 __all__ = [
     "is_file_like",
