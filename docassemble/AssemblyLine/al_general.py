@@ -74,6 +74,7 @@ class ALAddress(Address):
         country_code: str = None,
         default_state: str = None,
         show_country: bool = False,
+        show_county: bool = False,
         show_if: Union[str, Dict[str, str]] = None,
         allow_no_address: bool = False,
     ):
@@ -101,25 +102,27 @@ class ALAddress(Address):
                     "help": str(self.has_no_address_explanation_help),
                     "show if": self.attr_name("has_no_address"),
                     "required": False,
-                }
-                ]
+                },
+            ]
         else:
             fields = []
-        fields.extend([
-            {
-                "label": str(self.address_label),
-                "address autocomplete": True,
-                "field": self.attr_name("address"),
-                "hide if": self.attr_name("has_no_address"),
-            },
-            {
-                "label": str(self.unit_label),
-                "field": self.attr_name("unit"),
-                "required": False,
-                "hide if": self.attr_name("has_no_address"),
-            },
-            {"label": str(self.city_label), "field": self.attr_name("city")},
-        ])
+        fields.extend(
+            [
+                {
+                    "label": str(self.address_label),
+                    "address autocomplete": True,
+                    "field": self.attr_name("address"),
+                    "hide if": self.attr_name("has_no_address"),
+                },
+                {
+                    "label": str(self.unit_label),
+                    "field": self.attr_name("unit"),
+                    "required": False,
+                    "hide if": self.attr_name("has_no_address"),
+                },
+                {"label": str(self.city_label), "field": self.attr_name("city")},
+            ]
+        )
         if country_code:
             fields.append(
                 {
@@ -156,11 +159,18 @@ class ALAddress(Address):
                     "hide if": self.attr_name("has_no_address"),
                 }
             )
-
+        if show_county:
+            fields.append(
+                {
+                    "label": str(self.county_label),
+                    "field": self.attr_name("county"),
+                    "required": False,
+                }
+            )
         if show_country:
             fields.append(
                 {
-                    "label": self.country_label,
+                    "label": str(self.country_label),
                     "field": self.attr_name("country"),
                     "required": False,
                     "code": "countries_list()",
@@ -202,10 +212,14 @@ class ALAddress(Address):
             line_breaker = '</w:t><w:br/><w:t xml:space="preserve">'
         else:
             line_breaker = " [NEWLINE] "
-        
-        if hasattr(self, "has_no_address") and self.has_no_address and hasattr(self, "has_no_address_explanation"):
+
+        if (
+            hasattr(self, "has_no_address")
+            and self.has_no_address
+            and hasattr(self, "has_no_address_explanation")
+        ):
             return (
-                self.has_no_address_explanation 
+                self.has_no_address_explanation
                 + line_breaker
                 + self.city
                 + line_breaker
@@ -275,7 +289,11 @@ class ALAddress(Address):
     def line_one(self, language=None, bare=False):
         """Returns the first line of the address, including the unit
         number if there is one."""
-        if hasattr(self, "has_no_address") and self.has_no_address and hasattr(self, "has_no_address_explanation"):
+        if (
+            hasattr(self, "has_no_address")
+            and self.has_no_address
+            and hasattr(self, "has_no_address_explanation")
+        ):
             return self.has_no_address_explanation
         if self.city_only:
             return ""
@@ -301,7 +319,11 @@ class ALAddress(Address):
         bare=False,
     ):
         """Returns a one-line address.  Primarily used internally for geocoding."""
-        if hasattr(self, "has_no_address") and self.has_no_address and hasattr(self, "has_no_address_explanation"):
+        if (
+            hasattr(self, "has_no_address")
+            and self.has_no_address
+            and hasattr(self, "has_no_address_explanation")
+        ):
             return f"{self.has_no_address_explanation}, {self.city} {self.state}"
         output = ""
         if self.city_only is False:
@@ -658,6 +680,7 @@ class ALIndividual(Individual):
         country_code: str = "US",
         default_state: str = None,
         show_country: bool = False,
+        show_county: bool = False,
         show_if: Union[str, Dict[str, str]] = None,
         allow_no_address: bool = False,
     ) -> List[Dict[str, str]]:
@@ -670,6 +693,7 @@ class ALIndividual(Individual):
             country_code=country_code,
             default_state=default_state,
             show_country=show_country,
+            show_county=show_county,
             show_if=show_if,
             allow_no_address=allow_no_address,
         )

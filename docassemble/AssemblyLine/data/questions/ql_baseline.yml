@@ -364,6 +364,12 @@ template: x.country_label
 content: |
   Country
 ---
+generic object: ALAddress
+template: x.county_label
+content: |
+  County
+# Note: Louisiana uses Parish while Alaska uses Borough. Handle by overriding this template
+---
 id: your name
 sets:
     - users[0].name.first
