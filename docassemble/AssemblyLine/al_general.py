@@ -75,20 +75,51 @@ class ALAddress(Address):
         default_state: str = None,
         show_country: bool = False,
         show_if: Union[str, Dict[str, str]] = None,
+        allow_no_address: bool = False,
     ):
-        fields = [
+        """
+        Return a YAML structure representing the list of fields for the object's address.
+        Optionally, allow the user to specify they do not have an address.
+        NOTE: if you set allow_no_address to True, you must make sure to trigger
+        the question with `users[0].address.has_no_address` rather than
+        `users[0].address.address`.
+        Optionally, add a `show if` modifier to each field. The `show if` modifier
+        will not be used if the `allow_no_address` modifier is used.
+        """
+        if allow_no_address:
+            fields = [
+                {
+                    "label": str(self.has_no_address_label),
+                    "field": self.attr_name("has_no_address"),
+                    "datatype": "yesno",
+                },
+                {
+                    "label": str(self.has_no_address_explanation_label),
+                    "field": self.attr_name("has_no_address_explanation"),
+                    "datatype": "area",
+                    "rows": 2,
+                    "help": str(self.has_no_address_explanation_help),
+                    "show if": self.attr_name("has_no_address"),
+                    "required": False,
+                }
+                ]
+        else:
+            fields = []
+        fields.extend([
             {
                 "label": str(self.address_label),
                 "address autocomplete": True,
                 "field": self.attr_name("address"),
+                "hide if": self.attr_name("has_no_address"),
             },
             {
                 "label": str(self.unit_label),
                 "field": self.attr_name("unit"),
                 "required": False,
+                "hide if": self.attr_name("has_no_address"),
             },
             {"label": str(self.city_label), "field": self.attr_name("city")},
-        ]
+        ])
         if country_code:
             fields.append(
                 {
@@ -112,6 +143,7 @@ class ALAddress(Address):
                     "label": str(self.zip_label),
                     "field": self.attr_name("zip"),
                     "required": False,
+                    "hide if": self.attr_name("has_no_address"),
                 }
             )
         else:
@@ -121,6 +153,7 @@ class ALAddress(Address):
                     "label": str(self.postal_code_label),
                     "field": self.attr_name("zip"),
                     "required": False,
+                    "hide if": self.attr_name("has_no_address"),
                 }
             )
 
@@ -135,9 +168,11 @@ class ALAddress(Address):
                 }
             )
             # NOTE: using , "datatype": "combobox" might be nice but does not play together well w/ address autocomplete
-        if show_if:
-            for field in fields:
-                field["show if"] = show_if
+        if not allow_no_address:
+            # show if isn't compatible with the hide if logic for `allow_no_address`
+            if show_if:
+                for field in fields:
+                    field["show if"] = show_if
         return fields
 
     def formatted_unit(self, language=None, require=False, bare=False):
@@ -167,6 +202,15 @@ class ALAddress(Address):
             line_breaker = '</w:t><w:br/><w:t xml:space="preserve">'
         else:
             line_breaker = " [NEWLINE] "
+        
+        if hasattr(self, "has_no_address") and self.has_no_address and hasattr(self, "has_no_address_explanation"):
+            return (
+                self.has_no_address_explanation 
+                + line_breaker
+                + self.city
+                + line_breaker
+                + self.state
+            )
         if international:
             i18n_address = {}
             if (
@@ -231,6 +275,8 @@ class ALAddress(Address):
     def line_one(self, language=None, bare=False):
         """Returns the first line of the address, including the unit
         number if there is one."""
+        if hasattr(self, "has_no_address") and self.has_no_address and hasattr(self, "has_no_address_explanation"):
+            return self.has_no_address_explanation
         if self.city_only:
             return ""
         if (
@@ -255,6 +301,8 @@ class ALAddress(Address):
         bare=False,
     ):
         """Returns a one-line address.  Primarily used internally for geocoding."""
+        if hasattr(self, "has_no_address") and self.has_no_address and hasattr(self, "has_no_address_explanation"):
+            return f"{self.has_no_address_explanation}, {self.city} {self.state}"
         output = ""
         if self.city_only is False:
             if (
@@ -611,6 +659,7 @@ class ALIndividual(Individual):
         default_state: str = None,
         show_country: bool = False,
         show_if: Union[str, Dict[str, str]] = None,
+        allow_no_address: bool = False,
     ) -> List[Dict[str, str]]:
         """
         Return field prompts for address.
@@ -622,6 +671,7 @@ class ALIndividual(Individual):
             default_state=default_state,
             show_country=show_country,
             show_if=show_if,
+            allow_no_address=allow_no_address,
         )
 
     def gender_fields(
