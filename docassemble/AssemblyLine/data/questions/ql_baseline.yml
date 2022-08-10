@@ -364,6 +364,12 @@ template: x.country_label
 content: |
   Country
 ---
+generic object: ALAddress
+template: x.county_label
+content: |
+  County
+# Note: Louisiana uses Parish while Alaska uses Borough. Handle by overriding this template
+---
 id: your name
 sets:
     - users[0].name.first
@@ -1783,3 +1789,22 @@ question: |
 fields:
   - code: |
       x.language_fields(choices=al_language_user_choices)
+---
+generic object: ALIndividual
+template: x.address.has_no_address_label
+content: |
+  ${ x } does not have an address
+---
+template: users[0].address.has_no_address_label
+content: |
+  I do not have an address
+---
+generic object: ALAddress
+template: x.has_no_address_explanation_label
+content: |
+  Anything else you want to add about your living situation?
+---
+generic object: ALAddress
+template: x.has_no_address_explanation_help
+content: |
+  Example: "I normally sleep at 5th and Main."
