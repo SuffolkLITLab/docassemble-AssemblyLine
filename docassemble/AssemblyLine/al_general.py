@@ -382,28 +382,6 @@ class ALAddress(Address):
             return self.norm_long
         return self
 
-    def normalized_city(self) -> str:
-        """
-        Return the "normalized" city name as known by Google. Typically this is
-        the proper city name to use for mail delivery. It will standardize
-        lookups based on city if the user entered a neighborhood name like
-        "Dorchester" rather than the official city name, "Boston".
-        """
-        try:
-            self.geocode()
-        except:
-            pass
-        if (
-            hasattr(self, "norm_long")
-            and hasattr(self.norm_long, "city")
-            and self.norm_long.city
-        ):
-            return self.norm_long.city
-        else:
-            if hasattr(self, "city") and self.city:
-                return self.city
-        return ""
-
 
 class ALAddressList(DAList):
     """Store a list of Address objects"""
