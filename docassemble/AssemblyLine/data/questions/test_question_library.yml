@@ -1,0 +1,42 @@
+---
+include:
+  - assembly_line.yml
+---
+metadata:
+  title: |
+    Test Question Library
+---
+mandatory: True
+code: |
+  which_to_test
+  if which_to_test == 'name':
+    users[0].name.first
+  else:
+    users[0].name.first = 'John'
+    users[0].name.last = 'Brown'
+
+  if which_to_test == 'address':
+    users[0].address.address
+  if which_to_test == 'address_no_address':
+    users[0].address.has_no_address
+  if which_to_test == 'contact':
+    users[0].phone_number
+  all_done
+---
+event: all_done
+question: All done!
+---
+question: Which question do you want to test?
+field: which_to_test
+choices:
+  - Address: address
+  - Address (with the option to not have one): address_no_address
+  - Contact Information: contact
+---
+sets: users[0].address.has_no_address
+question: |
+  What is your address?
+fields: 
+  - code: |
+      users[0].address_fields(allow_no_address=True, country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
+ 
