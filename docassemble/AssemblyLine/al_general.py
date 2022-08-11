@@ -112,17 +112,19 @@ class ALAddress(Address):
                     "label": str(self.address_label),
                     "address autocomplete": True,
                     "field": self.attr_name("address"),
-                    "hide if": self.attr_name("has_no_address"),
                 },
                 {
                     "label": str(self.unit_label),
                     "field": self.attr_name("unit"),
                     "required": False,
-                    "hide if": self.attr_name("has_no_address"),
                 },
-                {"label": str(self.city_label), "field": self.attr_name("city")},
             ]
         )
+        if allow_no_address:
+            fields[-1]["hide if"] = self.attr_name("has_no_address")
+            fields[-2]["hide if"] = self.attr_name("has_no_address")
+
+        fields.append({"label": str(self.city_label), "field": self.attr_name("city")})
         if country_code:
             fields.append(
                 {
@@ -146,7 +148,6 @@ class ALAddress(Address):
                     "label": str(self.zip_label),
                     "field": self.attr_name("zip"),
                     "required": False,
-                    "hide if": self.attr_name("has_no_address"),
                 }
             )
         else:
@@ -156,9 +157,11 @@ class ALAddress(Address):
                     "label": str(self.postal_code_label),
                     "field": self.attr_name("zip"),
                     "required": False,
-                    "hide if": self.attr_name("has_no_address"),
                 }
             )
+        if allow_no_address:
+            fields[-1]["hide if"] = self.attr_name("has_no_address")
+
         if show_county:
             fields.append(
                 {
