@@ -424,7 +424,7 @@ fields:
 ---
 id: you birthdate question
 question: |
-  When were your born?
+  When were you born?
 fields:
   - Birthdate: users[0].birthdate
     datatype: BirthDate
