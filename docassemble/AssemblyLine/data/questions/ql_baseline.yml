@@ -422,6 +422,13 @@ fields:
   - Birthdate: x.birthdate
     datatype: BirthDate
 ---
+id: you birthdate question
+question: |
+  When were your born?
+fields:
+  - Birthdate: users[0].birthdate
+    datatype: BirthDate
+---
 # TODO: consider removing default state
 id: your address
 sets:
