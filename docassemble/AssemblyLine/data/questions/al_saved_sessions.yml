@@ -13,7 +13,7 @@ code: |
       al_temp_metadata = get_interview_metadata(
         user_info().filename, user_info().session
       )
-      al_temp_metadata["title"] = str(al_sessions_interview_title)
+      al_temp_metadata["auto_title"] = str(al_sessions_interview_title)
       al_temp_metadata["progress"] = get_progress()
       set_current_session_metadata(al_temp_metadata)
       del(al_temp_metadata)
@@ -115,17 +115,7 @@ subquestion: |
 fields:
   - Name your answer set: al_sessions_snapshot_label
     default: |      
-      % if defined('users[0].name.first'):
-      ${ comma_and_list(users.complete_elements()) }
-      % if defined('other_parties[0].name.first'):
-      v. ${ comma_and_list(other_parties.complete_elements()) }
-      % endif
-      % else:
-      ${ all_variables(special='titles').get('full') }
-      % if all_variables(special='titles').get('sub'):
-      : ${ all_variables(special='titles').get('sub') }
-      % endif
-      % endif
+      ${ al_sessions_interview_title }
     help: |
       Give this answer set a name you can remember later
 continue button label: |

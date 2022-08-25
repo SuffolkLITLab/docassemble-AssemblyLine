@@ -103,6 +103,7 @@ question: |
   % endif
   <span style="float: right;">${ action_button_html(get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE), label="Start a new form", icon="plus-circle", color="primary", size="md") }</span>
 subquestion: |
+  % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename)) > 0:
   % if get_config("interview page pre"):
   ${ get_config("interview page pre") }
   % else:
@@ -114,11 +115,38 @@ subquestion: |
   
   % if session_page > 0:
   [< Previous page](${ url_action("update_page_event", page_increment=-1) })
-  % endif  
-  [Next page >](${ url_action("update_page_event", page_increment=1) })  
+  % endif
+  % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, offset=session_page)) > 20:
+  [Next page >](${ url_action("update_page_event", page_increment=1) })
+  % endif
+  % else:
+  You do not have any current forms in progress
+  % endif
+# TODO: might be able to save some DB queries here but performance is good
 section: section_in_progress_forms
 under: |
-  ${ action_button_html(url_action("interview_list_delete_all"), label="Delete All", size="md", color="danger", icon="trash-can") }
+  % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename)) > 0:
+  ${ action_button_html(url_action("interview_list_delete_all"), label="Delete All", size="md", color="danger", icon="trash-can", id_tag="al-delete-all-sessions") }
+  % endif
+script:
+  <script type="text/javascript">
+      $(".al-delete-session").on('click', function(event){
+        if (confirm("${ word("Are you sure you want to delete this item?") }")){
+          return true;
+        }
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return false;
+      });
+      $("#al-delete-all-sessions").on('click', function(event){
+        if (confirm("${ word("Are you sure you want to delete all saved interviews?") }")){
+          return true;
+        }
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        return false;
+      });
+  </script>
 ---
 event: section_answer_sets
 id: answer set list
