@@ -63,6 +63,7 @@ __all__ = [
     "is_valid_json",
     "session_list_html",
     "delete_interview_sessions",
+    "set_current_session_metadata",
 ]
 
 db = init_sqlalchemy()
