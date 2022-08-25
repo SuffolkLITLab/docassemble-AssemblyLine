@@ -526,7 +526,12 @@ def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True):
     """
     if answer.get("title"):
         return answer.get("title")
-    elif answer.get("auto_title") and (not exclude_identical or not (answer.get("auto_title").lower() == nice_interview_title(answer).lower())):
+    elif answer.get("auto_title") and (
+        not exclude_identical
+        or not (
+            answer.get("auto_title").lower() == nice_interview_title(answer).lower()
+        )
+    ):
         return answer.get("auto_title")
     else:
         return ""
