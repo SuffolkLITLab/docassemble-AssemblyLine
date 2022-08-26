@@ -126,7 +126,9 @@ subquestion: |
 section: section_in_progress_forms
 under: |
   % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename)) > 0:
+  <div style="float: right;">
   ${ action_button_html(url_action("interview_list_delete_all"), label="Delete All", size="md", color="danger", icon="trash-can", id_tag="al-delete-all-sessions") }
+  </div>
   % endif
 script:
   <script type="text/javascript">
