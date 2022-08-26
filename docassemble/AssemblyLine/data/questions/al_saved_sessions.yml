@@ -9,7 +9,7 @@ code: |
   ########### Save title and progress to session list ##################
   if get_config("assembly line",{}).get("update answer set metadata"):
     # To limit impact on DB, save progress every 3 steps or when progress is 100 +- 1
-    if get_progress() > 99 or int(all_variables(include_internal=True).get('_internal',{}).get('steps',1)) % 3 == 1:
+    if get_progress() > 99 or int(_internal.get('steps',1)) % 3 == 1:
       al_temp_metadata = get_interview_metadata(
         user_info().filename, user_info().session
       )
