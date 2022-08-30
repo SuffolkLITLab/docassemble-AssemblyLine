@@ -21,6 +21,10 @@
       flex-flow: row wrap;
 }*/
 
+.al-session-form-title {
+  font-weight: bolder;
+}
+
 .radialProgressBar {
   border-radius: 50%;
   width: 2.5rem;

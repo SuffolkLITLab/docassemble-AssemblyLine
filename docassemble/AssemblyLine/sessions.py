@@ -670,24 +670,25 @@ def session_list_html(
         table += """<tr class="al-saved-answer-table-row">"""
         table += f"""
         <td>
-        <a href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer, exclude_identical=False) or nice_interview_title(answer) }</a>
+        <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_title(answer) }</a>
         {"<br/>" if nice_interview_subtitle(answer) else ""}
-        <span class="al-session-title">{ nice_interview_title(answer) if nice_interview_subtitle(answer) else "" }</span>
+        <span class="al-session-form-subtitle">{ nice_interview_subtitle(answer) if nice_interview_subtitle(answer) else "" }</span>
         </td>
         """
         table += f"""
-        <td>{ local_date(answer.get("modtime")) } <br/>
-            { format_time(local_date(answer.get("modtime")).time(), format="h:mm a") }
+        <td>
+            <span class="al-session-date-modified">{ local_date(answer.get("modtime")) }</span> <br/>
+            <span class="al-session-time-modified">{ format_time(local_date(answer.get("modtime")).time(), format="h:mm a") }</span>
         </td>
         <td class="al-progress-box">{ radial_progress(answer) }
         </td>
         <td>
-          <a href="{ url_ask_rename }"><i class="fa-solid fa-tag" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
+          <a class="al-sessions-action-rename" href="{ url_ask_rename }"><i class="fa-solid fa-tag" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
         """
         if get_config("assembly line", {}).get("enable answer sets"):
             table += f"""
           &nbsp;
-          <a href="{ url_ask_copy }"><i class="fa-regular fa-clone" aria-hidden="true" title="{clone_label}"></i><span class="sr-only">{ clone_label }</span></a>
+          <a class="al-sessions-actions-clone" href="{ url_ask_copy }"><i class="fa-regular fa-clone" aria-hidden="true" title="{clone_label}"></i><span class="sr-only">{ clone_label }</span></a>
           """
         table += f"""
           &nbsp;
