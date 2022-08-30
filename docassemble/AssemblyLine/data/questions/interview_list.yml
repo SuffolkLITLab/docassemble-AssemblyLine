@@ -111,14 +111,18 @@ subquestion: |
   documents.
   % endif
 
-  ${ session_list_html(filename=None, limit=20, offset=session_page) }
-  
+  ${ session_list_html(filename=None, limit=20, offset=session_page*20) }
+
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
   % if session_page > 0:
-  [< Previous page](${ url_action("update_page_event", page_increment=-1) })
+      <li class="page-item"><a class="page-link" href="${ url_action("update_page_event", page_increment=-1) }">Previous</a></li>
   % endif
-  % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, offset=session_page)) > 20:
-  [Next page >](${ url_action("update_page_event", page_increment=1) })
+  % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, limit=20, offset=session_page*20)) >= 20:
+      <li class="page-item"><a class="page-link" href="${ url_action("update_page_event", page_increment=1) }">Next</a></li>
   % endif
+    </ul>
+  </nav>  
   % else:
   You do not have any current forms in progress
   % endif
