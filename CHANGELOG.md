@@ -1,3 +1,19 @@
+# Version v2.15.0
+
+Fixed
+* DA 1.4.x compatibility by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/549
+* Fix spacing so all elements are visible in mobile footer by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/556
+
+New
+* Address improvements by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/554
+    * Developer feature to help work with "normalized" address
+    * Make "county" optional field
+    * Feature to let unhoused people provide narrative address
+
+Changed
+* Add question for "your" birthdate by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/557
+* [Revised interview list](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/framework/magic_variables#use-the-assemblyline-interview-list-replacement) adds a progress icon and automatically updated title by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/559
+
 # Changelog
 
 ## Version v2.14.0
