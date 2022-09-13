@@ -10,6 +10,7 @@ objects:
   - other_parties: ALPeopleList
   - witnesses: ALPeopleList.using(ask_number=True)
   - docket_numbers: DAList
+  - case_numbers: DAList
   - caregivers: ALPeopleList
   - guardians_ad_litem: ALPeopleList
   - attorneys: ALPeopleList
@@ -27,8 +28,6 @@ objects:
   - courts: DAList.using(auto_gather=False, target_number=1, gathered=True)
   - trial_court_address: Address
   - appeals_court_address: Address
-  
-  
 ---
 id: basic questions intro screen
 decoration: form-lineal
@@ -604,6 +603,36 @@ subquestion: |
 list collect: True
 fields:
   - Case number: docket_numbers[i]
+    required: False
+---
+id: case number
+question: |
+  What is the case number used to track this case in court?
+fields:
+  - I don't know the case number: dont_know_case_number
+    datatype: yesno    
+  - Case number: case_number
+    hide if: dont_know_case_number
+validation code: |
+  # This should be safe too
+  if dont_know_case_number:
+    case_number = ''    
+---
+question: |
+  Do you have a case number used to track this case in court?
+fields:
+  - I have a case number: case_numbers.there_are_any
+    datatype: yesnoradio
+---
+id: case numbers
+question: |
+  Case number
+subquestion: |
+  If there are multiple case numbers on this form, you can tap "${word("Add another")}"
+  to add more than one.
+list collect: True
+fields:
+  - Case number: case_numbers[i]
     required: False
 ---
 id: who will be on this form
