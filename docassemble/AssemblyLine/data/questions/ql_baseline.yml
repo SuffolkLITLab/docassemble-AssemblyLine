@@ -578,32 +578,32 @@ content: |
 ---
 id: docket number
 question: |
-  What is the docket number for your case?
+  What is the case number used to track this case in court?
 fields:
-  - I don't know the docket number: dont_know_docket_number
+  - I don't know the case number: dont_know_docket_number
     datatype: yesno    
-  - no label: docket_number
+  - Case number: docket_number
     hide if: dont_know_docket_number
 validation code: |
-  # This should be safe to 
+  # This should be safe too
   if dont_know_docket_number:
-    docket_number = ''      
+    docket_number = ''    
 ---
 question: |
-  Do you have a docket number for this case?
+  Do you have a case number used to track this case in court?
 fields:
-  - no label: docket_numbers.there_are_any
+  - I have a case number: docket_numbers.there_are_any
     datatype: yesnoradio
 ---
 id: docket numbers
 question: |
-  What is the docket number for this case?
+  Case number
 subquestion: |
-  If there are multiple docket numbers on this form, you can tap "${word("Add another")}"
+  If there are multiple case numbers on this form, you can tap "${word("Add another")}"
   to add more than one.
 list collect: True
 fields:
-  - no label: docket_numbers[i]
+  - Case number: docket_numbers[i]
     required: False
 ---
 id: who will be on this form
