@@ -536,14 +536,14 @@ def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True):
     If exclude_identical, return empty string when title is the same as the subtitle.
     """
     if answer.get("title"):
-        return pascal_to_zwspace(answer.get("title"))
+        return pascal_to_zwspace(answer["title"])
     elif answer.get("auto_title") and (
         not exclude_identical
         or not (
             answer.get("auto_title", "").lower() == nice_interview_title(answer).lower()
         )
     ):
-        return pascal_to_zwspace(answer.get("auto_title"))
+        return pascal_to_zwspace(answer["auto_title"])
     else:
         return ""
 
