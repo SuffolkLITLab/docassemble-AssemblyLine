@@ -60,6 +60,7 @@ __all__ = [
     "is_valid_json",
     "load_interview_answers",
     "load_interview_json",
+    "rename_current_session",
     "rename_interview_answers",
     "save_interview_answers",
     "session_list_html",
