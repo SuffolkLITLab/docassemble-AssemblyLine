@@ -41,6 +41,7 @@ from .al_document import (
 )
 import json
 import os
+import re
 
 try:
     import zoneinfo  # type: ignore
@@ -447,7 +448,7 @@ def interview_list_html(
     if not answers:
         return ""
 
-    table = '<div class="table-responsive"><table class="table table-striped al-saved-answer-table">'
+    table = '<div class="table-responsive"><table class="table table-striped al-saved-answer-table text-break">'
     table += f"""
     <thead>
       <th scope="col">
@@ -473,7 +474,7 @@ def interview_list_html(
             """
         else:
             table += f"""
-            <td><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a></td>
+            <td class="text-break"><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a></td>
             """
         table += f"""
         <td>{ as_datetime(answer.get("modtime")) }</td>
@@ -518,6 +519,16 @@ def nice_interview_title(
         return word("Untitled interview")
 
 
+def pascal_to_zwspace(text: str) -> str:
+    """
+    Insert a zero-width space into words that are PascalCased to help
+    with word breaks on small viewports.
+    """
+    re_outer = re.compile(r"([^A-Z ])([A-Z])")
+    re_inner = re.compile(r"(?<!^)([A-Z])([^A-Z])")
+    return re_outer.sub(r"\1​\2", re_inner.sub(r"​\1\2", text))
+
+
 def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True):
     """
     Return first defined of the "title" metadata, the "auto_title" metadata, or empty string.
@@ -525,14 +536,14 @@ def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True):
     If exclude_identical, return empty string when title is the same as the subtitle.
     """
     if answer.get("title"):
-        return answer.get("title")
+        return pascal_to_zwspace(answer.get("title"))
     elif answer.get("auto_title") and (
         not exclude_identical
         or not (
             answer.get("auto_title", "").lower() == nice_interview_title(answer).lower()
         )
     ):
-        return answer.get("auto_title")
+        return pascal_to_zwspace(answer.get("auto_title"))
     else:
         return ""
 
@@ -669,7 +680,7 @@ def session_list_html(
 
         table += """<tr class="al-saved-answer-table-row">"""
         table += f"""
-        <td>
+        <td class="text-break">
         <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_title(answer) }</a>
         {"<br/>" if nice_interview_subtitle(answer) else ""}
         <span class="al-session-form-subtitle">{ nice_interview_subtitle(answer) if nice_interview_subtitle(answer) else "" }</span>
