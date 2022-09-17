@@ -807,7 +807,7 @@ class ALIndividual(Individual):
     @property
     def initials(self):
         """Return the individual's initials, like QKS for Quinten K Steenhuis"""
-        return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1]}"
+        return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1] if hasattr(self.name, 'last') else ''}"
 
     def address_block(
         self, language=None, international=False, show_country=False, bare=False
