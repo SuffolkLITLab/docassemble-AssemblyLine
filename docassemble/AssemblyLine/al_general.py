@@ -110,7 +110,9 @@ class ALAddress(Address):
             [
                 {
                     "label": str(self.address_label),
-                    "address autocomplete": True,
+                    "address autocomplete": bool(
+                        (get_config("google") or {}).get("google maps api key")
+                    ),
                     "field": self.attr_name("address"),
                 },
                 {
