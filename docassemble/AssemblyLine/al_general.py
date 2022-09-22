@@ -484,12 +484,24 @@ class ALIndividual(Individual):
         nums = []
         if hasattr(self, "mobile_number") and self.mobile_number:
             try:
-                nums.append({phone_number_formatted(self.mobile_number, country=country): "cell"})
+                nums.append(
+                    {
+                        phone_number_formatted(
+                            self.mobile_number, country=country
+                        ): "cell"
+                    }
+                )
             except:
                 nums.append({self.mobile_number: "cell"})
         if hasattr(self, "phone_number") and self.phone_number:
             try:
-                nums.append({phone_number_formatted(self.phone_number, country=country): "other"})
+                nums.append(
+                    {
+                        phone_number_formatted(
+                            self.phone_number, country=country
+                        ): "other"
+                    }
+                )
             except:
                 nums.append({self.phone_number: "other"})
         if len(nums) > 1:
