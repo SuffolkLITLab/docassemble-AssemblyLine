@@ -11,6 +11,7 @@ from docassemble.base.util import (
     url_action,
     get_config,
     phone_number_is_valid,
+    phone_number_formatted,
     validation_error,
     DAWeb,
     get_config,
@@ -479,12 +480,18 @@ class ALIndividual(Individual):
         else:
             return ""
 
-    def phone_numbers(self) -> str:
+    def phone_numbers(self, country=None) -> str:
         nums = []
         if hasattr(self, "mobile_number") and self.mobile_number:
-            nums.append({self.mobile_number: "cell"})
+            try:
+                nums.append({phone_number_formatted(self.mobile_number, country=country): "cell"})
+            except:
+                nums.append({self.mobile_number: "cell"})
         if hasattr(self, "phone_number") and self.phone_number:
-            nums.append({self.phone_number: "other"})
+            try:
+                nums.append({phone_number_formatted(self.phone_number, country=country): "other"})
+            except:
+                nums.append({self.phone_number: "other"})
         if len(nums) > 1:
             return comma_list(
                 [
