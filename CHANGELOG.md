@@ -21,29 +21,6 @@ Fixed:
 Cleanup:
 * Remove manage_sessions.yml - it's not used by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/553
 
-# Version v2.16.0
-
-New:
-* Address improvements by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/554
-* Add question for your birthdate by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/557
-* Save progress and form title at regular intervals, small interview list cleanups by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/559
-* Switch back to the clickable link being form title, not subtitle by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/561
-
-Changed:
-* Rename "docket number" to case number by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/566
-* Initials shouldn't trigger last name for a business by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/570
-
-Fixed:
-* DA 1.4.0 compatibility by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/549
-* Fix no address by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/555
-* Don't add left-padding to the first footer child by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/556
-* Fix session list on small screens by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/569
-* Don't turn on address autocomplete if not enabled by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/576
-* Check if the `suffix_to_append` attribute exists by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/583
-
-Cleanup:
-* Remove manage_sessions.yml - it's not used by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/553
-
 # Version v2.15.0
 
 Fixed
