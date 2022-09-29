@@ -673,6 +673,8 @@ class ALDocument(DADict):
 
         safe_key = space_to_underscore(key)
 
+        if not hasattr(self, 'suffix_to_append'):
+            self.suffix_to_append = "preview"
         if append_matching_suffix and key == self.suffix_to_append:
             append_suffix: str = f"_{safe_key}"
         else:
