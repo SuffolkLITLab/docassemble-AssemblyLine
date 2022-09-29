@@ -1,7 +1,6 @@
 /* WARNING TO AL DEVELOPERS: Only use CSS _classes_ in our CSS unless you know for a fact that an ID is static. Most IDs are generated dynamically, so using them in the CSS will only work with our test files. */
 
 /* ========= Isolated email send button ========= */
-/* Email button (there's another section for this at the bottom?) */
 /* Feedback from UI designers has been that email input field and
    send button should be on the same line. */
 
@@ -37,7 +36,7 @@
 }
 
 .al_send_section_alone .al_email_address,
-.al_send_section_alone .al_doc_email_label {
+.al_send_section_alone .al_email_address label {
   max-width: 70%;
   padding-left: 0;
 }
@@ -47,12 +46,26 @@
 }
 
 .al_send_section_alone .al_doc_email_header {
+  margin: 1em 0;
+}
+
+.al_send_section_alone .al_doc_email_header {
     margin-bottom: 0.2em;
+}
+
+/* al_email_container mobile version */
+@media only screen and (max-width: 700px) {
+  .al_email_container {
+    display: block; 
+  }
+  .al_email_container > span > input {
+    margin: 0 0 10px; 
+  }
 }
 
 /* ========= Table rows ========= */
 .al_doc_table {
-    margin-bottom: 2em;
+    margin-bottom: 2rem;
 }
 
 .al_doc_table_row .al_doc_title,
@@ -81,7 +94,7 @@
     justify-content: space-between;
 }
 
-.al_doc_table_row .al_doc_email_label {
+.al_doc_table_row .al_email_input_container label {
     width: unset;
     padding-right: 1em;
 }
@@ -91,107 +104,7 @@
     flex-grow: 1;
 }
 
-/*
-.al_table_css_sibling + div thead {
-  display: none;
-}
-
-.al_table_css_sibling + div td {
-  padding: .3em;
-  vertical-align: text-top;
-}
-td.text-left:first-child {
-  width: 1em;
-  padding-left: .5em;
-}
-.al_table_css_sibling + div td.text-left + td.text-right {
-  width: 5em;
-}
-.al_table_css_sibling + div td.text-right {
-  width: 7em;
-}
-
-.al_table_css_sibling + div a {
-  margin: 0em;
-}
-*/
-
-/* TODO: Should it be this broad? This looks like it's for all pages */
+/* TODO: Should it be in here and this broad? This looks like it's for all pages */
 .da-subquestion .daquestionbackbutton {
   background-color: #eee;
 }
-
-/* Should not be an id */
-#al_doc_email_header {
-  margin: 1rem 0;
-}
-
-.al_doc_email_header {
-  margin: 1rem 0;
-}
-
-/* Won't work for users. Doesn't account for dynamic ids. */
-/*
-#al_user_bundle {
-  margin: 0.5rem 0;
-}
-*/
-
-/* Avoid icons being on their own lines */
-/*
-.al_table .al_buttons .btn {
-  position: relative;
-  margin: 0;
-  margin-bottom: 0.1rem;
-  white-space: nowrap;
-}
-*/
-
-/* On wide screens, let titles wrap, but let buttons stay horizontal */
-/* On small screens, wrap buttons and let titles have the room they need */
-/*
-@media only screen and (min-width: 450px) {
-  .al_table .al_buttons {
-    white-space: nowrap;
-  }
-}
-*/
-
-/* Won't work for users. Doesn't account for dynamic ids. */
-/*
-#al_user_bundle td div {
-  min-width: 320px;
-}
-*/
-
-/* Won't work for users. Doesn't account for dynamic ids. */
-/*
-#al_send_bundle_al_user_bundle .form-check-container {
-  margin: 0.5rem 0 5px 0;
-}
-*/
-
-/* al_email_container mobile version */
-@media only screen and (max-width: 700px) {
-  .al_email_container {
-    display: block; 
-  }
-  .al_email_container > span > input {
-    margin: 0 0 10px; 
-  }
-}
-
-/* The following 3 rules split title/button columns on the download screen by a 30%/70% ratio. This is to give the buttons enough room to stay horizontal even with long titles. */
-/*
-table {
-  width: 100%;
-  table-layout: fixed;
-}
-.al_doc_title {
-  width: 30%; 
-}
-.al_buttons {
-  width: 70%;
-  padding-left: 2em;  
-}
-*/
