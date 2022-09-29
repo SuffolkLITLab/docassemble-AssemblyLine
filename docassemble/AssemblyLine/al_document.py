@@ -103,14 +103,14 @@ def table_row(title: str, button_htmls: List[str] = []) -> str:
     html = (
         f'\n\t<div class="row al_doc_table_row">'
         f'\n\t\t<div class="col col-6 al_doc_title">{title}</div>'
-        # At some widths, `col-6` barely has room to avoid 
+        # At some widths, `col-6` barely has room to avoid
         # wrapping lines for these buttons
         f'\n\t\t<div class="col col-6 al_buttons">'
     )
     for button in button_htmls:
         html += button
-    html += '</div>'
-    html += '\n\t</div>'
+    html += "</div>"
+    html += "\n\t</div>"
 
     return html
 
@@ -1188,7 +1188,7 @@ class ALDocumentBundle(DAList):
         zip_label: str = None,
         zip_icon: str = "file-archive",
         append_matching_suffix: bool = True,
-        include_email: bool = False
+        include_email: bool = False,
     ) -> str:
         """
         Returns string of a table to display a list
@@ -1294,8 +1294,8 @@ class ALDocumentBundle(DAList):
             html += table_row(zip.title, zip_button)
 
         if include_email:
-          html += self.send_email_table_row( key=key )
-            
+            html += self.send_email_table_row(key=key)
+
         html += "\n</div>"
 
         # Discuss: Do we want a table with the ability to have a merged pdf row?
@@ -1355,7 +1355,7 @@ class ALDocumentBundle(DAList):
 
         return html
 
-    def send_email_table_row( self, key: str = "final" ) -> str:
+    def send_email_table_row(self, key: str = "final") -> str:
         """
         Generate HTML doc table row for an input box and button that allows
         someone to send the bundle to the specified email address.
@@ -1386,10 +1386,10 @@ class ALDocumentBundle(DAList):
           <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control al_doc_email_field" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
         </span>
         """
-        
+
         # "Send" button for the 2nd column of the table row
         send_button = f'{action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}'
-        
+
         # Whole row put together
         html = f"""
         <div class="row al_doc_table_row al_send_bundle {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
@@ -1397,7 +1397,7 @@ class ALDocumentBundle(DAList):
           <div class="col col-3 al_email_send_col al_buttons">{ send_button }</div>
         </div>
         """
-        
+
         return html
 
     def send_button_html(
