@@ -95,23 +95,22 @@ def html_safe_str(the_string: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", the_string)
 
 
-# def table_row( title, view_file:DAFile, download_file:DAFile=None, view_icon:str="eye", download_icon:str="download") -> str:
 def table_row(title: str, button_htmls: List[str] = []) -> str:
     """
     Uses the provided title and list of button html strings to
     return the row of an AL document-styled table in HTML format.
     """
     html = (
-        f"\n\t<tr>"
-        # '\n\t\t<td><i class="fas fa-file"></i>&nbsp;&nbsp;</td>'
-        # TODO: Need to replace with proper CSS
-        f'\n\t\t<td class="al_doc_title"><strong>{title}</strong></td>'
-        f'\n\t\t<td class="al_buttons">'
+        f'\n\t<div class="row al_doc_table_row">''
+        f'\n\t\t<div class="col col-6 al_doc_title">{title}</div>'
+        # At some widths, `col-6` barely has room to avoid 
+        # wrapping lines for these buttons
+        f'\n\t\t<div class="col col-6 al_buttons">'
     )
     for button in button_htmls:
         html += button
-    html += "</td>"
-    html += "\n\t</tr>"
+    html += '</div>'
+    html += '\n\t</div>'
 
     return html
 
@@ -1189,6 +1188,7 @@ class ALDocumentBundle(DAList):
         zip_label: str = None,
         zip_icon: str = "file-archive",
         append_matching_suffix: bool = True,
+        include_email: bool = False
     ) -> str:
         """
         Returns string of a table to display a list
@@ -1214,7 +1214,7 @@ class ALDocumentBundle(DAList):
                     append_matching_suffix=append_matching_suffix,
                 )  # Generate cached file for this session
 
-        html = f'<table class="al_table" id="{ html_safe_str(self.instanceName) }">'
+        html = f'<div class="container al_table al_doc_table" id="{ html_safe_str(self.instanceName) }">'
 
         for doc in enabled_docs:
             filename_root = os.path.splitext(str(doc.filename))[0]
@@ -1293,7 +1293,10 @@ class ALDocumentBundle(DAList):
             )
             html += table_row(zip.title, zip_button)
 
-        html += "\n</table>"
+        if include_email:
+          html += self.send_email_table_row( key=key )
+            
+        html += "\n</div>"
 
         # Discuss: Do we want a table with the ability to have a merged pdf row?
         return html
@@ -1345,22 +1348,17 @@ class ALDocumentBundle(DAList):
             buttons = [doc_download_button]
 
         html = (
-            f'<table class="al_table merged_docs" id="{html_safe_str(self.instanceName)}">'
+            f'<div class="container al_table merged_docs" id="{html_safe_str(self.instanceName)}">'
             f"{table_row(self.title, buttons)}"
-            f"\n</table>"
+            f"\n</div>"
         )
 
         return html
 
-    def send_button_html(
-        self, key: str = "final", show_editable_checkbox: bool = True
-    ) -> str:
+    def send_email_table_row( self, key: str = "final" ) -> str:
         """
-        Generate HTML for an input box and button that allows someone to send
-        the bundle to the specified email address.
-
-        Optionally, display a checkbox that allows someone to decide whether or not to
-        include an editable (Word) copy of the file, iff it is available.
+        Generate HTML doc table row for an input box and button that allows
+        someone to send the bundle to the specified email address.
         """
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
@@ -1381,10 +1379,62 @@ class ALDocumentBundle(DAList):
             f"'{al_wants_editable_input_id}','{al_email_input_id}')"
         )
 
+        # Label "email" and input field for the 1st column of the table row
+        input_html = f"""
+        <span class="al_email_input_container {name} form-group da-field-container da-field-container-datatype-email">
+          <label for="{al_email_input_id}" class="al_doc_email_label col-form-label da-form-label datext-right">Email</label>
+          <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control al_doc_email_field" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
+        </span>
+        """
+        
+        # "Send" button for the 2nd column of the table row
+        send_button = f'{action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}'
+        
+        # Whole row put together
+        html = f"""
+        <div class="row al_doc_table_row al_send_bundle {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
+          <div class="col col-9 al_email_input_col">{ input_html }</div>
+          <div class="col col-3 al_email_send_col al_buttons">{ send_button }</div>
+        </div>
+        """
+        
+        return html
+
+    def send_button_html(
+        self, key: str = "final", show_editable_checkbox: bool = True
+    ) -> str:
+        """
+        Generate HTML for an input box and button that allows someone to send
+        the bundle to the specified email address.
+
+        Optionally, display a checkbox that allows someone to decide whether or not to
+        include an editable (Word) copy of the file, if it is available.
+        """
+        if not self.has_enabled_documents():
+            return ""  # Don't let people email an empty set of documents
+        if not hasattr(self, "_cached_get_email_copy"):
+            self._cached_get_email_copy = str(self.get_email_copy)
+        if not hasattr(self, "_cached_include_editable_documents"):
+            self._cached_include_editable_documents = str(
+                self.include_editable_documents
+            )
+        name = html_safe_str(self.instanceName)
+        al_wants_editable_input_id = "_ignore_al_wants_editable_" + name
+        al_email_input_id = "_ignore_al_doc_email_" + name
+        al_send_button_id = "al_send_email_button_" + name
+
+        javascript_string = (
+            f"javascript:aldocument_send_action("
+            f"'{self.attr_name('send_email_action_event')}',"
+            f"'{al_wants_editable_input_id}','{al_email_input_id}')"
+        )
+
+        # Container of whole email section with header
         return_str = f"""
-  <div class="al_send_bundle {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
-    <h5 id="al_doc_email_header">{self._cached_get_email_copy}</h5> 
+  <div class="al_send_bundle al_send_section_alone {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
+    <h2 class="h4 al_doc_email_header">{self._cached_get_email_copy}</h5> 
     """
+        # "Editable" checkbox
         if show_editable_checkbox:
             return_str += f"""
     <div class="form-check-container">
@@ -1395,16 +1445,20 @@ class ALDocumentBundle(DAList):
       </div>
     </div>
   """
+        # Email input and send button
         return_str += f"""
   <div class="al_email_container">
-    <span class="al_email_address {name} form-group row da-field-container da-field-container-datatype-email">
-      <label for="{al_email_input_id}" class="al_doc_email col-form-label da-form-label datext-right">Email</label>
-      <input value="{user_info().email if user_logged_in() else ''}" alt="Input box" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
-    </span>{action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}
+  
+    <span class="al_email_address {name} container form-group row da-field-container da-field-container-datatype-email">
+      <label for="{al_email_input_id}" class="al_doc_email_label col-form-label da-form-label datext-right">Email</label>
+      <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
+    </span>
+    
+    {action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}
 
   </div>
   """
-        return_str += "</div>"  # al_send_bundle
+        return_str += "</div>"  # .al_send_bundle container
         return return_str
 
     def send_email(

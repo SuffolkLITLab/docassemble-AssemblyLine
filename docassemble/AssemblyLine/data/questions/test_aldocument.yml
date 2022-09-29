@@ -109,23 +109,27 @@ subquestion: |
   
   Note: We're deprecating `download_html()` and removing it, so it will not be tested in here.
 
-  multi_bundle_1.download_list_html()
+  multi_bundle_1.download_list_html() with send button for alignment comparison
   
   ${ multi_bundle_1.download_list_html() }
   
-  ---
+  ${ multi_bundle_1.send_button_html() }
+  
+  multi_bundle_1.download_list_html( include_email=True )
+  
+  ${ multi_bundle_1.download_list_html( include_email=True ) }
 
   single_pdf_bundle_1.download_list_html()
   
   ${ single_pdf_bundle_1.download_list_html() }
   
-  ---
+  single_pdf_bundle_1.download_list_html( include_email=True )
+  
+  ${ single_pdf_bundle_1.download_list_html( include_email=True ) }
 
   single_docx_bundle_1.download_list_html()
   
   ${ single_docx_bundle_1.download_list_html() }
-  
-  ---
 ---
 # Keeping this in here until method is completely removed just in case other decisions are made
 #id: download_html_defaults
@@ -146,19 +150,13 @@ subquestion: |
 
   ${ multi_bundle_1.send_button_html() }
   
-  ---
-  
   single_pdf_bundle_1.send_button_html()
 
   ${ single_pdf_bundle_1.send_button_html() }
   
-  ---
-  
   single_docx_bundle_1.send_button_html()
 
   ${ single_docx_bundle_1.send_button_html() }
-  
-  ---
 ---
 id: as_foo_custom
 continue button field: as_foo_custom

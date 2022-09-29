@@ -6,6 +6,7 @@ from distutils.util import convert_path
 
 standard_exclude = ('*.pyc', '*~', '.*', '*.bak', '*.swp*')
 standard_exclude_directories = ('.*', 'CVS', '_darcs', './build', './dist', 'EGG-INFO', '*.egg-info')
+
 def find_package_data(where='.', package='', exclude=standard_exclude, exclude_directories=standard_exclude_directories):
     out = {}
     stack = [(convert_path(where), '', package)]
@@ -53,7 +54,7 @@ setup(name='docassemble.AssemblyLine',
       url='https://courtformsonline.org',
       packages=find_packages(),
       namespace_packages=['docassemble'],
-      install_requires=['docassemble.ALToolbox>=0.4.3', 'docassemble.GithubFeedbackForm>=0.1.3', 'backports.zoneinfo; python_version<"3.9"'],
+      install_requires=['docassemble.ALToolbox>=0.6.0', 'docassemble.GithubFeedbackForm>=0.2.0b1'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/AssemblyLine/', package='docassemble.AssemblyLine'),
      )
