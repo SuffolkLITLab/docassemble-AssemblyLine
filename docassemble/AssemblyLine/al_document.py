@@ -106,7 +106,7 @@ def table_row(title: str, button_htmls: List[str] = []) -> str:
     return the row of an AL document-styled table in HTML format.
     """
     html = (
-        f'\n\t<div class="row al_doc_table_row">''
+        f'\n\t<div class="row al_doc_table_row">'
         f'\n\t\t<div class="col col-6 al_doc_title">{title}</div>'
         # At some widths, `col-6` barely has room to avoid 
         # wrapping lines for these buttons
@@ -1406,7 +1406,7 @@ class ALDocumentBundle(DAList):
         # Label "email" and input field for the 1st column of the table row
         input_html = f"""
         <span class="al_email_input_container {name} form-group da-field-container da-field-container-datatype-email">
-          <label for="{al_email_input_id}" class="al_doc_email_label col-form-label da-form-label datext-right">Email</label>
+          <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">Email</label>
           <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control al_doc_email_field" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
         </span>
         """
@@ -1474,7 +1474,7 @@ class ALDocumentBundle(DAList):
   <div class="al_email_container">
   
     <span class="al_email_address {name} container form-group row da-field-container da-field-container-datatype-email">
-      <label for="{al_email_input_id}" class="al_doc_email_label col-form-label da-form-label datext-right">Email</label>
+      <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">Email</label>
       <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
     </span>
     
