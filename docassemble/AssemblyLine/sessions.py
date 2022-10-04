@@ -263,6 +263,8 @@ def get_saved_interview_list(
     offset: int = 0,
     filename_to_exclude: str = "",
     exclude_current_filename: bool = True,
+    exclude_filenames:List[str] = None,
+    exclude_newly_started_sessions:bool = True,
 ) -> List[Dict]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
     to add metadata, the result list will include columns containing the metadata.
@@ -305,8 +307,8 @@ def get_saved_interview_list(
     
     AND
     (userdict.filename = :filename OR :filename is null)
-    AND userdict.filename != :filename_to_exclude
-    AND userdict.filename != :current_filename
+    AND (userdict.filename NOT IN :filenames_to_exclude)
+    AND (NOT :exclude_newly_started_sessions OR num_keys > 1)
     ORDER BY modtime desc 
     LIMIT :limit
     OFFSET :offset;
@@ -324,6 +326,11 @@ def get_saved_interview_list(
         current_filename = ""
     if not filename_to_exclude:
         filename_to_exclude = ""
+    if exclude_filenames:
+        filenames_to_exclude = exclude_filenames
+    else:
+        filenames_to_exclude = []
+    filenames_to_exclude.extend([current_filename, filename_to_exclude])
     if user_id is None:
         if user_logged_in():
             user_id = user_info().id
@@ -351,8 +358,8 @@ def get_saved_interview_list(
             filename=filename,
             limit=limit,
             offset=offset,
-            filename_to_exclude=filename_to_exclude,
-            current_filename=current_filename,
+            filenames_to_exclude=tuple(filenames_to_exclude),
+            exclude_newly_started_sessions=exclude_newly_started_sessions,
         )
     sessions = []
     for session in rs:
@@ -588,6 +595,8 @@ def session_list_html(
     metadata_key_name: str = "metadata",
     filename_to_exclude: str = al_session_store_default_filename,
     exclude_current_filename: bool = True,
+    exclude_filenames:List[str] = None,
+    exclude_newly_started_sessions:bool = True,
     name_label: str = word("Title"),
     date_label: str = word("Date modified"),
     details_label: str = word("Progress"),
@@ -598,6 +607,7 @@ def session_list_html(
     delete_action: str = "interview_list_delete_session",
     copy_action: str = "interview_list_copy_action",
     clone_label: str = word("Copy as answer set"),
+    show_title:bool = True,
     limit: int = 50,
     offset: int = 0,
 ) -> str:
@@ -616,6 +626,8 @@ def session_list_html(
         offset=offset,
         filename_to_exclude=filename_to_exclude,
         exclude_current_filename=exclude_current_filename,
+        exclude_filenames = exclude_filenames,
+        exclude_newly_started_sessions = exclude_newly_started_sessions,
     )
 
     if not answers:
@@ -680,13 +692,20 @@ def session_list_html(
         )
 
         table += """<tr class="al-saved-answer-table-row">"""
-        table += f"""
-        <td class="text-break">
-        <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_title(answer) }</a>
-        {"<br/>" if nice_interview_subtitle(answer) else ""}
-        <span class="al-session-form-subtitle">{ nice_interview_subtitle(answer) if nice_interview_subtitle(answer) else "" }</span>
-        </td>
-        """
+        if show_title:
+            table += f"""
+            <td class="text-break">
+            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_title(answer) }</a>
+            {"<br/>" if nice_interview_subtitle(answer) else ""}
+            <span class="al-session-form-subtitle">{ nice_interview_subtitle(answer) if nice_interview_subtitle(answer) else "" }</span>
+            </td>
+            """
+        else:
+            table += f"""
+            <td class="text-break">
+            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a>
+            </td>
+            """
         table += f"""
         <td>
             <span class="al-session-date-modified">{ local_date(answer.get("modtime")) }</span> <br/>
