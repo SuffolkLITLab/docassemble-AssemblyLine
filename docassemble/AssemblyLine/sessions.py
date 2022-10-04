@@ -263,8 +263,8 @@ def get_saved_interview_list(
     offset: int = 0,
     filename_to_exclude: str = "",
     exclude_current_filename: bool = True,
-    exclude_filenames:List[str] = None,
-    exclude_newly_started_sessions:bool = True,
+    exclude_filenames: List[str] = None,
+    exclude_newly_started_sessions: bool = True,
 ) -> List[Dict]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
     to add metadata, the result list will include columns containing the metadata.
@@ -595,8 +595,8 @@ def session_list_html(
     metadata_key_name: str = "metadata",
     filename_to_exclude: str = al_session_store_default_filename,
     exclude_current_filename: bool = True,
-    exclude_filenames:List[str] = None,
-    exclude_newly_started_sessions:bool = True,
+    exclude_filenames: List[str] = None,
+    exclude_newly_started_sessions: bool = True,
     name_label: str = word("Title"),
     date_label: str = word("Date modified"),
     details_label: str = word("Progress"),
@@ -607,7 +607,7 @@ def session_list_html(
     delete_action: str = "interview_list_delete_session",
     copy_action: str = "interview_list_copy_action",
     clone_label: str = word("Copy as answer set"),
-    show_title:bool = True,
+    show_title: bool = True,
     limit: int = 50,
     offset: int = 0,
 ) -> str:
@@ -626,8 +626,8 @@ def session_list_html(
         offset=offset,
         filename_to_exclude=filename_to_exclude,
         exclude_current_filename=exclude_current_filename,
-        exclude_filenames = exclude_filenames,
-        exclude_newly_started_sessions = exclude_newly_started_sessions,
+        exclude_filenames=exclude_filenames,
+        exclude_newly_started_sessions=exclude_newly_started_sessions,
     )
 
     if not answers:
