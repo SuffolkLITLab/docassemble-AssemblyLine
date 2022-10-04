@@ -1243,22 +1243,21 @@ fields:
   - Choose a way to sign: signature_choice
     input type: radio
     choices:
-      - Give me a link so I can sign on my phone with my finger: phone
-        image: mobile-alt
+      - Sign on a phone with my finger: phone
+        help: |
+          We can text or share a link with your phone on the next screen
       - Sign with my computer mouse: this_device
-        image: desktop
     show if:
       code: |
         al_form_requires_digital_signature
   - Choose a way to sign: signature_choice
     input type: radio
     choices:
-      - Give me a link so I can sign on my phone with my finger: phone
-        image: mobile-alt
+      - Sign on a phone with my finger: phone
+        help: |
+          We can text or share a link with your phone on the next screen
       - Sign with my computer mouse: this_device
-        image: desktop
       - Sign after I print: sign_after_printing
-        image: print
     show if:
       code: |
         not al_form_requires_digital_signature

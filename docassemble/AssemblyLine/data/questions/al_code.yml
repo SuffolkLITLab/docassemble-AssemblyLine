@@ -108,7 +108,7 @@ attachment:
 # Signature code  
 ---
 code: |
-  started_on_phone = device() and device().is_mobile
+  started_on_phone = device() and (device().is_mobile or device().is_touch_capable)
 ---
 # Triggers some questions to ask for signatures on either desktop or mobile
 # Allows sending via text/email
