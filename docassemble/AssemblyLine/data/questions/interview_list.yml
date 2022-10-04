@@ -82,6 +82,8 @@ default screen parts:
 ---
 mandatory: True
 code: |
+  if not user_logged_in():
+    command("signin")
   if get_config("assembly line",{}).get("enable answer sets"):
     nav.unhide()
   else:
