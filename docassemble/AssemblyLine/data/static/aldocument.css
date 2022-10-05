@@ -1,6 +1,8 @@
 /* WARNING TO AL DEVELOPERS: Only use CSS _classes_ in our CSS unless you know for a fact that an ID is static. Most IDs are generated dynamically, so using them in the CSS will only work with our test files. */
 
-/* ========= Isolated email send button ========= */
+/*---------------------------------------------------------*/
+/* Isolated email send button
+/*---------------------------------------------------------*/
 /* Feedback from UI designers has been that email input field and
    send button should be on the same line. */
 
@@ -20,8 +22,8 @@
   max-width: 50%
 }
 
-.al_send_section_alone .al_send_button {
-  display: inline-block;
+.al_send_section_alone .al_send_email_button {
+  flex-grow: 1;
 }
 
 .al_send_section_alone .al_send_editable {
@@ -46,10 +48,6 @@
 }
 
 .al_send_section_alone .al_doc_email_header {
-  margin: 1em 0;
-}
-
-.al_send_section_alone .al_doc_email_header {
     margin-bottom: 0.2em;
 }
 
@@ -63,9 +61,28 @@
   }
 }
 
-/* ========= Table rows ========= */
+/*---------------------------------------------------------*/
+/* Table rows
+/*---------------------------------------------------------*/
 .al_doc_table {
     margin-bottom: 2rem;
+}
+
+.al_doc_table .al_buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.al_doc_table .al_buttons > * {
+    flex-grow: 1;
+}
+
+.al_doc_table .al_buttons .al_button {
+    margin-right: 4px;
+}
+
+.al_doc_table .al_buttons .al_button:last-child {
+    margin-right: 0;
 }
 
 .al_doc_table_row .al_doc_title,
