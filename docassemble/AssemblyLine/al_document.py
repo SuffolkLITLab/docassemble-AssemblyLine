@@ -1280,7 +1280,7 @@ class ALDocumentBundle(DAList):
                 icon=download_icon,
                 color="primary",
                 size="md",
-                classname="al_download",
+                classname="al_download al_button",
             )
             if view and doc.as_pdf().url_for().endswith(".pdf"):
                 doc_view_button = action_button_html(
@@ -1293,7 +1293,7 @@ class ALDocumentBundle(DAList):
                     icon=view_icon,
                     color="secondary",
                     size="md",
-                    classname="al_view",
+                    classname="al_view al_button",
                 )
                 buttons = [doc_view_button, doc_download_button]
             else:
@@ -1313,7 +1313,7 @@ class ALDocumentBundle(DAList):
                 icon=zip_icon,
                 color="primary",
                 size="md",
-                classname="al_zip",
+                classname="al_zip al_button",
             )
             html += table_row(zip.title, zip_button)
 
@@ -1407,12 +1407,12 @@ class ALDocumentBundle(DAList):
         input_html = f"""
         <span class="al_email_input_container {name} form-group da-field-container da-field-container-datatype-email">
           <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">Email</label>
-          <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control al_doc_email_field" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
+          <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control al_doc_email_field al_button" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
         </span>
         """
         
         # "Send" button for the 2nd column of the table row
-        send_button = f'{action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}'
+        send_button = f'{action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button al_button", id_tag=al_send_button_id)}'
         
         # Whole row put together
         html = f"""
@@ -1455,8 +1455,8 @@ class ALDocumentBundle(DAList):
 
         # Container of whole email section with header
         return_str = f"""
-  <div class="al_send_bundle al_send_section_alone {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
-    <h2 class="h4 al_doc_email_header">{self._cached_get_email_copy}</h5> 
+  <fieldset class="al_send_bundle al_send_section_alone {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
+    <legend class="h4 al_doc_email_header">{self._cached_get_email_copy}</legend> 
     """
         # "Editable" checkbox
         if show_editable_checkbox:
@@ -1482,7 +1482,7 @@ class ALDocumentBundle(DAList):
 
   </div>
   """
-        return_str += "</div>"  # .al_send_bundle container
+        return_str += "</fieldset>"  # .al_send_section_alone container
         return return_str
 
     def send_email(
