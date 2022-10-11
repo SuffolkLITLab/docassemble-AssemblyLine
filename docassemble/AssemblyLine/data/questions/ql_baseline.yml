@@ -148,10 +148,10 @@ code: |
     petitioners = other_parties
 ---
 depends on:
-  - user_ask_role
+  - user_role
 code: |
   # If the interview author didn't specify and it's a "court" or "other" case, we just ask
-  user_started_case = user_ask_role == 'plaintiff'
+  user_started_case = user_role == 'plaintiff'
 ---
 id: what is the user's detailed role in this case?
 comment: |
