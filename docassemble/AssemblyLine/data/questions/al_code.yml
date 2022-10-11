@@ -166,6 +166,8 @@ code: |
     first_form = {}
   del(first_form_key)
 ---
+depends on:
+  - user_ask_role
 code: |
   # If the author hasn't explicitly defined it in the interview_order block,
   # define user_role to be either "defendant" or "plaintiff",
