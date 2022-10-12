@@ -1432,7 +1432,7 @@ class ALDocumentBundle(DAList):
         the bundle to the specified email address.
 
         Optionally, display a checkbox that allows someone to decide whether or not to
-        include an editable (Word) copy of the file, if it is available.
+        include an editable (Word) copy of the file, if and only if it is available.
         """
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
