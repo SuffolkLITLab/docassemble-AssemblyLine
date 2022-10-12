@@ -1060,7 +1060,7 @@ question: |
 signature: x.signature
 under: |
   ${x}
-progress: 99  
+progress: 99
 ---
 id: signature date
 question: |
@@ -1236,24 +1236,32 @@ code: |
 id: signature choice
 decoration: file-signature
 question: |
-  Sign your forms
+  Your documents are almost ready
 subquestion: |
-  Your forms are almost ready. You need to sign them first.
-  
-  Use the mouse or touchpad on your computer or
-  sign with your finger on a smartphone.
-field: signature_choice
-buttons:  
-  - Sign on my phone: phone
-    image: mobile-alt
-  - Sign on this computer: this device
-    image: desktop
-continue button field: saw_signature_choice
-script: |
-  <script>
-    $(".da-field-buttons > div > .btn-da-custom").last().after("<br>")
-    $(".da-field-buttons > div > .btn-da-custom").first().before("<br>")
-  </script>
+  How do you want to sign them?
+fields: 
+  - I will sign: signature_choice
+    input type: radio
+    choices:
+      - On a phone with my finger: phone
+        help: |
+          We can text or share a link with your phone on the next screen
+      - On a computer with my mouse: this_device
+    show if:
+      code: |
+        al_form_requires_digital_signature
+  - I will sign: signature_choice
+    input type: radio
+    choices:
+      - On a phone with my finger: phone
+        help: |
+          We can text or share a link with your phone on the next screen
+      - On a computer with my mouse: this_device
+      - On the paper with a pen after I print the documents: sign_after_printing
+    show if:
+      code: |
+        not al_form_requires_digital_signature
+continue button field: saw_signature_choice        
 ---
 comment: |
   This block is shown when the user texts a link to sign a form

@@ -101,5 +101,6 @@ code: |
 ---
 code: |
   AL_DEFAULT_OVERFLOW_MESSAGE = "..."
-  
-  
+---
+code: |
+  al_form_requires_digital_signature = True

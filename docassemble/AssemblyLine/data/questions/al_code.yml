@@ -108,7 +108,7 @@ attachment:
 # Signature code  
 ---
 code: |
-  started_on_phone = device() and device().is_mobile
+  started_on_phone = device() and (device().is_mobile or device().is_touch_capable)
 ---
 # Triggers some questions to ask for signatures on either desktop or mobile
 # Allows sending via text/email
@@ -126,7 +126,10 @@ code: |
     # 3. Used the QR code
     saw_signature_choice
     # Branch 1: PC
-    if signature_choice =='this device':
+    if signature_choice == "sign_after_printing":
+      for signature in signature_fields:
+        define(signature, DAEmpty())
+    elif signature_choice in ['this device', 'this_device']:
       for signature in signature_fields:
         value(signature)    
     # Check for Branch 2 or 3
