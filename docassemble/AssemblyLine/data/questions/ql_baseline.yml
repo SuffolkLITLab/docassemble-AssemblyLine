@@ -1236,28 +1236,28 @@ code: |
 id: signature choice
 decoration: file-signature
 question: |
-  How do you want to sign your forms?
+  Your documents are almost ready
 subquestion: |
-  Your forms are almost ready. You need to sign them first.
+  How do you want to sign them?
 fields: 
-  - Choose a way to sign: signature_choice
+  - I will sign: signature_choice
     input type: radio
     choices:
-      - Sign on a phone with my finger: phone
+      - On a phone with my finger: phone
         help: |
           We can text or share a link with your phone on the next screen
-      - Sign with my computer mouse: this_device
+      - On a computer with my mouse: this_device
     show if:
       code: |
         al_form_requires_digital_signature
-  - Choose a way to sign: signature_choice
+  - I will sign: signature_choice
     input type: radio
     choices:
-      - Sign on a phone with my finger: phone
+      - On a phone with my finger: phone
         help: |
           We can text or share a link with your phone on the next screen
-      - Sign with my computer mouse: this_device
-      - Sign after I print: sign_after_printing
+      - On a computer with my mouse: this_device
+      - On the paper with a pen after I print the documents: sign_after_printing
     show if:
       code: |
         not al_form_requires_digital_signature
