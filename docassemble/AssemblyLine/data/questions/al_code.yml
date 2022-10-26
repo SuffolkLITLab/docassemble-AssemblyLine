@@ -169,12 +169,14 @@ code: |
 depends on:
   - user_ask_role
 code: |
+  # DEPRECATED as of 2.17.1. Won't be removed, but you shouldn't reference this
+  # variable in your code. Use `user_ask_role` instead.
   # If the author hasn't explicitly defined it in the interview_order block,
   # define user_role to be either "defendant" or "plaintiff",
   # either by checking interview_metadata or asking the user.
   # The only valid values for user_role are "plaintiff" and "defendant".
   
-  # We will check for the "typical_role" key.  
+  # We will check for the "typical_role" key.
   # Some older wizarded code doesn't define `typical_role`, so fall back
   # to "unknown" if the key is not present.
   # first_form is the first entry in interview_metadata

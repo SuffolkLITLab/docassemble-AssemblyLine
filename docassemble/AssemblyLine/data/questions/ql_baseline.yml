@@ -148,10 +148,10 @@ code: |
     petitioners = other_parties
 ---
 depends on:
-  - user_role
+  - user_ask_role
 code: |
   # If the interview author didn't specify and it's a "court" or "other" case, we just ask
-  user_started_case = user_role == 'plaintiff'
+  user_started_case = user_ask_role == 'plaintiff'
 ---
 id: what is the user's detailed role in this case?
 comment: |
@@ -181,7 +181,7 @@ fields:
     datatype: radio
     choices:
       - Petitioner: petitioner
-      - Plaintiff: plaintiff      
+      - Plaintiff: plaintiff
       - I don't know: unknown
     show if:
       variable: user_detailed_role_started_case
@@ -804,7 +804,7 @@ fields:
 ---
 id: any other opposing parties
 question: |
-  % if user_role == 'plaintiff':
+  % if user_started_case:
   Is there any other **defendant** or respondent in this
   matter?
   % else:
@@ -821,7 +821,7 @@ sets:
   - other_parties[i].name.suffix
 id: names of opposing parties
 question: |
-  % if user_role == 'plaintiff':
+  % if user_started_case:
   Name of ${ ordinal(i) } **defendant** or respondent in this
   matter
   % else:
@@ -1503,12 +1503,12 @@ buttons:
 id: is the user the plaintiff or defendant?
 comment: |
   This question is asked if the interview can be used by both
-  a Plaintiff and a Defendant. It sets the value of `user_role`,
+  a Plaintiff and a Defendant. It sets the value of `user_role`, `user_started_case`,
   `plaintiffs`, `defendants`, `petitioners` and `respondents`.
   
   If you know your interview is exclusively
-  used by the Plaintiff or Defendant, set `user_role = 'plaintiff'` or 
-  `user_role='defendant'` in your code.
+  used by the Plaintiff or Defendant, set `user_ask_role = 'plaintiff'` or
+  `user_ask_role='defendant'` in your code.
 question: |
   Did you start this case, or are you responding to a case
   that someone else started?
