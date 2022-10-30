@@ -423,7 +423,7 @@ def interview_list_html(
     filename: str = al_session_store_default_filename,
     user_id: Union[int, str] = None,
     metadata_key_name: str = "metadata",
-    exclude_newly_started_sessions = False,
+    exclude_newly_started_sessions=False,
     # name_label: str = word("Title"),
     date_label: str = word("Date"),
     details_label: str = word("Details"),
