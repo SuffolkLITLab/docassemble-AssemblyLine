@@ -264,12 +264,18 @@ def get_saved_interview_list(
     filename_to_exclude: str = "",
     exclude_current_filename: bool = True,
     exclude_filenames: List[str] = None,
-    exclude_newly_started_sessions: bool = True,
+    exclude_newly_started_sessions: bool = False,
 ) -> List[Dict]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
     to add metadata, the result list will include columns containing the metadata.
     If the user is a developer or administrator, setting user_id = None will list all interviews on the server. Otherwise,
     the user is limited to their own sessions.
+
+    Setting `exclude_newly_started_sessions` to True will exclude any results from the list that are still on
+    "step 1". Note that while this may be useful to filter out interviews that were accidentally started
+    and likely do not need to be resumed, it will also have the side effect of excluding all answer sets from the
+    results. Answer sets generally have exactly one "step", which is the step where information was copied from
+    an existing interview to the answer set.
     """
     # We use an `offset` instead of a cursor because it is simpler and clearer
     # while it appears to be performant enough for real-world usage.
@@ -423,6 +429,7 @@ def interview_list_html(
     filename: str = al_session_store_default_filename,
     user_id: Union[int, str] = None,
     metadata_key_name: str = "metadata",
+    exclude_newly_started_sessions=False,
     # name_label: str = word("Title"),
     date_label: str = word("Date"),
     details_label: str = word("Details"),
@@ -441,6 +448,10 @@ def interview_list_html(
     Designed to return a list of "answer sets" and by default clicking a title will
     trigger an action to load the answers into the current session. This only works as
     designed when inside an AssemblyLine line interview.
+
+    `exclude_newly_started_sessions` should almost always be set to False, because most answer sets
+    are on "page 1" (exactly 1 step was taken to copy the answers and the user isn't able to interact with the answer set
+    itself in a way that adds additional steps)
     """
     # TODO: Currently, using the `word()` function for translation, but templates
     # might be more flexible
@@ -451,6 +462,7 @@ def interview_list_html(
         limit=limit,
         offset=offset,
         exclude_current_filename=False,
+        exclude_newly_started_sessions=exclude_newly_started_sessions,
     )
 
     if not answers:
@@ -596,7 +608,7 @@ def session_list_html(
     filename_to_exclude: str = al_session_store_default_filename,
     exclude_current_filename: bool = True,
     exclude_filenames: List[str] = None,
-    exclude_newly_started_sessions: bool = True,
+    exclude_newly_started_sessions: bool = False,
     name_label: str = word("Title"),
     date_label: str = word("Date modified"),
     details_label: str = word("Progress"),

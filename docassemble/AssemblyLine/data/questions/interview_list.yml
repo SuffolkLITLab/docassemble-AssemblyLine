@@ -108,7 +108,7 @@ question: |
   % endif
   <span style="float: right;">${ action_button_html(get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE), label="Start a new form", icon="plus-circle", color="primary", size="md") }</span>
 subquestion: |
-  % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, exclude_filenames=al_sessions_to_exclude_from_interview_list)) > 0:
+  % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True)) > 0:
   % if get_config("interview page pre"):
   ${ get_config("interview page pre") }
   % else:
@@ -116,14 +116,14 @@ subquestion: |
   documents.
   % endif
 
-  ${ session_list_html(filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list) }
+  ${ session_list_html(filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }
 
   <nav aria-label="Page navigation">
     <ul class="pagination justify-content-center">
   % if session_page > 0:
       <li class="page-item"><a class="page-link" href="${ url_action("update_page_event", page_increment=-1) }">Previous</a></li>
   % endif
-  % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, exclude_filenames=al_sessions_to_exclude_from_interview_list, limit=20, offset=session_page*20)) >= 20:
+  % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, exclude_filenames=al_sessions_to_exclude_from_interview_list, limit=20, offset=session_page*20, exclude_newly_started_sessions=True)) >= 20:
       <li class="page-item"><a class="page-link" href="${ url_action("update_page_event", page_increment=1) }">Next</a></li>
   % endif
     </ul>
@@ -171,7 +171,7 @@ subquestion: |
   form](${ get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE) })
   1. Then, use the menu to load your answer set.
 
-  ${ interview_list_html(view_only=True, delete_action="interview_list_delete_session") }
+  ${ interview_list_html(view_only=True, delete_action="interview_list_delete_session", exclude_newly_started_sessions=False) }
 section: section_answer_sets
 ---
 code: |
