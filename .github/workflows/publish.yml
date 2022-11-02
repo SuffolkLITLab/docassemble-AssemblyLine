@@ -35,7 +35,8 @@ jobs:
         --sdist
         --wheel
         --outdir dist/
-    - name: Ensure github tag is the same as the pypi tag
+    - if: ${{ success() && startsWith(github.ref, 'refs/tags') }}
+      name: Ensure github tag is the same as the pypi tag
       run: |
         new_version=$(grep version= setup.py | cut -d\' -f 2)
         [ "$GITHUB_REF_NAME" = "v$new_version" ]
@@ -45,17 +46,16 @@ jobs:
         echo "Github tag name ($GITHUB_REF_NAME) doesn't match the setup.py version ($nev_version). Not publishing to pypi"
     - name: Publish distribution 📦 to PyPI
       if: ${{ success() && startsWith(github.ref, 'refs/tags') }}
-      uses: pypa/gh-action-pypi-publish@master
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
     - name: Announce to teams
       if: ${{ success() && startsWith(github.ref, 'refs/tags') }}
       run: |
-        project_name=$(echo $GITHUB_REPO | cut -d '/' -f2 | cut -d '-' -f2)
+        project_name=$(echo $GITHUB_REPOSITORY | cut -d '/' -f2 | cut -d '-' -f2)
         new_version=$(grep version= setup.py | cut -d\' -f 2)
-        tag_url="https://$GITHUB_SERVER_URL/$GITHUB_REPO/releases/tag/$GITHUB_REF_NAME"
-        sed -e "s/{{version}}/$new_version/g; s/{{link_version}}/$GITHUB_REF_NAME/g; s/{{project_name}}/$project_name/g; s/{{org_repo_name}}/$GITHUB_REPO/g; s/{{tag_url}}/$tag_url/g;" << EOF > teams_msg_to_send.json
+        tag_url="https://$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF_NAME"
+        sed -e "s/{{version}}/$new_version/g; s/{{link_version}}/$GITHUB_REF_NAME/g; s/{{project_name}}/$project_name/g; s|{{org_repo_name}}|$GITHUB_REPOSITORY|g; s|{{tag_url}}|$tag_url|g;" << EOF > teams_msg_to_send.json
         {
         	"@type": "MessageCard",
         	"@context": "https://schema.org/extensions",
