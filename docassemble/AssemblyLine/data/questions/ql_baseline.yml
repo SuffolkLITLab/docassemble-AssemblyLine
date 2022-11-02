@@ -1590,11 +1590,9 @@ fields:
 validation code: |
   if x.has_exhibits:
     full_size = sum(a_page.size_in_bytes() for a_page in x[0].pages)
-    log(f"Noted full size: {full_size}")
     if full_size > (15 * 1024 * 1024):
       validation_error("Upload a file smaller than 15 MB.")
     if hasattr(x, 'maximum_size'):
-      log(f"Noted maximum_size: {x.maximum_size}")
       if full_size > x.maximum_size:
         validation_error(f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}")
     try:
@@ -1624,7 +1622,6 @@ fields:
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   this_doc_size = sum(a_page.size_in_bytes() for a_page in x[i].pages)
-  log(f"this doc: {this_doc_size}")
   if this_doc_size > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
   if hasattr(x, 'maximum_size'):
