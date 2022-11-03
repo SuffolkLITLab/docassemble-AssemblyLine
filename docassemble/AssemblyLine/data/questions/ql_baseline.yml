@@ -16,7 +16,7 @@ objects:
   - attorneys: ALPeopleList
   - translators: ALPeopleList
   - debt_collectors: ALPeopleList
-  - creditors: ALPeopleList  
+  - creditors: ALPeopleList
   - spouses: ALPeopleList
   - parents: ALPeopleList
   - decedents: ALPeopleList.using(ask_number=True, target_number=1)
@@ -41,8 +41,8 @@ subquestion: |
   % endif
   
   Step 1. Answer questions that will fill in your form for you.  
-  Step 2. Preview the completed form.  
-  % if form_approved_for_email_filing:  
+  Step 2. Preview the completed form.
+  % if form_approved_for_email_filing:
   Step 3. Email the form to the court using this secure website and save copies
   for yourself for later reference.  
   % elif al_form_type in ['starts_case','existing_case','appeal']:
@@ -1555,6 +1555,9 @@ code: |
 #########################################################
 # ALExhibitDocument questions
 ---
+imports:
+  - humanize
+---
 generic object: ALExhibitDocument
 code: |
   x.enabled = x.exhibits.has_exhibits
@@ -1576,22 +1579,26 @@ fields:
     show if: x.has_exhibits
   - First document title: x[0].title
     maxlength: 60 # longer might break TOC
-    show if: x.has_exhibits    
+    show if: x.has_exhibits
   - Upload the first document: x[0].pages
-    show if: x.has_exhibits    
+    show if: x.has_exhibits
     datatype: files
     maximum image size: 1024
-    image upload type: jpeg        
+    image upload type: jpeg
     accept: |
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   if x.has_exhibits:
-    if sum(exhibit.size_in_bytes() for exhibit in x[0].pages) > (15 * 1024 * 1024):
+    full_size = sum(a_page.size_in_bytes() for a_page in x[0].pages)
+    if full_size > (15 * 1024 * 1024):
       validation_error("Upload a file smaller than 15 MB.")
+    if hasattr(x, 'maximum_size'):
+      if full_size > x.maximum_size:
+        validation_error(f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}")
     try:
       pdf_concatenate(x[0].pages)
     except:
-      validation_error("Unable to convert this file. Please upload a new one.", field="x[0].pages")
+      validation_error("Unable to convert this file. Please upload a new one.")
     x[0].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
 ---
 generic object: ALExhibitList
@@ -1603,23 +1610,29 @@ id: exhibit i
 question: |
   Upload the ${ ordinal(i) } document
 subquestion: |
-  You will have a chance to upload additional pages for this document later.  
+  You will have a chance to upload additional pages for this document later.
 fields:
   - Document title: x[i].title
     maxlength: 60 # longer might break TOC
-  - Upload the first exhibit: x[i].pages
+  - Upload the exhibit: x[i].pages
     datatype: files
     maximum image size: 1024
-    image upload type: jpeg        
+    image upload type: jpeg
     accept: |
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
-  if sum(exhibit.size_in_bytes() for exhibit in x[i].pages) > (15 * 1024 * 1024):
+  this_doc_size = sum(a_page.size_in_bytes() for a_page in x[i].pages)
+  if this_doc_size > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
+  if hasattr(x, 'maximum_size'):
+    full_size = x.size_in_bytes()
+    if full_size > x.maximum_size:
+      suggested_size = x.maximum_size - (full_size - this_doc_size)
+      validation_error(f"All exhibits combined must be smaller than {humanize.naturalsize(x.maximum_size)}. Upload a file smaller than {humanize.naturalsize(suggested_size)}.")
   try:
     pdf_concatenate(x[i].pages)
   except:
-    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages")
+    validation_error("Unable to convert this file. Please upload a new one.")
   x[i].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
 ---
 generic object: ALExhibitList
@@ -1627,7 +1640,12 @@ id: exhibit i has additional pages
 question: |
   Does "**${ x[i] }**" have any additional pages?
 subquestion: |
-  You have uploaded ${ x[i].pages.num_pages() } pages so far.  
+  You have uploaded ${ x[i].pages.num_pages() } pages so far.
+
+  % if hasattr(x, 'maximum_size'):
+  The total size of all exhibits must be less than ${ humanize.naturalsize(x.maximum_size) }.
+  You can upload ${ humanize.naturalsize(x.maximum_size - x.size_in_bytes() - sum(ap.size_in_bytes() for ap in x[i].pages.complete_elements()))} more.
+  % endif
 
   ${ collapse_template(x[i].in_progress_template )}
   
@@ -1653,16 +1671,24 @@ fields:
   - Upload a PDF, Word, or image file: x[i].pages[j]
     datatype: file
     maximum image size: 1024
-    image upload type: jpeg        
+    image upload type: jpeg
     accept: |
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
-  if x[i].pages[j].size_in_bytes() > (15 * 1024 * 1024):
+  page_size = x[i].pages[j].size_in_bytes()
+  if page_size > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
+  if hasattr(x, 'maximum_size'):
+    # this_doc_size already includes `page_size`
+    this_doc_size = sum(a_page.size_in_bytes() for a_page in x[i].pages.complete_elements())
+    full_size = x.size_in_bytes() + this_doc_size
+    if full_size > x.maximum_size:
+      suggested_size = x.maximum_size - (full_size - page_size)
+      validation_error(f"All exhibits combined must be smaller than {humanize.naturalsize(x.maximum_size)}. Upload a file smaller than {humanize.naturalsize(suggested_size)}.")
   try:
     pdf_concatenate(x[i].pages[j])
   except:
-    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages[j]")
+    validation_error("Unable to convert this file. Please upload a new one.")
 
   x[i].pages[j] = unpack_dafilelist(x[i].pages[j])
 ---
@@ -1672,6 +1698,11 @@ question: |
   You have ${ x.number_gathered() } document(s) so far. Do you have another document
   you want to upload?
 subquestion: |
+  % if hasattr(x, 'maximum_size'):
+  The total size of all exhibits must be less than ${ humanize.naturalsize(x.maximum_size) }.
+  You can upload ${ humanize.naturalsize(x.maximum_size - x.size_in_bytes())} more.
+  % endif
+
   ${ collapse_template(x.in_progress_exhibits) }
 field: x.there_is_another
 buttons:

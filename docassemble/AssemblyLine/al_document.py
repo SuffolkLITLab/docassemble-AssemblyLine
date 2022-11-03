@@ -1598,6 +1598,7 @@ class ALExhibit(DAObject):
 class ALExhibitList(DAList):
     """
     Attributes:
+        maximum_size (int): the maximum size in bytes that the whole document is allowed to be
         auto_label (bool): Set to True if you want exhibits to be automatically numbered for purposes of cover page
                            and table of contents. Defaults to True.
         auto_labeler (Callable): (optional) a function or lambda to transform the index for each exhibit to a label.
@@ -1642,6 +1643,9 @@ class ALExhibitList(DAList):
         Returns:
             A DAfile containing the rendered exhibit list as a single file.
         """
+        if self.include_exhibit_cover_pages:
+            for exhibit in self:
+                exhibit.cover_page
         if self.include_table_of_contents and toc_pages != 1:
             self._update_page_numbers(toc_guess_pages=toc_pages)
         return pdf_concatenate(
@@ -1656,6 +1660,13 @@ class ALExhibitList(DAList):
             filename=filename,
             pdfa=pdfa,
         )
+
+    def size_in_bytes(self):
+        """Gets the total size in bytes of each of the exhibit documents."""
+        full_size = 0
+        for exhibit in self.complete_elements():
+            full_size += sum((a_page.size_in_bytes() for a_page in exhibit.pages))
+        return full_size
 
     def _update_labels(self, auto_labeler: Callable = None) -> None:
         """
@@ -1763,6 +1774,8 @@ class ALExhibitDocument(ALDocument):
         else:
             self.include_exhibit_cover_pages = True
             self.exhibits.include_exhibit_cover_pages = True
+        if hasattr(self, "maximum_size"):
+            self.exhibits.maximum_size = self.maximum_size
         if hasattr(self, "include_table_of_contents"):
             self.exhibits.include_table_of_contents = self.include_table_of_contents
         else:
