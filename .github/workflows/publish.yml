@@ -1,13 +1,17 @@
-name: Publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+name: Publish Python 🐍 distributions 📦 to PyPI and TestPyPI and announce to teams
 
 on: push
 
 jobs:
   build-n-publish:
-    name: Build and publish Python 🐍 distributions 📦 to PyPI
     runs-on: ubuntu-20.04
+
+    env:
+      TEAMS_BUMP_WEBHOOK: ${{ secrets.TEAMS_BUMP_WEBHOOK }}
+
+    name: Build and publish Python 🐍 distributions 📦 to PyPI
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
     - name: Set up Python 3.9
       uses: actions/setup-python@v1
       with:
@@ -31,9 +35,73 @@ jobs:
         --sdist
         --wheel
         --outdir dist/
+    - if: ${{ success() && startsWith(github.ref, 'refs/tags') }}
+      name: Ensure github tag is the same as the pypi tag
+      run: |
+        new_version=$(grep version= setup.py | cut -d\' -f 2)
+        [ "$GITHUB_REF_NAME" = "v$new_version" ]
+    - name: ${{ failure() }}
+      run: |
+        new_version=$(grep version= setup.py | cut -d\' -f 2)
+        echo "Github tag name ($GITHUB_REF_NAME) doesn't match the setup.py version ($nev_version). Not publishing to pypi"
     - name: Publish distribution 📦 to PyPI
-      if: startsWith(github.ref, 'refs/tags')
-      uses: pypa/gh-action-pypi-publish@master
+      if: ${{ success() && startsWith(github.ref, 'refs/tags') }}
+      uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
+    - name: Announce to teams
+      if: ${{ success() && startsWith(github.ref, 'refs/tags') }}
+      run: |
+        project_name=$(echo $GITHUB_REPOSITORY | cut -d '/' -f2 | cut -d '-' -f2)
+        new_version=$(grep version= setup.py | cut -d\' -f 2)
+        tag_url="https://$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF_NAME"
+        sed -e "s/{{version}}/$new_version/g; s/{{link_version}}/$GITHUB_REF_NAME/g; s/{{project_name}}/$project_name/g; s|{{org_repo_name}}|$GITHUB_REPOSITORY|g; s|{{tag_url}}|$tag_url|g;" << EOF > teams_msg_to_send.json
+        {
+        	"@type": "MessageCard",
+        	"@context": "https://schema.org/extensions",
+        	"summary": "{{project_name}} Version released",
+        	"themeColor": "0078D7",
+        	"title": "{{project_name}} Version {{version}} released", 
+        	"sections": [
+        		{
+        			"activityTitle": "Version {{version}}",
+        			"activityImage": "https://avatars.githubusercontent.com/u/33028765?s=200", 
+        			"facts": [
+        				{
+        					"name": "Repository:",
+        					"value": "{{org_repo_name}}"
+        				},
+        				{
+        					"name": "Tag",
+        					"value": "v{{version}}"
+        				}
+        			],
+        			"text": "" 
+        		}
+        	],
+        	"potentialAction": [
+                {
+                    "@type": "OpenUri",
+                    "name": "See Changelog",
+                    "targets": [
+                        {
+                            "os": "default",
+                            "uri": "https://github.com/{{org_repo_name}}/blob/main/CHANGELOG.md#version-{{link_version}}"
+                        }
+                    ]
+                },
+        		{
+        			"@type": "OpenUri",
+        			"name": "View in GitHub",
+        			"targets": [
+        				{
+        					"os": "default",
+        					"uri": "{{tag_url}}"
+        				}
+        			]
+        		}
+        	]
+        }
+        EOF
+        curl -H "Content-Type:application/json" -d "@teams_msg_to_send.json" "$TEAMS_BUMP_WEBHOOK"
+
