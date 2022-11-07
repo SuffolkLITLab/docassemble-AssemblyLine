@@ -345,7 +345,8 @@ class ALAddress(Address):
                 the_unit = self.formatted_unit(language=language, bare=bare)
                 if the_unit != "":
                     output += ", " + the_unit
-            output += ", "
+            if output != "":
+                output += ", "
         # if hasattr(self, 'sublocality') and self.sublocality:
         #    output += str(self.sublocality) + ", "
         if hasattr(self, "sublocality_level_1") and self.sublocality_level_1:
