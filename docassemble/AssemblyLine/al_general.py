@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 from docassemble.base.util import (
     Address,
     Individual,
@@ -72,11 +72,11 @@ class ALAddress(Address):
 
     def address_fields(
         self,
-        country_code: str = None,
-        default_state: str = None,
+        country_code: Optional[str] = None,
+        default_state: Optional[str] = None,
         show_country: bool = False,
         show_county: bool = False,
-        show_if: Union[str, Dict[str, str]] = None,
+        show_if: Union[str, Dict[str, str], None] = None,
         allow_no_address: bool = False,
     ):
         """
@@ -568,7 +568,7 @@ class ALIndividual(Individual):
         self,
         person_or_business: str = "person",
         show_suffix: bool = True,
-        show_if: Union[str, Dict[str, str]] = None,
+        show_if: Union[str, Dict[str, str], None] = None,
     ) -> List[Dict[str, str]]:
         """
         Return suitable field prompts for a name. If `person_or_business` is None, adds the
@@ -681,10 +681,10 @@ class ALIndividual(Individual):
     def address_fields(
         self,
         country_code: str = "US",
-        default_state: str = None,
+        default_state: Optional[str] = None,
         show_country: bool = False,
         show_county: bool = False,
-        show_if: Union[str, Dict[str, str]] = None,
+        show_if: Union[str, Dict[str, str], None] = None,
         allow_no_address: bool = False,
     ) -> List[Dict[str, str]]:
         """
@@ -702,7 +702,7 @@ class ALIndividual(Individual):
         )
 
     def gender_fields(
-        self, show_help=False, show_if: Union[str, Dict[str, str]] = None
+        self, show_help=False, show_if: Union[str, Dict[str, str], None] = None
     ):
         """
         Return a standard gender input with "self described" option.
@@ -738,9 +738,9 @@ class ALIndividual(Individual):
 
     def language_fields(
         self,
-        choices: List[Dict[str, str]] = None,
+        choices: Optional[List[Dict[str, str]]] = None,
         style: str = "radio",
-        show_if: Union[str, Dict[str, str]] = None,
+        show_if: Union[str, Dict[str, str], None] = None,
     ):
         """Return a standard language picker with an "other" input. Language should be specified as ISO 639-2 or -3 codes so it is compatible with the language_name() function."""
         if not choices:
@@ -952,7 +952,9 @@ def filter_letters(letter_strings: Union[List[str], str]) -> str:
 # Note: removed "combined_locations" because it is too tightly coupled to MACourts.py right now
 
 
-def fa_icon(icon: str, color: str = "primary", color_css: str = None, size: str = "sm"):
+def fa_icon(
+    icon: str, color: str = "primary", color_css: Optional[str] = None, size: str = "sm"
+):
     """
     Return HTML for a font-awesome icon of the specified size and color. You can reference
     a CSS variable (such as Bootstrap theme color) or a true CSS color reference, such as 'blue' or
