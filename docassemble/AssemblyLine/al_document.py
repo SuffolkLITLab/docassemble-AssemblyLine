@@ -795,7 +795,7 @@ class ALDocument(DADict):
     def safe_value(
         self,
         field_name: str,
-        overflow_message: str = None,
+        overflow_message: Optional[str] = None,
         preserve_newlines: bool = False,
         input_width: int = 80,
     ):
@@ -814,7 +814,7 @@ class ALDocument(DADict):
     def overflow_value(
         self,
         field_name: str,
-        overflow_message: str = None,
+        overflow_message: Optional[str] = None,
         preserve_newlines: bool = False,
         input_width: int = 80,
     ):
@@ -1188,7 +1188,7 @@ class ALDocumentBundle(DAList):
         view_icon: str = "eye",
         download_label: str = "Download",
         download_icon: str = "download",
-        zip_label: str = None,
+        zip_label: Optional[str] = None,
         zip_icon: str = "file-archive",
         append_matching_suffix: bool = True,
     ) -> str:
@@ -1546,7 +1546,7 @@ class ALExhibit(DAObject):
         pdfa: bool = False,
         add_page_numbers: bool = True,
         add_cover_page: bool = True,
-        filename: str = None,
+        filename: Optional[str] = None,
         append_matching_suffix: bool = True,
     ) -> DAFile:
         """
@@ -1668,7 +1668,7 @@ class ALExhibitList(DAList):
             full_size += sum((a_page.size_in_bytes() for a_page in exhibit.pages))
         return full_size
 
-    def _update_labels(self, auto_labeler: Callable = None) -> None:
+    def _update_labels(self, auto_labeler: Optional[Callable] = None) -> None:
         """
         Private method to refresh labels on all exhibits.
         Args:

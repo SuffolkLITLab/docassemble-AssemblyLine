@@ -189,7 +189,7 @@ al_sessions_variables_to_remove_from_new_interview = [
 system_interviews: List[Dict[str, Any]] = interview_menu()
 
 
-def _package_name(package_name: str = None):
+def _package_name(package_name: Optional[str] = None):
     """Get package name without the name of the current module, like: docassemble.ALWeaver instead of
     docassemble.ALWeaver.advertise_capabilities"""
     if not package_name:
@@ -257,13 +257,13 @@ def get_interview_metadata(
 
 def get_saved_interview_list(
     filename: Optional[str] = al_session_store_default_filename,
-    user_id: Union[int, str] = None,
+    user_id: Union[int, str, None] = None,
     metadata_key_name: str = "metadata",
     limit: int = 50,
     offset: int = 0,
     filename_to_exclude: str = "",
     exclude_current_filename: bool = True,
-    exclude_filenames: List[str] = None,
+    exclude_filenames: Optional[List[str]] = None,
     exclude_newly_started_sessions: bool = False,
 ) -> List[Dict]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
@@ -375,7 +375,7 @@ def get_saved_interview_list(
 
 
 def delete_interview_sessions(
-    user_id: int = None,
+    user_id: Optional[int] = None,
     filename_to_exclude: str = al_session_store_default_filename,
     exclude_current_filename: bool = True,
 ) -> None:
@@ -427,7 +427,7 @@ def delete_interview_sessions(
 
 def interview_list_html(
     filename: str = al_session_store_default_filename,
-    user_id: Union[int, str] = None,
+    user_id: Union[int, str, None] = None,
     metadata_key_name: str = "metadata",
     exclude_newly_started_sessions=False,
     # name_label: str = word("Title"),
@@ -603,11 +603,11 @@ def local_date(utcstring: Optional[str]) -> DADateTime:
 
 def session_list_html(
     filename: Optional[str] = None,
-    user_id: Union[int, str] = None,
+    user_id: Union[int, str, None] = None,
     metadata_key_name: str = "metadata",
     filename_to_exclude: str = al_session_store_default_filename,
     exclude_current_filename: bool = True,
-    exclude_filenames: List[str] = None,
+    exclude_filenames: Optional[List[str]] = None,
     exclude_newly_started_sessions: bool = False,
     name_label: str = word("Title"),
     date_label: str = word("Date modified"),
@@ -807,8 +807,8 @@ def rename_current_session(
 
 def save_interview_answers(
     filename: str = al_session_store_default_filename,
-    variables_to_filter: Union[Set[str], List[str]] = None,
-    metadata: Dict = None,
+    variables_to_filter: Union[Set[str], List[str], None] = None,
+    metadata: Optional[Dict] = None,
     metadata_key_name: str = "metadata",
     original_interview_filename=None,
     source_filename=None,
@@ -875,7 +875,7 @@ def save_interview_answers(
 def get_filtered_session_variables(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
-    variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
+    variables_to_filter: Union[Set[str], List[str], None] = None,
 ) -> Dict[str, Any]:
     """
     Get a filtered subset of the variables from the specified interview filename and session.
@@ -902,7 +902,7 @@ def get_filtered_session_variables(
 def get_filtered_session_variables_string(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
-    variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
+    variables_to_filter: Union[Set[str], List[str], None] = None,
 ) -> str:
     """
     Get a JSON string representing the filtered contents of the specified filename and session_id. If no filename and session_id
@@ -918,8 +918,8 @@ def load_interview_answers(
     old_interview_filename: str,
     old_session_id: int,
     new_session: bool = False,
-    new_interview_filename: str = None,
-    variables_to_filter: List[str] = None,
+    new_interview_filename: Optional[str] = None,
+    variables_to_filter: Optional[List[str]] = None,
 ) -> Optional[int]:
     """
     Load answers from the specified session. If the parameter new_session = True, create a new session of
@@ -949,8 +949,8 @@ def load_interview_answers(
 def load_interview_json(
     json_string: str,
     new_session: bool = False,
-    new_interview_filename: str = None,
-    variables_to_filter: List[str] = None,
+    new_interview_filename: Optional[str] = None,
+    variables_to_filter: Optional[List[str]] = None,
 ) -> Optional[int]:
     """
     Provided a JSON string, load the specified variables into a Docassemble session. JSON with annotated class names
@@ -979,7 +979,7 @@ def load_interview_json(
 def export_interview_variables(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
-    variables_to_filter: Union[Set, List[str]] = None,
+    variables_to_filter: Union[Set, List[str], None] = None,
     output: DAFile = None,
 ) -> DAFile:
     """
