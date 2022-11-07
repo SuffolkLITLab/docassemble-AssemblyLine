@@ -3,6 +3,7 @@ extend-exclude = '(__init__.py|setup.py)'
 
 [tool.mypy]
 # global options
+no_implicit_optional = false
 exclude = '''(?x)(
     ^setup.py$
   )'''
