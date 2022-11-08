@@ -262,19 +262,13 @@ class ALAddendumField(DAObject):
         if isinstance(value, str):
             if len(value) > self.overflow_trigger:
                 if preserve_words:
-                    return (
-                        next(
-                            iter(
-                                wrap(
-                                    value,
-                                    width=max_chars,
-                                    replace_whitespace=True,
-                                    drop_whitespace=True,
-                                )
-                            )
-                        )
-                        + overflow_message
+                    retval = wrap(
+                        value,
+                        width=max_chars,
+                        replace_whitespace=True,
+                        drop_whitespace=True,
                     )
+                    return next(iter(retval)) + overflow_message
                 return (
                     re.sub(r"[\r\n]+|\r+|\n+", " ", value).rstrip()[:max_chars]
                     + overflow_message
