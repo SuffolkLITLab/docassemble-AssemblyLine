@@ -27,6 +27,7 @@ from docassemble.base.util import (
     alpha,
 )
 from docassemble.base.pdfa import pdf_to_pdfa
+from textwrap import wrap
 
 __all__ = [
     "ALAddendumField",
@@ -141,6 +142,7 @@ class ALAddendumField(DAObject):
         preserve_newlines: bool = False,
         input_width: int = 80,
         overflow_message: str = "",
+        preserve_words: bool = True,
     ):
         """
         Try to return just the portion of the variable (list-like object or string)
@@ -157,6 +159,7 @@ class ALAddendumField(DAObject):
             input_width=input_width,
             preserve_newlines=preserve_newlines,
             _original_value=original_value,
+            preserve_words=preserve_words,
         )
         if isinstance(safe_text, str):
             # Always get rid of double newlines, for consistency with safe_value.
@@ -201,7 +204,8 @@ class ALAddendumField(DAObject):
         overflow_message: str = "",
         input_width: int = 80,
         preserve_newlines: bool = False,
-        _original_value=None,
+        _original_value: Optional[str] = None,
+        preserve_words: bool = True,
     ):
         """
         Try to return just the portion of the variable
@@ -234,43 +238,43 @@ class ALAddendumField(DAObject):
         )
         max_chars = max(self.overflow_trigger - len(overflow_message), 0)
 
-        # If there are at least 2 lines, we can ignore overflow trigger.
-        # each line will be at least input_width wide
+        # If we preserve newlines, we need to account for max_lines, not just max_chars
         if preserve_newlines and max_lines > 1:
             if isinstance(value, str):
+                max_lines = self.max_lines(
+                    input_width=input_width, overflow_message_length=0
+                )
+                max_chars = self.overflow_trigger
                 # Replace all new line characters with just \n. \r\n inserts two lines in a PDF
                 value = re.sub(r"[\r\n]+|\r+|\n+", r"\n", value).rstrip()
-                line = 1
-                retval = ""
-                paras = value.split("\n")
-                para = 0
-                while line <= max_lines and para < len(paras):
-                    # add the whole paragraph if less than width of input
-                    if len(paras[para]) <= input_width:
-                        retval += paras[para] + "\n"
-                        line += 1
-                        para += 1
-                    else:
-                        # Keep taking the first input_width characters until we hit max_lines
-                        # or we finish the paragraph
-                        while line <= max_lines and len(paras[para]):
-                            retval += paras[para][:input_width]
-                            paras[para] = paras[para][input_width:]
-                            line += 1
-                        if not len(paras[para]):
-                            para += 1
-                            retval += "\n"
-                # TODO: check logic here to only add overflow message when we exceed length
-                if len(paras) > para:
-                    return (
-                        retval.rstrip() + overflow_message
-                    )  # remove trailing newline before adding overflow message
-                else:
-                    return retval
+                # textwrap.wrap does all the hard work for us here
+                return " ".join(
+                    wrap(
+                        value,
+                        width=input_width,
+                        max_lines=max_lines,
+                        replace_whitespace=False,
+                        placeholder=overflow_message,
+                    )
+                ).replace("  ", " ")
 
-        # Strip newlines from strings
+        # Strip newlines from strings because they take extra space
         if isinstance(value, str):
             if len(value) > self.overflow_trigger:
+                if preserve_words:
+                    return (
+                        next(
+                            iter(
+                                wrap(
+                                    value,
+                                    width=max_chars,
+                                    replace_whitespace=True,
+                                    drop_whitespace=True,
+                                )
+                            )
+                        )
+                        + overflow_message
+                    )
                 return (
                     re.sub(r"[\r\n]+|\r+|\n+", " ", value).rstrip()[:max_chars]
                     + overflow_message
