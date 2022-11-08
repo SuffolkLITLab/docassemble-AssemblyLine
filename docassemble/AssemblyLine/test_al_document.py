@@ -32,6 +32,7 @@ class test_dont_assume_pdf(unittest.TestCase):
         self.assertEqual(len(new_list), 2)
         pass
 
+
 class test_aladdendum(unittest.TestCase):
     def test_safe_value(self):
         TEXT = """
@@ -49,9 +50,12 @@ I confess that my heart beat fast in giving my name to the lackey commissioned t
 
 “I came from him,” I replied, “to talk over the affair with Madame d’Ionis.”        
         """
-        define("fake_value",TEXT)
+        define("fake_value", TEXT)
         myfield = ALAddendumField(field_name="fake_value", overflow_trigger=120)
-        self.assertLessEqual(len(myfield.safe_value(overflow_message=" [See addendum]")), 120)
+        self.assertLessEqual(
+            len(myfield.safe_value(overflow_message=" [See addendum]")), 120
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
