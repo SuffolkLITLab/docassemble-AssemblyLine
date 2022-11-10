@@ -59,9 +59,7 @@ I confess that my heart beat fast in giving my name to the lackey commissioned t
 
         myfield.overflow_trigger = 160
         self.assertTrue(myfield.safe_value(overflow_message="").endswith("in the"))
-
         self.assertTrue(myfield.overflow_value(overflow_message="").startswith("lands"))
-
         self.assertEqual(len(myfield.safe_value(overflow_message="")), 158)
 
         text_with_weird_spaces = """Testing here

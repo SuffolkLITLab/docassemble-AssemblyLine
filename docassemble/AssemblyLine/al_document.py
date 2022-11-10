@@ -269,15 +269,19 @@ class ALAddendumField(DAObject):
                 # Replace all new line characters with just \n. \r\n inserts two lines in a PDF
                 value = re.sub(r"[\r\n]+|\r+|\n+", r"\n", value).rstrip()
                 # textwrap.wrap does all the hard work for us here
-                return " ".join(
-                    wrap(
-                        value,
-                        width=input_width,
-                        max_lines=max_lines,
-                        replace_whitespace=False,
-                        placeholder=overflow_message,
+                return (
+                    " ".join(
+                        wrap(
+                            value,
+                            width=input_width,
+                            max_lines=max_lines,
+                            replace_whitespace=False,
+                            placeholder=overflow_message,
+                        )
                     )
-                ).replace("  ", " ")
+                    .replace("  ", " ")
+                    .rstrip()
+                )
 
             if len(value) > self.overflow_trigger:
                 if preserve_words:
@@ -287,7 +291,7 @@ class ALAddendumField(DAObject):
                         replace_whitespace=True,
                         drop_whitespace=True,
                     )
-                    return next(iter(retval)) + overflow_message
+                    return next(iter(retval)).rstrip() + overflow_message
                 return (
                     re.sub(r"[\r\n]+|\r+|\n+", " ", value).rstrip()[:max_chars]
                     + overflow_message
