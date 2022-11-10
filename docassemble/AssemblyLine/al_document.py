@@ -294,7 +294,7 @@ class ALAddendumField(DAObject):
                     return next(iter(retval)).rstrip() + overflow_message
                 return value.rstrip()[:max_chars] + overflow_message
             else:
-                return re.sub(r"\s+", " ", value).rstrip()
+                return value.rstrip()
 
         # If the overflow item is a list or DAList
         if isinstance(value, list) or isinstance(value, DAList):
