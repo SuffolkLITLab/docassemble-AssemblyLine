@@ -169,14 +169,16 @@ class ALAddendumField(DAObject):
             _original_value=original_value,
             preserve_words=preserve_words,
         )
-        if isinstance(safe_text, str):               
+        if isinstance(safe_text, str):
             max_lines = self.max_lines(input_width=input_width)
 
             if preserve_newlines and max_lines > 1:
                 # we do our own substitution of whitespace, only double newlines and spaces
-                value_to_process = re.sub(
-                    r"[\r\n]+|\r+|\n+", r"\n", original_value
-                ).rstrip().replace("  ", " ")
+                value_to_process = (
+                    re.sub(r"[\r\n]+|\r+|\n+", r"\n", original_value)
+                    .rstrip()
+                    .replace("  ", " ")
+                )
             else:
                 # textwrap.wrap(replace_whitespace=True) replaces all whitespace, not just double newlines and spaces
                 value_to_process = re.sub(r"\s+", " ", original_value).rstrip()
@@ -257,9 +259,7 @@ class ALAddendumField(DAObject):
         ):
             return value
 
-        max_lines = self.max_lines(
-            input_width=input_width
-        )
+        max_lines = self.max_lines(input_width=input_width)
         max_chars = max(self.overflow_trigger - len(overflow_message), 0)
 
         # Strip newlines from strings because they take extra space
