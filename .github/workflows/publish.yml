@@ -40,7 +40,8 @@ jobs:
       run: |
         new_version=$(grep version= setup.py | cut -d\' -f 2)
         [ "$GITHUB_REF_NAME" = "v$new_version" ]
-    - name: ${{ failure() }}
+    - if: ${{ failure() }}
+      name: failed step
       run: |
         new_version=$(grep version= setup.py | cut -d\' -f 2)
         echo "Github tag name ($GITHUB_REF_NAME) doesn't match the setup.py version ($nev_version). Not publishing to pypi"
