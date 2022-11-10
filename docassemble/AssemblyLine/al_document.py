@@ -25,6 +25,7 @@ from docassemble.base.util import (
     space_to_underscore,
     DAStaticFile,
     alpha,
+    showifdef,
 )
 from docassemble.base.pdfa import pdf_to_pdfa
 from textwrap import wrap
@@ -175,13 +176,11 @@ class ALAddendumField(DAObject):
             if preserve_newlines and max_lines > 1:
                 # we do our own substitution of whitespace, only double newlines and spaces
                 value_to_process = (
-                    re.sub(r"[\r\n]+|\r+|\n+", r"\n", original_value)
-                    .rstrip()
-                    .replace("  ", " ")
-                )
+                    re.sub(r"[\r\n]+|\r+|\n+", r"\n", original_value).replace("  ", " ")
+                ).rstrip()
             else:
                 # textwrap.wrap(replace_whitespace=True) replaces all whitespace, not just double newlines and spaces
-                value_to_process = re.sub(r"\s+", " ", original_value).rstrip()
+                value_to_process = re.sub(r"\s+", " ", original_value).strip()
 
             if safe_text == value_to_process:  # no overflow
                 return ""
@@ -194,7 +193,7 @@ class ALAddendumField(DAObject):
             #   1. We replace all double newlines with \n.
             #   2. Character count will adjust to reflect double-newlines being replaced with one char.
             overflow_start = max(len(safe_text) - len(overflow_message), 0)
-            return value_to_process[overflow_start:]
+            return value_to_process[overflow_start:].lstrip()
 
         # Do not subtract length of overflow message if this is a list of objects instead of a string
         return original_value[self.overflow_trigger :]
@@ -283,6 +282,7 @@ class ALAddendumField(DAObject):
                     .rstrip()
                 )
 
+            value = re.sub(r"\s+", " ", value)
             if len(value) > self.overflow_trigger:
                 if preserve_words:
                     retval = wrap(
@@ -292,12 +292,9 @@ class ALAddendumField(DAObject):
                         drop_whitespace=True,
                     )
                     return next(iter(retval)).rstrip() + overflow_message
-                return (
-                    re.sub(r"[\r\n]+|\r+|\n+", " ", value).rstrip()[:max_chars]
-                    + overflow_message
-                )
+                return value.rstrip()[:max_chars] + overflow_message
             else:
-                return re.sub(r"[\r\n]+|\r+|\n+", " ", value).rstrip()[:max_chars]
+                return re.sub(r"\s+", " ", value).rstrip()
 
         # If the overflow item is a list or DAList
         if isinstance(value, list) or isinstance(value, DAList):
@@ -311,9 +308,7 @@ class ALAddendumField(DAObject):
         Return the value of the field if it is defined, otherwise return an empty string.
         Addendum should never trigger docassemble's variable gathering.
         """
-        if defined(self.field_name):
-            return value(self.field_name)
-        return ""
+        return showifdef(self.field_name, "")
 
     def __str__(self):
         return str(self.value_if_defined())

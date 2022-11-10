@@ -1,5 +1,5 @@
 import unittest
-from docassemble.base.util import DAFile, define
+from docassemble.base.util import DAFile
 from .al_document import ALDocument, ALDocumentBundle, ALAddendumField
 
 
@@ -49,34 +49,32 @@ I confess that my heart beat fast in giving my name to the lackey commissioned t
 
 “I came from him,” I replied, “to talk over the affair with Madame d’Ionis.”
         """
-        define("testcase1", text_testcase1)
+        testcase1 = text_testcase1
         myfield = ALAddendumField(field_name="testcase1")
-        myfield.overflow_trigger = 120
-        self.assertLessEqual(
-            len(myfield.safe_value(input_width=60, overflow_message=" [See addendum]")),
-            120,
-        )
-
         myfield.overflow_trigger = 160
-        self.assertTrue(myfield.safe_value(overflow_message="").endswith("in the"))
-        self.assertTrue(myfield.overflow_value(overflow_message="").startswith("lands"))
+        self.assertLessEqual(
+            len(myfield.safe_value(overflow_message=" [See addendum]")),
+            160,
+        )
+        # print(myfield.safe_value(overflow_message=""))
+        safe_value = myfield.safe_value(overflow_message="")
+        self.assertTrue(safe_value.endswith("in the"))
+        overflow_value = myfield.overflow_value(overflow_message="")
+        self.assertTrue(overflow_value.startswith("lands"))
         self.assertEqual(len(myfield.safe_value(overflow_message="")), 158)
 
-        text_with_weird_spaces = """Testing here
+        with_weird_spaces = """Testing here
+
 
 with some very short words, but a whole lot of them, so it'll be over the overflow, over the flow yah know?"""
-        define("with_weird_spaces", text_with_weird_spaces)
+
         field_with_weird_spaces = ALAddendumField(
             field_name="with_weird_spaces", overflow_trigger=23
         )
-        self.assertTrue(
-            field_with_weird_spaces.safe_value(overflow_message="").endswith("with")
-        )
-        self.assertTrue(
-            field_with_weird_spaces.overflow_value(overflow_message="").startswith(
-                "some"
-            )
-        )
+        safe_value = field_with_weird_spaces.safe_value(overflow_message="")
+        self.assertTrue(safe_value.endswith("some"), msg=f"{ safe_value }")
+        overflow_value = field_with_weird_spaces.overflow_value(overflow_message="")
+        self.assertTrue(overflow_value.startswith("very"), msg=f"{ overflow_value }")
 
 
 if __name__ == "__main__":
