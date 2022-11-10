@@ -35,8 +35,7 @@ class test_dont_assume_pdf(unittest.TestCase):
 
 class test_aladdendum(unittest.TestCase):
     def test_safe_value(self):
-        TEXT = """
-Charged by my father with a very delicate mission, I repaired, towards the end of May, 1788, to the château of Ionis, situated a dozen leagues distant, in the lands lying between Angers and Saumur. I was twenty-two, and already practising the profession of lawyer, for which I experienced but slight inclination, although neither the study of business nor of argument had presented serious difficulties to me. Taking my youth into consideration, I was not esteemed without talent, and the standing of my father, a lawyer renowned in the locality, assured me a brilliant patronage in the future, in return for any paltry efforts I might make to be worthy of replacing him. But I would have preferred literature, a more dreamy life, a more independent and more individual use of my faculties, a responsibility less submissive to the passions and interests of others. As my family was well off, and I an only son, greatly spoiled and petted, I might have chosen my own career, but I would have thus afflicted my father, who took pride in his ability to direct me 4in the road which he had cleared in advance, and I loved him too tenderly to permit my instinct to outweigh his wishes.
+        text_testcase1 = """Charged by my father with a very delicate mission, I repaired, towards the end of May, 1788, to the château of Ionis, situated a dozen leagues distant, in the lands lying between Angers and Saumur. I was twenty-two, and already practising the profession of lawyer, for which I experienced but slight inclination, although neither the study of business nor of argument had presented serious difficulties to me. Taking my youth into consideration, I was not esteemed without talent, and the standing of my father, a lawyer renowned in the locality, assured me a brilliant patronage in the future, in return for any paltry efforts I might make to be worthy of replacing him. But I would have preferred literature, a more dreamy life, a more independent and more individual use of my faculties, a responsibility less submissive to the passions and interests of others. As my family was well off, and I an only son, greatly spoiled and petted, I might have chosen my own career, but I would have thus afflicted my father, who took pride in his ability to direct me 4in the road which he had cleared in advance, and I loved him too tenderly to permit my instinct to outweigh his wishes.
 
 It was a delightful evening in which I was finishing my ride on horseback through the woods that surrounded the ancient and magnificent castle of Ionis. I was well mounted, dressed en cavalier, with a species of elegance, and accompanied by a servant of whom I had not the slightest need, but whom my mother had conceived the innocent idea of giving me for the occasion, desiring that her son should present a proper appearance at the house of one of the most brilliant personages of our patronage.
 
@@ -48,12 +47,36 @@ I confess that my heart beat fast in giving my name to the lackey commissioned t
 
 “You are welcome, all the same,” added this matron. “We have a very friendly and grateful feeling for your father, and it appears that we stand in great need of his counsel, which you are without doubt charged to communicate to us.”
 
-“I came from him,” I replied, “to talk over the affair with Madame d’Ionis.”        
+“I came from him,” I replied, “to talk over the affair with Madame d’Ionis.”
         """
-        define("fake_value", TEXT)
-        myfield = ALAddendumField(field_name="fake_value", overflow_trigger=120)
+        define("testcase1", text_testcase1)
+        myfield = ALAddendumField(field_name="testcase1")
+        myfield.overflow_trigger = 120
         self.assertLessEqual(
-            len(myfield.safe_value(overflow_message=" [See addendum]")), 120
+            len(myfield.safe_value(input_width=60, overflow_message=" [See addendum]")), 120
+        )
+
+        myfield.overflow_trigger = 160
+        self.assertTrue(
+            myfield.safe_value(overflow_message="").endswith("in the")
+        )
+
+        self.assertTrue(myfield.overflow_value(overflow_message="").startswith("lands"))
+
+        self.assertEqual(
+            len(myfield.safe_value(overflow_message="")), 158
+        )
+
+        text_with_weird_spaces = """Testing here
+
+with some very short words, but a whole lot of them, so it'll be over the overflow, over the flow yah know?"""
+        define("with_weird_spaces", text_with_weird_spaces)
+        field_with_weird_spaces = ALAddendumField(field_name="with_weird_spaces", overflow_trigger=23)
+        self.assertTrue(
+            field_with_weird_spaces.safe_value(overflow_message="").endswith("with")
+        )
+        self.assertTrue(
+            field_with_weird_spaces.overflow_value(overflow_message="").startswith("some")
         )
 
 

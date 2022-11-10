@@ -28,6 +28,7 @@ from docassemble.base.util import (
 )
 from docassemble.base.pdfa import pdf_to_pdfa
 from textwrap import wrap
+from math import floor
 
 __all__ = [
     "ALAddendumField",
@@ -147,6 +148,13 @@ class ALAddendumField(DAObject):
         """
         Try to return just the portion of the variable (list-like object or string)
         that is not contained in the safe_value().
+
+        Whitespace will be altered. If preserve_newlines is true, the return value may have newlines,
+        but double newlines and Windows style (\r\n) will be replaced with \n. Double spaces will replaced
+        with a single space.
+
+        If preserve_newlines is false, all whitespace, including newlines and tabs, will be replaced
+        with a single space.
         """
         # Handle a Boolean overflow first
         if isinstance(self.overflow_trigger, bool) and self.overflow_trigger:
@@ -161,11 +169,18 @@ class ALAddendumField(DAObject):
             _original_value=original_value,
             preserve_words=preserve_words,
         )
-        if isinstance(safe_text, str):
-            # Always get rid of double newlines, for consistency with safe_value.
-            value_to_process = re.sub(
-                r"[\r\n]+|\r+|\n+", r"\n", original_value
-            ).rstrip()
+        if isinstance(safe_text, str):               
+            max_lines = self.max_lines(input_width=input_width)
+
+            if preserve_newlines and max_lines > 1:
+                # we do our own substitution of whitespace, only double newlines and spaces
+                value_to_process = re.sub(
+                    r"[\r\n]+|\r+|\n+", r"\n", original_value
+                ).rstrip().replace("  ", " ")
+            else:
+                # textwrap.wrap(replace_whitespace=True) replaces all whitespace, not just double newlines and spaces
+                value_to_process = re.sub(r"\s+", " ", original_value).rstrip()
+
             if safe_text == value_to_process:  # no overflow
                 return ""
             # If this is a string, the safe value will include an overflow message. Delete
@@ -182,14 +197,11 @@ class ALAddendumField(DAObject):
         # Do not subtract length of overflow message if this is a list of objects instead of a string
         return original_value[self.overflow_trigger :]
 
-    def max_lines(self, input_width: int = 80, overflow_message_length=0) -> int:
+    def max_lines(self, input_width: int = 80) -> int:
         """
-        Estimate the number of rows in the field in the output document.
+        Calculate the number of lines of text that will fit in the specified input
         """
-        return (
-            int(max(self.overflow_trigger - overflow_message_length, 0) / input_width)
-            + 1
-        )
+        return floor(self.overflow_trigger / input_width)
 
     def value(self) -> Any:
         """
@@ -206,10 +218,22 @@ class ALAddendumField(DAObject):
         preserve_newlines: bool = False,
         _original_value: Optional[str] = None,
         preserve_words: bool = True,
-    ):
+    ) -> Union[str, List[Any]]:
         """
-        Try to return just the portion of the variable
-        that is _shorter than_ the overflow trigger. Otherwise, return empty string.
+        Return just the portion of the variable that heuristics suggest will fit in the specified overflow_trigger
+        limit. If the value is not defined, return empty string.
+
+        When `preserve_newlines` is `True`, the output will be limited to a number of lines, not a number
+        of characters. The max number of lines will be calculated as `floor(self.overflow_trigger/input_width)`.
+        Therefore, it is important that `input_width` is a divisor of `overflow_trigger`.
+
+        Whitespace will be altered. If preserve_newlines is true, the return value may have newlines,
+        but double newlines and Windows style (\r\n) will be replaced with \n. Double spaces will replaced
+        with a single space.
+
+        If preserve_newlines is false, all whitespace, including newlines and tabs, will be replaced
+        with a single space.
+
         Args:
             overflow_message (str): A short message to go on the page where text is cutoff.
             input_width (int): The width, in characters, of the input box. Defaults to 80.
@@ -234,17 +258,14 @@ class ALAddendumField(DAObject):
             return value
 
         max_lines = self.max_lines(
-            input_width=input_width, overflow_message_length=len(overflow_message)
+            input_width=input_width
         )
         max_chars = max(self.overflow_trigger - len(overflow_message), 0)
 
-        # If we preserve newlines, we need to account for max_lines, not just max_chars
-        if preserve_newlines and max_lines > 1:
-            if isinstance(value, str):
-                max_lines = self.max_lines(
-                    input_width=input_width, overflow_message_length=0
-                )
-                max_chars = self.overflow_trigger
+        # Strip newlines from strings because they take extra space
+        if isinstance(value, str):
+            # If we preserve newlines, we need to account for max_lines, not just max_chars
+            if preserve_newlines and max_lines > 1:
                 # Replace all new line characters with just \n. \r\n inserts two lines in a PDF
                 value = re.sub(r"[\r\n]+|\r+|\n+", r"\n", value).rstrip()
                 # textwrap.wrap does all the hard work for us here
@@ -258,8 +279,6 @@ class ALAddendumField(DAObject):
                     )
                 ).replace("  ", " ")
 
-        # Strip newlines from strings because they take extra space
-        if isinstance(value, str):
             if len(value) > self.overflow_trigger:
                 if preserve_words:
                     retval = wrap(
