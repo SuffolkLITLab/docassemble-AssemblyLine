@@ -814,6 +814,7 @@ class ALDocument(DADict):
         overflow_message: Optional[str] = None,
         preserve_newlines: bool = False,
         input_width: int = 80,
+        preserve_words: bool = True,
     ):
         """
         Shortcut syntax for accessing the "safe" (shorter than overflow trigger)
@@ -825,6 +826,7 @@ class ALDocument(DADict):
             overflow_message=overflow_message,
             preserve_newlines=preserve_newlines,
             input_width=input_width,
+            preserve_words=preserve_words,
         )
 
     def overflow_value(
@@ -833,6 +835,7 @@ class ALDocument(DADict):
         overflow_message: Optional[str] = None,
         preserve_newlines: bool = False,
         input_width: int = 80,
+        preserve_words: bool = True,
     ):
         """
         Shortcut syntax for accessing the "overflow" value (amount that exceeds overflow trigger)
@@ -846,6 +849,7 @@ class ALDocument(DADict):
             overflow_message=overflow_message,
             preserve_newlines=preserve_newlines,
             input_width=input_width,
+            preserve_words=preserve_words,
         )
 
     def is_enabled(self, refresh=True):
