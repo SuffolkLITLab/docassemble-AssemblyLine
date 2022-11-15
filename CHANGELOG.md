@@ -1,5 +1,12 @@
 # Changelog
 
+## Version v2.19.0
+
+### Changed
+
+* Addendum code no longer cuts off text mid-word [#607](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/607)
+* Remove words 'the' and 'project' from opening screen [#612](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/612)
+
 ## Version v2.18.0
 
 ## Added
