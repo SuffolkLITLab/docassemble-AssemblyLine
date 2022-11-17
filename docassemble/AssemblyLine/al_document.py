@@ -11,10 +11,10 @@ from docassemble.base.util import (
     DAFileCollection,
     DAFileList,
     defined,
-    value,
     pdf_concatenate,
     zip_file,
     DAOrderedDict,
+    background_action,
     action_button_html,
     include_docx_template,
     user_logged_in,
@@ -30,6 +30,7 @@ from docassemble.base.util import (
 from docassemble.base.pdfa import pdf_to_pdfa
 from textwrap import wrap
 from math import floor
+import subprocess
 
 __all__ = [
     "ALAddendumField",
@@ -42,6 +43,7 @@ __all__ = [
     "key",
     "ALExhibitList",
     "ALExhibit",
+    "ocrmypdf_task",
     "ALExhibitDocument",
     "ALTableDocument",
     "ALUntransformedDocument",
@@ -1515,13 +1517,11 @@ class ALExhibit(DAObject):
         """
         if len(self.pages):
             # We cannot OCR in place. It is too fragile.
-            for page in self.pages:
-                page.ocr_version = DAFile(page.attr_name("ocr_version"))
-                # psm=1 is the default which uses automatic text orientation and location detection.
-                # Appears to be the most accurate method.
-                page.ocr_status = page.ocr_version.make_ocr_pdf_in_background(
-                    page, psm=1
-                )
+            self.ocr_version = DAFile(self.attr_name("ocr_version"))
+            self.ocr_version.initialize(filename="tmp_ocrd.pdf")
+            self.ocr_status = background_action(
+                "al_exhibit_ocr_pages", to_pdf=self.ocr_version, from_file=self.pages
+            )
 
     def ocr_ready(self) -> bool:
         """
@@ -1533,29 +1533,28 @@ class ALExhibit(DAObject):
             Will return true (but log a warning) if OCR was never started on the documents.
             That situation is likely a developer error, as you shouldn't wait for OCR if it never started
         """
-        for page in self.pages:
-            if hasattr(page, "ocr_status") and not page.ocr_status.ready():
-                return False
-            if not hasattr(page, "ocr_status"):
-                log("developer warning: ocr_ready was called but _ocr_start wasn't!")
+        if hasattr(self, "ocr_status") and not self.ocr_status.ready():
+            return False
+        if not hasattr(self, "ocr_status"):
+            log("developer warning: ocr_ready was called but _ocr_start wasn't!")
         return True
 
     def ocr_pages(self):
         """
         Return the OCR version if it exists; otherwise the initial version of each doc in `pages`.
         """
+        if (
+            hasattr(self, "ocr_version")
+            and hasattr(self, "ocr_status")
+            and self.ocr_status.ready()
+            and not self.ocr_status.failed()
+            and self.ocr_status.get() is not None
+            and self.ocr_version.ok
+        ):
+            return [self.ocr_version]
         pages = []
         for page in self.pages:
-            if (
-                hasattr(page, "ocr_version")
-                and hasattr(page, "ocr_status")
-                and page.ocr_status.ready()
-                and not page.ocr_status.failed()
-                and page.ocr_version.ok
-            ):
-                pages.append(page.ocr_version)
-            else:
-                pages.append(page)
+            pages.append(page)
         return pages
 
     def as_pdf(
@@ -1613,6 +1612,41 @@ class ALExhibit(DAObject):
 
     def __str__(self):
         return self.title
+
+
+def ocrmypdf_task(
+    from_file: Union[DAFile, DAFileList], to_pdf: DAFile
+) -> Optional[str]:
+    """A function that calls ocr my pdf in a subprocess.
+    Built to be called from a background action (id: al exhibit ocr pages bg)"""
+    if not from_file or not to_pdf:
+        log(
+            "Developer error: in ocrmypdf_task, shouldn't pass None to from_file or to_pdf"
+        )
+        return None
+    if isinstance(from_file, DAFileList):
+        from_file = pdf_concatenate(from_file)
+    if from_file.extension in ["png", "jpg", "jpeg", "gif"]:
+        ocr_params = ["ocrmypdf", "--image-dpi", "300", from_file.path(), to_pdf.path()]
+    else:
+        ocr_params = ["ocrmypdf", "--skip-text", from_file.path(), to_pdf.path()]
+
+    completed_ocr = None
+    try:
+        completed_ocr = subprocess.run(
+            ocr_params, timeout=60 * 60, check=False, capture_output=True
+        )
+        to_pdf.commit()
+        result = completed_ocr.returncode
+    except subprocess.TimeoutExpired:
+        result = 1
+        log("ocr with ocrmypdf took too long (over an hour)")
+    if result != 0:
+        ocr_error_msg = f": {completed_ocr.stderr.decode()}" if completed_ocr else ""
+        log("failed to ocr with ocrmypdf" + ocr_error_msg)
+        return None
+    else:
+        return to_pdf.path()
 
 
 class ALExhibitList(DAList):
