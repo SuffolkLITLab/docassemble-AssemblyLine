@@ -1519,11 +1519,15 @@ class ALExhibit(DAObject):
         if len(self.pages):
             self.ocr_version = DAFile(self.attr_name("ocr_version"))
             self.ocr_version.initialize(filename="tmp_ocrd.pdf")
-            if get_config("assembly line",{}).get("ocr engine") == "ocrmypdf":
+            if get_config("assembly line", {}).get("ocr engine") == "ocrmypdf":
                 self.ocr_status = background_action(
-                    "al_exhibit_ocr_pages", to_pdf=self.ocr_version, from_file=self.pages
+                    "al_exhibit_ocr_pages",
+                    to_pdf=self.ocr_version,
+                    from_file=self.pages,
                 )
-            self.ocr_status = self.ocr_version.make_ocr_pdf_in_background(self.pages, psm=1)
+            self.ocr_status = self.ocr_version.make_ocr_pdf_in_background(
+                self.pages, psm=1
+            )
 
     def ocr_ready(self) -> bool:
         """
