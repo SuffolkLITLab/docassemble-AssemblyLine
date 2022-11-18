@@ -1511,17 +1511,19 @@ class ALExhibit(DAObject):
 
     def _start_ocr(self):
         """
-        Starts the OCR (optical character resolution) process on the uploaded documents.
+        Starts the OCR (optical character recognition) process on the uploaded documents.
+        This adds a searchable text layer to any images of text that have been uploaded.
 
         Makes a background action for each page in the document.
         """
         if len(self.pages):
-            # We cannot OCR in place. It is too fragile.
             self.ocr_version = DAFile(self.attr_name("ocr_version"))
             self.ocr_version.initialize(filename="tmp_ocrd.pdf")
-            self.ocr_status = background_action(
-                "al_exhibit_ocr_pages", to_pdf=self.ocr_version, from_file=self.pages
-            )
+            if get_config("assembly line",{}).get("ocr engine") == "ocrmypdf":
+                self.ocr_status = background_action(
+                    "al_exhibit_ocr_pages", to_pdf=self.ocr_version, from_file=self.pages
+                )
+            self.ocr_status = self.ocr_version.make_ocr_pdf_in_background(self.pages, psm=1)
 
     def ocr_ready(self) -> bool:
         """
