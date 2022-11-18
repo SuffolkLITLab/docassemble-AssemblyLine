@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+* Config option to use [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF) as the backend to OCR pdfs
+  * OCRmyPDF won't OCR pages that already have text on them, and keeps scanned pages in color
+  * requires you to have the following lines in the docassemble config
+    ```yml
+    assembly line:
+      ocr engine: ocrmypdf
+    debian packages:
+      - ocrmypdf
+    ```
+
 ## Version v2.19.0
 
 ### Changed
