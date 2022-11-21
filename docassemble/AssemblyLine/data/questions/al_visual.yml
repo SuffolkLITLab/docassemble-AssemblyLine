@@ -43,7 +43,7 @@ default screen parts:
   pre: |
     % if get_config('debug'):
     `id: ${ user_info().question_id }`  
-    `Variable triggering this screen: ${ user_info().variable }  
+    `Variable triggering this screen: ${ user_info().variable }`  
     `Package: ${ user_info().package } ${ package_version_number }; ${ al_version }`
     <div data-variable="${ encode_name(str( user_info().variable )) }" id="sought_variable" aria-hidden="true" style="display: none;"></div>
     % endif
