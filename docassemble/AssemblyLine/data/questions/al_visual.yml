@@ -73,7 +73,7 @@ code: |
   if _internal.get('steps') > 1:
     menu_items = al_menu_items
   else:
-    menu_items = al_menu_items[1:] # Skip the "start over" menu item
+    menu_items = al_menu_items[3:] # Skip the "start over", download, and exit and erase menu item
 ---
 reconsider: True
 code: |
@@ -81,6 +81,12 @@ code: |
     {"url": url_ask(['al_start_over_confirmation','al_start_over']),
     "label": "Start over"
     },
+    {
+      "url": url_ask(['al_exit_logout_confirmation', 'al_exit_logout']),
+      "label": "Exit and delete my answers"
+    },
+    {"url": url_action('al_error_action_download_screen'), 
+    "label": "Download current progress"},
   ]
   
   # Answer set feature is behind a server-wide configuration option
@@ -102,6 +108,10 @@ code: |
     
   al_menu_items = al_menu_items_tmp
   del al_menu_items_tmp
+---
+event: al_exit_logout
+code: |
+  command("exit_logout")
 ---
 event: al_start_over
 code: |
@@ -349,6 +359,22 @@ continue button label: |
   Start over
 continue button field: al_start_over_confirmation
 ---
+id: exit and erase answers
+question: |
+  Do you want to delete your answers?
+subquestion: |
+  Your progress on this document will be completely erased. Any
+  actions that were scheduled, such as reminders from this website,
+  will also be removed.
+  
+  Click "Exit and delete my answers" to delete your progress,
+  or "Back" if you want to keep working.
+back button label: |
+  Back
+continue button label: |
+  Exit and delete my answers
+continue button field: al_exit_logout_confirmation
+---
 ################################### Custom error action ################################
 ---
 metadata:
@@ -386,9 +412,14 @@ subquestion: |
   % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form").strip() == "None":
   * [Download a blank "${ interview_short_title }"](${ MAIN_METADATA.get("original_form") } )
   % endif
-  * Visit the [${ AL_ORGANIZATION_TITLE } home page](${ AL_ORGANIZATION_HOMEPAGE })
+  * Visit the [${ AL_ORGANIZATION_TITLE } home page](${ AL_ORGANIZATION_HOMEPAGE }) and try another interview
   
+  ${ action_arguments() }
+
+  ${ action_argument("error_trace") }
+
   ${ collapse_template(al_formatted_error_message) }
+back button label: Back
 buttons:
   - Exit: leave
     url: ${ AL_ORGANIZATION_HOMEPAGE }
@@ -396,18 +427,31 @@ buttons:
 ---
 event: al_error_action_download_screen
 id: emergency download screen
+decoration: triangle-exclamation
 question: |
   Here is your work in progress
 subquestion: |
-  **Warning**: these documents are not complete. Look each document over carefully and enter
+  **Warning**: these documents may not be complete. Look each document over carefully and enter
   any information that is missing once you have downloaded the documents.
+
+  **It is possible that the missing information may make this document unenforceable.**
 
   Here is your current progress on the ${ interview_short_title } documents you started:
 
   ${ al_user_bundle.download_list_html(key="emergency_download") }
+buttons:
+  - Exit: leave
+  - Start over: restart
 ---
 template: al_formatted_error_message
 subject: |
   Technical information
 content: |
   ${ action_argument('error_message') }
+
+  % if get_config("debug") and action_argument("error_trace"):
+  ```
+  ${ action_argument("error_trace")}
+  ${ action_argument("error_history")}  
+  ```
+  % endif
