@@ -410,14 +410,10 @@ subquestion: |
   * [:comment-dots: Tell us what happened](${ feedback_link(user_info(), i=feedback_form, github_repo=github_repo_name, github_user=github_user, package_version=package_version_number) } ){:target="_blank"}
   * Try to [download your work in progress](${ url_action("al_error_action_download_screen") })
   % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form").strip() == "None":
-  * [Download a blank "${ interview_short_title }"](${ MAIN_METADATA.get("original_form") } )
+  * [Download a blank "${ all_variables(special='metadata').get("title").strip() }"](${ MAIN_METADATA.get("original_form") } )
   % endif
   * Visit the [${ AL_ORGANIZATION_TITLE } home page](${ AL_ORGANIZATION_HOMEPAGE }) and try another interview
   
-  ${ action_arguments() }
-
-  ${ action_argument("error_trace") }
-
   ${ collapse_template(al_formatted_error_message) }
 back button label: Back
 buttons:
@@ -436,7 +432,7 @@ subquestion: |
 
   **It is possible that the missing information may make this document unenforceable.**
 
-  Here is your current progress on the ${ interview_short_title } documents you started:
+  Here is your current progress on the "${ all_variables(special='metadata').get("title").strip() }" documents you started:
 
   ${ al_user_bundle.download_list_html(key="emergency_download") }
 buttons:
