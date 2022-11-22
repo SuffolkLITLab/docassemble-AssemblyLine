@@ -354,6 +354,9 @@ continue button field: al_start_over_confirmation
 metadata:
   error action: al_custom_error_action
 ---
+objects:
+  - MAIN_METADATA: DAEmpty()
+---
 id: custom error action
 event: al_custom_error_action
 decoration: bug
@@ -379,12 +382,7 @@ subquestion: |
 
   * Click "Back" and try again.
   * [:comment-dots: Tell us what happened](${ feedback_link(user_info(), i=feedback_form, github_repo=github_repo_name, github_user=github_user, package_version=package_version_number) } ){:target="_blank"}
-  % if len(al_court_bundle.elements):
-  * [Download your work in progress](${ al_court_bundle.as_pdf().url_for() })
-  % endif
-  % if len(al_recipient_bundle.elements):
-  * [Download your work in progress](${ al_recipient_bundle.as_pdf().url_for() })
-  % endif
+  * Try to [download your work in progress](${ url_action("al_error_action_download_screen") })
   % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form").strip() == "None":
   * [Download a blank "${ interview_short_title }"](${ MAIN_METADATA.get("original_form") } )
   % endif
@@ -395,6 +393,18 @@ buttons:
   - Exit: leave
     url: ${ AL_ORGANIZATION_HOMEPAGE }
   - Start over: restart
+---
+event: al_error_action_download_screen
+id: emergency download screen
+question: |
+  Here is your work in progress
+subquestion: |
+  **Warning**: these documents are not complete. Look each document over carefully and enter
+  any information that is missing once you have downloaded the documents.
+
+  Here is your current progress on the ${ interview_short_title } documents you started:
+
+  ${ al_user_bundle.download_list_html(key="emergency_download") }
 ---
 template: al_formatted_error_message
 subject: |
