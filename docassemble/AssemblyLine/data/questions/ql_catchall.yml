@@ -1,0 +1,137 @@
+---
+features:
+  use catchall: True
+---
+###################### Catchall questions ###########################################
+---
+generic object: DACatchAll
+question: |
+  ${ x.object_name() }?
+fields:
+  - ${ x.object_name() }: x.value
+subquestion: |
+  % if get_config("debug"):
+  ${ collapse_template(x.catchall_question_explanation) }
+  % endif
+validation code: |
+  define(x.instanceName, x.value)
+css: |
+  ${ dacatchall_css_template }
+---
+if: |
+  x.context == 'float' or (x.data_type_guess() == 'float')
+generic object: DACatchAll
+question: |
+  How much is ${ x.object_name() }?
+subquestion: |
+  % if get_config("debug"):
+  ${ collapse_template(x.catchall_question_explanation) }
+  % endif
+fields:
+  - Amount: x.value
+    datatype: currency
+validation code: |
+  define(x.instanceName, x.value)
+css: |
+  ${ dacatchall_css_template }  
+---
+if: |
+  x.data_type_guess() == 'int'
+generic object: DACatchAll
+question: |
+  ${ x.object_name() }?
+subquestion: |
+  % if get_config("debug"):
+  ${ collapse_template(x.catchall_question_explanation) }
+  % endif
+fields:
+  - Number or amount: x.value
+    datatype: integer
+validation code: |
+  define(x.instanceName, x.value)    
+css: |
+  ${ dacatchall_css_template }  
+---
+if: |
+  x.data_type_guess() == 'bool'
+generic object: DACatchAll
+question: |
+  ${x.object_name()}?
+subquestion: |
+  % if get_config("debug"):
+  ${ collapse_template(x.catchall_question_explanation) }
+  % endif
+fields:
+  - ${x.object_name()}?: x.value
+    datatype: yesnoradio
+validation code: |
+  define(x.instanceName, x.value)
+css: |
+  ${ dacatchall_css_template }  
+---
+if: |
+  x.object_name().endswith('date')
+generic object: DACatchAll
+question: |
+  ${x.object_name()}?
+subquestion: |
+  % if get_config("debug"):
+  ${ collapse_template(x.catchall_question_explanation) }
+  % endif
+fields:
+  - Date: x.value
+    datatype: date
+validation code: |
+  define(x.instanceName, x.value)
+css: |
+  ${ dacatchall_css_template }
+---
+generic object: DACatchAll
+template: x.catchall_question_explanation
+subject: |
+  **<i class="fa-solid fa-triangle-exclamation"></i> Developer warning**: missing question for `${ x.instanceName }`
+content: |
+  **This warning only appears in developer mode**
+
+  It looks like you are missing a question to define a variable `${ x.instanceName }`.
+
+  Try adding a question block like:
+
+  % if x.data_type_guess() in ["int", "bool"]:
+  <pre>
+  ---
+  id: amount of ${ x.instanceName }
+  question: |
+    How much is ${ x.object_name() }?
+  fields:
+    - ${ x.object_name() }: ${ x.instanceName }
+      datatype: currency
+  </pre>
+  % else:
+  <pre>
+  ---
+  id: ${ x.instanceName }
+  question: |
+    What is ${ x.object_name() }?
+  fields:
+    - ${ x.object_name() }: ${ x.instanceName }
+  </pre>
+  % endif
+
+  If you do not do anything, your end user may see this question instead
+  of one you have customized.
+
+  This warning message will not appear when this interview is installed on a production
+  server.
+---
+template: dacatchall_css_template
+content: |
+  % if get_config("debug"):
+  <style>
+  #daquestion {
+    border-style: solid;
+    border-color: red;
+    padding: 4em;
+  }
+  </style>  
+  % endif
