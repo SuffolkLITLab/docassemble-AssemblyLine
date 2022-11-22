@@ -348,7 +348,56 @@ back button label: |
 continue button label: |
   Start over
 continue button field: al_start_over_confirmation
+---
+################################### Custom error action ################################
+---
+metadata:
+  error action: al_custom_error_action
+---
+id: custom error action
+event: al_custom_error_action
+decoration: bug
+question: |
+  Something went wrong
+subquestion: |
+  % if interview_metadata.get("main_interview_key"):
+    <%
+      MAIN_METADATA = interview_metadata[interview_metadata["main_interview_key"]]
+    %>
+  % elif len(interview_metadata) > 1:    
+    <% 
+      del(interview_metadata["main_interview_key"]) # DADict creates the key on lookup above
+      MAIN_METADATA = next(iter(interview_metadata.values())) 
+    %>
+  % else:
+    <% MAIN_METADATA = {} %>
+  % endif
+
+  We ran into an error when we tried to load this screen.
+
+  You can try one of these steps to recover your work:
+
+  * Click "Back" and try again.
+  * [:comment-dots: Tell us what happened](${ feedback_link(user_info(), i=feedback_form, github_repo=github_repo_name, github_user=github_user, package_version=package_version_number) } ){:target="_blank"}
+  % if len(al_court_bundle.elements):
+  * [Download your work in progress](${ al_court_bundle.as_pdf().url_for() })
+  % endif
+  % if len(al_recipient_bundle.elements):
+  * [Download your work in progress](${ al_recipient_bundle.as_pdf().url_for() })
+  % endif
+  % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form").strip() == "None":
+  * [Download a blank "${ interview_short_title }"](${ MAIN_METADATA.get("original_form") } )
+  % endif
+  * Visit the [${ AL_ORGANIZATION_TITLE } home page](${ AL_ORGANIZATION_HOMEPAGE })
   
-
-
-
+  ${ collapse_template(al_formatted_error_message) }
+buttons:
+  - Exit: leave
+    url: ${ AL_ORGANIZATION_HOMEPAGE }
+  - Start over: restart
+---
+template: al_formatted_error_message
+subject: |
+  Technical information
+content: |
+  ${ action_argument('error_message') }
