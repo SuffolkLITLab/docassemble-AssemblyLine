@@ -32,6 +32,8 @@ fields:
     datatype: currency
 validation code: |
   define(x.instanceName, x.value)
+css: |
+  ${ dacatchall_css_template }  
 ---
 if: |
   x.data_type_guess() == 'int'
@@ -47,6 +49,8 @@ fields:
     datatype: integer
 validation code: |
   define(x.instanceName, x.value)    
+css: |
+  ${ dacatchall_css_template }  
 ---
 if: |
   x.data_type_guess() == 'bool'
@@ -62,6 +66,8 @@ fields:
     datatype: yesnoradio
 validation code: |
   define(x.instanceName, x.value)
+css: |
+  ${ dacatchall_css_template }  
 ---
 if: |
   x.object_name().endswith('date')
@@ -78,13 +84,7 @@ fields:
 validation code: |
   define(x.instanceName, x.value)
 css: |
-  <style>
-  #daquestion {
-    border-style: solid;
-    border-color: red;
-    padding: 4em;
-  }
-  </style>
+  ${ dacatchall_css_template }
 ---
 generic object: DACatchAll
 template: x.catchall_question_explanation
