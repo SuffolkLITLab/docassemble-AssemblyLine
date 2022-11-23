@@ -73,7 +73,11 @@ code: |
   if _internal.get('steps') > 1:
     menu_items = al_menu_items
   else:
-    menu_items = al_menu_items[3:] # Skip the "start over", download, and exit and erase menu item
+    # Skip the "start over", download, and exit and erase menu item
+    if get_config("assembly line", {}).get("enable incomplete downloads"):
+      menu_items = al_menu_items[3:]
+    else:
+      menu_items = al_menu_items[2:]
 ---
 reconsider: True
 code: |
@@ -85,9 +89,13 @@ code: |
       "url": url_ask(['al_exit_logout_confirmation', 'al_exit_logout']),
       "label": "Exit and delete my answers"
     },
-    {"url": url_action('al_error_action_download_screen'), 
-    "label": "Download current progress"},
   ]
+
+  if get_config("assembly line", {}).get("enable incomplete downloads"):
+    al_menu_items_tmp.append({
+        "url": url_action('al_error_action_download_screen'), 
+        "label": "Download current progress"
+    })
   
   # Answer set feature is behind a server-wide configuration option
   if get_config('assembly line',{}).get('enable answer sets'):
