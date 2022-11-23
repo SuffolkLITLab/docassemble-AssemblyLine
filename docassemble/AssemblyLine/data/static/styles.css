@@ -130,3 +130,7 @@ footer a {
   text-decoration: dashed;
   text-decoration-line: underline;
 }
+
+.daquestionbackbutton {
+  --bs-btn-focus-shadow-rgb: 49,132,253;
+}
