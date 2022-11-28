@@ -924,7 +924,8 @@ class PeopleList(ALPeopleList):
 def will_send_to_real_court() -> bool:
     """Dev or root needs to be in the URL root: can change in the config file"""
     return not (
-        "dev" in get_config("url root")
+        get_config("debug")
+        or "dev" in get_config("url root")
         or "test" in get_config("url root")
         or "localhost" in get_config("url root")
     )
