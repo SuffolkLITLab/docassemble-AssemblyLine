@@ -4,12 +4,18 @@ metadata:
     Saved answer set
   description: |
     An interview that is the target for saving and loading answer sets.
+
+    Note: answer sets are not encrypted by default.
   tags:
     - Answer_set
 ---
 modules:
   - docassemble.ALToolbox.misc
   - .sessions
+---
+mandatory: True
+code: |
+  multi_user = True
 ---
 features:
   css:
