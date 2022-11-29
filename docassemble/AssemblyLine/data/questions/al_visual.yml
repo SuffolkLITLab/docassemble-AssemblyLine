@@ -74,7 +74,7 @@ code: |
     menu_items = al_menu_items
   else:
     # Skip the "start over", download, and exit and erase menu item
-    if get_config("assembly line", {}).get("enable incomplete downloads"):
+    if al_enable_incomplete_downloads:
       menu_items = al_menu_items[3:]
     else:
       menu_items = al_menu_items[2:]
@@ -91,7 +91,7 @@ code: |
     },
   ]
 
-  if get_config("assembly line", {}).get("enable incomplete downloads"):
+  if al_enable_incomplete_downloads:
     al_menu_items_tmp.append({
         "url": url_action('al_error_action_download_screen'), 
         "label": "Download current progress"
@@ -415,19 +415,42 @@ subquestion: |
   You can try one of these steps to recover your work:
 
   * Click "Back" and try again.
+  % if al_enable_error_action_feedback_link:
   * [:comment-dots: Tell us what happened](${ feedback_link(user_info(), i=feedback_form, github_repo=github_repo_name, github_user=github_user, package_version=package_version_number) } ){:target="_blank"}
+  % endif
+  % if al_enable_incomplete_downloads:
   * Try to [download your work in progress](${ url_action("al_error_action_download_screen") })
+  % endif
   % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form").strip() == "None":
   * [Download a blank "${ all_variables(special='metadata').get("title").strip() }"](${ MAIN_METADATA.get("original_form") } )
   % endif
   * Visit the [${ AL_ORGANIZATION_TITLE } home page](${ AL_ORGANIZATION_HOMEPAGE }) and try another interview
-  
+  % if al_show_email_to_user_on_errors and get_config("error notification email"):
+  * [Send us an email](mailto:${ get_config("error notification email") }?subject=User%20error%20report%3A%20${ all_variables(special='metadata').get("title") }%20${ user_info().filename }) (Note: you may not get a reply)
+  % endif
+  % for al_opt in al_custom_error_options:
+  * ${ al_opt }
+  % endfor
+
   ${ collapse_template(al_formatted_error_message) }
 back button label: Back
 buttons:
   - Exit: leave
     url: ${ AL_ORGANIZATION_HOMEPAGE }
   - Start over: restart
+---
+code: |
+  al_show_email_to_user_on_errors = get_config("assembly line", {}).get("show email to user on errors")
+---
+code: |
+  al_enable_incomplete_downloads = get_config("assembly line", {}).get("enable incomplete downloads")
+---
+code: |
+  al_enable_error_action_feedback_link = get_config("assembly line", {}).get("enable error action feedback link")
+---
+code: |
+  # Provide a list of strings
+  al_custom_error_options = get_config("assembly line", {}).get("custom error actions",[])
 ---
 event: al_error_action_download_screen
 id: emergency download screen
@@ -444,7 +467,7 @@ subquestion: |
 
   ${ al_user_bundle.download_list_html(key="emergency_download") }
 buttons:
-  - Exit: leave
+  - Leave: leave
   - Start over: restart
 ---
 template: al_formatted_error_message
