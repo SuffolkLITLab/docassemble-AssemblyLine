@@ -13,10 +13,15 @@ jobs:
     steps:
       - run: sudo apt-get update && sudo apt-get -y install libcurl4-openssl-dev build-essential python3-dev libldap2-dev libsasl2-dev slapd ldap-utils tox lcov valgrind libzbar0
       - name: Check
-        uses: actions/checkout@v2
-      - run: pip install virtualenv
-      - run: virtualenv -p python3.8 .venv
-      - run: .venv/bin/pip install -r docassemble/AssemblyLine/requirements.txt
-      - run: .venv/bin/pip install --editable .
-      - run: .venv/bin/python3 -m mypy .
-      - run: .venv/bin/python3 -m unittest discover
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+          cache-dependency-path: |
+              setup.py
+              docassemble/*/requirements.txt
+      - run: pip install --editable .
+      - run: pip install -r docassemble/*/requirements.txt
+      - run: python -m mypy .
+      - run: python -m unittest discover
