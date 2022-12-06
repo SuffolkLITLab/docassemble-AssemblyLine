@@ -11,7 +11,7 @@ jobs:
     env:
       ISUNITTEST: true
     steps:
-      - run: sudo apt-get update && sudo apt-get -y install libcurl4-openssl-dev build-essential python3-dev libldap2-dev libsasl2-dev slapd ldap-utils tox lcov valgrind libzbar0
+      - run: sudo apt-get update && sudo apt-get -y install libcurl4-openssl-dev build-essential python3-dev libldap2-dev libsasl2-dev slapd ldap-utils tox lcov libzbar0
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
@@ -19,8 +19,7 @@ jobs:
           cache: 'pip'
           cache-dependency-path: |
               setup.py
-              docassemble/*/requirements.txt
-      - run: pip install --editable .
-      - run: pip install -r docassemble/*/requirements.txt
+              **/requirements.txt
+      - run: pip install --editable . -r docassemble/*/requirements.txt
       - run: python -m mypy .
       - run: python -m unittest discover
