@@ -15,7 +15,7 @@ jobs:
       - name: Check
         uses: actions/checkout@v2
       - run: pip install virtualenv
-      - run: virtualenv -p python3.8 .venv
+      - run: virtualenv -p python3.9 .venv
       - run: .venv/bin/pip install -r docassemble/AssemblyLine/requirements.txt
       - run: .venv/bin/pip install --editable .
       - run: .venv/bin/python3 -m mypy .
