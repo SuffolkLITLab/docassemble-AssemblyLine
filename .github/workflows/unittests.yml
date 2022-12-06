@@ -20,6 +20,6 @@ jobs:
           cache-dependency-path: |
               setup.py
               **/requirements.txt
-      - run: pip install --editable . -r docassemble/*/requirements.txt --use-pep517
+      - run: pip install --editable . -r docassemble/*/requirements.txt
       - run: python -m mypy .
       - run: python -m unittest discover
