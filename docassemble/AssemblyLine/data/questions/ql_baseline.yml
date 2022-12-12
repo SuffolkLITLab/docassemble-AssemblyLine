@@ -452,12 +452,15 @@ fields:
   - My mailing address is: users[0].mailing_address
     datatype: object_radio
     choices:
-      - users[0].address
+      - users[0].address if defined("users[0].address.address") else None
     object labeler: |
       lambda y: y.on_one_line()      
     none of the above: |
       Somewhere else
     disable others: True      
+    show if:
+      code: |
+        defined("users[0].address.address")
   - ${ users[0].address.address_label}: users[0].mailing_address.address
     address autocomplete: True
   - ${ users[0].address.unit_label}: users[0].mailing_address.unit
@@ -480,12 +483,15 @@ fields:
   - Same as your address: users[i].address
     datatype: object_radio
     choices:
-      - users[0].address
+      - users[0].address if defined("users[0].address.address") else None
     object labeler: |
       lambda y: y.on_one_line()      
     none of the above: |
       Somewhere else
-    disable others: True      
+    disable others: True
+    show if:
+      code: |
+        defined("users[0].address.address")
   - ${ users[i].address.address_label}: users[i].address.address
     address autocomplete: True
   - ${ users[i].address.unit_label}: users[i].address.unit
