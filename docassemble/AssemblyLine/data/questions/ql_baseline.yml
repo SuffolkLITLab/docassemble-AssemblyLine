@@ -1134,7 +1134,7 @@ fields:
 ---
 id: user marital status
 question: |
-  Your current marital status
+  What is your current marital status?
 fields:
   - I am: users[0].marital_status
     choices:
