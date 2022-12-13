@@ -459,6 +459,7 @@ class ALIndividual(Individual):
     previous_addresses: ALAddressList
     other_addresses: ALAddressList
     mailing_address: ALAddress
+    service_address: ALAddress
 
     def init(self, *pargs, **kwargs):
         super(ALIndividual, self).init(*pargs, **kwargs)
@@ -474,6 +475,8 @@ class ALIndividual(Individual):
             self.initializeAttribute("other_addresses", ALAddressList)
         if not hasattr(self, "mailing_address"):
             self.initializeAttribute("mailing_address", ALAddress)
+        if not hasattr(self, "service_address"):
+            self.initializeAttribute("service_address", ALAddress)
 
     def signature_if_final(self, i: str) -> Union[DAFile, str]:
         if i == "final":
