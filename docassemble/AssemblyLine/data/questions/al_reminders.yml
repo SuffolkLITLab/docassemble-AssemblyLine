@@ -1,0 +1,89 @@
+---
+mandatory: True
+code: |
+  allow_cron = True
+---
+id: wants reminders
+question: |
+  Would you like to get a reminder about important follow-up steps?
+subquestion: |
+  % if len(al_reminders) == 1:
+  We can send you a reminder, by text or email,
+  about ${ next(iter(al_reminders.values()))["description"][:1].lower() }${ fix_punctuation(next(iter(al_reminders.values()))["description"][1:]) }
+  % else:
+  about:
+
+  % for reminder in al_reminders.values():
+  * ${ reminder["description"]}
+  % endfor
+  % endif
+fields:
+  - I want to get reminders: al_user_wants_reminders
+    datatype: yesnoradio
+  - I want to get reminders by: al_user_preferred_reminder_formats
+    datatype: checkboxes
+    choices:
+      - SMS (text message): sms
+      - Email: email
+    minlength: 1
+    validation messages:
+      minlength: |
+        You need to choose to get reminders by either email or SMS, or both.
+    show if: al_user_wants_reminders    
+  - The email I want to use is: al_user_reminder_email
+    datatype: email
+    default: |
+      % if defined("users[0].email"):
+      ${ users[0].email }
+      % elif user_logged_in():
+      ${ user_info().email }
+      % endif
+    show if: al_user_preferred_reminder_formats["email"]
+  - The phone number I want to use is: al_user_reminder_phone
+    default: |
+      % if defined("users[0].mobile_number"):
+      ${ users[0].mobile_number }
+      % elif defined("users[0].phone_number"):
+      ${ users[0].phone_number }
+      % endif
+    validate: |
+      lambda y: phone_number_is_valid(y) or validation_error("Enter a valid phone number")
+    show if: al_user_preferred_reminder_formats["sms"]
+---
+variable name: al_reminders
+data:
+  filing_documents:
+    description: Filing these documents
+    date: ${ today().plus(days=3).format("yyyy-MM-dd") }
+    email template: al_reminder_filing_template
+    sms template: al_reminder_filing_template
+---
+template: al_reminder_filing_template
+subject: |
+  Did you file your ${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) } documents yet?
+content: |
+  If you haven't filed yet, make a plan or do it today!
+---
+event: cron_daily
+code: |
+  if al_user_wants_reminders:
+    import time
+    from random import random
+    # Avoid all of the interviews using up resources at the same time, vary the start time a bit
+    time.sleep(random())
+
+    for reminder in al_reminders:
+      if today() >= as_datetime(al_reminders[reminder]["date"]) and task_not_yet_performed(f"al_reminder_{reminder}"):
+        if task_not_yet_performed(f"al_reminder_{reminder}_email") and al_user_preferred_reminder_formats["email"]:
+          send_email(to=al_user_reminder_email, template=value(al_reminders[reminder]["email template"]), task=f"al_reminder_{reminder}_email")
+        if task_not_yet_performed(f"al_reminder_{reminder}_sms") and al_user_preferred_reminder_formats["sms"]:
+          send_sms(to=al_user_reminder_phone, template=value(al_reminders[reminder]["sms template"]))
+          mark_task_as_performed(f"al_reminder_{reminder}_sms")
+        mark_task_as_performed(f"al_reminder_{reminder}")
+
+    if all(
+      task_performed(f"al_reminder_{reminder}")
+      for reminder in al_reminders
+    ):
+      allow_cron = False # Stop calling cron on this session once all tasks performed
+  response()
