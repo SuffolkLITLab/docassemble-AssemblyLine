@@ -1131,7 +1131,47 @@ fields:
     validation messages:
       minlength: |
         You cannot keep going unless you did your best to tell the truth.
----        
+---
+id: user marital status
+question: |
+  Your current marital status
+fields:
+  - I am: users[0].marital_status
+    choices:
+      - Married: married
+      - Widowed: widowed
+      - Divorced: divorced
+      - Separated: separated
+      - Never married: never_married
+---
+generic object: ALIndividual
+id: x marital status
+question: |
+  ${ x }'s current marital status
+fields:
+  - ${ x } is: x.marital_status
+    choices:
+      - Married: married
+      - Widowed: widowed
+      - Divorced: divorced
+      - Separated: separated
+      - Never married: never_married
+---
+id: user is married
+question: |
+  Are you currently married?
+fields:
+  - I am married: users[0].has_spouse
+    datatype: yesnoradio
+---
+generic object: ALIndividual
+id: x is married
+question: |
+  Is ${ x } currently married?
+fields:
+  - ${ x } is married: x.has_spouse
+    datatype: yesnoradio
+---
 ########################################################################
 # Court selection
 ---
