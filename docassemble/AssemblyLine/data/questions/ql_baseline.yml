@@ -29,6 +29,10 @@ objects:
   - trial_court_address: Address
   - appeals_court_address: Address
 ---
+generic object: ALIndividual
+objects:
+  - x.service_address: ALAddress
+---
 id: basic questions intro screen
 decoration: form-lineal
 question: |
@@ -588,8 +592,8 @@ data:
     question: Mail
     document: mail
   hand:
-    question: In-hand delivery
-    document: in-hand
+    question: Hand delivery
+    document: hand delivery
   email:
     question: Email
     document: email
