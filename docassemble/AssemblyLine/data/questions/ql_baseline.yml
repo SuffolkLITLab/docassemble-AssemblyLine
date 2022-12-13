@@ -1147,7 +1147,7 @@ fields:
 generic object: ALIndividual
 id: x marital status
 question: |
-  ${ x }'s current marital status
+  What is ${ x }'s current marital status
 fields:
   - ${ x } is: x.marital_status
     choices:
