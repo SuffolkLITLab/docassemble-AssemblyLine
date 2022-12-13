@@ -237,7 +237,7 @@ code: |
 generic object: ALIndividual
 template: x.first_name_label
 content: |
-  First name
+  First
 ---
 generic object: ALIndividual
 template: x.middle_name_label
@@ -247,7 +247,7 @@ content: |
 generic object: ALIndividual
 template: x.last_name_label
 content: |
-  Last name
+  Last
 ---
 generic object: ALIndividual
 template: x.suffix_label
