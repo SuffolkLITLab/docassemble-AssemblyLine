@@ -333,6 +333,22 @@ template: about_this_interview_version_info
 content: |
   "${all_variables(special='metadata').get('title','').rstrip()}" version 
   `${ package_version_number }`; AssemblyLine version `${ al_version }`.
+
+  % if interview_metadata.get("main_interview_key"):
+    <%
+      MAIN_METADATA = interview_metadata[interview_metadata["main_interview_key"]]
+    %>
+  % elif len(interview_metadata) > 1:    
+    <% 
+      del(interview_metadata["main_interview_key"]) # DADict creates the key on lookup above
+      MAIN_METADATA = next(iter(interview_metadata.values())) 
+    %>
+  % else:
+    <% MAIN_METADATA = {} %>
+  % endif
+  % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form").strip() == "None" and MAIN_METADATA.get("original_form").startswith("http"):
+  [View the original version of this form](${ MAIN_METADATA.get("original_form") }).
+  % endif
   
   % if package_updated_on:
   Last updated on ${ package_updated_on }. [:fab-fa-github: View code on GitHub](${ github_url }).  
