@@ -163,10 +163,13 @@ class ALCourtLoader(DAObject):
 
     Built around Pandas dataframe.
     """
+
     def init(self, *pargs, **kwargs):
         super().init(*pargs, **kwargs)
         if not hasattr(self, "filename"):
-            self.filename = self.file_name # This spelling was a mistake but is everywhere
+            self.filename = (
+                self.file_name
+            )  # This spelling was a mistake but is everywhere
 
     # TODO: I think this design makes sense vs saving/storing ALL courts in the Docassemble session.
     # But we might want to at least cache data in Redis to reduce disk hits.
@@ -216,10 +219,10 @@ class ALCourtLoader(DAObject):
         county_column: str = "address_county",
         display_column: str = "name",
         search_string: Optional[str] = None,
-        search_columns: Optional[Union[List[str],str]] = None,
+        search_columns: Optional[Union[List[str], str]] = None,
     ) -> List[dict]:
         """Get a list of all courts in the provided county, suitable for displaying
-        as a drop-down or radio button list in Docassemble. The results will be a 
+        as a drop-down or radio button list in Docassemble. The results will be a
         dictionary where the key is the index in the dataframe, to be used to
         retrieve the court's full details later with the as_court() method.
 
@@ -240,10 +243,10 @@ class ALCourtLoader(DAObject):
     def filter_courts(
         self,
         court_types: Optional[Union[List[str], str]],
-        column:str ="department",
-        display_column:str ="name",
+        column: str = "department",
+        display_column: str = "name",
         search_string: Optional[str] = None,
-        search_columns: Optional[Union[List[str],str]] = None,
+        search_columns: Optional[Union[List[str], str]] = None,
     ) -> List[dict]:
         """
         Return a subset of courts as a list of dictionaries, like:
@@ -266,8 +269,12 @@ class ALCourtLoader(DAObject):
         if search_string and search_columns:
             if isinstance(search_columns, str):
                 search_columns = [search_columns]
-            filtered["__search_col"] = filtered[search_columns].fillna("").agg(" ".join, axis=1)
-            filtered = filtered[filtered["__search_col"].str.contains(search_string, case=False)]
+            filtered["__search_col"] = (
+                filtered[search_columns].fillna("").agg(" ".join, axis=1)
+            )
+            filtered = filtered[
+                filtered["__search_col"].str.contains(search_string, case=False)
+            ]
         return list(filtered[display_column].items())
 
     def as_court(self, intrinsicName, index, ensure_lat_long=True):
