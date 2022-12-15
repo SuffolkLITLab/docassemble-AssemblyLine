@@ -294,6 +294,8 @@ class ALCourtLoader(DAObject):
         """
         Return list of courts
         """
+        if not hasattr(self, "filename") and hasattr(self, "file_name"):
+            self.filename = self.file_name
         if "/" in self.filename:
             to_load = path_and_mimetype(self.filename)[0]
         else:
