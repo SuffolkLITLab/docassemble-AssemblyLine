@@ -55,4 +55,10 @@ generic object: ALDocumentBundle
 template: x.zip_label
 content: |
   Download zip
-  
+---
+id: al exhibit ocr pages bg
+event: al_exhibit_ocr_pages
+code: |
+  to_pdf = action_argument('to_pdf')
+  from_file = action_argument('from_file')
+  background_response(ocrmypdf_task(from_file, to_pdf))

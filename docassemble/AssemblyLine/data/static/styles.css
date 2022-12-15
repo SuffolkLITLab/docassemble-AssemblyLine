@@ -107,6 +107,11 @@ blockquote p {
   border-width: 1px;
   border-color: gray;
 }
+
+td img.daicon {
+  width: 100%;
+}
+
 /* Reduce integer and number input box size */
 input[type=number] {
   width: 10rem;
@@ -124,4 +129,8 @@ footer a {
   color: #3b842c;
   text-decoration: dashed;
   text-decoration-line: underline;
+}
+
+.daquestionbackbutton {
+  --bs-btn-focus-shadow-rgb: 49,132,253;
 }

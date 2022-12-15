@@ -1,32 +1,32 @@
 from collections.abc import Iterable
 from typing import List, Dict, Any, Optional, Set, Union, Optional
 from docassemble.base.util import (
+    action_button_html,
+    all_variables,
+    as_datetime,
+    create_session,
+    DADateTime,
     DAFile,
     DAFileCollection,
     DAFileList,
-    DADateTime,
+    format_time,
+    get_config,
+    get_default_timezone,
     get_session_variables,
+    interview_menu,
+    interview_url,
+    log,
+    set_parts,
     set_session_variables,
     set_variables,
-    all_variables,
-    user_info,
-    variables_snapshot_connection,
-    word,
-    user_has_privilege,
-    log,
-    interview_url,
-    action_button_html,
     url_action,
     url_ask,
-    as_datetime,
-    create_session,
-    set_parts,
+    user_has_privilege,
+    user_info,
     user_logged_in,
     validation_error,
-    format_time,
-    get_default_timezone,
-    interview_menu,
-    get_config,
+    variables_snapshot_connection,
+    word,
 )
 from docassemble.webapp.users.models import UserModel
 from docassemble.webapp.db_object import init_sqlalchemy
@@ -35,12 +35,13 @@ from docassemble.base.functions import server, safe_json, serializable_dict
 from .al_document import (
     ALDocument,
     ALDocumentBundle,
-    ALStaticDocument,
     ALExhibit,
     ALExhibitList,
+    ALStaticDocument,
 )
 import json
 import os
+import re
 
 try:
     import zoneinfo  # type: ignore
@@ -48,21 +49,24 @@ except ImportError:
     import backports.zoneinfo as zoneinfo  # type: ignore
 
 __all__ = [
-    "is_file_like",
-    "set_interview_metadata",
-    "get_interview_metadata",
-    "rename_interview_answers",
-    "save_interview_answers",
+    "al_session_store_default_filename",
+    "delete_interview_sessions",
+    "export_interview_variables",
+    "get_filtered_session_variables_string",
     "get_filtered_session_variables",
-    "load_interview_answers",
+    "get_interview_metadata",
     "get_saved_interview_list",
     "interview_list_html",
-    "get_filtered_session_variables_string",
-    "load_interview_json",
-    "export_interview_variables",
+    "is_file_like",
     "is_valid_json",
+    "load_interview_answers",
+    "load_interview_json",
+    "rename_current_session",
+    "rename_interview_answers",
+    "save_interview_answers",
     "session_list_html",
-    "delete_interview_sessions",
+    "set_current_session_metadata",
+    "set_interview_metadata",
 ]
 
 db = init_sqlalchemy()
@@ -70,23 +74,23 @@ db = init_sqlalchemy()
 al_sessions_variables_to_remove: Set = {
     # Internal fields
     "_internal",
-    "nav",
-    "url_args",
-    "device_local",
     "allow_cron",
+    "device_local",
     "feedback_form",
     "github_repo_name",
     "github_user",
     "interview_short_title",
     "metadata_title",
     "multi_user",
+    "nav",
     "session_local",
     "speak_text",
+    "url_args",
     "user_local",
     # Database-like fields we don't need to copy
     "all_courts",
-    "macourts",
     "court_emails",
+    "macourts",
     # AssemblyLine form-specific fields
     "al_form_type",
     "al_version",
@@ -96,82 +100,84 @@ al_sessions_variables_to_remove: Set = {
     "package_version_number",
     "user_has_saved_answers",
     # Variables that should be calculated fresh
-    "signature_date",
+    "about_this_interview_version_info",
     "al_court_bundle",
-    "al_user_bundle",
-    "case_name",
-    "al_logo",
-    "AL_ORGANIZATION_HOMEPAGE",
-    "AL_DEFAULT_STATE",
     "AL_DEFAULT_COUNTRY",
     "AL_DEFAULT_LANGUAGE",
     "AL_DEFAULT_OVERFLOW_MESSAGE",
+    "AL_DEFAULT_STATE",
+    "al_logo",
+    "AL_ORGANIZATION_HOMEPAGE",
     "AL_ORGANIZATION_TITLE",
-    "about_this_interview_version_info",
+    "al_user_bundle",
+    "case_name",
+    "signature_date",
     # Variables from saving/loading state
     "al_formatted_sessions",
+    "al_session_store_default_filename",
     "al_sessions_copy_success",
     "al_sessions_fast_forward_filtered_vars",
     "al_sessions_fast_forward_session",
     "al_sessions_filtered_vars",
+    "al_sessions_interview_title",
     "al_sessions_launch_new_session",
     "al_sessions_list",
     "al_sessions_new_session_id",
     "al_sessions_preview_variables",
-    "al_sessions_save_session_snapshot",
     "al_sessions_save_session_snapshot_success",
+    "al_sessions_save_session_snapshot",
     "al_sessions_snapshot_label",
     "al_sessions_snapshot_results",
     "al_sessions_source_session",
+    "al_sessions_url_ask_fast_forward",
+    "al_sessions_url_ask_snapshot",
+    "al_sessions_variables_to_remove_from_new_interview",
     "al_sessions_variables_to_remove",
     "al_simple_filtered_vars",
     "filtered_vars_tmp",
-    "simple_filtered_vars_tmp",
-    "al_sessions_url_ask_snapshot",
-    "al_sessions_url_ask_fast_forward",
-    "al_sessions_variables_to_remove_from_new_interview",
     "is_file_like",
+    "simple_filtered_vars_tmp",
     # Some type annotations from Typing that seem plausible we'll use (not everything)
+    "Annotated",
     "Any",
+    "AnyStr",
+    "BinaryIO",
     "Callable",
+    "ChainMap",
+    "ClassVar",
+    "Concatenate",
+    "Counter",
+    "DefaultDict",
+    "Deque",
     "Dict",
+    "Final",
+    "FrozenSet",
     "Generic",
+    "IO",
     "Iterable",
     "List",
-    "Optional",
-    "Set",
-    "Tuple",
-    "TypeVar",
-    "Union",
-    "Concatenate",
-    "TypeLiteral",
-    "ClassVar",
-    "Final",
-    "Annotated",
-    "TypeGuard",
-    "ParamSpec",
-    "AnyStr",
-    "Protocol",
+    "Match",
     "NamedTuple",
     "NewType",
-    "TypedDict",
-    "FrozenSet",
-    "DefaultDict",
+    "Optional",
     "OrderedDict",
-    "ChainMap",
-    "Counter",
-    "Deque",
-    "IO",
-    "TextIO",
-    "BinaryIO",
+    "ParamSpec",
     "Pattern",
-    "Match",
+    "Protocol",
+    "Set",
     "Text",
+    "TextIO",
+    "Tuple",
+    "TypedDict",
+    "TypeGuard",
+    "TypeLiteral",
+    "TypeVar",
+    "Union",
     # Variables that should always be created by code, so safe to recalculate
-    "user_started_case",
-    "user_role",
-    "menu_items",
     "al_menu_items",
+    "menu_items",
+    "user_role",
+    "user_started_case",
 }
 
 al_sessions_variables_to_remove_from_new_interview = [
@@ -183,7 +189,7 @@ al_sessions_variables_to_remove_from_new_interview = [
 system_interviews: List[Dict[str, Any]] = interview_menu()
 
 
-def _package_name(package_name: str = None):
+def _package_name(package_name: Optional[str] = None):
     """Get package name without the name of the current module, like: docassemble.ALWeaver instead of
     docassemble.ALWeaver.advertise_capabilities"""
     if not package_name:
@@ -251,17 +257,25 @@ def get_interview_metadata(
 
 def get_saved_interview_list(
     filename: Optional[str] = al_session_store_default_filename,
-    user_id: Union[int, str] = None,
+    user_id: Union[int, str, None] = None,
     metadata_key_name: str = "metadata",
     limit: int = 50,
     offset: int = 0,
     filename_to_exclude: str = "",
     exclude_current_filename: bool = True,
+    exclude_filenames: Optional[List[str]] = None,
+    exclude_newly_started_sessions: bool = False,
 ) -> List[Dict]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
     to add metadata, the result list will include columns containing the metadata.
     If the user is a developer or administrator, setting user_id = None will list all interviews on the server. Otherwise,
     the user is limited to their own sessions.
+
+    Setting `exclude_newly_started_sessions` to True will exclude any results from the list that are still on
+    "step 1". Note that while this may be useful to filter out interviews that were accidentally started
+    and likely do not need to be resumed, it will also have the side effect of excluding all answer sets from the
+    results. Answer sets generally have exactly one "step", which is the step where information was copied from
+    an existing interview to the answer set.
     """
     # We use an `offset` instead of a cursor because it is simpler and clearer
     # while it appears to be performant enough for real-world usage.
@@ -274,6 +288,7 @@ def get_saved_interview_list(
            ,userdictkeys.user_id as user_id
            ,userdict.modtime as modtime
            ,userdict.key as key
+           ,jsonstorage.data->'auto_title' as auto_title
            ,jsonstorage.data->'title' as title
            ,jsonstorage.data->'description' as description
            ,jsonstorage.data->'steps' as steps
@@ -298,8 +313,8 @@ def get_saved_interview_list(
     
     AND
     (userdict.filename = :filename OR :filename is null)
-    AND userdict.filename != :filename_to_exclude
-    AND userdict.filename != :current_filename
+    AND (userdict.filename NOT IN :filenames_to_exclude)
+    AND (NOT :exclude_newly_started_sessions OR num_keys > 1)
     ORDER BY modtime desc 
     LIMIT :limit
     OFFSET :offset;
@@ -317,6 +332,11 @@ def get_saved_interview_list(
         current_filename = ""
     if not filename_to_exclude:
         filename_to_exclude = ""
+    if exclude_filenames:
+        filenames_to_exclude = exclude_filenames
+    else:
+        filenames_to_exclude = []
+    filenames_to_exclude.extend([current_filename, filename_to_exclude])
     if user_id is None:
         if user_logged_in():
             user_id = user_info().id
@@ -344,8 +364,8 @@ def get_saved_interview_list(
             filename=filename,
             limit=limit,
             offset=offset,
-            filename_to_exclude=filename_to_exclude,
-            current_filename=current_filename,
+            filenames_to_exclude=tuple(filenames_to_exclude),
+            exclude_newly_started_sessions=exclude_newly_started_sessions,
         )
     sessions = []
     for session in rs:
@@ -355,7 +375,7 @@ def get_saved_interview_list(
 
 
 def delete_interview_sessions(
-    user_id: int = None,
+    user_id: Optional[int] = None,
     filename_to_exclude: str = al_session_store_default_filename,
     exclude_current_filename: bool = True,
 ) -> None:
@@ -407,8 +427,9 @@ def delete_interview_sessions(
 
 def interview_list_html(
     filename: str = al_session_store_default_filename,
-    user_id: Union[int, str] = None,
+    user_id: Union[int, str, None] = None,
     metadata_key_name: str = "metadata",
+    exclude_newly_started_sessions=False,
     # name_label: str = word("Title"),
     date_label: str = word("Date"),
     details_label: str = word("Details"),
@@ -427,6 +448,10 @@ def interview_list_html(
     Designed to return a list of "answer sets" and by default clicking a title will
     trigger an action to load the answers into the current session. This only works as
     designed when inside an AssemblyLine line interview.
+
+    `exclude_newly_started_sessions` should almost always be set to False, because most answer sets
+    are on "page 1" (exactly 1 step was taken to copy the answers and the user isn't able to interact with the answer set
+    itself in a way that adds additional steps)
     """
     # TODO: Currently, using the `word()` function for translation, but templates
     # might be more flexible
@@ -437,12 +462,13 @@ def interview_list_html(
         limit=limit,
         offset=offset,
         exclude_current_filename=False,
+        exclude_newly_started_sessions=exclude_newly_started_sessions,
     )
 
     if not answers:
         return ""
 
-    table = '<div class="table-responsive"><table class="table table-striped al-saved-answer-table">'
+    table = '<div class="table-responsive"><table class="table table-striped al-saved-answer-table text-break">'
     table += f"""
     <thead>
       <th scope="col">
@@ -464,11 +490,11 @@ def interview_list_html(
         table += """<tr class="al-saved-answer-table-row">"""
         if view_only:
             table += f"""
-            <td>{ nice_interview_subtitle(answer) }</td>
+            <td>{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</td>
             """
         else:
             table += f"""
-            <td><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{ nice_interview_subtitle(answer) }</a></td>
+            <td class="text-break"><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a></td>
             """
         table += f"""
         <td>{ as_datetime(answer.get("modtime")) }</td>
@@ -513,14 +539,33 @@ def nice_interview_title(
         return word("Untitled interview")
 
 
-def nice_interview_subtitle(answer: Dict[str, str]):
+def pascal_to_zwspace(text: str) -> str:
     """
-    Return either the "title" metadata, or the results of nice_interview_title if undefined
+    Insert a zero-width space into words that are PascalCased to help
+    with word breaks on small viewports.
+    """
+    re_outer = re.compile(r"([^A-Z ])([A-Z])")
+    re_inner = re.compile(r"(?<!^)([A-Z])([^A-Z])")
+    return re_outer.sub(r"\1​\2", re_inner.sub(r"​\1\2", text))
+
+
+def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True):
+    """
+    Return first defined of the "title" metadata, the "auto_title" metadata, or empty string.
+
+    If exclude_identical, return empty string when title is the same as the subtitle.
     """
     if answer.get("title"):
-        return answer.get("title")
+        return pascal_to_zwspace(answer["title"])
+    elif answer.get("auto_title") and (
+        not exclude_identical
+        or not (
+            answer.get("auto_title", "").lower() == nice_interview_title(answer).lower()
+        )
+    ):
+        return pascal_to_zwspace(answer["auto_title"])
     else:
-        return nice_interview_title(answer)
+        return ""
 
 
 def radial_progress(answer: Dict[str, Union[str, int]]):
@@ -558,10 +603,12 @@ def local_date(utcstring: Optional[str]) -> DADateTime:
 
 def session_list_html(
     filename: Optional[str] = None,
-    user_id: Union[int, str] = None,
+    user_id: Union[int, str, None] = None,
     metadata_key_name: str = "metadata",
     filename_to_exclude: str = al_session_store_default_filename,
     exclude_current_filename: bool = True,
+    exclude_filenames: Optional[List[str]] = None,
+    exclude_newly_started_sessions: bool = False,
     name_label: str = word("Title"),
     date_label: str = word("Date modified"),
     details_label: str = word("Progress"),
@@ -572,6 +619,7 @@ def session_list_html(
     delete_action: str = "interview_list_delete_session",
     copy_action: str = "interview_list_copy_action",
     clone_label: str = word("Copy as answer set"),
+    show_title: bool = True,
     limit: int = 50,
     offset: int = 0,
 ) -> str:
@@ -590,6 +638,8 @@ def session_list_html(
         offset=offset,
         filename_to_exclude=filename_to_exclude,
         exclude_current_filename=exclude_current_filename,
+        exclude_filenames=exclude_filenames,
+        exclude_newly_started_sessions=exclude_newly_started_sessions,
     )
 
     if not answers:
@@ -622,7 +672,7 @@ def session_list_html(
                     "arguments": {
                         "session": answer.get("key"),
                         "filename": answer.get("filename"),
-                        "title": answer.get("title") or "",
+                        "title": nice_interview_subtitle(answer),
                     },
                 },
             ]
@@ -654,30 +704,38 @@ def session_list_html(
         )
 
         table += """<tr class="al-saved-answer-table-row">"""
+        if show_title:
+            table += f"""
+            <td class="text-break">
+            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_title(answer) }</a>
+            {"<br/>" if nice_interview_subtitle(answer) else ""}
+            <span class="al-session-form-subtitle">{ nice_interview_subtitle(answer) if nice_interview_subtitle(answer) else "" }</span>
+            </td>
+            """
+        else:
+            table += f"""
+            <td class="text-break">
+            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a>
+            </td>
+            """
         table += f"""
         <td>
-        <a href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }"><i class="fa fa-regular fa-folder-open" aria-hidden="true"></i>&nbsp;{ nice_interview_title(answer) }</a>
-        {"<br/>" if answer.get("title") else ""}
-        <span class="al-session-title">{ nice_interview_subtitle(answer) if answer.get("title") else "" }</span>
-        </td>
-        """
-        table += f"""
-        <td>{ local_date(answer.get("modtime")) } <br/>
-            { format_time(local_date(answer.get("modtime")).time(), format="h:mm a") }
+            <span class="al-session-date-modified">{ local_date(answer.get("modtime")) }</span> <br/>
+            <span class="al-session-time-modified">{ format_time(local_date(answer.get("modtime")).time(), format="h:mm a") }</span>
         </td>
         <td class="al-progress-box">{ radial_progress(answer) }
         </td>
         <td>
-          <a href="{ url_ask_rename }"><i class="fa-solid fa-tag" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
+          <a class="al-sessions-action-rename" href="{ url_ask_rename }"><i class="fa-solid fa-tag" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
         """
         if get_config("assembly line", {}).get("enable answer sets"):
             table += f"""
           &nbsp;
-          <a href="{ url_ask_copy }"><i class="fa-regular fa-clone" aria-hidden="true" title="{clone_label}"></i><span class="sr-only">{ clone_label }</span></a>
+          <a class="al-sessions-actions-clone" href="{ url_ask_copy }"><i class="fa-regular fa-clone" aria-hidden="true" title="{clone_label}"></i><span class="sr-only">{ clone_label }</span></a>
           """
         table += f"""
           &nbsp;
-          <a href="{ url_ask_delete }"><i class="far fa-trash-alt" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only">{ delete_label }</span></a>
+          <a href="{ url_ask_delete }" class="text-danger al-delete-session"><i class="far fa-trash-alt text-danger" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only">{ delete_label }</span></a>
         </td>
         """
         table += "</tr>"
@@ -749,8 +807,8 @@ def rename_current_session(
 
 def save_interview_answers(
     filename: str = al_session_store_default_filename,
-    variables_to_filter: Union[Set[str], List[str]] = None,
-    metadata: Dict = None,
+    variables_to_filter: Union[Set[str], List[str], None] = None,
+    metadata: Optional[Dict] = None,
     metadata_key_name: str = "metadata",
     original_interview_filename=None,
     source_filename=None,
@@ -817,7 +875,7 @@ def save_interview_answers(
 def get_filtered_session_variables(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
-    variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
+    variables_to_filter: Union[Set[str], List[str], None] = None,
 ) -> Dict[str, Any]:
     """
     Get a filtered subset of the variables from the specified interview filename and session.
@@ -844,7 +902,7 @@ def get_filtered_session_variables(
 def get_filtered_session_variables_string(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
-    variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
+    variables_to_filter: Union[Set[str], List[str], None] = None,
 ) -> str:
     """
     Get a JSON string representing the filtered contents of the specified filename and session_id. If no filename and session_id
@@ -860,8 +918,8 @@ def load_interview_answers(
     old_interview_filename: str,
     old_session_id: int,
     new_session: bool = False,
-    new_interview_filename: str = None,
-    variables_to_filter: List[str] = None,
+    new_interview_filename: Optional[str] = None,
+    variables_to_filter: Optional[List[str]] = None,
 ) -> Optional[int]:
     """
     Load answers from the specified session. If the parameter new_session = True, create a new session of
@@ -891,8 +949,8 @@ def load_interview_answers(
 def load_interview_json(
     json_string: str,
     new_session: bool = False,
-    new_interview_filename: str = None,
-    variables_to_filter: List[str] = None,
+    new_interview_filename: Optional[str] = None,
+    variables_to_filter: Optional[List[str]] = None,
 ) -> Optional[int]:
     """
     Provided a JSON string, load the specified variables into a Docassemble session. JSON with annotated class names
@@ -921,7 +979,7 @@ def load_interview_json(
 def export_interview_variables(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
-    variables_to_filter: Union[Set, List[str]] = None,
+    variables_to_filter: Union[Set, List[str], None] = None,
     output: DAFile = None,
 ) -> DAFile:
     """

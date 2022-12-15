@@ -10,12 +10,13 @@ objects:
   - other_parties: ALPeopleList
   - witnesses: ALPeopleList.using(ask_number=True)
   - docket_numbers: DAList
+  - case_numbers: DAList
   - caregivers: ALPeopleList
   - guardians_ad_litem: ALPeopleList
   - attorneys: ALPeopleList
   - translators: ALPeopleList
   - debt_collectors: ALPeopleList
-  - creditors: ALPeopleList  
+  - creditors: ALPeopleList
   - spouses: ALPeopleList
   - parents: ALPeopleList
   - decedents: ALPeopleList.using(ask_number=True, target_number=1)
@@ -27,8 +28,10 @@ objects:
   - courts: DAList.using(auto_gather=False, target_number=1, gathered=True)
   - trial_court_address: Address
   - appeals_court_address: Address
-  
-  
+---
+generic object: ALIndividual
+objects:
+  - x.service_address: ALAddress
 ---
 id: basic questions intro screen
 decoration: form-lineal
@@ -36,14 +39,14 @@ question: |
   ${interview_short_title}: ${ AL_ORGANIZATION_TITLE}
 subquestion: |
   % if form_approved_for_email_filing:
-  The ${ AL_ORGANIZATION_TITLE } Project can help you complete and file court forms in 3 steps:
+  ${ AL_ORGANIZATION_TITLE } can help you complete and file court forms in 3 steps:
   % else:
-  The ${ AL_ORGANIZATION_TITLE } Project can help you complete and download forms in 3 steps:
+  ${ AL_ORGANIZATION_TITLE } can help you complete and download forms in 3 steps:
   % endif
   
   Step 1. Answer questions that will fill in your form for you.  
-  Step 2. Preview the completed form.  
-  % if form_approved_for_email_filing:  
+  Step 2. Preview the completed form.
+  % if form_approved_for_email_filing:
   Step 3. Email the form to the court using this secure website and save copies
   for yourself for later reference.  
   % elif al_form_type in ['starts_case','existing_case','appeal']:
@@ -182,7 +185,7 @@ fields:
     datatype: radio
     choices:
       - Petitioner: petitioner
-      - Plaintiff: plaintiff      
+      - Plaintiff: plaintiff
       - I don't know: unknown
     show if:
       variable: user_detailed_role_started_case
@@ -422,6 +425,13 @@ fields:
   - Birthdate: x.birthdate
     datatype: BirthDate
 ---
+id: you birthdate question
+question: |
+  When were you born?
+fields:
+  - Birthdate: users[0].birthdate
+    datatype: BirthDate
+---
 # TODO: consider removing default state
 id: your address
 sets:
@@ -446,12 +456,15 @@ fields:
   - My mailing address is: users[0].mailing_address
     datatype: object_radio
     choices:
-      - users[0].address
+      - users[0].address if defined("users[0].address.address") else None
     object labeler: |
       lambda y: y.on_one_line()      
     none of the above: |
       Somewhere else
     disable others: True      
+    show if:
+      code: |
+        defined("users[0].address.address")
   - ${ users[0].address.address_label}: users[0].mailing_address.address
     address autocomplete: True
   - ${ users[0].address.unit_label}: users[0].mailing_address.unit
@@ -474,12 +487,15 @@ fields:
   - Same as your address: users[i].address
     datatype: object_radio
     choices:
-      - users[0].address
+      - users[0].address if defined("users[0].address.address") else None
     object labeler: |
       lambda y: y.on_one_line()      
     none of the above: |
       Somewhere else
-    disable others: True      
+    disable others: True
+    show if:
+      code: |
+        defined("users[0].address.address")
   - ${ users[i].address.address_label}: users[i].address.address
     address autocomplete: True
   - ${ users[i].address.unit_label}: users[i].address.unit
@@ -523,6 +539,81 @@ fields:
   - ${ x.address.country_label }: x.mailing_address.country
     code: countries_list()
     default: ${ AL_DEFAULT_COUNTRY }
+---
+generic object: ALIndividual
+id: any service address
+question: |
+  At what address will you serve ${ x }?
+fields:
+  - ${ x }'s service address is: x.service_address
+    datatype: object_radio
+    choices:
+      - x.address if defined(x.address.attr_name("address")) else None
+      - x.mailing_address if defined(x.mailing_address.attr_name("address")) else None
+    object labeler: |
+      lambda y: y.on_one_line()      
+    none of the above: |
+      Somewhere else
+    disable others: True      
+  - ${ x.service_address.address_label }: x.service_address.address
+    address autocomplete: True
+  - ${ x.service_address.unit_label }: x.service_address.unit
+    required: False
+  - ${ x.service_address.city_label }: x.service_address.city
+  - ${ x.service_address.state_label }: x.service_address.state
+    code: |
+      states_list(country_code=AL_DEFAULT_COUNTRY)
+    default: ${ AL_DEFAULT_STATE }
+  - ${ x.service_address.zip_label }: x.service_address.zip
+    required: False      
+  - ${ x.service_address.country_label }: x.service_address.country
+    code: countries_list()
+    default: ${ AL_DEFAULT_COUNTRY }
+---
+generic object: ALIndividual
+id: service method
+question: |
+  How will you get a copy of the documents to ${ x }?
+fields:
+  - I will serve ${ x } by: x.service_method
+    input type: radio
+    code: al_service_methods
+---
+comment: |
+  You can customize this block, and also add a translation for it with a language modifier,
+  demonstrated below
+variable name: al_service_methods
+use objects: True
+data:
+  e-filing system: 
+    question: E-filing system
+    document: e-filing system
+  mail:
+    question: Mail
+    document: mail
+  hand:
+    question: Hand delivery
+    document: hand delivery
+  email:
+    question: Email
+    document: email
+---
+language: es
+variable name: al_service_methods
+use objects: True
+data:
+  e-filing system: 
+    question: Presentación electrónica (e-filing)
+    document: presentación electrónica (e-filing)
+  mail:
+    question: Correo
+    document: correo
+  hand:
+    question: Entrega en mano
+    document: entrega en mano
+  email:
+    question: Correo electrónico (email)
+    document: correo electrónico (email)
 ---
 id: your contact information
 question: |
@@ -571,32 +662,62 @@ content: |
 ---
 id: docket number
 question: |
-  What is the docket number for your case?
+  What is the case number used to track this case in court?
 fields:
-  - I don't know the docket number: dont_know_docket_number
+  - I don't know the case number: dont_know_docket_number
     datatype: yesno    
-  - no label: docket_number
+  - Case number: docket_number
     hide if: dont_know_docket_number
 validation code: |
-  # This should be safe to 
+  # This should be safe too
   if dont_know_docket_number:
-    docket_number = ''      
+    docket_number = ''    
 ---
 question: |
-  Do you have a docket number for this case?
+  Do you have a case number used to track this case in court?
 fields:
-  - no label: docket_numbers.there_are_any
+  - I have a case number: docket_numbers.there_are_any
     datatype: yesnoradio
 ---
 id: docket numbers
 question: |
-  What is the docket number for this case?
+  Case number
 subquestion: |
-  If there are multiple docket numbers on this form, you can tap "${word("Add another")}"
+  If there are multiple case numbers on this form, you can tap "${word("Add another")}"
   to add more than one.
 list collect: True
 fields:
-  - no label: docket_numbers[i]
+  - Case number: docket_numbers[i]
+    required: False
+---
+id: case number
+question: |
+  What is the case number used to track this case in court?
+fields:
+  - I don't know the case number: dont_know_case_number
+    datatype: yesno    
+  - Case number: case_number
+    hide if: dont_know_case_number
+validation code: |
+  # This should be safe too
+  if dont_know_case_number:
+    case_number = ''    
+---
+question: |
+  Do you have a case number used to track this case in court?
+fields:
+  - I have a case number: case_numbers.there_are_any
+    datatype: yesnoradio
+---
+id: case numbers
+question: |
+  Case number
+subquestion: |
+  If there are multiple case numbers on this form, you can tap "${word("Add another")}"
+  to add more than one.
+list collect: True
+fields:
+  - Case number: case_numbers[i]
     required: False
 ---
 id: who will be on this form
@@ -768,7 +889,7 @@ fields:
 ---
 id: any other opposing parties
 question: |
-  % if users==plaintiffs:
+  % if user_started_case:
   Is there any other **defendant** or respondent in this
   matter?
   % else:
@@ -785,7 +906,7 @@ sets:
   - other_parties[i].name.suffix
 id: names of opposing parties
 question: |
-  % if users==plaintiffs:
+  % if user_started_case:
   Name of ${ ordinal(i) } **defendant** or respondent in this
   matter
   % else:
@@ -1024,7 +1145,7 @@ question: |
 signature: x.signature
 under: |
   ${x}
-progress: 99  
+progress: 99
 ---
 id: signature date
 question: |
@@ -1089,7 +1210,47 @@ fields:
     validation messages:
       minlength: |
         You cannot keep going unless you did your best to tell the truth.
----        
+---
+id: user marital status
+question: |
+  What is your current marital status?
+fields:
+  - I am: users[0].marital_status
+    choices:
+      - Married: married
+      - Widowed: widowed
+      - Divorced: divorced
+      - Separated: separated
+      - Never married: never_married
+---
+generic object: ALIndividual
+id: x marital status
+question: |
+  What is ${ x }'s current marital status
+fields:
+  - ${ x } is: x.marital_status
+    choices:
+      - Married: married
+      - Widowed: widowed
+      - Divorced: divorced
+      - Separated: separated
+      - Never married: never_married
+---
+id: user is married
+question: |
+  Are you currently married?
+fields:
+  - I am married: users[0].has_spouse
+    datatype: yesnoradio
+---
+generic object: ALIndividual
+id: x is married
+question: |
+  Is ${ x } currently married?
+fields:
+  - ${ x } is married: x.has_spouse
+    datatype: yesnoradio
+---
 ########################################################################
 # Court selection
 ---
@@ -1200,24 +1361,32 @@ code: |
 id: signature choice
 decoration: file-signature
 question: |
-  Sign your forms
+  Your documents are almost ready
 subquestion: |
-  Your forms are almost ready. You need to sign them first.
-  
-  Use the mouse or touchpad on your computer or
-  sign with your finger on a smartphone.
-field: signature_choice
-buttons:  
-  - Sign on my phone: phone
-    image: mobile-alt
-  - Sign on this computer: this device
-    image: desktop
-continue button field: saw_signature_choice
-script: |
-  <script>
-    $(".da-field-buttons > div > .btn-da-custom").last().after("<br>")
-    $(".da-field-buttons > div > .btn-da-custom").first().before("<br>")
-  </script>
+  How do you want to sign them?
+fields: 
+  - I will sign: signature_choice
+    input type: radio
+    choices:
+      - On a phone with my finger: phone
+        help: |
+          We can text or share a link with your phone on the next screen
+      - On a computer with my mouse: this_device
+    show if:
+      code: |
+        al_form_requires_digital_signature
+  - I will sign: signature_choice
+    input type: radio
+    choices:
+      - On a phone with my finger: phone
+        help: |
+          We can text or share a link with your phone on the next screen
+      - On a computer with my mouse: this_device
+      - On the paper with a pen after I print the documents: sign_after_printing
+    show if:
+      code: |
+        not al_form_requires_digital_signature
+continue button field: saw_signature_choice        
 ---
 comment: |
   This block is shown when the user texts a link to sign a form
@@ -1459,12 +1628,12 @@ buttons:
 id: is the user the plaintiff or defendant?
 comment: |
   This question is asked if the interview can be used by both
-  a Plaintiff and a Defendant. It sets the value of `user_role`,
+  a Plaintiff and a Defendant. It sets the value of `user_role`, `user_started_case`,
   `plaintiffs`, `defendants`, `petitioners` and `respondents`.
   
   If you know your interview is exclusively
-  used by the Plaintiff or Defendant, set `user_role = 'plaintiff'` or 
-  `user_role='defendant'` in your code.
+  used by the Plaintiff or Defendant, set `user_ask_role = 'plaintiff'` or
+  `user_ask_role='defendant'` in your code.
 question: |
   Did you start this case, or are you responding to a case
   that someone else started?
@@ -1511,6 +1680,9 @@ code: |
 #########################################################
 # ALExhibitDocument questions
 ---
+imports:
+  - humanize
+---
 generic object: ALExhibitDocument
 code: |
   x.enabled = x.exhibits.has_exhibits
@@ -1532,22 +1704,26 @@ fields:
     show if: x.has_exhibits
   - First document title: x[0].title
     maxlength: 60 # longer might break TOC
-    show if: x.has_exhibits    
+    show if: x.has_exhibits
   - Upload the first document: x[0].pages
-    show if: x.has_exhibits    
+    show if: x.has_exhibits
     datatype: files
     maximum image size: 1024
-    image upload type: jpeg        
+    image upload type: jpeg
     accept: |
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   if x.has_exhibits:
-    if sum(exhibit.size_in_bytes() for exhibit in x[0].pages) > (15 * 1024 * 1024):
+    full_size = sum(a_page.size_in_bytes() for a_page in x[0].pages)
+    if full_size > (15 * 1024 * 1024):
       validation_error("Upload a file smaller than 15 MB.")
+    if hasattr(x, 'maximum_size'):
+      if full_size > x.maximum_size:
+        validation_error(f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}")
     try:
       pdf_concatenate(x[0].pages)
     except:
-      validation_error("Unable to convert this file. Please upload a new one.", field="x[0].pages")
+      validation_error("Unable to convert this file. Please upload a new one.")
     x[0].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
 ---
 generic object: ALExhibitList
@@ -1559,23 +1735,29 @@ id: exhibit i
 question: |
   Upload the ${ ordinal(i) } document
 subquestion: |
-  You will have a chance to upload additional pages for this document later.  
+  You will have a chance to upload additional pages for this document later.
 fields:
   - Document title: x[i].title
     maxlength: 60 # longer might break TOC
-  - Upload the first exhibit: x[i].pages
+  - Upload the exhibit: x[i].pages
     datatype: files
     maximum image size: 1024
-    image upload type: jpeg        
+    image upload type: jpeg
     accept: |
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
-  if sum(exhibit.size_in_bytes() for exhibit in x[i].pages) > (15 * 1024 * 1024):
+  this_doc_size = sum(a_page.size_in_bytes() for a_page in x[i].pages)
+  if this_doc_size > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
+  if hasattr(x, 'maximum_size'):
+    full_size = x.size_in_bytes()
+    if full_size > x.maximum_size:
+      suggested_size = x.maximum_size - (full_size - this_doc_size)
+      validation_error(f"All exhibits combined must be smaller than {humanize.naturalsize(x.maximum_size)}. Upload a file smaller than {humanize.naturalsize(suggested_size)}.")
   try:
     pdf_concatenate(x[i].pages)
   except:
-    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages")
+    validation_error("Unable to convert this file. Please upload a new one.")
   x[i].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
 ---
 generic object: ALExhibitList
@@ -1583,7 +1765,12 @@ id: exhibit i has additional pages
 question: |
   Does "**${ x[i] }**" have any additional pages?
 subquestion: |
-  You have uploaded ${ x[i].pages.num_pages() } pages so far.  
+  You have uploaded ${ x[i].pages.num_pages() } pages so far.
+
+  % if hasattr(x, 'maximum_size'):
+  The total size of all exhibits must be less than ${ humanize.naturalsize(x.maximum_size) }.
+  You can upload ${ humanize.naturalsize(x.maximum_size - x.size_in_bytes() - sum(ap.size_in_bytes() for ap in x[i].pages.complete_elements()))} more.
+  % endif
 
   ${ collapse_template(x[i].in_progress_template )}
   
@@ -1609,16 +1796,24 @@ fields:
   - Upload a PDF, Word, or image file: x[i].pages[j]
     datatype: file
     maximum image size: 1024
-    image upload type: jpeg        
+    image upload type: jpeg
     accept: |
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
-  if x[i].pages[j].size_in_bytes() > (15 * 1024 * 1024):
+  page_size = x[i].pages[j].size_in_bytes()
+  if page_size > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
+  if hasattr(x, 'maximum_size'):
+    # this_doc_size already includes `page_size`
+    this_doc_size = sum(a_page.size_in_bytes() for a_page in x[i].pages.complete_elements())
+    full_size = x.size_in_bytes() + this_doc_size
+    if full_size > x.maximum_size:
+      suggested_size = x.maximum_size - (full_size - page_size)
+      validation_error(f"All exhibits combined must be smaller than {humanize.naturalsize(x.maximum_size)}. Upload a file smaller than {humanize.naturalsize(suggested_size)}.")
   try:
     pdf_concatenate(x[i].pages[j])
   except:
-    validation_error("Unable to convert this file. Please upload a new one.", field="x[i].pages[j]")
+    validation_error("Unable to convert this file. Please upload a new one.")
 
   x[i].pages[j] = unpack_dafilelist(x[i].pages[j])
 ---
@@ -1628,6 +1823,11 @@ question: |
   You have ${ x.number_gathered() } document(s) so far. Do you have another document
   you want to upload?
 subquestion: |
+  % if hasattr(x, 'maximum_size'):
+  The total size of all exhibits must be less than ${ humanize.naturalsize(x.maximum_size) }.
+  You can upload ${ humanize.naturalsize(x.maximum_size - x.size_in_bytes())} more.
+  % endif
+
   ${ collapse_template(x.in_progress_exhibits) }
 field: x.there_is_another
 buttons:

@@ -1,5 +1,89 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+* Config option to use [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF) as the backend to OCR pdfs
+  * OCRmyPDF won't OCR pages that already have text on them, and keeps scanned pages in color
+  * requires you to have the following lines in the docassemble config
+    ```yml
+    assembly line:
+      ocr engine: ocrmypdf
+    debian packages:
+      - ocrmypdf
+    ```
+
+## Version v2.19.0
+
+### Changed
+
+* Addendum code no longer cuts off text mid-word [#607](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/607)
+* Remove words 'the' and 'project' from opening screen [#612](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/612)
+
+## Version v2.18.0
+
+## Added
+
+* Misc. session list cleanups, including ability to exclude interviews from the session list: https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/593
+* Improve usability of signature question, adding the option to print then sign: https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/591
+* Added a max size feature to the ALExhibitDocument: https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/604
+
+## Fixed
+
+* Show answer sets even if they are on "step 1" (as answer sets don't usually have more than 1 step): https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/599
+* Use `user_started_case` over users == plaintiff:  https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/596
+* Decrease the size of images in tables: https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/603
+* If address is empty, `on_one_line()` will be empty: https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/605
+
+## Internal
+
+* Added black example hook + black opts to pyproject.toml: https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/601
+* Teams bump hook, in a github action: https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/602
+* Better internal typing: https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/606
+
+
+Contributors: @BryceStevenWilley and @nonprofittechy
+
+## Version v2.17.0
+
+New:
+* Address improvements by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/554
+* Add question for your birthdate by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/557
+* Save progress and form title at regular intervals, small interview list cleanups by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/559
+* Switch back to the clickable link being form title, not subtitle by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/561
+
+Changed:
+* Rename "docket number" to case number by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/566
+* Initials shouldn't trigger last name for a business by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/570
+
+Fixed:
+* DA 1.4.0 compatibility by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/549
+* Fix no address by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/555
+* Don't add left-padding to the first footer child by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/556
+* Fix session list on small screens by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/569
+* Don't turn on address autocomplete if not enabled by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/576
+* Check if the `suffix_to_append` attribute exists by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/583
+
+Cleanup:
+* Remove manage_sessions.yml - it's not used by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/553
+
+## Version v2.15.0
+
+Fixed
+* DA 1.4.x compatibility by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/549
+* Fix spacing so all elements are visible in mobile footer by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/556
+
+New
+* Address improvements by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/554
+    * Developer feature to help work with "normalized" address
+    * Make "county" optional field
+    * Feature to let unhoused people provide narrative address
+
+Changed
+* Add question for "your" birthdate by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/557
+* [Revised interview list](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/framework/magic_variables#use-the-assemblyline-interview-list-replacement) adds a progress icon and automatically updated title by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/559
+
 ## Version v2.14.0
 
 Added:

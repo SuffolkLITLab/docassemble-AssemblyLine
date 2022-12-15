@@ -11,10 +11,10 @@ from docassemble.base.util import (
     DAFileCollection,
     DAFileList,
     defined,
-    value,
     pdf_concatenate,
     zip_file,
     DAOrderedDict,
+    background_action,
     action_button_html,
     include_docx_template,
     user_logged_in,
@@ -25,8 +25,12 @@ from docassemble.base.util import (
     space_to_underscore,
     DAStaticFile,
     alpha,
+    showifdef,
 )
 from docassemble.base.pdfa import pdf_to_pdfa
+from textwrap import wrap
+from math import floor
+import subprocess
 
 __all__ = [
     "ALAddendumField",
@@ -39,6 +43,7 @@ __all__ = [
     "key",
     "ALExhibitList",
     "ALExhibit",
+    "ocrmypdf_task",
     "ALExhibitDocument",
     "ALTableDocument",
     "ALUntransformedDocument",
@@ -141,10 +146,18 @@ class ALAddendumField(DAObject):
         preserve_newlines: bool = False,
         input_width: int = 80,
         overflow_message: str = "",
+        preserve_words: bool = True,
     ):
         """
         Try to return just the portion of the variable (list-like object or string)
         that is not contained in the safe_value().
+
+        Whitespace will be altered. If preserve_newlines is true, the return value may have newlines,
+        but double newlines and Windows style (\r\n) will be replaced with \n. Double spaces will replaced
+        with a single space.
+
+        If preserve_newlines is false, all whitespace, including newlines and tabs, will be replaced
+        with a single space.
         """
         # Handle a Boolean overflow first
         if isinstance(self.overflow_trigger, bool) and self.overflow_trigger:
@@ -157,12 +170,20 @@ class ALAddendumField(DAObject):
             input_width=input_width,
             preserve_newlines=preserve_newlines,
             _original_value=original_value,
+            preserve_words=preserve_words,
         )
         if isinstance(safe_text, str):
-            # Always get rid of double newlines, for consistency with safe_value.
-            value_to_process = re.sub(
-                r"[\r\n]+|\r+|\n+", r"\n", original_value
-            ).rstrip()
+            max_lines = self.max_lines(input_width=input_width)
+
+            if preserve_newlines and max_lines > 1:
+                # we do our own substitution of whitespace, only double newlines and spaces
+                value_to_process = (
+                    re.sub(r"[\r\n]+|\r+|\n+", r"\n", original_value).replace("  ", " ")
+                ).rstrip()
+            else:
+                # textwrap.wrap(replace_whitespace=True) replaces all whitespace, not just double newlines and spaces
+                value_to_process = re.sub(r"\s+", " ", original_value).strip()
+
             if safe_text == value_to_process:  # no overflow
                 return ""
             # If this is a string, the safe value will include an overflow message. Delete
@@ -174,19 +195,16 @@ class ALAddendumField(DAObject):
             #   1. We replace all double newlines with \n.
             #   2. Character count will adjust to reflect double-newlines being replaced with one char.
             overflow_start = max(len(safe_text) - len(overflow_message), 0)
-            return value_to_process[overflow_start:]
+            return value_to_process[overflow_start:].lstrip()
 
         # Do not subtract length of overflow message if this is a list of objects instead of a string
         return original_value[self.overflow_trigger :]
 
-    def max_lines(self, input_width: int = 80, overflow_message_length=0) -> int:
+    def max_lines(self, input_width: int = 80) -> int:
         """
-        Estimate the number of rows in the field in the output document.
+        Calculate the number of lines of text that will fit in the specified input
         """
-        return (
-            int(max(self.overflow_trigger - overflow_message_length, 0) / input_width)
-            + 1
-        )
+        return floor(self.overflow_trigger / input_width)
 
     def value(self) -> Any:
         """
@@ -201,11 +219,24 @@ class ALAddendumField(DAObject):
         overflow_message: str = "",
         input_width: int = 80,
         preserve_newlines: bool = False,
-        _original_value=None,
-    ):
+        _original_value: Optional[str] = None,
+        preserve_words: bool = True,
+    ) -> Union[str, List[Any]]:
         """
-        Try to return just the portion of the variable
-        that is _shorter than_ the overflow trigger. Otherwise, return empty string.
+        Return just the portion of the variable that heuristics suggest will fit in the specified overflow_trigger
+        limit. If the value is not defined, return empty string.
+
+        When `preserve_newlines` is `True`, the output will be limited to a number of lines, not a number
+        of characters. The max number of lines will be calculated as `floor(self.overflow_trigger/input_width)`.
+        Therefore, it is important that `input_width` is a divisor of `overflow_trigger`.
+
+        Whitespace will be altered. If preserve_newlines is true, the return value may have newlines,
+        but double newlines and Windows style (\r\n) will be replaced with \n. Double spaces will replaced
+        with a single space.
+
+        If preserve_newlines is false, all whitespace, including newlines and tabs, will be replaced
+        with a single space.
+
         Args:
             overflow_message (str): A short message to go on the page where text is cutoff.
             input_width (int): The width, in characters, of the input box. Defaults to 80.
@@ -229,54 +260,43 @@ class ALAddendumField(DAObject):
         ):
             return value
 
-        max_lines = self.max_lines(
-            input_width=input_width, overflow_message_length=len(overflow_message)
-        )
+        max_lines = self.max_lines(input_width=input_width)
         max_chars = max(self.overflow_trigger - len(overflow_message), 0)
 
-        # If there are at least 2 lines, we can ignore overflow trigger.
-        # each line will be at least input_width wide
-        if preserve_newlines and max_lines > 1:
-            if isinstance(value, str):
+        # Strip newlines from strings because they take extra space
+        if isinstance(value, str):
+            # If we preserve newlines, we need to account for max_lines, not just max_chars
+            if preserve_newlines and max_lines > 1:
                 # Replace all new line characters with just \n. \r\n inserts two lines in a PDF
                 value = re.sub(r"[\r\n]+|\r+|\n+", r"\n", value).rstrip()
-                line = 1
-                retval = ""
-                paras = value.split("\n")
-                para = 0
-                while line <= max_lines and para < len(paras):
-                    # add the whole paragraph if less than width of input
-                    if len(paras[para]) <= input_width:
-                        retval += paras[para] + "\n"
-                        line += 1
-                        para += 1
-                    else:
-                        # Keep taking the first input_width characters until we hit max_lines
-                        # or we finish the paragraph
-                        while line <= max_lines and len(paras[para]):
-                            retval += paras[para][:input_width]
-                            paras[para] = paras[para][input_width:]
-                            line += 1
-                        if not len(paras[para]):
-                            para += 1
-                            retval += "\n"
-                # TODO: check logic here to only add overflow message when we exceed length
-                if len(paras) > para:
-                    return (
-                        retval.rstrip() + overflow_message
-                    )  # remove trailing newline before adding overflow message
-                else:
-                    return retval
-
-        # Strip newlines from strings
-        if isinstance(value, str):
-            if len(value) > self.overflow_trigger:
+                # textwrap.wrap does all the hard work for us here
                 return (
-                    re.sub(r"[\r\n]+|\r+|\n+", " ", value).rstrip()[:max_chars]
-                    + overflow_message
+                    " ".join(
+                        wrap(
+                            value,
+                            width=input_width,
+                            max_lines=max_lines,
+                            replace_whitespace=False,
+                            placeholder=overflow_message,
+                        )
+                    )
+                    .replace("  ", " ")
+                    .rstrip()
                 )
+
+            value = re.sub(r"\s+", " ", value)
+            if len(value) > self.overflow_trigger:
+                if preserve_words:
+                    retval = wrap(
+                        value,
+                        width=max_chars,
+                        replace_whitespace=True,
+                        drop_whitespace=True,
+                    )
+                    return next(iter(retval)).rstrip() + overflow_message
+                return value.rstrip()[:max_chars] + overflow_message
             else:
-                return re.sub(r"[\r\n]+|\r+|\n+", " ", value).rstrip()[:max_chars]
+                return value.rstrip()
 
         # If the overflow item is a list or DAList
         if isinstance(value, list) or isinstance(value, DAList):
@@ -290,9 +310,7 @@ class ALAddendumField(DAObject):
         Return the value of the field if it is defined, otherwise return an empty string.
         Addendum should never trigger docassemble's variable gathering.
         """
-        if defined(self.field_name):
-            return value(self.field_name)
-        return ""
+        return showifdef(self.field_name, "")
 
     def __str__(self):
         return str(self.value_if_defined())
@@ -673,6 +691,8 @@ class ALDocument(DADict):
 
         safe_key = space_to_underscore(key)
 
+        if not hasattr(self, "suffix_to_append"):
+            self.suffix_to_append = "preview"
         if append_matching_suffix and key == self.suffix_to_append:
             append_suffix: str = f"_{safe_key}"
         else:
@@ -793,9 +813,10 @@ class ALDocument(DADict):
     def safe_value(
         self,
         field_name: str,
-        overflow_message: str = None,
+        overflow_message: Optional[str] = None,
         preserve_newlines: bool = False,
         input_width: int = 80,
+        preserve_words: bool = True,
     ):
         """
         Shortcut syntax for accessing the "safe" (shorter than overflow trigger)
@@ -807,14 +828,16 @@ class ALDocument(DADict):
             overflow_message=overflow_message,
             preserve_newlines=preserve_newlines,
             input_width=input_width,
+            preserve_words=preserve_words,
         )
 
     def overflow_value(
         self,
         field_name: str,
-        overflow_message: str = None,
+        overflow_message: Optional[str] = None,
         preserve_newlines: bool = False,
         input_width: int = 80,
+        preserve_words: bool = True,
     ):
         """
         Shortcut syntax for accessing the "overflow" value (amount that exceeds overflow trigger)
@@ -828,6 +851,7 @@ class ALDocument(DADict):
             overflow_message=overflow_message,
             preserve_newlines=preserve_newlines,
             input_width=input_width,
+            preserve_words=preserve_words,
         )
 
     def is_enabled(self, refresh=True):
@@ -1186,7 +1210,7 @@ class ALDocumentBundle(DAList):
         view_icon: str = "eye",
         download_label: str = "Download",
         download_icon: str = "download",
-        zip_label: str = None,
+        zip_label: Optional[str] = None,
         zip_icon: str = "file-archive",
         append_matching_suffix: bool = True,
     ) -> str:
@@ -1487,18 +1511,23 @@ class ALExhibit(DAObject):
 
     def _start_ocr(self):
         """
-        Starts the OCR (optical character resolution) process on the uploaded documents.
+        Starts the OCR (optical character recognition) process on the uploaded documents.
+        This adds a searchable text layer to any images of text that have been uploaded.
 
         Makes a background action for each page in the document.
         """
         if len(self.pages):
-            # We cannot OCR in place. It is too fragile.
-            for page in self.pages:
-                page.ocr_version = DAFile(page.attr_name("ocr_version"))
-                # psm=1 is the default which uses automatic text orientation and location detection.
-                # Appears to be the most accurate method.
-                page.ocr_status = page.ocr_version.make_ocr_pdf_in_background(
-                    page, psm=1
+            self.ocr_version = DAFile(self.attr_name("ocr_version"))
+            self.ocr_version.initialize(filename="tmp_ocrd.pdf")
+            if get_config("assembly line", {}).get("ocr engine") == "ocrmypdf":
+                self.ocr_status = background_action(
+                    "al_exhibit_ocr_pages",
+                    to_pdf=self.ocr_version,
+                    from_file=self.pages,
+                )
+            else:
+                self.ocr_status = self.ocr_version.make_ocr_pdf_in_background(
+                    self.pages, psm=1
                 )
 
     def ocr_ready(self) -> bool:
@@ -1511,29 +1540,28 @@ class ALExhibit(DAObject):
             Will return true (but log a warning) if OCR was never started on the documents.
             That situation is likely a developer error, as you shouldn't wait for OCR if it never started
         """
-        for page in self.pages:
-            if hasattr(page, "ocr_status") and not page.ocr_status.ready():
-                return False
-            if not hasattr(page, "ocr_status"):
-                log("developer warning: ocr_ready was called but _ocr_start wasn't!")
+        if hasattr(self, "ocr_status") and not self.ocr_status.ready():
+            return False
+        if not hasattr(self, "ocr_status"):
+            log("developer warning: ocr_ready was called but _ocr_start wasn't!")
         return True
 
     def ocr_pages(self):
         """
         Return the OCR version if it exists; otherwise the initial version of each doc in `pages`.
         """
+        if (
+            hasattr(self, "ocr_version")
+            and hasattr(self, "ocr_status")
+            and self.ocr_status.ready()
+            and not self.ocr_status.failed()
+            and self.ocr_status.get() is not None
+            and self.ocr_version.ok
+        ):
+            return [self.ocr_version]
         pages = []
         for page in self.pages:
-            if (
-                hasattr(page, "ocr_version")
-                and hasattr(page, "ocr_status")
-                and page.ocr_status.ready()
-                and not page.ocr_status.failed()
-                and page.ocr_version.ok
-            ):
-                pages.append(page.ocr_version)
-            else:
-                pages.append(page)
+            pages.append(page)
         return pages
 
     def as_pdf(
@@ -1544,7 +1572,7 @@ class ALExhibit(DAObject):
         pdfa: bool = False,
         add_page_numbers: bool = True,
         add_cover_page: bool = True,
-        filename: str = None,
+        filename: Optional[str] = None,
         append_matching_suffix: bool = True,
     ) -> DAFile:
         """
@@ -1593,9 +1621,45 @@ class ALExhibit(DAObject):
         return self.title
 
 
+def ocrmypdf_task(
+    from_file: Union[DAFile, DAFileList], to_pdf: DAFile
+) -> Optional[str]:
+    """A function that calls ocr my pdf in a subprocess.
+    Built to be called from a background action (id: al exhibit ocr pages bg)"""
+    if not from_file or not to_pdf:
+        log(
+            "Developer error: in ocrmypdf_task, shouldn't pass None to from_file or to_pdf"
+        )
+        return None
+    if isinstance(from_file, DAFileList):
+        from_file = pdf_concatenate(from_file)
+    if from_file.extension in ["png", "jpg", "jpeg", "gif"]:
+        ocr_params = ["ocrmypdf", "--image-dpi", "300", from_file.path(), to_pdf.path()]
+    else:
+        ocr_params = ["ocrmypdf", "--skip-text", from_file.path(), to_pdf.path()]
+
+    completed_ocr = None
+    try:
+        completed_ocr = subprocess.run(
+            ocr_params, timeout=60 * 60, check=False, capture_output=True
+        )
+        to_pdf.commit()
+        result = completed_ocr.returncode
+    except subprocess.TimeoutExpired:
+        result = 1
+        log("ocr with ocrmypdf took too long (over an hour)")
+    if result != 0:
+        ocr_error_msg = f": {completed_ocr.stderr.decode()}" if completed_ocr else ""
+        log("failed to ocr with ocrmypdf" + ocr_error_msg)
+        return None
+    else:
+        return to_pdf.path()
+
+
 class ALExhibitList(DAList):
     """
     Attributes:
+        maximum_size (int): the maximum size in bytes that the whole document is allowed to be
         auto_label (bool): Set to True if you want exhibits to be automatically numbered for purposes of cover page
                            and table of contents. Defaults to True.
         auto_labeler (Callable): (optional) a function or lambda to transform the index for each exhibit to a label.
@@ -1640,6 +1704,9 @@ class ALExhibitList(DAList):
         Returns:
             A DAfile containing the rendered exhibit list as a single file.
         """
+        if self.include_exhibit_cover_pages:
+            for exhibit in self:
+                exhibit.cover_page
         if self.include_table_of_contents and toc_pages != 1:
             self._update_page_numbers(toc_guess_pages=toc_pages)
         return pdf_concatenate(
@@ -1655,7 +1722,14 @@ class ALExhibitList(DAList):
             pdfa=pdfa,
         )
 
-    def _update_labels(self, auto_labeler: Callable = None) -> None:
+    def size_in_bytes(self):
+        """Gets the total size in bytes of each of the exhibit documents."""
+        full_size = 0
+        for exhibit in self.complete_elements():
+            full_size += sum((a_page.size_in_bytes() for a_page in exhibit.pages))
+        return full_size
+
+    def _update_labels(self, auto_labeler: Optional[Callable] = None) -> None:
         """
         Private method to refresh labels on all exhibits.
         Args:
@@ -1761,6 +1835,8 @@ class ALExhibitDocument(ALDocument):
         else:
             self.include_exhibit_cover_pages = True
             self.exhibits.include_exhibit_cover_pages = True
+        if hasattr(self, "maximum_size"):
+            self.exhibits.maximum_size = self.maximum_size
         if hasattr(self, "include_table_of_contents"):
             self.exhibits.include_table_of_contents = self.include_table_of_contents
         else:

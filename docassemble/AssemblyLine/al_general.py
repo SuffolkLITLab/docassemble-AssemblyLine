@@ -1,4 +1,4 @@
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Optional
 from docassemble.base.util import (
     Address,
     as_datetime,
@@ -12,10 +12,10 @@ from docassemble.base.util import (
     DAWeb,
     ensure_definition,
     get_config,
-    get_config,
     get_country,
     Individual,
     name_suffix,
+    phone_number_formatted,
     phone_number_is_valid,
     state_name,
     states_list,
@@ -73,11 +73,11 @@ class ALAddress(Address):
 
     def address_fields(
         self,
-        country_code: str = None,
-        default_state: str = None,
+        country_code: Optional[str] = None,
+        default_state: Optional[str] = None,
         show_country: bool = False,
         show_county: bool = False,
-        show_if: Union[str, Dict[str, str]] = None,
+        show_if: Union[str, Dict[str, str], None] = None,
         allow_no_address: bool = False,
     ):
         """
@@ -122,7 +122,9 @@ class ALAddress(Address):
             [
                 {
                     "label": str(self.address_label),
-                    "address autocomplete": True,
+                    "address autocomplete": bool(
+                        (get_config("google") or {}).get("google maps api key")
+                    ),
                     "field": self.attr_name("address"),
                 },
                 {
@@ -407,7 +409,8 @@ class ALAddress(Address):
                 the_unit = self.formatted_unit(language=language, bare=bare)
                 if the_unit != "":
                     output += ", " + the_unit
-            output += ", "
+            if output != "":
+                output += ", "
         # if hasattr(self, 'sublocality') and self.sublocality:
         #    output += str(self.sublocality) + ", "
         if hasattr(self, "sublocality_level_1") and self.sublocality_level_1:
@@ -539,6 +542,7 @@ class ALIndividual(Individual):
     previous_addresses: ALAddressList
     other_addresses: ALAddressList
     mailing_address: ALAddress
+    service_address: ALAddress
 
     def init(self, *pargs, **kwargs):
         super(ALIndividual, self).init(*pargs, **kwargs)
@@ -554,6 +558,8 @@ class ALIndividual(Individual):
             self.initializeAttribute("other_addresses", ALAddressList)
         if not hasattr(self, "mailing_address"):
             self.initializeAttribute("mailing_address", ALAddress)
+        if not hasattr(self, "service_address"):
+            self.initializeAttribute("service_address", ALAddress)
 
     def signature_if_final(self, i: str) -> Union[DAFile, str]:
         if i == "final":
@@ -561,12 +567,30 @@ class ALIndividual(Individual):
         else:
             return ""
 
-    def phone_numbers(self) -> str:
+    def phone_numbers(self, country=None) -> str:
         nums = []
         if hasattr(self, "mobile_number") and self.mobile_number:
-            nums.append({self.mobile_number: "cell"})
+            try:
+                nums.append(
+                    {
+                        phone_number_formatted(
+                            self.mobile_number, country=country
+                        ): "cell"
+                    }
+                )
+            except:
+                nums.append({self.mobile_number: "cell"})
         if hasattr(self, "phone_number") and self.phone_number:
-            nums.append({self.phone_number: "other"})
+            try:
+                nums.append(
+                    {
+                        phone_number_formatted(
+                            self.phone_number, country=country
+                        ): "other"
+                    }
+                )
+            except:
+                nums.append({self.phone_number: "other"})
         if len(nums) > 1:
             return comma_list(
                 [
@@ -630,7 +654,7 @@ class ALIndividual(Individual):
         self,
         person_or_business: str = "person",
         show_suffix: bool = True,
-        show_if: Union[str, Dict[str, str]] = None,
+        show_if: Union[str, Dict[str, str], None] = None,
     ) -> List[Dict[str, str]]:
         """
         Return suitable field prompts for a name. If `person_or_business` is None, adds the
@@ -743,10 +767,10 @@ class ALIndividual(Individual):
     def address_fields(
         self,
         country_code: str = "US",
-        default_state: str = None,
+        default_state: Optional[str] = None,
         show_country: bool = False,
         show_county: bool = False,
-        show_if: Union[str, Dict[str, str]] = None,
+        show_if: Union[str, Dict[str, str], None] = None,
         allow_no_address: bool = False,
     ) -> List[Dict[str, str]]:
         """
@@ -764,7 +788,7 @@ class ALIndividual(Individual):
         )
 
     def gender_fields(
-        self, show_help=False, show_if: Union[str, Dict[str, str]] = None
+        self, show_help=False, show_if: Union[str, Dict[str, str], None] = None
     ):
         """
         Return a standard gender input with "self described" option.
@@ -800,9 +824,9 @@ class ALIndividual(Individual):
 
     def language_fields(
         self,
-        choices: List[Dict[str, str]] = None,
+        choices: Optional[List[Dict[str, str]]] = None,
         style: str = "radio",
-        show_if: Union[str, Dict[str, str]] = None,
+        show_if: Union[str, Dict[str, str], None] = None,
     ):
         """Return a standard language picker with an "other" input. Language should be specified as ISO 639-2 or -3 codes so it is compatible with the language_name() function."""
         if not choices:
@@ -891,7 +915,7 @@ class ALIndividual(Individual):
     @property
     def initials(self):
         """Return the individual's initials, like QKS for Quinten K Steenhuis"""
-        return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1]}"
+        return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1] if hasattr(self.name, 'last') else ''}"
 
     def address_block(
         self, language=None, international=False, show_country=False, bare=False
@@ -986,7 +1010,8 @@ class PeopleList(ALPeopleList):
 def will_send_to_real_court() -> bool:
     """Dev or root needs to be in the URL root: can change in the config file"""
     return not (
-        "dev" in get_config("url root")
+        get_config("debug")
+        or "dev" in get_config("url root")
         or "test" in get_config("url root")
         or "localhost" in get_config("url root")
     )
@@ -1014,7 +1039,9 @@ def filter_letters(letter_strings: Union[List[str], str]) -> str:
 # Note: removed "combined_locations" because it is too tightly coupled to MACourts.py right now
 
 
-def fa_icon(icon: str, color: str = "primary", color_css: str = None, size: str = "sm"):
+def fa_icon(
+    icon: str, color: str = "primary", color_css: Optional[str] = None, size: str = "sm"
+):
     """
     Return HTML for a font-awesome icon of the specified size and color. You can reference
     a CSS variable (such as Bootstrap theme color) or a true CSS color reference, such as 'blue' or

@@ -1,0 +1,23 @@
+---
+include:
+  - al_package.yml
+---
+mandatory: True
+code: |
+  gather_main
+---
+objects:
+  - exhibits_bundle_defaults_1: ALDocumentBundle.using(elements=[exhibit_doc_defaults_1], filename="exhibits_bundle_defaults", title="Exhibits with defaults")
+---
+objects:
+  - exhibit_doc_defaults_1: ALExhibitDocument.using(title="Exhibits doc defaults", filename="exhibits_doc_defaults", maximum_size=1*1024*1024 )
+---
+id: gather_main
+event: gather_main
+question: Default ALDocumentBundle thumbnail method args
+subquestion: |
+  exhibits_bundle_defaults_1.as_pdf()
+  
+  ${ exhibits_bundle_defaults_1.as_pdf() }
+  
+  ${ exhibits_bundle_defaults_1.as_pdf().size_in_bytes() }

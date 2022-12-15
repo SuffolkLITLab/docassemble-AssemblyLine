@@ -3,7 +3,7 @@ objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="Assembly Line Logo")
 ---
 code: |
-  al_logo.alt_text = "Assembly Line Logo"
+  al_logo.alt_text = "Home - Assembly Line"
 ---
 default screen parts:
   title: |
@@ -43,6 +43,7 @@ default screen parts:
   pre: |
     % if get_config('debug'):
     `id: ${ user_info().question_id }`  
+    `Variable triggering this screen: ${ user_info().variable }`  
     `Package: ${ user_info().package } ${ package_version_number }; ${ al_version }`
     <div data-variable="${ encode_name(str( user_info().variable )) }" id="sought_variable" aria-hidden="true" style="display: none;"></div>
     % endif
@@ -72,7 +73,11 @@ code: |
   if _internal.get('steps') > 1:
     menu_items = al_menu_items
   else:
-    menu_items = al_menu_items[1:] # Skip the "start over" menu item
+    # Skip the "start over", download, and exit and erase menu item
+    if al_enable_incomplete_downloads:
+      menu_items = al_menu_items[3:]
+    else:
+      menu_items = al_menu_items[2:]
 ---
 reconsider: True
 code: |
@@ -80,7 +85,17 @@ code: |
     {"url": url_ask(['al_start_over_confirmation','al_start_over']),
     "label": "Start over"
     },
+    {
+      "url": url_ask(['al_exit_logout_confirmation', 'al_exit_logout']),
+      "label": "Exit and delete my answers"
+    },
   ]
+
+  if al_enable_incomplete_downloads:
+    al_menu_items_tmp.append({
+        "url": url_action('al_error_action_download_screen'), 
+        "label": "Download current progress"
+    })
   
   # Answer set feature is behind a server-wide configuration option
   if get_config('assembly line',{}).get('enable answer sets'):
@@ -101,6 +116,10 @@ code: |
     
   al_menu_items = al_menu_items_tmp
   del al_menu_items_tmp
+---
+event: al_exit_logout
+code: |
+  command("exit_logout")
 ---
 event: al_start_over
 code: |
@@ -347,7 +366,119 @@ back button label: |
 continue button label: |
   Start over
 continue button field: al_start_over_confirmation
+---
+id: exit and erase answers
+question: |
+  Do you want to delete your answers?
+subquestion: |
+  Your progress on this document will be completely erased. Any
+  actions that were scheduled, such as reminders from this website,
+  will also be removed.
   
+  Click "Exit and delete my answers" to delete your progress,
+  or "Back" if you want to keep working.
+back button label: |
+  Back
+continue button label: |
+  Exit and delete my answers
+continue button field: al_exit_logout_confirmation
+---
+################################### Custom error action ################################
+---
+metadata:
+  error action: al_custom_error_action
+---
+objects:
+  - MAIN_METADATA: DAEmpty()
+---
+id: custom error action
+event: al_custom_error_action
+decoration: bug
+question: |
+  Something went wrong
+subquestion: |
+  % if interview_metadata.get("main_interview_key"):
+    <%
+      MAIN_METADATA = interview_metadata[interview_metadata["main_interview_key"]]
+    %>
+  % elif len(interview_metadata) > 1:    
+    <% 
+      del(interview_metadata["main_interview_key"]) # DADict creates the key on lookup above
+      MAIN_METADATA = next(iter(interview_metadata.values())) 
+    %>
+  % else:
+    <% MAIN_METADATA = {} %>
+  % endif
 
+  We ran into an error when we tried to load this screen.
 
+  You can try one of these steps to recover your work:
 
+  * Click "Back" and try again.
+  % if al_enable_error_action_feedback_link:
+  * [:comment-dots: Tell us what happened](${ feedback_link(user_info(), i=feedback_form, github_repo=github_repo_name, github_user=github_user, package_version=package_version_number) } ){:target="_blank"}
+  % endif
+  % if al_enable_incomplete_downloads:
+  * Try to [download your work in progress](${ url_action("al_error_action_download_screen") })
+  % endif
+  % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form").strip() == "None":
+  * [Download a blank "${ all_variables(special='metadata').get("title").strip() }"](${ MAIN_METADATA.get("original_form") } )
+  % endif
+  * Visit the [${ AL_ORGANIZATION_TITLE } home page](${ AL_ORGANIZATION_HOMEPAGE }) and try another interview
+  % if al_show_email_to_user_on_errors and get_config("error notification email"):
+  * [Send us an email](mailto:${ get_config("error notification email") }?subject=User%20error%20report%3A%20${ all_variables(special='metadata').get("title") }%20${ user_info().filename }) (Note: you may not get a reply)
+  % endif
+  % for al_opt in al_custom_error_options:
+  * ${ al_opt }
+  % endfor
+
+  ${ collapse_template(al_formatted_error_message) }
+back button label: Back
+buttons:
+  - Exit: leave
+    url: ${ AL_ORGANIZATION_HOMEPAGE }
+  - Start over: restart
+---
+code: |
+  al_show_email_to_user_on_errors = get_config("assembly line", {}).get("show email to user on errors")
+---
+code: |
+  al_enable_incomplete_downloads = get_config("assembly line", {}).get("enable incomplete downloads")
+---
+code: |
+  al_enable_error_action_feedback_link = get_config("assembly line", {}).get("enable error action feedback link")
+---
+code: |
+  # Provide a list of strings
+  al_custom_error_options = get_config("assembly line", {}).get("custom error actions",[])
+---
+event: al_error_action_download_screen
+id: emergency download screen
+decoration: triangle-exclamation
+question: |
+  Here is your work in progress
+subquestion: |
+  **Warning**: these documents may not be complete. Look each document over carefully and enter
+  any information that is missing once you have downloaded the documents.
+
+  **It is possible that the missing information may make this document unenforceable.**
+
+  Here is your current progress on the "${ all_variables(special='metadata').get("title").strip() }" documents you started:
+
+  ${ al_user_bundle.download_list_html(key="emergency_download") }
+buttons:
+  - Leave: leave
+  - Start over: restart
+---
+template: al_formatted_error_message
+subject: |
+  Technical information
+content: |
+  ${ action_argument('error_message') }
+
+  % if get_config("debug") and action_argument("error_trace"):
+  ```
+  ${ action_argument("error_trace")}
+  ${ action_argument("error_history")}  
+  ```
+  % endif
