@@ -74,7 +74,7 @@ code: |
 
     for reminder in al_reminders:
       if today() >= as_datetime(al_reminders[reminder]["date"]) and task_not_yet_performed(f"al_reminder_{reminder}"):
-        if task_not_yet_performed(f"al_reminder_{reminder}_email") and al_user_preferred_reminder_formats["email"]:
+        if task_not_yet_performed(f"al_reminder_{reminder}_email") and al_user_preferred_reminder_formats.get("email"):
           send_email(to=al_user_reminder_email, template=value(al_reminders[reminder]["email template"]), task=f"al_reminder_{reminder}_email")
         if task_not_yet_performed(f"al_reminder_{reminder}_sms") and al_user_preferred_reminder_formats["sms"]:
           send_sms(to=al_user_reminder_phone, template=value(al_reminders[reminder]["sms template"]))
