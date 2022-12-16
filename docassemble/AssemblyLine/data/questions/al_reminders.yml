@@ -66,19 +66,25 @@ content: |
 ---
 event: cron_daily
 code: |
+  # NOTE: there can only be one cron_daily per interview. If you want to add additional daily cron tasks instead of replacing
+  # this one, you need to copy this block's contents into your new block.
+  # In addition, this cron will stop ALL cron tasks on the session once it runs through to the end. If you have other
+  # crons that still need to run, you need to replace this block as well.
+
   if al_user_wants_reminders:
     import time
     from random import random
     # Avoid all of the interviews using up resources at the same time, vary the start time a bit
-    time.sleep(random())
+    time.sleep(random()*10)
 
     for reminder in al_reminders:
       if today() >= as_datetime(al_reminders[reminder]["date"]) and task_not_yet_performed(f"al_reminder_{reminder}"):
-        if task_not_yet_performed(f"al_reminder_{reminder}_email") and al_user_preferred_reminder_formats.get("email"):
-          send_email(to=al_user_reminder_email, template=value(al_reminders[reminder]["email template"]), task=f"al_reminder_{reminder}_email")
-        if task_not_yet_performed(f"al_reminder_{reminder}_sms") and al_user_preferred_reminder_formats["sms"]:
-          send_sms(to=al_user_reminder_phone, template=value(al_reminders[reminder]["sms template"]))
-          mark_task_as_performed(f"al_reminder_{reminder}_sms")
+        if al_user_preferred_reminder_formats.get("email") and task_not_yet_performed(f"al_reminder_{reminder}_email"):
+          if not send_email(to=al_user_reminder_email, template=value(al_reminders[reminder]["email template"]), task=f"al_reminder_{reminder}_email"):
+            log(f"{ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}")
+        if al_user_preferred_reminder_formats.get("sms") and task_not_yet_performed(f"al_reminder_{reminder}_sms"):
+          if not send_sms(to=al_user_reminder_phone, template=value(al_reminders[reminder]["sms template"]), task=f"al_reminder_{reminder}_sms"):
+            log(f"{ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}")
         mark_task_as_performed(f"al_reminder_{reminder}")
 
     if all(
@@ -86,4 +92,6 @@ code: |
       for reminder in al_reminders
     ):
       allow_cron = False # Stop calling cron on this session once all tasks performed
+  else:
+    allow_cron = False
   response()
