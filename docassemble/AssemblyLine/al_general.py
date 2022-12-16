@@ -97,6 +97,10 @@ class ALAddress(Address):
         Under these circumstances, address_fields() will set the `country` attribute of the Address
         to `country_code`.
         """
+        # make sure the state name still returns a meaningful value if the interview country
+        # differs from the server's country.
+        if country_code and country_code != get_country() and not show_country:
+            self.country = country_code
         if not country_code:
             country_code = get_country()
         if allow_no_address:
@@ -140,22 +144,6 @@ class ALAddress(Address):
 
         fields.append({"label": str(self.city_label), "field": self.attr_name("city")})
 
-        # if show_country:
-        #     state_field = {
-        #         "label": (f"% if not defined('{ self.attr_name('country') }'):\n" +
-        #                   str(self.state_label) + "\n" +
-        #                   f"% elif safe_subdivision_type({ self.attr_name('country')}):\n" +
-        #                   f"${{ safe_subdivision_type({ self.attr_name('country')}) }}\n" +
-        #                   "% else:\n" +
-        #                   str(self.state_label) + "\n" +
-        #                   "% endif"),
-        #         "field": self.attr_name("state"),
-        #         "default": default_state if default_state else ''
-        #     }
-        #     # TODO: futureproofing for dynamic state list
-        #     # state_field["code"] = f"safe_states_list(country_code={self.attr_name('country')}) if pycountry.subdivisions.get(country_code={self.attr_name('country')}) else ()"
-
-        #     fields.append(state_field)
         if country_code:
             fields.append(
                 {
@@ -218,10 +206,6 @@ class ALAddress(Address):
                 for field in fields:
                     field["show if"] = show_if
 
-        # make sure the state name still returns a meaningful value if the interview country
-        # differs from the server's country.
-        if country_code and country_code != get_country() and not show_country:
-            self.country = country_code
         return fields
 
     def formatted_unit(self, language=None, require=False, bare=False):
