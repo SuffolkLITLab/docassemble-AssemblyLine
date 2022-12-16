@@ -1,6 +1,9 @@
 """
 Package for a very simple / MVP list of courts that is mostly signature compatible w/ MACourts for now
 """
+import os
+from typing import Any, Dict, List, Optional, Union, Set
+import pandas as pd
 from docassemble.base.util import (
     path_and_mimetype,
     Address,
@@ -10,10 +13,6 @@ from docassemble.base.util import (
     space_to_underscore,
 )
 from docassemble.base.legal import Court
-import pandas as pd
-import numpy as np
-import os
-from typing import Any, Dict, List, Optional, Union, Set, Iterable, Sized
 
 __all__ = [
     "ALCourt",
@@ -28,13 +27,13 @@ class ALCourt(Court):
     address and can use any of those three features of the court to do the filtering."""
 
     def init(self, *pargs, **kwargs):
-        super(ALCourt, self).init(*pargs, **kwargs)
+        super().init(*pargs, **kwargs)
         if "address" not in kwargs:
             self.initializeAttribute("address", Address)
         if (
             "jurisdiction" not in kwargs
         ):  # This attribute isn't used. Could be a better way to handle court locating
-            self.jurisdiction = list()
+            self.jurisdiction = []
         if "location" not in kwargs:
             self.initializeAttribute("location", LatitudeLongitude)
 
@@ -42,6 +41,9 @@ class ALCourt(Court):
         return str(self.name)
 
     def _map_info(self) -> List[Dict[str, Any]]:
+        """
+        Create information that can be used to display court locations on a map.
+        """
         the_info = str(self.name)
         the_info += "  [NEWLINE]  " + self.address.block()
         result = {
@@ -66,8 +68,7 @@ class ALCourt(Court):
                 return str(self.name)
             else:
                 return str(self.name) + " (" + self.address.city + ")"
-        else:
-            return str(self.name)
+        return str(self.name)
 
     def short_label_and_address(self) -> str:
         """
@@ -179,6 +180,7 @@ class ALCourtLoader(DAObject):
     # and something that triggers recalculating the court address/etc info.
 
     def all_courts(self) -> list:
+        """Return all courts without any filtering"""
         return self.filter_courts(None)
 
     def unique_column_values(self, column_name) -> Set[str]:
@@ -196,6 +198,7 @@ class ALCourtLoader(DAObject):
     def county_has_one_court(
         self, county_name: str, county_column: str = "address_county"
     ) -> bool:
+        """Returns True if there is only one court associated with the specified county"""
         return (
             len(self.filter_courts(court_types=county_name, column=county_column)) == 1
         )
