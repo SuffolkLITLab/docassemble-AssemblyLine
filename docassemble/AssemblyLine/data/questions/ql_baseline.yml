@@ -44,8 +44,8 @@ subquestion: |
   ${ AL_ORGANIZATION_TITLE } can help you complete and download forms in 3 steps:
   % endif
   
-  Step 1. Answer questions that will fill in your form for you.  
-  Step 2. Preview the completed form.
+  Step 1. Answer questions that will fill in your form for you.<br>
+  Step 2. Preview the completed form.<br>
   % if form_approved_for_email_filing:
   Step 3. Email the form to the court using this secure website and save copies
   for yourself for later reference.  
