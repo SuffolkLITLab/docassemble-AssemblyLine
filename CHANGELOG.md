@@ -1,18 +1,30 @@
 # Changelog
 
-## Unreleased
+## v2.20.0
 
-### Added
+### New
+* Custom error page to replace Docassemble's stock error page by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/622
+* Add visible trigger variable to the developer-only heads up display by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/617
+* Optional library of fallback questions to use for undefined variables @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/619
+* Add marriage questions by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/641
+* Add simple service of process questions by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/640
+* Add a link to "original form" on the default about page, if it exists and looks like a valid link by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/647
+* Better API for searching courts by county by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/644
 
-* Config option to use [OCRmyPDF](https://github.com/ocrmypdf/OCRmyPDF) as the backend to OCR pdfs
-  * OCRmyPDF won't OCR pages that already have text on them, and keeps scanned pages in color
-  * requires you to have the following lines in the docassemble config
-    ```yml
-    assembly line:
-      ocr engine: ocrmypdf
-    debian packages:
-      - ocrmypdf
-    ```
+### Changed
+* Change OCR to use ocrmypdf in the background (seems to have significant performance improvements for OCR) by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/613
+* Add focus shadow for back button by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/624
+* `will_send_to_real_court` false if debug == True by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/627
+* Make answer sets unencrypted to match interview state by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/628
+* Don't force gathering users[0].address to gather users[1].address or users[0].mailing_address by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/639
+
+### Fixed
+* Fix unittest action by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/634
+* Move unittest action externally by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/635
+* Add "Home" label to alt text for logo by @nonprofittechy in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/632
+* Readd newlines between each step on intro screen by @BryceStevenWilley in https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/648
+
+[Full changelog](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/releases/tag/v2.20.1)
 
 ## Version v2.19.0
 
