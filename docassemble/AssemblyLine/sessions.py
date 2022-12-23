@@ -332,10 +332,9 @@ def get_saved_interview_list(
         current_filename = ""
     if not filename_to_exclude:
         filename_to_exclude = ""
+    filenames_to_exclude = []
     if exclude_filenames:
-        filenames_to_exclude = exclude_filenames
-    else:
-        filenames_to_exclude = []
+        filenames_to_exclude.extend(exclude_filenames)
     filenames_to_exclude.extend([current_filename, filename_to_exclude])
     if user_id is None:
         if user_logged_in():
