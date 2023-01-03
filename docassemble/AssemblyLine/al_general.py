@@ -1,28 +1,29 @@
 from typing import Dict, List, Union, Optional
 from docassemble.base.util import (
     Address,
-    Individual,
+    as_datetime,
+    comma_and_list,
+    comma_list,
+    country_name,
+    DADateTime,
+    DAFile,
     DAList,
     date_difference,
-    name_suffix,
-    comma_and_list,
-    word,
-    comma_list,
-    url_action,
-    get_config,
-    phone_number_is_valid,
-    phone_number_formatted,
-    validation_error,
     DAWeb,
+    ensure_definition,
     get_config,
     get_country,
-    country_name,
-    as_datetime,
-    DADateTime,
+    Individual,
+    name_suffix,
+    phone_number_formatted,
+    phone_number_is_valid,
+    state_name,
+    states_list,
     subdivision_type,
     this_thread,
-    ensure_definition,
-    DAFile,
+    url_action,
+    validation_error,
+    word,
 )
 import re
 import pycountry
@@ -80,14 +81,29 @@ class ALAddress(Address):
         allow_no_address: bool = False,
     ):
         """
-        Return a YAML structure representing the list of fields for the object's address.
-        Optionally, allow the user to specify they do not have an address.
-        NOTE: if you set allow_no_address to True, you must make sure to trigger
-        the question with `users[0].address.has_no_address` rather than
-        `users[0].address.address`.
-        Optionally, add a `show if` modifier to each field. The `show if` modifier
-        will not be used if the `allow_no_address` modifier is used.
+            Return a YAML structure representing the list of fields for the object's address.
+            Optionally, allow the user to specify they do not have an address.
+            NOTE: if you set allow_no_address to True, you must make sure to trigger
+            the question with `users[0].address.has_no_address` rather than
+            `users[0].address.address`.
+            Optionally, add a `show if` modifier to each field. The `show if` modifier
+            will not be used if the `allow_no_address` modifier is used.
+        `country_code` should be an ISO-3166-1 alpha-2 code (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
+
+            NOTE: address_fields() is stateful if you:
+            1. Use the `country_code` parameter and;
+            1. Do not use the `show_country` parameter, and
+            1. `country_code` has a different value than `get_country()`.
+
+            Under these circumstances, address_fields() will set the `country` attribute of the Address
+            to `country_code`.
         """
+        # make sure the state name still returns a meaningful value if the interview country
+        # differs from the server's country.
+        if country_code and country_code != get_country() and not show_country:
+            self.country = country_code
+        if not country_code:
+            country_code = get_country()
         if allow_no_address:
             fields = [
                 {
@@ -128,6 +144,7 @@ class ALAddress(Address):
             fields[-2]["hide if"] = self.attr_name("has_no_address")
 
         fields.append({"label": str(self.city_label), "field": self.attr_name("city")})
+
         if country_code:
             fields.append(
                 {
@@ -137,7 +154,7 @@ class ALAddress(Address):
                     "default": default_state if default_state else "",
                 }
             )
-        else:
+        else:  # not showing country and not showing country code
             fields.append(
                 {
                     "label": str(self.state_label),
@@ -189,6 +206,7 @@ class ALAddress(Address):
             if show_if:
                 for field in fields:
                     field["show if"] = show_if
+
         return fields
 
     def formatted_unit(self, language=None, require=False, bare=False):
@@ -212,7 +230,14 @@ class ALAddress(Address):
             return word("Room", language=language) + " " + str(self.room)
         return ""
 
-    def block(self, language=None, international=False, show_country=None, bare=False):
+    def block(
+        self,
+        language=None,
+        international=False,
+        show_country=None,
+        bare=False,
+        long_state=False,
+    ):
         """Returns the address formatted as a block, as in a mailing."""
         if this_thread.evaluation_context == "docx":
             line_breaker = '</w:t><w:br/><w:t xml:space="preserve">'
@@ -276,7 +301,10 @@ class ALAddress(Address):
             output += str(self.sublocality_level_1) + line_breaker
         output += str(self.city)
         if hasattr(self, "state") and self.state:
-            output += ", " + str(self.state)
+            if long_state:
+                output += ", " + str(self.state_name())
+            else:
+                output += ", " + str(self.state)
         if hasattr(self, "zip") and self.zip:
             output += " " + str(self.zip)
         elif hasattr(self, "postal_code") and self.postal_code:
@@ -316,6 +344,26 @@ class ALAddress(Address):
             output += ", " + the_unit
         return output
 
+    def line_two(self, language=None, long_state=False):
+        """Returns the second line of the address, including the city,
+        state and zip code."""
+        output = ""
+        # if hasattr(self, 'sublocality') and self.sublocality:
+        #    output += str(self.sublocality) + ", "
+        if hasattr(self, "sublocality_level_1") and self.sublocality_level_1:
+            output += str(self.sublocality_level_1) + ", "
+        output += str(self.city)
+        if hasattr(self, "state") and self.state:
+            if long_state:
+                output += ", " + str(self.state_name())
+            else:
+                output += ", " + str(self.state)
+        if hasattr(self, "zip") and self.zip:
+            output += " " + str(self.zip)
+        elif hasattr(self, "postal_code") and self.postal_code:
+            output += " " + str(self.postal_code)
+        return output
+
     def on_one_line(
         self,
         include_unit=True,
@@ -323,6 +371,7 @@ class ALAddress(Address):
         language=None,
         show_country=None,
         bare=False,
+        long_state=False,
     ):
         """Returns a one-line address.  Primarily used internally for geocoding."""
         if (
@@ -357,7 +406,10 @@ class ALAddress(Address):
                 output += str(self.sublocality_level_1) + ", "
         output += str(self.city)
         if hasattr(self, "state") and self.state:
-            output += ", " + str(self.state)
+            if long_state:
+                output += ", " + str(self.state_name())
+            else:
+                output += ", " + str(self.state)
         if hasattr(self, "zip") and self.zip:
             output += " " + str(self.zip)
         elif hasattr(self, "postal_code") and self.postal_code:
@@ -388,6 +440,34 @@ class ALAddress(Address):
         if self.was_geocoded_successfully() and hasattr(self, "norm_long"):
             return self.norm_long
         return self
+
+    def state_name(self, country_code=None):
+        """
+        Return the full state name associated with the Address object's state abbreviation.
+
+        If provided, the `country_code` parameter will override the country attribute of the
+        Address object. If omitted, it will use in order:
+
+        1. The country code associated with the Address object, and then
+        2. The country set in the global config for the server
+
+        `country_code` should be an ISO-3166-1 alpha-2 code
+        (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
+        """
+        if country_code:
+            return state_name(self.state, country_code=country_code)
+        # Do a quick check for a valid ISO country code (alpha-2 only at this time)
+        if hasattr(self, "country") and self.country and len(self.country) == 2:
+            try:
+                return state_name(self.state, country_code=self.country)
+            except:
+                pass
+        try:
+            return state_name(
+                self.state
+            )  # Docassemble falls back to the default set in global config
+        except:
+            return self.state
 
 
 class ALAddressList(DAList):
@@ -1058,3 +1138,12 @@ def language_name(language_code: str) -> str:
             return word(pycountry.languages.get(alpha_3=language_code).name)
     except:
         return language_code
+
+
+def safe_states_list(country_code: str) -> List[Dict[str, str]]:
+    """Wrapper around states_list that doesn't error if passed
+    an invalid country_code (e.g., a country name spelled out)"""
+    try:
+        return states_list(country_code=country_code)
+    except:
+        return states_list()
