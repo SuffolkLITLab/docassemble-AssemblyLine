@@ -58,6 +58,22 @@ data:
     email template: al_reminder_filing_template
     sms template: al_reminder_filing_template
 ---
+code: |
+  al_reminders[i]["initial sms template"] = "al_reminder_initial_sms_template"
+  al_reminders[i]["initial email template"] = "al_reminder_initial_email_template"
+---
+template: al_reminder_initial_sms_template
+content: |
+  You asked to get a reminder of important dates when you used "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }".
+  You will get the reminders at this phone number.
+---
+template: al_reminder_initial_email_template
+subject: |
+  You are now signed up for reminders
+content: |
+  You asked to get a reminder of important dates when you used "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }".
+  You'll get the reminders using this email address.
+---
 template: al_reminder_filing_template
 subject: |
   Did you file your ${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) } documents yet?
@@ -95,3 +111,15 @@ code: |
   else:
     allow_cron = False
   response()
+---
+code: |
+  if al_user_wants_reminders and task_not_yet_performed(f"al_reminder_initial_{reminder}"):
+    if al_user_preferred_reminder_formats.get("email") and task_not_yet_performed(f"al_reminder_initial_{reminder}_email"):
+      if not send_email(to=al_user_reminder_email, template=value(al_reminders[reminder]["initial email template"]), task=f"al_reminder_initial_{reminder}_email"):
+        log(f"{ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}")
+    if al_user_preferred_reminder_formats.get("sms") and task_not_yet_performed(f"al_reminder_initial_{reminder}_sms"):
+      if not send_sms(to=al_user_reminder_phone, template=value(al_reminders[reminder]["initial sms template"]), task=f"al_reminder_initial_{reminder}_sms"):
+        log(f"{ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}")
+    mark_task_as_performed(f"al_reminder_initial_{reminder}")
+
+  al_reminders_sent_initial_test_message
