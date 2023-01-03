@@ -442,10 +442,22 @@ class ALAddress(Address):
         return self
 
     def state_name(self, country_code=None):
+        """
+        Return the full state name associated with the Address object's state abbreviation.
+
+        If provided, the `country_code` parameter will override the country attribute of the
+        Address object. If omitted, it will use in order:
+        
+        1. The country code associated with the Address object, and then
+        2. The country set in the global config for the server
+
+        `country_code` should be an ISO-3166-1 alpha-2 code 
+        (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
+        """
         if country_code:
             return state_name(self.state, country_code=country_code)
-        # Do a quick check for a valid ISO country code (alpha-2 or alpha-3)
-        if hasattr(self, "country") and self.country and len(self.country) < 4:
+        # Do a quick check for a valid ISO country code (alpha-2 only at this time)
+        if hasattr(self, "country") and self.country and len(self.country) == 2:
             try:
                 return state_name(self.state, country_code=self.country)
             except:
