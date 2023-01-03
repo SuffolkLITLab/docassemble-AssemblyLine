@@ -88,7 +88,8 @@ class ALAddress(Address):
         `users[0].address.address`.
         Optionally, add a `show if` modifier to each field. The `show if` modifier
         will not be used if the `allow_no_address` modifier is used.
-
+    `country_code` should be an ISO-3166-1 alpha-2 code (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
+    
         NOTE: address_fields() is stateful if you:
         1. Use the `country_code` parameter and;
         1. Do not use the `show_country` parameter, and
