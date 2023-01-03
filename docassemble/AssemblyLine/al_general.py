@@ -81,22 +81,22 @@ class ALAddress(Address):
         allow_no_address: bool = False,
     ):
         """
-        Return a YAML structure representing the list of fields for the object's address.
-        Optionally, allow the user to specify they do not have an address.
-        NOTE: if you set allow_no_address to True, you must make sure to trigger
-        the question with `users[0].address.has_no_address` rather than
-        `users[0].address.address`.
-        Optionally, add a `show if` modifier to each field. The `show if` modifier
-        will not be used if the `allow_no_address` modifier is used.
-    `country_code` should be an ISO-3166-1 alpha-2 code (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
-    
-        NOTE: address_fields() is stateful if you:
-        1. Use the `country_code` parameter and;
-        1. Do not use the `show_country` parameter, and
-        1. `country_code` has a different value than `get_country()`.
+            Return a YAML structure representing the list of fields for the object's address.
+            Optionally, allow the user to specify they do not have an address.
+            NOTE: if you set allow_no_address to True, you must make sure to trigger
+            the question with `users[0].address.has_no_address` rather than
+            `users[0].address.address`.
+            Optionally, add a `show if` modifier to each field. The `show if` modifier
+            will not be used if the `allow_no_address` modifier is used.
+        `country_code` should be an ISO-3166-1 alpha-2 code (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
 
-        Under these circumstances, address_fields() will set the `country` attribute of the Address
-        to `country_code`.
+            NOTE: address_fields() is stateful if you:
+            1. Use the `country_code` parameter and;
+            1. Do not use the `show_country` parameter, and
+            1. `country_code` has a different value than `get_country()`.
+
+            Under these circumstances, address_fields() will set the `country` attribute of the Address
+            to `country_code`.
         """
         # make sure the state name still returns a meaningful value if the interview country
         # differs from the server's country.
@@ -447,11 +447,11 @@ class ALAddress(Address):
 
         If provided, the `country_code` parameter will override the country attribute of the
         Address object. If omitted, it will use in order:
-        
+
         1. The country code associated with the Address object, and then
         2. The country set in the global config for the server
 
-        `country_code` should be an ISO-3166-1 alpha-2 code 
+        `country_code` should be an ISO-3166-1 alpha-2 code
         (https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements)
         """
         if country_code:
