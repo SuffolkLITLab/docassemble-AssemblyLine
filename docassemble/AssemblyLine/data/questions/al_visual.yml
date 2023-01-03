@@ -495,12 +495,14 @@ content: |
   <h2 class="h4">${ word("Error") }</h2>
   ${ action_argument('error_message') }
 
-  % if get_config("debug") and action_argument("error_trace"):
+  % if get_config("debug") and action_argument("error_history"):
   <h2 class="h4">${ word("History") }</h2>
   <pre>
   ${ action_argument("error_history") }
   </pre>
+  % endif
 
+  % if get_config("debug") and action_argument("error_trace"):
   <h2 class="h4">${ word("Log") }</h2>
   <pre>
   ${ action_argument("error_trace")}
