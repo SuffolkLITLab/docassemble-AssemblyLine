@@ -448,7 +448,9 @@ subquestion: |
   * ${ al_opt }
   % endfor
 
+  % if not get_config("verbose error messages") == False:
   ${ collapse_template(al_formatted_error_message) }
+  % endif
 back button label: Back
 buttons:
   - Exit: leave
@@ -490,11 +492,19 @@ template: al_formatted_error_message
 subject: |
   Technical information
 content: |
+  <h2 class="h4">${ word("Error") }</h2>
   ${ action_argument('error_message') }
 
+  % if get_config("debug") and action_argument("error_history"):
+  <h2 class="h4">${ word("History") }</h2>
+  <pre>
+  ${ action_argument("error_history") }
+  </pre>
+  % endif
+
   % if get_config("debug") and action_argument("error_trace"):
-  ```
+  <h2 class="h4">${ word("Log") }</h2>
+  <pre>
   ${ action_argument("error_trace")}
-  ${ action_argument("error_history")}  
-  ```
+  </pre>
   % endif
