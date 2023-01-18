@@ -125,9 +125,8 @@
     flex-grow: 1;
 }
 
-@media (max-width: 500px) {
+@media (max-width: 575px) {
   .al_doc_table .col {
-      width: 100%;
       padding-right: 0;
       padding-left: 0;
   }
@@ -139,7 +138,6 @@
       padding-top: 0.25em;
   }
 }
-
 /* TODO: Should it be in here and this broad? This looks like it's for all pages */
 .da-subquestion .daquestionbackbutton {
   background-color: #eee;
