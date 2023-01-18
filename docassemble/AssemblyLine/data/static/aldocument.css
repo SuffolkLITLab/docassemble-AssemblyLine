@@ -116,8 +116,16 @@
     padding-right: 1em;
 }
 
+/* Puts the invalid email input message under the input field
+*    instead of beside it. */
 .al_doc_table .al_email_input_container {
   flex-wrap: wrap;
+}
+
+/* Prevent 'send' button from stretching vertically on wide
+*    screens when validation message appears. */
+.al_doc_table .al_email_send_col {
+  align-self: flex-start;
 }
 
 .al_doc_table_row .al_doc_email_field {
