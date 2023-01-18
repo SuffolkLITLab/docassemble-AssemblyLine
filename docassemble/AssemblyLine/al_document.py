@@ -107,10 +107,10 @@ def table_row(title: str, button_htmls: List[str] = []) -> str:
     """
     html = (
         f'\n\t<div class="row al_doc_table_row">'
-        f'\n\t\t<div class="col col-6 al_doc_title">{title}</div>'
+        f'\n\t\t<div class="col col-12 col-sm-6 al_doc_title">{title}</div>'
         # At some widths, `col-6` barely has room to avoid
         # wrapping lines for these buttons
-        f'\n\t\t<div class="col col-6 al_buttons">'
+        f'\n\t\t<div class="col col-12 col-sm-6 al_buttons">'
     )
     for button in button_htmls:
         html += button
@@ -1417,8 +1417,8 @@ class ALDocumentBundle(DAList):
         # Whole row put together
         html = f"""
         <div class="row al_doc_table_row al_send_bundle {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
-          <div class="col col-9 al_email_input_col">{ input_html }</div>
-          <div class="col col-3 al_email_send_col al_buttons">{ send_button }</div>
+          <div class="col col-12 col-sm-9 al_email_input_col">{ input_html }</div>
+          <div class="col col-12 col-sm-3 al_email_send_col al_buttons">{ send_button }</div>
         </div>
         """
 
