@@ -116,9 +116,28 @@
     padding-right: 1em;
 }
 
+.al_doc_table .al_email_input_container {
+  flex-wrap: wrap;
+}
+
 .al_doc_table_row .al_doc_email_field {
     width: 50%;
     flex-grow: 1;
+}
+
+@media (max-width: 500px) {
+  .al_doc_table .col {
+      width: 100%;
+      padding-right: 0;
+      padding-left: 0;
+  }
+  .al_doc_table .al_doc_title {
+      text-align: left;
+  }
+  .al_doc_table .al_email_input_col {
+      padding-bottom: 0.5em;
+      padding-top: 0.25em;
+  }
 }
 
 /* TODO: Should it be in here and this broad? This looks like it's for all pages */
