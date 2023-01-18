@@ -122,4 +122,4 @@ code: |
         log(f"{ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}")
     mark_task_as_performed(f"al_reminder_initial_{reminder}")
 
-  al_reminders_sent_initial_test_message
+  al_reminders_sent_initial_test_message = True
