@@ -10,7 +10,8 @@ __all__ = [
 
 def get_tuples(lang_codes):
     """Returns a list of tuples representing the language name, followed by language ISO 639-1 code.
-    Right now only lists languages in use by Massachusetts Defense for Eviction (MADE)."""
+    Right now only lists languages in use by Massachusetts Defense for Eviction (MADE).
+    """
     long_langs = {
         "en": "English",
         "es": "Español",
@@ -28,7 +29,8 @@ def get_tuples(lang_codes):
 
 def get_language_list(languages, current=""):
     """given a list of ordered tuples with (Description, language_code), returns
-    an Bootstrap-formatted unordered inline list. The current language will not be a link."""
+    an Bootstrap-formatted unordered inline list. The current language will not be a link.
+    """
     list_start = '<ul class="list-inline">'
     list_start += '<li class="list-inline-item"><b>Language</b>:</li>'
     list_end = "</ul>"
