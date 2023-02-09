@@ -1,5 +1,22 @@
 # Changelog
 
+## v2.21.0
+
+### Added
+
+* Add a parameter to always write out the full name of the state, instead of abbreviation: [#646](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/646)
+
+### Fixed
+
+* Stop `al_sessions_to_exclude` from growing; excluded interviews that remained on the interview list: [#650](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/650)
+* Updated SQL Alchemy code to work with v1.4 - v2.0 (docassemble versions 1.2.68 - 1.4.33 (and on)): [#659](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/659)
+* Cleanup appearance of error action page: [#659](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/659)
+
+
+## v2.20.1
+
+Duplicate of v2.20.0 due to workflow issues, nothing has changed.
+
 ## v2.20.0
 
 ### New
