@@ -265,7 +265,7 @@ def get_saved_interview_list(
     exclude_current_filename: bool = True,
     exclude_filenames: Optional[List[str]] = None,
     exclude_newly_started_sessions: bool = False,
-) -> List[Dict]:
+) -> List[Dict[str, Any]]:
     """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
     to add metadata, the result list will include columns containing the metadata.
     If the user is a developer or administrator, setting user_id = None will list all interviews on the server. Otherwise,
@@ -358,17 +358,19 @@ def get_saved_interview_list(
     with db.connect() as con:
         rs = con.execute(
             get_sessions_query,
-            metadata=metadata_key_name,
-            user_id=user_id,
-            filename=filename,
-            limit=limit,
-            offset=offset,
-            filenames_to_exclude=tuple(filenames_to_exclude),
-            exclude_newly_started_sessions=exclude_newly_started_sessions,
+            {
+                "metadata": metadata_key_name,
+                "user_id": user_id,
+                "filename": filename,
+                "limit": limit,
+                "offset": offset,
+                "filenames_to_exclude": tuple(filenames_to_exclude),
+                "exclude_newly_started_sessions": exclude_newly_started_sessions,
+            },
         )
     sessions = []
     for session in rs:
-        sessions.append(session)
+        sessions.append(dict(session._mapping))
 
     return sessions
 
@@ -418,9 +420,11 @@ def delete_interview_sessions(
     with db.connect() as connection:
         connection.execute(
             delete_sessions_query,
-            user_id=user_id,
-            filename_to_exclude=filename_to_exclude,
-            current_filename=current_filename,
+            {
+                "user_id": user_id,
+                "filename_to_exclude": filename_to_exclude,
+                "current_filename": current_filename,
+            },
         )
 
 
