@@ -1,85 +1,56 @@
 /* WARNING TO AL DEVELOPERS: Only use CSS _classes_ in our CSS unless you know for a fact that an ID is static. Most IDs are generated dynamically, so using them in the CSS will only work with our test files. */
 
-/* Email button (there's another section for this at the bottom) */
+/*---------------------------------------------------------*/
+/* Isolated email send button
+/*---------------------------------------------------------*/
 /* Feedback from UI designers has been that email input field and
    send button should be on the same line. */
-.al_email_address, .al_email_address label, .al_email_address input {
+
+.al_send_section_alone {
+  margin-bottom: 2rem;
+}
+
+.al_send_section_alone .al_email_address,
+.al_send_section_alone .al_email_address label,
+.al_send_section_alone .al_email_address input {
   display: inline;
   width: unset;
   margin: unset;
 }
 
-.al_email_address input {
+.al_send_section_alone .al_email_address input {
   max-width: 50%
 }
 
-.al_send_button {
-  display: inline-block;
+.al_send_section_alone .al_send_email_button {
+  flex-grow: 1;
 }
-.al_send_editable {
+
+.al_send_section_alone .al_send_editable {
   display: block;
   width: 100%;
 }
 
-/* Download buttons */
-.al_table_css_sibling + div thead {
-  display: none;
+.al_send_section_alone .al_email_container {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
 }
 
-.al_table_css_sibling + div td {
-  padding: .3em;
-  vertical-align: text-top;
-}
-td.text-left:first-child {
-  width: 1em;
-  padding-left: .5em;
-}
-.al_table_css_sibling + div td.text-left + td.text-right {
-  width: 5em;
-}
-.al_table_css_sibling + div td.text-right {
-  width: 7em;
+.al_send_section_alone .al_email_address,
+.al_send_section_alone .al_email_address label {
+  max-width: 70%;
+  padding-left: 0;
 }
 
-.al_table_css_sibling + div a {
-  margin: 0em;
+.al_send_section_alone .al_email_address input {
+  max-width: 80%;
 }
 
-.da-subquestion .daquestionbackbutton {
-  background-color: #eee;
+.al_send_section_alone .al_doc_email_header {
+    margin-bottom: 0.2em;
 }
 
-#al_doc_email_header {
-  margin: 1rem 0;
-}
-
-#al_user_bundle {
-  margin: 0.5rem 0;
-}
-
-.al_table .al_buttons .btn {
-  position: relative;
-  margin: 0;
-  margin-bottom: 0.1rem;
-  /* Avoid icons being on their own lines */
-  white-space: nowrap;
-}
-
-/* On wide screens, let titles wrap, but let buttons stay horizontal */
-/* On small screens, wrap buttons and let titles have the room they need */
-@media only screen and (min-width: 450px) {
-  .al_table .al_buttons {
-    white-space: nowrap;
-  }
-}
-
-#al_user_bundle td div {
-  min-width: 320px;
-}
-
-#al_send_bundle_al_user_bundle .form-check-container {
-  margin: 0.5rem 0 5px 0;
-}
 /* al_email_container mobile version */
 @media only screen and (max-width: 700px) {
   .al_email_container {
@@ -89,15 +60,85 @@ td.text-left:first-child {
     margin: 0 0 10px; 
   }
 }
-/* The following 3 rules split title/button columns on the download screen by a 30%/70% ratio. This is to give the buttons enough room to stay horizontal even with long titles. */
-table {
-  width: 100%;
-  table-layout: fixed;
+
+/*---------------------------------------------------------*/
+/* Table rows
+/*---------------------------------------------------------*/
+.al_doc_table {
+    margin-bottom: 2rem;
 }
-.al_doc_title {
-  width: 30%; 
+
+.al_doc_table .al_buttons {
+    display: flex;
+    justify-content: space-between;
 }
-.al_buttons {
-  width: 70%;
-  padding-left: 2em;  
+
+.al_doc_table .al_buttons > * {
+    flex-grow: 1;
+}
+
+.al_doc_table .al_buttons .al_button {
+    margin-right: 4px;
+}
+
+.al_doc_table .al_buttons .al_button:last-child {
+    margin-right: 0;
+}
+
+.al_doc_table_row .al_doc_title,
+.al_doc_table_row .al_buttons,
+.al_doc_table_row .al_email_send_col {
+    text-align: right;
+}
+
+.al_doc_table_row .al_buttons,
+.al_doc_table_row .al_email_send_col {
+  padding-right: 0;
+}
+
+.al_doc_table_row .al_doc_title,
+.al_doc_table_row .al_doc_email,
+.al_doc_table_row .al_email_input_col {
+  padding-left: 0;
+}
+
+.al_doc_table_row .al_doc_title {
+  font-weight: bold;
+}
+
+.al_doc_table_row .al_email_input_container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.al_doc_table_row .al_email_input_container label {
+    width: unset;
+    padding-right: 1em;
+}
+
+.al_doc_table .al_email_input_container {
+  flex-wrap: wrap;
+}
+
+.al_doc_table_row .al_doc_email_field {
+    width: 50%;
+    flex-grow: 1;
+}
+
+@media (max-width: 575px) {
+  .al_doc_table .col {
+      padding-right: 0;
+      padding-left: 0;
+  }
+  .al_doc_table .al_doc_title {
+      text-align: left;
+  }
+  .al_doc_table .al_email_input_col {
+      padding-bottom: 0.5em;
+      padding-top: 0.25em;
+  }
+}
+/* TODO: Should it be in here and this broad? This looks like it's for all pages */
+.da-subquestion .daquestionbackbutton {
+  background-color: #eee;
 }
