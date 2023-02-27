@@ -1,5 +1,7 @@
 # Suffolk LIT Lab Document Assembly Line
 
+[![PyPI version](https://badge.fury.io/py/docassemble-AssemblyLine.svg)](https://badge.fury.io/py/docassemble-AssemblyLine)
+
 <img src="https://user-images.githubusercontent.com/7645641/142245862-c2eb02ab-3090-4e97-9653-bb700bf4c54d.png" alt="drawing" width="300" alt="work together" style="align: center;"/>
 
 The Assembly Line Project is a collection of volunteers, students, and institutions who joined together
