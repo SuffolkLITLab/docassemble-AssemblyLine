@@ -14,6 +14,7 @@ from docassemble.base.util import (
     get_config,
     get_country,
     Individual,
+    IndividualName,
     name_suffix,
     phone_number_formatted,
     phone_number_is_valid,
@@ -481,6 +482,15 @@ class ALAddressList(DAList):
         return comma_and_list([item.on_one_line() for item in self])
 
 
+class ALNameList(DAList):
+    """Store a list of IndividualNames"""
+    def init(self, *pargs, **kwargs):
+        super().init(*pargs, **kwargs)
+        self.object_type = IndividualName
+
+    def __str__(self):
+        return comma_list(self)
+
 class ALPeopleList(DAList):
     """Used to represent a list of people. E.g., defendants, plaintiffs, children"""
 
@@ -540,6 +550,9 @@ class ALIndividual(Individual):
     other_addresses: ALAddressList
     mailing_address: ALAddress
     service_address: ALAddress
+    previous_names: ALNameList
+    aliases: ALNameList
+    preferred_name: IndividualName
 
     def init(self, *pargs, **kwargs):
         super(ALIndividual, self).init(*pargs, **kwargs)
@@ -557,6 +570,12 @@ class ALIndividual(Individual):
             self.initializeAttribute("mailing_address", ALAddress)
         if not hasattr(self, "service_address"):
             self.initializeAttribute("service_address", ALAddress)
+        if not hasattr(self, "previous_names"):
+            self.initializeAttribute("previous_names", ALNameList)
+        if not hasattr(self, "aliases"):
+            self.initializeAttribute("aliases", ALNameList)
+        if not hasattr(self, "preferred_name"):
+            self.initializeAttribute("preferred_name", IndividualName)
 
     def signature_if_final(self, i: str) -> Union[DAFile, str]:
         if i == "final":

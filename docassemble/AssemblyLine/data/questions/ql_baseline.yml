@@ -2008,3 +2008,114 @@ generic object: ALAddress
 template: x.has_no_address_explanation_help
 content: |
   Example: "I normally sleep at 5th and Main."
+---
+################## Name change questions ######################
+---
+id: Have you changed your name before?
+question: |
+  Have you changed your name before?
+fields:
+  - no label: users[0].previous_names.there_are_any
+    datatype: yesnoradio
+---
+id: have you changed your name again
+question: |
+  Is there another time that you changed your name?
+fields:
+  - no label: users[0].previous_names.there_is_another
+    datatype: yesnoradio
+---
+id: What is your new name?
+question: |
+  What name do you want to be called?
+fields:
+  - First name: users[0].preferred_name.first
+  - Middle name: users[0].preferred_name.middle
+    required: False
+  - Last name: users[0].preferred_name.last
+  - Suffix: users[0].preferred_name.suffix
+    required: False
+    code: name_suffix()
+---
+generic object: ALIndividual
+id: Has x changed their name before?
+question: |
+  Has ${ x.preferred_name } changed their name before?
+fields:
+  - no label: x.previous_names.there_are_any
+    datatype: yesnoradio
+---
+generic object: ALIndividual
+id: has x changed their name again
+question: |
+  Is there another time that ${ x.preferred_name } changed their name?
+fields:
+  - no label: x.previous_names.there_is_another
+    datatype: yesnoradio
+---
+id: birth name
+question: |
+  What was your first legal name?
+subquestion: |
+  Write the name as it appeared on your first birth certificate.
+fields:
+  - First name: users[0].previous_names[0].first
+  - Middle name: users[0].previous_names[0].middle
+    required: False
+  - Last name: users[0].previous_names[0].last
+  - Suffix: users[0].previous_names[0].suffix
+    required: False
+    code: name_suffix()
+---
+id: name i
+question: |
+  What was your ${ ordinal(i) } name?
+fields:
+  - First name: users[0].previous_names[i].first
+  - Middle name: users[0].previous_names[i].middle
+    required: False
+  - Last name: users[0].previous_names[i].last
+  - Suffix: users[0].previous_names[i].suffix
+    required: False
+    code: name_suffix()
+---
+generic object: ALIndividual
+id: What is x's new name?
+question: |
+  What name does the minor want to be called?
+fields:
+  - First name: x.preferred_name.first
+  - Middle name: x.preferred_name.middle
+    required: False
+  - Last name: x.preferred_name.last
+  - Suffix: x.preferred_name.suffix
+    required: False
+    code: name_suffix()
+---
+generic object: ALIndividual
+id: x birth name
+question: |
+  What was ${ x.preferred_name }'s first legal name?
+subquestion: |
+  Write the name as it appeared on their first birth certificate.
+fields:
+  - First name: x.previous_names[0].first
+  - Middle name: x.previous_names[0].middle
+    required: False
+  - Last name: x.previous_names[0].last
+  - Suffix: x.previous_names[0].suffix
+    required: False
+    code: name_suffix()
+---
+generic object: ALIndividual
+id: x i name
+question: |
+  What was ${ x.preferred_name }'s ${ ordinal(i) } legal name?
+fields:
+  - First name: x.previous_names[i].first
+  - Middle name: x.previous_names[i].middle
+    required: False
+  - Last name: x.previous_names[i].last
+  - Suffix: x.previous_names[i].suffix
+    required: False
+    code: name_suffix()
