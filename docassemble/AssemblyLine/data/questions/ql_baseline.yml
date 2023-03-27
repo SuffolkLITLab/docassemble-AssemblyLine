@@ -2194,7 +2194,7 @@ fields:
     datatype: yesnoradio
   - Why not?: users[0].no_consent_attached_explanation
     datatype: area
-    lines: 2
+    rows: 2
     show if:
       variable: users[0].parent_consent_attached
       is: False
@@ -2207,7 +2207,7 @@ fields:
     datatype: yesnoradio
   - Why not?: users[1].no_consent_attached_explanation
     datatype: area
-    lines: 2
+    rows: 2
     show if:
       variable: users[1].parent_consent_attached
       is: False
