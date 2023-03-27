@@ -484,12 +484,14 @@ class ALAddressList(DAList):
 
 class ALNameList(DAList):
     """Store a list of IndividualNames"""
+
     def init(self, *pargs, **kwargs):
         super().init(*pargs, **kwargs)
         self.object_type = IndividualName
 
     def __str__(self):
         return comma_list(self)
+
 
 class ALPeopleList(DAList):
     """Used to represent a list of people. E.g., defendants, plaintiffs, children"""
