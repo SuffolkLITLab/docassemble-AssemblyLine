@@ -2137,7 +2137,7 @@ fields:
 ---
 id: name i
 question: |
-  What was your ${ ordinal(i) } name?
+  What was your ${ ordinal(i) } legal name?
 fields:
   - First name: users[0].previous_names[i].first
   - Middle name: users[0].previous_names[i].middle
@@ -2149,7 +2149,7 @@ fields:
 ---
 id: minor name i
 question: |
-  What was the minor's ${ ordinal(i) } name?
+  What was the minor's ${ ordinal(i) } legal name?
 fields:
   - First name: children[0].previous_names[i].first
   - Middle name: children[0].previous_names[i].middle
@@ -2172,42 +2172,60 @@ fields:
     required: False
     code: name_suffix()
 ---
-id: consent of parent 1
+############################# Aliases ########################################
+# Aliases aren't name changes but the questions are similar
+---
+id: Have you been known by a different name before?
 question: |
-  Do you consent to ${ children[0].preferred_name }'s name change?
+  Have you ever been known by a different name or alias?  
 fields:
-  - I consent: users[0].consented_to_name_change
+  - no label: users[0].aliases.there_are_any
     datatype: yesnoradio
 ---
-id: consent of parent 1
+generic object: ALIndividual
+id: Has x been known by a different name or alias before?
 question: |
-  Does ${ users[1] } consent to ${ children[0].preferred_name }'s name change?
+  Has ${ x.preferred_name } ever been known by a different name or alias?
 fields:
-  - ${ users[1] } consents: users[0].consented_to_name_change
+  - no label: x.aliases.there_are_any
     datatype: yesnoradio
 ---
-id: consent of parent 1 attached
+id: have you been known by a different name again
 question: |
-  Is your consent attached?
+  Have you been known by any other names?
 fields:
-  - My consent is attached: users[0].parent_consent_attached
+  - no label: users[0].aliases.there_is_another
     datatype: yesnoradio
-  - Why not?: users[0].no_consent_attached_explanation
-    datatype: area
-    rows: 2
-    show if:
-      variable: users[0].parent_consent_attached
-      is: False
 ---
-id: consent of parent 2 attached
+generic object: ALIndividual
+id: has x been known by a different name again
 question: |
-  Is ${ users[1] }'s consent attached?
+  Has ${ x.preferred_name } been known by any other names?
 fields:
-  - ${ users[1] }'s consent is attached: users[0].parent_consent_attached
+  - no label: x.aliases.there_is_another
     datatype: yesnoradio
-  - Why not?: users[1].no_consent_attached_explanation
-    datatype: area
-    rows: 2
-    show if:
-      variable: users[1].parent_consent_attached
-      is: False
+---
+id: name i
+question: |
+  What was your ${ ordinal(i) } name?
+fields:
+  - First name: users[0].aliases[i].first
+  - Middle name: users[0].aliases[i].middle
+    required: False
+  - Last name: users[0].aliases[i].last
+  - Suffix: users[0].aliases[i].suffix
+    required: False
+    code: name_suffix()
+---
+generic object: ALIndividual
+id: x i name
+question: |
+  What is the ${ ordinal(i) } name that ${ x.preferred_name } has been known by?
+fields:
+  - First name: x.aliases[i].first
+  - Middle name: x.aliases[i].middle
+    required: False
+  - Last name: x.aliases[i].last
+  - Suffix: x.aliases[i].suffix
+    required: False
+    code: name_suffix()
