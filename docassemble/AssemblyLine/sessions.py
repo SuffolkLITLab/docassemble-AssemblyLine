@@ -444,6 +444,7 @@ def interview_list_html(
     view_only: bool = False,
     limit: int = 50,
     offset: int = 0,
+    display_interview_title:bool=True,
 ) -> str:
     """Return a string containing an HTML-formatted table with the list of saved answers
     associated with the specified filename.
@@ -501,8 +502,12 @@ def interview_list_html(
             """
         table += f"""
         <td>{ as_datetime(answer.get("modtime")) }</td>
-        <td>Page { answer.get("steps") or answer.get("num_keys") } <br/>
-            {answer.get("original_interview_filename") or answer.get("filename") or "" }
+        <td>Page { answer.get("steps") or answer.get("num_keys") }"""
+        if display_interview_title:
+            table += f"""
+                 <br/>{answer.get("original_interview_filename") or answer.get("filename") or "" }
+            """
+        table += f"""
         </td>
         <td>
           <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }"><i class="far fa-trash-alt" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only">{ delete_label }</span></a>
