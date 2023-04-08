@@ -444,7 +444,7 @@ def interview_list_html(
     view_only: bool = False,
     limit: int = 50,
     offset: int = 0,
-    display_interview_title:bool=True,
+    display_interview_title: bool = True,
 ) -> str:
     """Return a string containing an HTML-formatted table with the list of saved answers
     associated with the specified filename.
