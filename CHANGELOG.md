@@ -1,5 +1,21 @@
 # Changelog
 
+## v2.22.0
+
+### Added
+
+* Add fields to use in name change interviews: [#668](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/668)
+* Add send email table row param and change styling to align buttons: [#594](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/594)
+* Make source interview title optional in interview_list() function: [#674](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/674)
+
+### Changed
+
+* change styling to align buttons: [#594](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/594)
+
+### Fixed
+
+* remove use of wrong h5 header for accessibility: [#594](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/pull/594)
+
 ## v2.21.0
 
 ### Added
