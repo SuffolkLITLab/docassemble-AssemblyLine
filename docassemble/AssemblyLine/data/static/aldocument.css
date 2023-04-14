@@ -68,6 +68,10 @@
     margin-bottom: 2rem;
 }
 
+.al_doc_table_row {
+  margin-top: 0.5em;
+}
+
 .al_doc_table .al_buttons {
     display: flex;
     justify-content: space-between;
