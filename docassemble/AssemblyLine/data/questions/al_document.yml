@@ -54,7 +54,7 @@ content: |
 generic object: ALDocumentBundle
 template: x.zip_label
 content: |
-  Download zip
+  Download all
 ---
 id: al exhibit ocr pages bg
 event: al_exhibit_ocr_pages
