@@ -1542,16 +1542,12 @@ class ALDocumentBundle(DAList):
         """Returns true if the bundle itself is enabled, and it has at least one enabled child document"""
         self_enabled = self._is_self_enabled(refresh=refresh)
         return self_enabled and self.has_enabled_documents(refresh=refresh)
-    
+
     def _is_docx(self, key: str = "final"):
-        if all(
-            f._is_docx()
-            for f
-            in self.enabled_documents()
-        ):
+        if all(f._is_docx() for f in self.enabled_documents()):
             return True
         return False
-    
+
     def as_docx(
         self,
         key: str = "final",
@@ -1561,7 +1557,7 @@ class ALDocumentBundle(DAList):
         if append_matching_suffix and key == self.suffix_to_append:
             filename = f"{base_name(self.filename)}_{key}"
         else:
-            filename = f"{base_name(self.filename)}"        
+            filename = f"{base_name(self.filename)}"
         if self._is_docx():
             try:
                 the_file = docx_concatenate(
@@ -1571,34 +1567,28 @@ class ALDocumentBundle(DAList):
                 the_file.title = self.title
                 return the_file
             except:
-                return self.as_pdf(key=key, refresh=refresh, append_matching_suffix=append_matching_suffix)
-        return self.as_pdf(key=key, refresh=refresh, append_matching_suffix=append_matching_suffix)
+                return self.as_pdf(
+                    key=key,
+                    refresh=refresh,
+                    append_matching_suffix=append_matching_suffix,
+                )
+        return self.as_pdf(
+            key=key, refresh=refresh, append_matching_suffix=append_matching_suffix
+        )
 
     def need_addendum(self) -> bool:
-        return any(
-            f.need_addendum()
-            for f
-            in self.enabled_documents()
-        )
+        return any(f.need_addendum() for f in self.enabled_documents())
 
     def has_overflow(self) -> bool:
-        return any(
-            f.has_overflow()
-            for f
-            in self.enabled_documents()
-        )
+        return any(f.has_overflow() for f in self.enabled_documents())
 
     def as_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
         return self.as_flat_list(key=key, refresh=refresh)
-    
+
     @property
     def overflow_fields(self):
-        return ChainMap(
-            f.overflow_fields
-            for f
-            in self.enabled_documents()
-        )
-    
+        return ChainMap(f.overflow_fields for f in self.enabled_documents())
+
     def safe_value(
         self,
         field_name: str,
@@ -1609,7 +1599,13 @@ class ALDocumentBundle(DAList):
     ):
         for f in self.enabled_documents():
             if field_name in f.overflow_fields:
-                return f.safe_value(field_name=field_name, overflow_message=overflow_message, preserve_newlines=preserve_newlines, input_width=input_width, preserve_words=preserve_words)
+                return f.safe_value(
+                    field_name=field_name,
+                    overflow_message=overflow_message,
+                    preserve_newlines=preserve_newlines,
+                    input_width=input_width,
+                    preserve_words=preserve_words,
+                )
 
     def overflow_value(
         self,
@@ -1621,7 +1617,14 @@ class ALDocumentBundle(DAList):
     ):
         for f in self.enabled_documents():
             if field_name in f.overflow_fields:
-                return f.overflow_value(field_name=field_name, overflow_message=overflow_message, preserve_newlines=preserve_newlines, input_width=input_width, preserve_words=preserve_words)
+                return f.overflow_value(
+                    field_name=field_name,
+                    overflow_message=overflow_message,
+                    preserve_newlines=preserve_newlines,
+                    input_width=input_width,
+                    preserve_words=preserve_words,
+                )
+
 
 class ALExhibit(DAObject):
     """Class to represent a single exhibit, with cover page, which may contain multiple documents representing pages.
