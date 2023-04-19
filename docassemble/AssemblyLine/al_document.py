@@ -31,6 +31,7 @@ from docassemble.base.pdfa import pdf_to_pdfa
 from textwrap import wrap
 from math import floor
 import subprocess
+from collections import ChainMap
 
 __all__ = [
     "ALAddendumField",
@@ -1542,10 +1543,76 @@ class ALDocumentBundle(DAList):
         self_enabled = self._is_self_enabled(refresh=refresh)
         return self_enabled and self.has_enabled_documents(refresh=refresh)
 
+    def _is_docx(self, key: str = "final") -> bool:
+        """
+        Determine if all enabled documents are of type DOCX.
+
+        Args:
+            key (str, optional): The key to identify enabled documents. Defaults to "final".
+
+        Returns:
+            bool: True if all enabled documents are DOCX, otherwise False.
+        """
+        if all(f._is_docx() for f in self.enabled_documents()):
+            return True
+        return False
+
+    def as_docx(
+        self,
+        key: str = "final",
+        refresh: bool = True,
+        append_matching_suffix: bool = True,
+    ) -> DAFile:
+        """
+        Convert the enabled documents to a single DOCX file or PDF file if conversion fails.
+
+        Args:
+            key (str, optional): The key to identify enabled documents. Defaults to "final".
+            refresh (bool, optional): Refresh the enabled documents before conversion. Defaults to True.
+            append_matching_suffix (bool, optional): Append a matching suffix to the output filename. Defaults to True.
+
+        Returns:
+            DAFile: A DAFile object containing the concatenated DOCX or PDF file.
+        """
+        if append_matching_suffix and key == self.suffix_to_append:
+            filename = f"{base_name(self.filename)}_{key}"
+        else:
+            filename = f"{base_name(self.filename)}"
+        if self._is_docx():
+            try:
+                the_file = docx_concatenate(
+                    self.as_docx_list(key=key, refresh=refresh),
+                    filename=filename + ".docx",
+                )
+                the_file.title = self.title
+                return the_file
+            except:
+                return self.as_pdf(
+                    key=key,
+                    refresh=refresh,
+                    append_matching_suffix=append_matching_suffix,
+                )
+        return self.as_pdf(
+            key=key, refresh=refresh, append_matching_suffix=append_matching_suffix
+        )
+
+    def as_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
+        """
+        Return a list of enabled documents.
+
+        Args:
+            key (str, optional): The key to identify enabled documents. Defaults to "final".
+            refresh (bool, optional): Refresh the enabled documents before returning the list. Defaults to True.
+
+        Returns:
+            List[DAFile]: A list of enabled DAFile objects.
+        """
+        return self.as_flat_list(key=key, refresh=refresh)
+
 
 class ALExhibit(DAObject):
     """Class to represent a single exhibit, with cover page, which may contain multiple documents representing pages.
-    Atributes:
+    Attributes:
         pages (list): List of individual DAFiles representing uploaded images or documents.
         cover_page (DAFile | DAFileCollection): (optional) A DAFile or DAFileCollection object created by an `attachment:` block
           Will typically say something like "Exhibit 1"
