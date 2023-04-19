@@ -1,6 +1,7 @@
 import re
 import os
 import mimetypes
+from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Union, Callable, Optional
 from docassemble.base.util import (
     log,
@@ -538,7 +539,58 @@ class DALazyAttribute(DAObject):
             return dict()
 
 
-class ALDocument(DADict):
+# Should be upstream, but docassemble doesn't have types
+DAAnyFile = Union[DAStaticFile, DAFile]
+
+
+class ALAbstractDocument:
+    @abstractmethod
+    def as_pdf(
+        self,
+        key: str = "final",
+        refresh: bool = True,
+        pdfa: bool = False,
+        append_matching_suffix: bool = True,
+    ) -> DAAnyFile:
+        pass
+
+    @abstractmethod
+    def as_docx(
+        self,
+        key: str = "final",
+        refresh: bool = True,
+        append_matching_suffix: bool = True,
+    ) -> DAAnyFile:
+        pass
+
+    @abstractmethod
+    def _is_docx(self, key: str = "final") -> bool:
+        pass
+
+    @abstractmethod
+    def as_list(self, key: str = "final", refresh: bool = True) -> List[DAAnyFile]:
+        pass
+
+    @abstractmethod
+    def is_enabled(self, refresh=True) -> bool:
+        pass
+
+    @property
+    @abstractmethod
+    def filename(self) -> str:
+        pass
+
+    @abstractmethod
+    def __getitem__(self, key):
+        pass
+
+    @property
+    @abstractmethod
+    def title(self) -> str:
+        pass
+
+
+class ALDocument(DADict, ALAbstractDocument):
     """
     A dictionary of attachments, either created by a DAFile or an attachment
     block. Typically there are three:
@@ -684,7 +736,7 @@ class ALDocument(DADict):
         refresh: bool = True,
         pdfa: bool = False,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> DAAnyFile:
         # Trigger some stuff up front to avoid idempotency problems
         self.title
         self.need_addendum()
@@ -746,7 +798,7 @@ class ALDocument(DADict):
         key: str = "final",
         refresh: bool = True,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> DAAnyFile:
         """
         Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
         """
@@ -782,7 +834,7 @@ class ALDocument(DADict):
 
         return False
 
-    def as_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
+    def as_list(self, key: str = "final", refresh: bool = True) -> List[DAAnyFile]:
         """
         Returns a list of the document and its addendum, if any.
         Specify refresh=True if you want to generate the attachment new each time.
@@ -874,7 +926,7 @@ class ALDocument(DADict):
             return self.enabled
 
 
-class ALStaticDocument(DAStaticFile):
+class ALStaticDocument(DAStaticFile, ALAbstractDocument):
     """A class that allows one-line initialization of static documents to include in an ALDocumentBundle.
 
     Note:
@@ -916,17 +968,17 @@ class ALStaticDocument(DAStaticFile):
         # point to the same file.
         return self
 
-    def as_list(self, key: str = "final", refresh: bool = True) -> List[DAStaticFile]:
+    def as_list(self, key: str = "final", refresh: bool = True) -> List[DAAnyFile]:
         return [self]
 
     def as_pdf(
         self,
         key: str = "final",
-        pdfa: bool = False,
-        filename: str = "",
-        append_matching_suffix: bool = True,
         refresh: bool = False,
-    ) -> Union[DAStaticFile, DAFile]:
+        pdfa: bool = False,
+        append_matching_suffix: bool = True,
+        filename: str = "",
+    ) -> DAAnyFile:
         if not filename:
             filename = self.filename
         return pdf_concatenate(self, pdfa=pdfa, filename=f"{base_name(filename)}.pdf")
@@ -936,7 +988,7 @@ class ALStaticDocument(DAStaticFile):
         key: str = "final",
         refresh: bool = True,
         append_matching_suffix: bool = False,
-    ) -> Union[DAStaticFile, DAFile]:
+    ) -> DAAnyFile:
         """
         Returns the assembled document as a single DOCX file, if possible. Otherwise returns a PDF.
         The "append_matching_suffix" parameter is not used for static documents. They are always
@@ -966,11 +1018,11 @@ class ALStaticDocument(DAStaticFile):
         # Workaround for problem generating thumbnails without it
         return pdf_concatenate(self).show(**kwargs)
 
-    def is_enabled(self, **kwargs) -> bool:
+    def is_enabled(self, refresh: bool = True, **kwargs) -> bool:
         return self.enabled
 
 
-class ALDocumentBundle(DAList):
+class ALDocumentBundle(DAList, ALAbstractDocument):
     """
     DAList of ALDocuments or nested ALDocumentBundles.
 
@@ -1013,7 +1065,7 @@ class ALDocumentBundle(DAList):
         refresh: bool = True,
         pdfa: bool = False,
         append_matching_suffix: bool = True,
-    ) -> Optional[DAFile]:
+    ) -> Optional[DAAnyFile]:
         """Returns the Bundle as a single PDF DAFile, or None if none of the documents are enabled."""
         safe_key = space_to_underscore(key)
         if pdfa:
@@ -1116,7 +1168,7 @@ class ALDocumentBundle(DAList):
         # Use a generator expression for speed
         return any(document.is_enabled(refresh=refresh) for document in self.elements)
 
-    def enabled_documents(self, refresh: bool = True) -> List[Any]:
+    def enabled_documents(self, refresh: bool = True) -> List[ALAbstractDocument]:
         """
         Returns the enabled documents
 
@@ -1129,7 +1181,7 @@ class ALDocumentBundle(DAList):
             if document.is_enabled(refresh=refresh)
         ]
 
-    def as_flat_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
+    def as_flat_list(self, key: str = "final", refresh: bool = True) -> List[DAAnyFile]:
         """
         Returns the nested bundle as a single flat list. This could be the preferred way to deliver forms to the
         court, e.g.--one file per court form/cover letter.
@@ -1160,7 +1212,7 @@ class ALDocumentBundle(DAList):
 
     def as_pdf_list(
         self, key: str = "final", refresh: bool = True, pdfa: bool = False
-    ) -> List[DAFile]:
+    ) -> List[DAAnyFile]:
         """
         Returns the nested bundles as a list of PDFs that is only one level deep.
         """
@@ -1169,7 +1221,7 @@ class ALDocumentBundle(DAList):
             for doc in self.enabled_documents(refresh=refresh)
         ]
 
-    def as_docx_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
+    def as_docx_list(self, key: str = "final", refresh: bool = True) -> List[DAAnyFile]:
         """
         Returns the nested bundles as a list of DOCX files. If the file isn't able
         to be represented as a DOCX, the original file or a PDF will be returned instead.
@@ -1488,7 +1540,7 @@ class ALDocumentBundle(DAList):
 
     def send_email(
         self,
-        to: Any = None,
+        to: Optional[str] = None,
         key: str = "final",
         editable: bool = False,
         template: Any = None,
@@ -1608,6 +1660,52 @@ class ALDocumentBundle(DAList):
             List[DAFile]: A list of enabled DAFile objects.
         """
         return self.as_flat_list(key=key, refresh=refresh)
+
+    def need_addendum(self) -> bool:
+        return any(f.need_addendum() for f in self.enabled_documents())
+
+    def has_overflow(self) -> bool:
+        return any(f.has_overflow() for f in self.enabled_documents())
+
+    @property
+    def overflow_fields(self):
+        return ChainMap(f.overflow_fields for f in self.enabled_documents())
+
+    def safe_value(
+        self,
+        field_name: str,
+        overflow_message: Optional[str] = None,
+        preserve_newlines: bool = False,
+        input_width: int = 80,
+        preserve_words: bool = True,
+    ):
+        for f in self.enabled_documents():
+            if field_name in f.overflow_fields:
+                return f.safe_value(
+                    field_name=field_name,
+                    overflow_message=overflow_message,
+                    preserve_newlines=preserve_newlines,
+                    input_width=input_width,
+                    preserve_words=preserve_words,
+                )
+
+    def overflow_value(
+        self,
+        field_name: str,
+        overflow_message: Optional[str] = None,
+        preserve_newlines: bool = False,
+        input_width: int = 80,
+        preserve_words: bool = True,
+    ):
+        for f in self.enabled_documents():
+            if field_name in f.overflow_fields:
+                return f.overflow_value(
+                    field_name=field_name,
+                    overflow_message=overflow_message,
+                    preserve_newlines=preserve_newlines,
+                    input_width=input_width,
+                    preserve_words=preserve_words,
+                )
 
 
 class ALExhibit(DAObject):
@@ -1901,7 +1999,7 @@ class ALExhibitList(DAList):
                 self._start_ocr()
 
 
-class ALExhibitDocument(ALDocument):
+class ALExhibitDocument(ALDocument, ALAbstractDocument):
     """Represents a collection of uploaded documents, formatted like a record appendix or exhibit list, with a table of contents and
     optional page numbering.
 
@@ -1987,7 +2085,7 @@ class ALExhibitDocument(ALDocument):
         # point to the same file.
         return self
 
-    def as_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
+    def as_list(self, key: str = "final", refresh: bool = True) -> List[DAAnyFile]:
         return [self]
 
     def as_pdf(
@@ -1996,7 +2094,7 @@ class ALExhibitDocument(ALDocument):
         refresh: bool = True,
         pdfa: bool = False,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> DAAnyFile:
         """
         Args:
             key (str): unused, for signature compatibility with ALDocument
@@ -2032,11 +2130,11 @@ class ALExhibitDocument(ALDocument):
         key: str = "bool",
         refresh: bool = True,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> DAAnyFile:
         return self.as_pdf()
 
 
-class ALTableDocument(ALDocument):
+class ALTableDocument(ALDocument, ALAbstractDocument):
     def init(self, *pargs, **kwargs):
         super().init(*pargs, **kwargs)
         self.has_addendum = False
@@ -2057,7 +2155,7 @@ class ALTableDocument(ALDocument):
 
     def as_list(
         self, key: str = "final", refresh: bool = True, **kwargs
-    ) -> List[DAFile]:
+    ) -> List[DAAnyFile]:
         return [self[key]]
 
     def as_pdf(
@@ -2066,8 +2164,7 @@ class ALTableDocument(ALDocument):
         refresh: bool = True,
         pdfa: bool = False,
         append_matching_suffix: bool = True,
-        **kwargs,
-    ) -> DAFile:
+    ) -> DAAnyFile:
         """
         Args:
             key (str): unused, for signature compatibility with ALDocument
@@ -2087,11 +2184,11 @@ class ALTableDocument(ALDocument):
         key: str = "bool",
         refresh: bool = True,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> DAAnyFile:
         return self.as_pdf()
 
 
-class ALUntransformedDocument(ALDocument):
+class ALUntransformedDocument(ALDocument, ALAbstractDocument):
     def init(self, *pargs, **kwargs):
         super().init(*pargs, **kwargs)
         self.has_addendum = False
@@ -2104,9 +2201,7 @@ class ALUntransformedDocument(ALDocument):
         """
         return False
 
-    def as_list(
-        self, key: str = "final", refresh: bool = True, **kwargs
-    ) -> List[DAFile]:
+    def as_list(self, key: str = "final", refresh: bool = True) -> List[DAAnyFile]:
         return [self[key]]
 
     def as_pdf(
@@ -2115,7 +2210,6 @@ class ALUntransformedDocument(ALDocument):
         refresh: bool = True,
         pdfa: bool = False,
         append_matching_suffix: bool = True,
-        **kwargs,
     ) -> DAFile:
         """
         Args:
@@ -2162,3 +2256,11 @@ def unpack_dafilelist(the_file: DAFileList) -> DAFile:
         return inner_file
     else:
         return the_file
+
+
+if os.getenv("SHOULD_NEVER_BE_TRUE", False):
+    ALDocumentBundle(filename="", title="")
+    ALDocument(filename="", title="")
+    ALStaticDocument(filename="", title="")
+    ALExhibitDocument(filename="", title="")
+    ALTableDocument(filename="", title="")
