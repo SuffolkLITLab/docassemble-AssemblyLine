@@ -1543,7 +1543,16 @@ class ALDocumentBundle(DAList):
         self_enabled = self._is_self_enabled(refresh=refresh)
         return self_enabled and self.has_enabled_documents(refresh=refresh)
 
-    def _is_docx(self, key: str = "final"):
+    def _is_docx(self, key: str = "final") -> bool:
+        """
+        Determine if all enabled documents are of type DOCX.
+
+        Args:
+            key (str, optional): The key to identify enabled documents. Defaults to "final".
+
+        Returns:
+            bool: True if all enabled documents are DOCX, otherwise False.
+        """
         if all(f._is_docx() for f in self.enabled_documents()):
             return True
         return False
@@ -1554,6 +1563,17 @@ class ALDocumentBundle(DAList):
         refresh: bool = True,
         append_matching_suffix: bool = True,
     ) -> DAFile:
+        """
+        Convert the enabled documents to a single DOCX file or PDF file if conversion fails.
+
+        Args:
+            key (str, optional): The key to identify enabled documents. Defaults to "final".
+            refresh (bool, optional): Refresh the enabled documents before conversion. Defaults to True.
+            append_matching_suffix (bool, optional): Append a matching suffix to the output filename. Defaults to True.
+
+        Returns:
+            DAFile: A DAFile object containing the concatenated DOCX or PDF file.
+        """
         if append_matching_suffix and key == self.suffix_to_append:
             filename = f"{base_name(self.filename)}_{key}"
         else:
@@ -1576,59 +1596,23 @@ class ALDocumentBundle(DAList):
             key=key, refresh=refresh, append_matching_suffix=append_matching_suffix
         )
 
-    def need_addendum(self) -> bool:
-        return any(f.need_addendum() for f in self.enabled_documents())
-
-    def has_overflow(self) -> bool:
-        return any(f.has_overflow() for f in self.enabled_documents())
-
     def as_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
+        """
+        Return a list of enabled documents.
+
+        Args:
+            key (str, optional): The key to identify enabled documents. Defaults to "final".
+            refresh (bool, optional): Refresh the enabled documents before returning the list. Defaults to True.
+
+        Returns:
+            List[DAFile]: A list of enabled DAFile objects.
+        """
         return self.as_flat_list(key=key, refresh=refresh)
-
-    @property
-    def overflow_fields(self):
-        return ChainMap(f.overflow_fields for f in self.enabled_documents())
-
-    def safe_value(
-        self,
-        field_name: str,
-        overflow_message: Optional[str] = None,
-        preserve_newlines: bool = False,
-        input_width: int = 80,
-        preserve_words: bool = True,
-    ):
-        for f in self.enabled_documents():
-            if field_name in f.overflow_fields:
-                return f.safe_value(
-                    field_name=field_name,
-                    overflow_message=overflow_message,
-                    preserve_newlines=preserve_newlines,
-                    input_width=input_width,
-                    preserve_words=preserve_words,
-                )
-
-    def overflow_value(
-        self,
-        field_name: str,
-        overflow_message: Optional[str] = None,
-        preserve_newlines: bool = False,
-        input_width: int = 80,
-        preserve_words: bool = True,
-    ):
-        for f in self.enabled_documents():
-            if field_name in f.overflow_fields:
-                return f.overflow_value(
-                    field_name=field_name,
-                    overflow_message=overflow_message,
-                    preserve_newlines=preserve_newlines,
-                    input_width=input_width,
-                    preserve_words=preserve_words,
-                )
 
 
 class ALExhibit(DAObject):
     """Class to represent a single exhibit, with cover page, which may contain multiple documents representing pages.
-    Atributes:
+    Attributes:
         pages (list): List of individual DAFiles representing uploaded images or documents.
         cover_page (DAFile | DAFileCollection): (optional) A DAFile or DAFileCollection object created by an `attachment:` block
           Will typically say something like "Exhibit 1"
