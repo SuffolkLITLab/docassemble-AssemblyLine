@@ -54,7 +54,7 @@ subquestion: |
   We can send you a reminder, by text or email,
   about ${ next(iter(al_reminders.values()))["description"][:1].lower() }${ fix_punctuation(next(iter(al_reminders.values()))["description"][1:]) }
   % else:
-  about:
+  We can send you a reminder, by text or email, about:
 
   % for reminder in al_reminders.values():
   * ${ reminder["description"]}
@@ -108,17 +108,17 @@ code: |
 ---
 template: al_reminder_initial_sms_template
 content: |
-  You asked to get a reminder of important dates when you used "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }".
+  You asked to get a reminder of important dates when you used "${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }".
   You will get the reminders at this phone number. 
   
-  [Unsubscribe](${ interview_url_action('al_reminders_unsubscribe_emails') }) to stop reminders from this
+  Click to unsubscribe ${ interview_url_action('al_reminders_unsubscribe_emails') } to stop reminders from this
   interview or reply STOP if you no longer want any reminders from ${ AL_ORGANIZATION_TITLE }.
 ---
 template: al_reminder_initial_email_template
 subject: |
   You are now signed up for reminders
 content: |
-  You asked to get a reminder of important dates when you used "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }".
+  You asked to get a reminder of important dates when you used "${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }".
   You'll get the reminders using this email address.
 
   You will get about ${ len(al_reminders) + 1 } emails in total (including this one).
@@ -133,9 +133,12 @@ code: |
 id: unsubscribe success
 event: al_reminders_display_unsubscribe_success
 question: |
-  You are now unsubscribed from reminders from "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }"
+  You are now unsubscribed from reminders from "${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }"
 subquestion: |
   You will no longer get any reminders of important dates by email or text message about this interview.
+
+  [Re-subscribe](${ url_action('al_reminders_resubscribe_emails') })
+back button: False  
 ---
 event: al_reminders_resubscribe_emails
 code: |
@@ -145,14 +148,15 @@ code: |
 id: resubscribe success
 event: al_reminders_display_resubscribe_success
 question: |
-  You are now subscribed to reminders from "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }"
+  You are now subscribed to reminders from "${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }"
 subquestion: |
   You will continue to get any reminders of important dates by email or text message that you
   have not already been sent.
+back button: False  
 ---
 template: al_reminder_filing_template
 subject: |
-  Did you file your ${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) } documents yet?
+  Did you file your ${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) } documents yet?
 content: |
   If you haven't filed yet, make a plan or do it today!
 ---
@@ -185,10 +189,10 @@ code: |
       if today() >= as_datetime(al_reminders[reminder]["date"]) and task_not_yet_performed(f"al_reminder_{reminder}"):
         if al_user_preferred_reminder_formats.get("email") and task_not_yet_performed(f"al_reminder_{reminder}_email"):
           if not send_email(to=al_user_reminder_email, template=value(al_reminders[reminder]["email template"]), task=f"al_reminder_{reminder}_email"):
-            log(f"{ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}")
+            log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}")
         if al_user_preferred_reminder_formats.get("sms") and task_not_yet_performed(f"al_reminder_{reminder}_sms"):
           if not send_sms(to=al_user_reminder_phone, template=value(al_reminders[reminder]["sms template"]), task=f"al_reminder_{reminder}_sms"):
-            log(f"{ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}")
+            log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}")
         mark_task_as_performed(f"al_reminder_{reminder}")
   al_reminders_cron_daily = True
 ---
@@ -210,10 +214,10 @@ code: |
   if al_user_wants_reminders and task_not_yet_performed(f"al_reminder_initial_reminder"):
     if al_user_preferred_reminder_formats.get("email") and task_not_yet_performed(f"al_reminder_initial_reminder_email"):
       if not send_email(to=al_user_reminder_email, template=value(al_reminders.initial_email_template), task=f"al_reminder_initial_reminder_email"):
-        log(f"{ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}")
+        log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}")
     if al_user_preferred_reminder_formats.get("sms") and task_not_yet_performed(f"al_reminder_initial_reminder_sms"):
       if not send_sms(to=al_user_reminder_phone, template=value(al_reminders.initial_sms_template), task=f"al_reminder_initial_reminder_sms"):
-        log(f"{ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}")
+        log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}")
     mark_task_as_performed(f"al_reminder_initial_reminder")
 
   al_reminders_sent_initial_test_message = True
