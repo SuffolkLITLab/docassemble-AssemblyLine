@@ -1,4 +1,47 @@
 ---
+comment: |
+  To use this reminder system, include `docassemble.AssemblyLine:al_reminders.yml` in your interview and define a dictionary 
+  named `al_reminders` with these keys:
+
+      * A key for each reminder, which is itself a dictionary with:
+          * `description`: description of the reminder's purpose
+          * `date`: date the reminder should be sent. it is calculated only once
+          * `email template`: name of a docassemble template block
+          * `sms template`: name of a docassemble template block
+
+
+  A complete example is contained below:
+      ---
+      variable name: al_reminders
+      use objects: True
+      data:
+        filing_documents:
+          description: Filing these documents
+          date: ${ today().plus(days=3).format("yyyy-MM-dd") }
+          email template: al_reminder_filing_template
+          sms template: al_reminder_filing_template
+
+  You will want to provide a unique Docassemble template block to define an email and SMS
+  template for each item you want to remind the user about as well.
+
+  You must also add `al_user_wants_reminders` and `al_reminders_sent_initial_test_message` at an appropriate
+  place in your interview order or main order block.
+
+  The remaining questions and templates in this YAML file should provide a good default
+  that works with most interviews. But you can customize every part of the reminder system
+  independently.
+
+  You may optionally want to copy in and customize the blocks that define:
+  * al_reminder_initial_email_template (email/SMS the user gets to let them know they are signed up for reminders)
+  * cron_daily (if you want tasks to run each day that are not related to reminders)
+  * al_reminders_evaluate_stop_cron (if you want cron to keep running after all reminders are sent. Note this include hourly, daily, weekly and monthly cron)
+  * al_user_wants_reminders (if you want to customize the question that asks the user to say what reminders they want to get)
+
+  Note that when `cron_daily` runs it changes the last modified date of a session. In turn this means that the session
+  will not get automatically deleted. So it is important to have logic that stops evaluating cron at an appropriate time
+  if you want to respect user privacy. You do not need to worry about this if you use the default `al_reminders_evaluate_stop_cron`
+  code block.
+---
 mandatory: True
 code: |
   allow_cron = True
@@ -30,7 +73,7 @@ fields:
       minlength: |
         You need to choose to get reminders by either email or SMS, or both.
     show if: al_user_wants_reminders    
-  - The email I want to use is: al_user_reminder_email
+  - Email: al_user_reminder_email
     datatype: email
     default: |
       % if defined("users[0].email"):
@@ -39,7 +82,7 @@ fields:
       ${ user_info().email }
       % endif
     show if: al_user_preferred_reminder_formats["email"]
-  - The phone number I want to use is: al_user_reminder_phone
+  - Mobile phone number: al_user_reminder_phone
     default: |
       % if defined("users[0].mobile_number"):
       ${ users[0].mobile_number }
@@ -66,7 +109,10 @@ code: |
 template: al_reminder_initial_sms_template
 content: |
   You asked to get a reminder of important dates when you used "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }".
-  You will get the reminders at this phone number. Reply STOP if you no longer want any reminders from ${ AL_ORGANIZATION_TITLE }.
+  You will get the reminders at this phone number. 
+  
+  [Unsubscribe](${ interview_url_action('al_reminders_unsubscribe_emails') }) to stop reminders from this
+  interview or reply STOP if you no longer want any reminders from ${ AL_ORGANIZATION_TITLE }.
 ---
 template: al_reminder_initial_email_template
 subject: |
@@ -74,6 +120,8 @@ subject: |
 content: |
   You asked to get a reminder of important dates when you used "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }".
   You'll get the reminders using this email address.
+
+  You will get about ${ len(al_reminders) + 1 } emails in total (including this one).
 
   You can [unsubscribe](${ interview_url_action('al_reminders_unsubscribe_emails') }) if you no longer want to get reminders.
 ---
@@ -85,9 +133,22 @@ code: |
 id: unsubscribe success
 event: al_reminders_display_unsubscribe_success
 question: |
-  You are now unsubscribed from reminders
+  You are now unsubscribed from reminders from "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }"
 subquestion: |
-  You will no longer get any reminders of important dates by email or text message.
+  You will no longer get any reminders of important dates by email or text message about this interview.
+---
+event: al_reminders_resubscribe_emails
+code: |
+  al_user_wants_reminders = True
+  al_reminders_display_resubscribe_success
+---
+id: resubscribe success
+event: al_reminders_display_resubscribe_success
+question: |
+  You are now subscribed to reminders from "${ all_variables(special='titles').get('title', AL_ORGANIZATION_TITLE) }"
+subquestion: |
+  You will continue to get any reminders of important dates by email or text message that you
+  have not already been sent.
 ---
 template: al_reminder_filing_template
 subject: |
