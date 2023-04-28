@@ -1,0 +1,223 @@
+---
+comment: |
+  To use this reminder system, include `docassemble.AssemblyLine:al_reminders.yml` in your interview and define a dictionary 
+  named `al_reminders` with these keys:
+
+      * A key for each reminder, which is itself a dictionary with:
+          * `description`: description of the reminder's purpose
+          * `date`: date the reminder should be sent. it is calculated only once
+          * `email template`: name of a docassemble template block
+          * `sms template`: name of a docassemble template block
+
+
+  A complete example is contained below:
+      ---
+      variable name: al_reminders
+      use objects: True
+      data:
+        filing_documents:
+          description: Filing these documents
+          date: ${ today().plus(days=3).format("yyyy-MM-dd") }
+          email template: al_reminder_filing_template
+          sms template: al_reminder_filing_template
+
+  You will want to provide a unique Docassemble template block to define an email and SMS
+  template for each item you want to remind the user about as well.
+
+  You must also add `al_user_wants_reminders` and `al_reminders_sent_initial_test_message` at an appropriate
+  place in your interview order or main order block.
+
+  The remaining questions and templates in this YAML file should provide a good default
+  that works with most interviews. But you can customize every part of the reminder system
+  independently.
+
+  You may optionally want to copy in and customize the blocks that define:
+  * al_reminder_initial_email_template (email/SMS the user gets to let them know they are signed up for reminders)
+  * cron_daily (if you want tasks to run each day that are not related to reminders)
+  * al_reminders_evaluate_stop_cron (if you want cron to keep running after all reminders are sent. Note this include hourly, daily, weekly and monthly cron)
+  * al_user_wants_reminders (if you want to customize the question that asks the user to say what reminders they want to get)
+
+  Note that when `cron_daily` runs it changes the last modified date of a session. In turn this means that the session
+  will not get automatically deleted. So it is important to have logic that stops evaluating cron at an appropriate time
+  if you want to respect user privacy. You do not need to worry about this if you use the default `al_reminders_evaluate_stop_cron`
+  code block.
+---
+mandatory: True
+code: |
+  allow_cron = True
+---
+id: wants reminders
+question: |
+  Would you like to get a reminder about important follow-up steps?
+subquestion: |
+  % if len(al_reminders) == 1:
+  We can send you a reminder, by text or email,
+  about ${ next(iter(al_reminders.values()))["description"][:1].lower() }${ fix_punctuation(next(iter(al_reminders.values()))["description"][1:]) }
+  % else:
+  We can send you a reminder, by text or email, about:
+
+  % for reminder in al_reminders.values():
+  * ${ reminder["description"]}
+  % endfor
+  % endif
+fields:
+  - I want to get reminders: al_user_wants_reminders
+    datatype: yesnoradio
+  - I want to get reminders by: al_user_preferred_reminder_formats
+    datatype: checkboxes
+    choices:
+      - SMS (text message): sms
+      - Email: email
+    minlength: 1
+    validation messages:
+      minlength: |
+        You need to choose to get reminders by either email or SMS, or both.
+    show if: al_user_wants_reminders    
+  - Email: al_user_reminder_email
+    datatype: email
+    default: |
+      % if defined("users[0].email"):
+      ${ users[0].email }
+      % elif user_logged_in():
+      ${ user_info().email }
+      % endif
+    show if: al_user_preferred_reminder_formats["email"]
+  - Mobile phone number: al_user_reminder_phone
+    default: |
+      % if defined("users[0].mobile_number"):
+      ${ users[0].mobile_number }
+      % elif defined("users[0].phone_number"):
+      ${ users[0].phone_number }
+      % endif
+    validate: |
+      lambda y: phone_number_is_valid(y) or validation_error("Enter a valid phone number")
+    show if: al_user_preferred_reminder_formats["sms"]
+---
+variable name: al_reminders
+use objects: True
+data:
+  filing_documents:
+    description: Filing these documents
+    date: ${ today().plus(days=3).format("yyyy-MM-dd") }
+    email template: al_reminder_filing_template
+    sms template: al_reminder_filing_template
+---
+code: |
+  al_reminders.initial_sms_template = "al_reminder_initial_sms_template"
+  al_reminders.initial_email_template = "al_reminder_initial_email_template"
+---
+template: al_reminder_initial_sms_template
+content: |
+  You asked to get a reminder of important dates when you used "${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }".
+  You will get the reminders at this phone number. 
+  
+  Click to unsubscribe ${ interview_url_action('al_reminders_unsubscribe_emails') } to stop reminders from this
+  interview or reply STOP if you no longer want any reminders from ${ AL_ORGANIZATION_TITLE }.
+---
+template: al_reminder_initial_email_template
+subject: |
+  You are now signed up for reminders
+content: |
+  You asked to get a reminder of important dates when you used "${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }".
+  You'll get the reminders using this email address.
+
+  You will get about ${ len(al_reminders) + 1 } emails in total (including this one).
+
+  You can [unsubscribe](${ interview_url_action('al_reminders_unsubscribe_emails') }) if you no longer want to get reminders.
+---
+event: al_reminders_unsubscribe_emails
+code: |
+  al_user_wants_reminders = False
+  al_reminders_display_unsubscribe_success
+---
+id: unsubscribe success
+event: al_reminders_display_unsubscribe_success
+question: |
+  You are now unsubscribed from reminders from "${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }"
+subquestion: |
+  You will no longer get any reminders of important dates by email or text message about this interview.
+
+  [Re-subscribe](${ url_action('al_reminders_resubscribe_emails') })
+back button: False  
+---
+event: al_reminders_resubscribe_emails
+code: |
+  al_user_wants_reminders = True
+  al_reminders_display_resubscribe_success
+---
+id: resubscribe success
+event: al_reminders_display_resubscribe_success
+question: |
+  You are now subscribed to reminders from "${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }"
+subquestion: |
+  You will continue to get any reminders of important dates by email or text message that you
+  have not already been sent.
+back button: False  
+---
+template: al_reminder_filing_template
+subject: |
+  Did you file your ${ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) } documents yet?
+content: |
+  If you haven't filed yet, make a plan or do it today!
+---
+event: cron_daily
+code: |
+  # NOTE: there can only be one cron_daily per interview. If you want to add additional daily cron tasks instead of replacing
+  # this one, you need to copy this block's contents into your new block.
+  # In addition, this cron will stop ALL cron tasks on the session once it runs through to the end. If you have other
+  # crons that still need to run, you need to replace this block as well.
+
+  reconsider("al_reminders_cron_daily")
+
+  # Evaluate whether all of the tasks in al_reminders_cron_daily are finished. If so, stop running
+  # cron so that last modified date of session won't keep refreshing and sessions can be automatically
+  # cleaned up
+  reconsider("al_reminders_evaluate_stop_cron")
+
+  # Every cron event should end with response()
+  response()
+---
+only sets: al_reminders_cron_daily
+code: |
+  if al_user_wants_reminders:
+    import time
+    from random import random
+    # Avoid all of the interviews using up resources at the same time, vary the start time a bit
+    time.sleep(random()*10)
+    log("Running cron")
+    for reminder in al_reminders:
+      if today() >= as_datetime(al_reminders[reminder]["date"]) and task_not_yet_performed(f"al_reminder_{reminder}"):
+        if al_user_preferred_reminder_formats.get("email") and task_not_yet_performed(f"al_reminder_{reminder}_email"):
+          if not send_email(to=al_user_reminder_email, template=value(al_reminders[reminder]["email template"]), task=f"al_reminder_{reminder}_email"):
+            log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}")
+        if al_user_preferred_reminder_formats.get("sms") and task_not_yet_performed(f"al_reminder_{reminder}_sms"):
+          if not send_sms(to=al_user_reminder_phone, template=value(al_reminders[reminder]["sms template"]), task=f"al_reminder_{reminder}_sms"):
+            log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}")
+        mark_task_as_performed(f"al_reminder_{reminder}")
+  al_reminders_cron_daily = True
+---
+only sets: al_reminders_evaluate_stop_cron
+code: |
+  if al_user_wants_reminders:
+    if all(
+      task_performed(f"al_reminder_{reminder}")
+      for reminder in al_reminders
+    ):
+      allow_cron = False # Stop calling cron on this session once all tasks performed
+  else:
+    allow_cron = False
+  al_reminders_evaluate_stop_cron = True
+---
+only sets: al_reminders_sent_initial_test_message
+code: |
+  log("Sending confirmation message")
+  if al_user_wants_reminders and task_not_yet_performed(f"al_reminder_initial_reminder"):
+    if al_user_preferred_reminder_formats.get("email") and task_not_yet_performed(f"al_reminder_initial_reminder_email"):
+      if not send_email(to=al_user_reminder_email, template=value(al_reminders.initial_email_template), task=f"al_reminder_initial_reminder_email"):
+        log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}")
+    if al_user_preferred_reminder_formats.get("sms") and task_not_yet_performed(f"al_reminder_initial_reminder_sms"):
+      if not send_sms(to=al_user_reminder_phone, template=value(al_reminders.initial_sms_template), task=f"al_reminder_initial_reminder_sms"):
+        log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}")
+    mark_task_as_performed(f"al_reminder_initial_reminder")
+
+  al_reminders_sent_initial_test_message = True
