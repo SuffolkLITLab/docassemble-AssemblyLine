@@ -62,6 +62,7 @@ features:
     - al_audio.css
     - docassemble.ALToolbox:copy_button.css
     - docassemble.ALToolbox:collapse_template.css
+    - docassemble.ALToolbox:al_three_parts_date.css
   question help button: True
   question back button: True
   progress bar: True
