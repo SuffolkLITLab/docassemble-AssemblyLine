@@ -6,6 +6,11 @@ on:
       - "**"
     tags-ignore:
       - "**"
+    paths:
+      - 'requirements.txt'
+      - '**.py'
+      - '**.yml'
+      - 'docassemble/**'
   workflow_dispatch:
     inputs:
       tags:
