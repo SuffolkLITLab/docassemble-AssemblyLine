@@ -10,7 +10,7 @@ on:
       - 'requirements.txt'
       - '**.py'
       - '**.yml'
-      - 'docassemble/AssemblyLine/**'
+      - 'docassemble/**'
   workflow_dispatch:
     inputs:
       tags:
