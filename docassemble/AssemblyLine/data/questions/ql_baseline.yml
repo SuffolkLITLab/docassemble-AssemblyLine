@@ -2229,3 +2229,84 @@ fields:
   - Suffix: x.aliases[i].suffix
     required: False
     code: name_suffix()
+---
+################## Pronouns ######################
+---
+sets:
+  - users[0].pronouns
+id: your pronouns
+question: |
+  What are your pronouns?
+fields:
+  - code: |
+      users[0].pronoun_fields(show_help=True, required=False)
+---
+generic object: ALIndividual
+sets:
+  - x.pronouns
+id: x's pronouns
+question: |
+  What are ${ x }'s pronouns?
+fields:
+  - code: |
+      x.pronoun_fields(show_help=True, required=False)
+---
+generic object: ALIndividual
+template: x.pronouns_help_text
+content: |
+  A pronoun is a word that can be used in place of your name. For example: he, she, or they.
+  Learn more at [pronouns.org](https://pronouns.org/)
+---
+template: users[0].pronouns_label
+content: |
+  Check one or more pronouns that you want people to use to refer to you
+---
+generic object: ALIndividual
+template: x.pronouns_label
+content: |
+  Choose one or more pronouns
+---
+generic object: ALIndividual
+template: x.pronoun_he_label
+content: |
+  He/him/his
+---
+generic object: ALIndividual
+template: x.pronoun_she_label
+content: |
+  She/her/hers
+---
+generic object: ALIndividual
+template: x.pronoun_they_label
+content: |
+  They/them/theirs
+---
+generic object: ALIndividual
+template: x.pronoun_ze_label
+content: |
+  Ze/hir/hirs
+---
+generic object: ALIndividual
+template: x.pronoun_zir_label
+content: |
+  Ze/zir/zirs
+---
+generic object: ALIndividual
+template: x.pronoun_prefer_not_to_say_label
+content: |
+  Prefer not to say
+---
+generic object: ALIndividual
+template: x.pronoun_unknown_label
+content: |
+  Unknown
+---
+generic object: ALIndividual
+template: x.pronoun_prefer_self_described_label
+content: |
+  Something else
+---
+generic object: ALIndividual
+template: x.pronoun_self_described_label
+content: |
+  Self described pronouns (one set per line)

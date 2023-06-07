@@ -26,6 +26,7 @@ from docassemble.base.util import (
     validation_error,
     word,
 )
+import random
 import re
 import pycountry
 
@@ -840,6 +841,72 @@ class ALIndividual(Individual):
 
         return fields
 
+    def pronoun_fields(
+        self, 
+        show_help=False, 
+        show_if: Union[str, Dict[str, str], None] = None, 
+        required: bool = False,
+        shuffle: bool = True,
+    ):
+        """
+        Return a standard multiple choice checkbox pronouns input with a "self described" option.
+
+        Options are shuffled by default.
+        """
+        shuffled_choices = [
+            {str(self.pronoun_she_label): "she/her/hers"},
+            {str(self.pronoun_he_label): "he/him/his"},
+            {str(self.pronoun_they_label): "they/them/theirs"},
+            {str(self.pronoun_ze_label): "ze/hir/hirs"},
+            {str(self.pronoun_zir_label): "ze/zir/zirs"},
+        ]
+        if shuffle:
+            random.shuffle(shuffled_choices)
+        final_choices = [
+            {str(self.pronoun_prefer_self_described_label): "self-described"},
+            {str(self.pronoun_unknown_label): "unknown"},
+        ]
+        self_described_input = {
+            "label": str(self.pronoun_self_described_label),
+            "field": self.attr_name("pronouns_self_described"),
+            "show if": self.attr_name("pronouns['self-described']"),
+            "datatype": "area",
+        }
+        fields = [
+            {
+                "label": str(self.pronouns_label),
+                "field": self.attr_name("pronouns"),
+                "datatype": "checkboxes",
+                "choices": shuffled_choices + final_choices,
+                "none of the above": str(self.pronoun_prefer_not_to_say_label),
+                "required": required,
+            },
+            self_described_input,
+        ]
+
+        if show_help:
+            fields[0]["help"] = str(self.pronouns_help_text)
+        if show_if:
+            fields[0]["show if"] = show_if
+
+        return fields
+
+    def get_pronouns(self) -> set:
+        """
+        Return a set of the individual's pronouns. If the individual's
+        pronouns include self-described pronouns, display those in place of the word "self-described".
+
+        The set can be displayed in the interview or in a template. For example:
+
+        Pronouns: {{ users[0].get_pronouns() | comma_and_list }}
+        """
+        if self.pronouns.all_false():
+            return {str(self.pronoun_prefer_not_to_say_label)}
+        pronouns = set(self.pronouns.true_values()) - {'self-described'}
+        if self.pronouns.get("self-described"):
+            pronouns = pronouns.union(self.pronouns_self_described.splitlines())
+        return pronouns
+    
     def language_fields(
         self,
         choices: Optional[List[Dict[str, str]]] = None,
