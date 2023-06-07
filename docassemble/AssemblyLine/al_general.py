@@ -842,9 +842,9 @@ class ALIndividual(Individual):
         return fields
 
     def pronoun_fields(
-        self, 
-        show_help=False, 
-        show_if: Union[str, Dict[str, str], None] = None, 
+        self,
+        show_help=False,
+        show_if: Union[str, Dict[str, str], None] = None,
         required: bool = False,
         shuffle: bool = True,
     ):
@@ -902,11 +902,11 @@ class ALIndividual(Individual):
         """
         if self.pronouns.all_false():
             return {str(self.pronoun_prefer_not_to_say_label)}
-        pronouns = set(self.pronouns.true_values()) - {'self-described'}
+        pronouns = set(self.pronouns.true_values()) - {"self-described"}
         if self.pronouns.get("self-described"):
             pronouns = pronouns.union(self.pronouns_self_described.splitlines())
         return pronouns
-    
+
     def language_fields(
         self,
         choices: Optional[List[Dict[str, str]]] = None,
