@@ -2282,11 +2282,6 @@ content: |
   They/them/theirs
 ---
 generic object: ALIndividual
-template: x.pronoun_ze_label
-content: |
-  Ze/hir/hirs
----
-generic object: ALIndividual
 template: x.pronoun_zir_label
 content: |
   Ze/zir/zirs
@@ -2309,4 +2304,4 @@ content: |
 generic object: ALIndividual
 template: x.pronoun_self_described_label
 content: |
-  Self described pronouns (one set per line)
+  Self described pronouns

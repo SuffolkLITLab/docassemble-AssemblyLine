@@ -1,4 +1,4 @@
-from typing import Dict, List, Union, Optional
+from typing import Dict, List, Literal, Union, Optional
 from docassemble.base.util import (
     Address,
     as_datetime,
@@ -846,7 +846,8 @@ class ALIndividual(Individual):
         show_help=False, 
         show_if: Union[str, Dict[str, str], None] = None, 
         required: bool = False,
-        shuffle: bool = True,
+        shuffle: bool = False,
+        show_unknown: Optional[Union[Literal["guess"], bool]] = "guess"
     ):
         """
         Return a standard multiple choice checkbox pronouns input with a "self described" option.
@@ -857,20 +858,19 @@ class ALIndividual(Individual):
             {str(self.pronoun_she_label): "she/her/hers"},
             {str(self.pronoun_he_label): "he/him/his"},
             {str(self.pronoun_they_label): "they/them/theirs"},
-            {str(self.pronoun_ze_label): "ze/hir/hirs"},
             {str(self.pronoun_zir_label): "ze/zir/zirs"},
         ]
         if shuffle:
             random.shuffle(shuffled_choices)
         final_choices = [
             {str(self.pronoun_prefer_self_described_label): "self-described"},
-            {str(self.pronoun_unknown_label): "unknown"},
         ]
+        if show_unknown == True or (show_unknown == "guess" and self.instanceName != "users[0]"):
+            final_choices.append({str(self.pronoun_unknown_label): "unknown"})
         self_described_input = {
             "label": str(self.pronoun_self_described_label),
             "field": self.attr_name("pronouns_self_described"),
             "show if": self.attr_name("pronouns['self-described']"),
-            "datatype": "area",
         }
         fields = [
             {
