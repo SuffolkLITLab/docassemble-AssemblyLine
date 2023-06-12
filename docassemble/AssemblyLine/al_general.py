@@ -847,7 +847,7 @@ class ALIndividual(Individual):
         show_if: Union[str, Dict[str, str], None] = None,
         required: bool = False,
         shuffle: bool = False,
-        show_unknown: Optional[Union[Literal["guess"], bool]] = "guess"
+        show_unknown: Optional[Union[Literal["guess"], bool]] = "guess",
     ):
         """
         Return a standard multiple choice checkbox pronouns input with a "self described" option.
@@ -865,7 +865,9 @@ class ALIndividual(Individual):
         final_choices = [
             {str(self.pronoun_prefer_self_described_label): "self-described"},
         ]
-        if show_unknown == True or (show_unknown == "guess" and self.instanceName != "users[0]"):
+        if show_unknown == True or (
+            show_unknown == "guess" and self.instanceName != "users[0]"
+        ):
             final_choices.append({str(self.pronoun_unknown_label): "unknown"})
         self_described_input = {
             "label": str(self.pronoun_self_described_label),
