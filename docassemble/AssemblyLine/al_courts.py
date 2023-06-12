@@ -13,6 +13,7 @@ from docassemble.base.util import (
     space_to_underscore,
 )
 from docassemble.base.legal import Court
+from .al_general import ALAddress
 
 __all__ = [
     "ALCourt",
@@ -29,7 +30,7 @@ class ALCourt(Court):
     def init(self, *pargs, **kwargs):
         super().init(*pargs, **kwargs)
         if "address" not in kwargs:
-            self.initializeAttribute("address", Address)
+            self.initializeAttribute("address", ALAddress)
         if (
             "jurisdiction" not in kwargs
         ):  # This attribute isn't used. Could be a better way to handle court locating
