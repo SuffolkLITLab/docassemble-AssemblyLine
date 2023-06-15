@@ -107,7 +107,8 @@ FieldEntry = TypedDict(
         "default": str,
         "code": str,
         "address autocomplete": bool,
-        "choices": Union[List[str], Dict[str, str]],
+        "choices": Union[List[str], List[Dict[str, str]]],
+        "none of the above": str,
         "required": bool,
     },
     total=False,
@@ -1407,7 +1408,7 @@ class ALIndividual(Individual):
         if callable(choices):
             choices = choices()
 
-        self_described_input = {
+        self_described_input: FieldEntry = {
             "label": str(self.gender_self_described_label),
             "field": self.attr_name("gender"),
             "show if": {"variable": self.attr_name("gender"), "is": "self-described"},
@@ -1476,12 +1477,12 @@ class ALIndividual(Individual):
             show_unknown == "guess" and self.instanceName != "users[0]"
         ):
             final_choices.append({str(self.pronoun_unknown_label): "unknown"})
-        self_described_input = {
+        self_described_input: FieldEntry = {
             "label": str(self.pronoun_self_described_label),
             "field": self.attr_name("pronouns_self_described"),
             "show if": self.attr_name("pronouns['self-described']"),
         }
-        fields = [
+        fields: Fields = [
             {
                 "label": str(self.pronouns_label),
                 "field": self.attr_name("pronouns"),
@@ -1570,7 +1571,7 @@ class ALIndividual(Individual):
             ]
         if callable(choices):
             choices = choices()
-        other = {
+        other: FieldEntry = {
             "label": str(self.language_other_label),
             "field": self.attr_name("language_other"),
             "show if": {"variable": self.attr_name("language"), "is": "other"},
