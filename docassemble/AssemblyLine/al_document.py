@@ -2150,7 +2150,7 @@ class ALDocumentBundle(DAList):
             safe_zip_row_label: str = (
                 zip_row_label or (hasattr(self, "title") and self.title) or zip_label
             )
-            html += table_row(safe_zip_row_label, zip_button)
+            html += table_row(safe_zip_row_label, [zip_button])
 
         if include_full_pdf and bundled_pdf:
             if not full_pdf_label:
@@ -2166,7 +2166,7 @@ class ALDocumentBundle(DAList):
                 size="md",
                 classname="al_full_pdf al_button",
             )
-            html += table_row(full_pdf_label, full_pdf_button)
+            html += table_row(full_pdf_label, [full_pdf_button])
 
         if include_email:
             html += self.send_email_table_row(

@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Callable, Dict, List, Literal, Union, Optional, Any
+from typing import Callable, Dict, List, Literal, Union, Optional, Any, TypedDict
 from docassemble.base.util import (
     Address,
     as_datetime,
@@ -93,6 +93,28 @@ def safe_subdivision_type(country_code: str) -> Optional[str]:
         return None
 
 
+FieldEntry = TypedDict(
+    "FieldEntry",
+    {
+        "label": str,
+        "field": str,
+        "datatype": str,
+        "rows": int,
+        "help": str,
+        "show if": Union[str, Dict[str, str]],
+        "hide if": str,
+        "input type": str,
+        "default": str,
+        "code": str,
+        "address autocomplete": bool,
+        "choices": Union[List[str], Dict[str, str]],
+        "required": bool,
+    },
+    total=False,
+)
+Fields = List[FieldEntry]
+
+
 class ALAddress(Address):
     """
     This class is used to store addresses. The ALAddress class extends the Address
@@ -120,7 +142,7 @@ class ALAddress(Address):
         ask_if_impounded: Optional[bool] = False,
         maxlengths: Optional[Dict[str, int]] = None,
         required: Optional[Dict[str, bool]] = None,
-    ) -> List[Dict[str, Any]]:
+    ) -> Fields:
         """
         Return a YAML structure representing the list of fields for the object's address.
 
@@ -166,7 +188,7 @@ class ALAddress(Address):
         if not country_code:
             country_code = get_country()
         if allow_no_address:
-            fields = [
+            fields: Fields = [
                 {
                     "label": str(self.has_no_address_label),
                     "field": self.attr_name("has_no_address"),
@@ -1115,7 +1137,7 @@ class ALIndividual(Individual):
         suffix_choices: Optional[Union[List[str], Callable]] = None,
         title_options: Optional[Union[List[str], Callable]] = None,
         required: Optional[Dict[str, bool]] = None,
-    ) -> List[Dict[str, str]]:
+    ) -> Fields:
         """
         Generates suitable field prompts for a name based on the type of entity (person or business)
         and other provided parameters.
@@ -1161,7 +1183,7 @@ class ALIndividual(Individual):
             title_choices = title_choices()
 
         if person_or_business == "person":
-            fields = [
+            fields: Fields = [
                 {
                     "label": str(self.first_name_label),
                     "field": self.attr_name("name.first"),
@@ -1355,7 +1377,7 @@ class ALIndividual(Individual):
         maxlengths: Optional[Dict[str, int]] = None,
         choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
         required: Optional[Dict[str, bool]] = None,
-    ) -> List[Dict[str, str]]:
+    ) -> Fields:
         """
         Generate fields for capturing gender information, including a
         self-described option.
@@ -1390,7 +1412,7 @@ class ALIndividual(Individual):
             "field": self.attr_name("gender"),
             "show if": {"variable": self.attr_name("gender"), "is": "self-described"},
         }
-        fields = [
+        fields: Fields = [
             {
                 "label": str(self.gender_label),
                 "field": self.attr_name("gender"),
@@ -1526,7 +1548,7 @@ class ALIndividual(Individual):
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
         required: Optional[Dict[str, bool]] = None,
-    ) -> List[Dict[str, str]]:
+    ) -> Fields:
         """
         Generate fields for capturing language preferences.
 
@@ -1553,7 +1575,7 @@ class ALIndividual(Individual):
             "field": self.attr_name("language_other"),
             "show if": {"variable": self.attr_name("language"), "is": "other"},
         }
-        fields = [
+        fields: Fields = [
             {
                 "label": str(self.language_label),
                 "field": self.attr_name("language"),

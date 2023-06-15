@@ -1511,7 +1511,7 @@ def export_interview_variables(
     filename: Optional[str] = None,
     session_id: Optional[str] = None,
     variables_to_filter: Union[Set, List[str], None] = None,
-    output: DAFile = None,
+    output: Optional[DAFile] = None,
     additional_variables_to_filter: Union[Set, List[str], None] = None,
 ) -> DAFile:
     """
