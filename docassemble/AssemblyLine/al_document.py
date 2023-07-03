@@ -1425,6 +1425,31 @@ class ALDocumentBundle(DAList):
 
         return html
 
+    def send_button_to_html(
+            self,
+            email: str,
+            key: str = "final",
+            editable: bool = False,
+    ) -> str:
+        """
+        Generate HTML for a button that allows someone to send the bundle to a specific
+        email address. The email address is not editable by the end user in contrast to
+        send_button_html
+        """
+        if not self.has_enabled_documents():
+            return ""  # Don't let people email an empty set of documents
+        if not hasattr(self, "_cached_get_email_copy"):
+            self._cached_get_email_copy = str(self.get_email_copy)
+        name = html_safe_str(self.instanceName)
+        al_send_button_id = "al_send_email_to_button_" + name
+
+        javascript_string = (
+            f"javascript:aldocument_send_action("
+            f"'{self.attr_name('send_email_action_event')}',"
+            f"'{editable}','{email}')"
+        )
+
+
     def send_button_html(
         self, key: str = "final", show_editable_checkbox: bool = True
     ) -> str:
