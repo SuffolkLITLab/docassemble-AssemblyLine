@@ -1,4 +1,4 @@
-name: Use ALKiln testing framework v4 to run tests
+name: ALKiln v5 tests
 
 on:
   push:
@@ -28,9 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Run interview tests
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Use ALKiln to run tests
-        uses: SuffolkLITLab/ALKiln@releases/v4
+        uses: SuffolkLITLab/ALKiln@v5
         with:
           SERVER_URL: "${{ secrets.SERVER_URL }}"
           DOCASSEMBLE_DEVELOPER_API_KEY: "${{ secrets.DOCASSEMBLE_DEVELOPER_API_KEY }}"
