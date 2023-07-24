@@ -220,7 +220,7 @@ class ALAddendumField(DAObject):
         input_width: int = 80,
         preserve_newlines: bool = False,
         _original_value: Optional[str] = None,
-        preserve_words: bool = True,                     
+        preserve_words: bool = True,
     ) -> bool:
         """
         Return True only if the value's length exceeds the overflow trigger.
@@ -243,7 +243,16 @@ class ALAddendumField(DAObject):
         else:
             val = self.value_if_defined()
 
-        return not (self.safe_value(overflow_message=overflow_message, input_width=input_width, preserve_newlines=preserve_newlines, _original_value=_original_value, preserve_words=preserve_words) == val)
+        return not (
+            self.safe_value(
+                overflow_message=overflow_message,
+                input_width=input_width,
+                preserve_newlines=preserve_newlines,
+                _original_value=_original_value,
+                preserve_words=preserve_words,
+            )
+            == val
+        )
 
     def original_or_overflow_message(
         self,
@@ -276,10 +285,16 @@ class ALAddendumField(DAObject):
         else:
             val = self.value_if_defined()
 
-        if not self.has_overflow(overflow_message=overflow_message, input_width=input_width, preserve_newlines=preserve_newlines, _original_value=val, preserve_words=preserve_words):
+        if not self.has_overflow(
+            overflow_message=overflow_message,
+            input_width=input_width,
+            preserve_newlines=preserve_newlines,
+            _original_value=val,
+            preserve_words=preserve_words,
+        ):
             return val
 
-        return overflow_message   
+        return overflow_message
 
     def safe_value(
         self,
@@ -328,7 +343,9 @@ class ALAddendumField(DAObject):
             return value
 
         max_lines = self.max_lines(input_width=input_width)
-        max_chars = max(self.overflow_trigger - len(overflow_message), 1) # width needs to be at least 1 char
+        max_chars = max(
+            self.overflow_trigger - len(overflow_message), 1
+        )  # width needs to be at least 1 char
 
         # Strip newlines from strings because they take extra space
         if isinstance(value, str):
@@ -909,7 +926,7 @@ class ALDocument(DADict):
         """
         if overflow_message is None:
             overflow_message = self.default_overflow_message
-        
+
         return self.overflow_fields[field_name].original_or_overflow_message(
             overflow_message=overflow_message,
             input_width=input_width,
@@ -1603,7 +1620,7 @@ class ALDocumentBundle(DAList):
         **kwargs,
     ) -> bool:
         """
-        Send an email with the current bundle as a series of flat pdfs (one per bundle entry) or 
+        Send an email with the current bundle as a series of flat pdfs (one per bundle entry) or
         as editable documents.
         Can be used the same as https://docassemble.org/docs/functions.html#send_email with
         two optional additional params.
