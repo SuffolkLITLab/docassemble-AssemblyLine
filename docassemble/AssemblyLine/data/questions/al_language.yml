@@ -11,7 +11,10 @@ code: |
   enable_al_language = True
 ---
 code: |
-  al_interview_languages = ["en"]
+  al_user_default_language = "en"
+---
+code: |
+  al_interview_languages = [al_user_default_language]
 ---
 default screen parts:
   navigation bar html: |
@@ -29,7 +32,7 @@ code: |
     if url_args.get('lang'):
       al_user_language = url_args.get('lang')
     else:
-      al_user_language= 'en'
+      al_user_language = al_user_default_language
 ---
 event: al_change_language
 code: |
