@@ -1,55 +1,196 @@
 # coding=utf-8
-from docassemble.base.functions import url_action
+from typing import List, Optional, Tuple
+from docassemble.base.util import url_action, path_and_mimetype
+import yaml
+import pycountry
 
 __all__ = [
     "get_tuples",
+    "get_language_list_dropdown",
+    "get_language_list_dropdown_item",
     "get_language_list",
     "get_language_list_item",
 ]
 
 
-def get_tuples(lang_codes):
-    """Returns a list of tuples representing the language name, followed by language ISO 639-1 code.
-    Right now only lists languages in use by Massachusetts Defense for Eviction (MADE).
+def get_tuples(
+    lang_codes: List[str], languages_path: Optional[str] = None
+) -> List[Tuple[str, str]]:
     """
-    long_langs = {
-        "en": "English",
-        "es": "Español",
-        "vi": "Tiếng Việt",
-        "ht": "Kreyòl",
-        "zh-t": "中文",
-        "pt": "Português",
-    }
-    tuples = []
-    for lang in lang_codes:
-        if lang in long_langs:
-            tuples.append((long_langs[lang], lang))
-    return tuples
+    Returns a list of tuples representing the language name, followed by language ISO 639-1 code.
+
+    It will use the native_name value from the languages.yml file if available, otherwise it will use the
+    English name from pycountry. If neither is present, it will use the language code itself.
+
+    Args:
+        lang_codes: a list of ISO 639-1 language codes (e.g. ['en', 'es'])
+        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
+
+    Returns:
+        A list of tuples representing the language name, followed by language ISO 639-1 code.
+
+    """
+    if not languages_path:
+        languages_path = path_and_mimetype("data/sources/languages.yml")[0]
+
+    if languages_path is not None:
+        with open(languages_path, "r", encoding="utf-8") as stream:
+            # use our hand-built dictionary matching languages to native name for languages
+            # if it is available
+            languages = yaml.safe_load(stream)
+        tuples = []
+        for lang in lang_codes:
+            # English name
+            try:
+                english_name = pycountry.languages.get(alpha_2=lang).name
+            except:
+                english_name = lang
+            tuples.append((languages[lang].get("native_name", english_name), lang))
+        return tuples
+    else:
+        # Get the english name for the language code from pycountry as a fallback
+        return [
+            (
+                pycountry.languages.get(alpha_2=lang).name
+                if pycountry.languages.get(alpha_2=lang)
+                else lang,
+                lang,
+            )
+            for lang in lang_codes
+        ]
 
 
-def get_language_list(languages, current=""):
-    """given a list of ordered tuples with (Description, language_code), returns
-    an Bootstrap-formatted unordered inline list. The current language will not be a link.
+def get_language_list_dropdown(
+    lang_codes: List[str],
+    current: str = "",
+    languages_path: Optional[str] = None,
+    event_name="change_language",
+    icon="fa-solid fa-language",
+) -> str:
     """
+    Get a Bootstrap 5 dropdown menu for language selection that can be added to navigation bar.
+
+    Args:
+        lang_codes: a list of ISO 639-1 language codes (e.g. ['en', 'es'])
+        current: the current language code
+        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
+        event_name: the name of the event to trigger when the language is changed
+        icon: the name of the icon to use for the dropdown menu (defaults to fa-solid fa-language)
+
+    Returns:
+      A string containing the HTML for a dropdown menu for language selection.
+    """
+    list_start = f"""<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle text-light" href="#" id="languageSelector" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Language selection">
+      <i class="{icon}"></i>
+    </a>
+    <div class="dropdown-menu" aria-labelledby="languageSelector">
+  """
+    list_end = """
+    </div>
+  </li>
+  """
+    if not languages_path:
+        languages_path = path_and_mimetype("data/sources/languages.yml")[0]
+    languages = get_tuples(lang_codes, languages_path=languages_path)
+
+    for language in languages:
+        if language[1] == current:
+            list_start += get_language_list_dropdown_item(
+                language, link=False, event_name=event_name
+            )
+        else:
+            list_start += get_language_list_dropdown_item(
+                language, event_name=event_name
+            )
+    return list_start + list_end
+
+
+def get_language_list_dropdown_item(
+    language: Tuple[str, str], link: bool = True, event_name="change_language"
+) -> str:
+    """Given an ordered tuple, returns a link to the current interview with lang=language code and the link title
+    given in the first part of the tuple.
+
+    Args:
+        language: a tuple containing the language name and language code
+        link: whether to return a link or just the text
+        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
+        event_name: the name of the event to trigger when the language is changed
+
+    Returns:
+        A string containing the HTML for a dropdown menu item for language selection.
+    """
+
+    if link:
+        return f"""<a class="dropdown-item" href="{ url_action(event_name, lang = language[1]) }">{ language[0] }</a>"""
+    else:
+        return f'<span class="dropdown-item-text">{ language[0] }</span>'
+
+
+def get_language_list(
+    languages: Optional[List[Tuple[str, str]]] = None,
+    current="",
+    lang_codes: Optional[List[str]] = None,
+    languages_path: Optional[str] = None,
+    event_name="change_language",
+) -> str:
+    """
+    Given a list of language codes, returns
+    a Bootstrap-formatted unordered inline list. The current language will not be a link.
+
+    Deprecated behavior: instead of a list of language codes, you can provide list of
+    tuples containing the language name and language code. This is deprecated and may be removed in a future version.
+
+    Args:
+        languages: a list of tuples containing the language name and language code (deprecated)
+        lang_codes: a list of ISO 639-1 language codes (e.g. ['en', 'es'])
+        current: the current language code
+        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
+        event_name: the name of the event to trigger when the language is changed
+
+
+    Returns:
+        A string containing the HTML for an unordered inline list of language selection.
+    """
+    if not languages_path:
+        languages_path = path_and_mimetype("data/sources/languages.yml")[0]
+    if not languages:
+        if not lang_codes:
+            raise ValueError("Either languages or lang_codes must be provided")
+        languages = get_tuples(lang_codes, languages_path=languages_path)
+
     list_start = '<ul class="list-inline">'
     list_start += '<li class="list-inline-item"><b>Language</b>:</li>'
     list_end = "</ul>"
     for language in languages:
         if language[1] == current:
-            list_start += get_language_list_item(language, link=False)
+            list_start += get_language_list_item(
+                language, link=False, event_name=event_name
+            )
         else:
-            list_start += get_language_list_item(language)
+            list_start += get_language_list_item(language, event_name=event_name)
     return list_start + list_end
 
 
-def get_language_list_item(language, link=True):
+def get_language_list_item(language, link=True, event_name="change_language"):
     """Given an ordered tuple, returns a link to the current interview with lang=language code and the link title
-    given in the first part of the tuple."""
+    given in the first part of the tuple.
+
+    Args:
+        language: a tuple containing the language name and language code
+        link: whether to return a link or just the text
+        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
+        event_name: the name of the event to trigger when the language is changed
+
+    Returns:
+        A string containing the HTML for an unordered inline list item for language selection.
+    """
     li_start = '<li class="list-inline-item">'
     li_end = "</li>"
 
     if link:
-        iurl = url_action("change_language", lang=language[1])
+        iurl = url_action(event_name, lang=language[1])
         return (
             li_start
             + '<a target="_self" href="'
