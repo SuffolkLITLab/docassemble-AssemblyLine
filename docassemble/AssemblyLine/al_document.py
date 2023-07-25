@@ -243,7 +243,7 @@ class ALAddendumField(DAObject):
         else:
             val = self.value_if_defined()
 
-        return not (
+        return (
             self.safe_value(
                 overflow_message=overflow_message,
                 input_width=input_width,
@@ -251,7 +251,7 @@ class ALAddendumField(DAObject):
                 _original_value=_original_value,
                 preserve_words=preserve_words,
             )
-            == val
+            != val
         )
 
     def original_or_overflow_message(
