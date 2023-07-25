@@ -64,7 +64,7 @@ def get_language_list_dropdown(
     lang_codes: List[str],
     current: str = "",
     languages_path: Optional[str] = None,
-    event_name="change_language",
+    event_name="al_change_language",
     icon="fa-solid fa-language",
 ) -> str:
     """
@@ -107,7 +107,7 @@ def get_language_list_dropdown(
 
 
 def get_language_list_dropdown_item(
-    language: Tuple[str, str], link: bool = True, event_name="change_language"
+    language: Tuple[str, str], link: bool = True, event_name="al_change_language"
 ) -> str:
     """Given an ordered tuple, returns a link to the current interview with lang=language code and the link title
     given in the first part of the tuple.
@@ -133,7 +133,7 @@ def get_language_list(
     current="",
     lang_codes: Optional[List[str]] = None,
     languages_path: Optional[str] = None,
-    event_name="change_language",
+    event_name="al_change_language",
 ) -> str:
     """
     Given a list of language codes, returns
@@ -173,7 +173,7 @@ def get_language_list(
     return list_start + list_end
 
 
-def get_language_list_item(language, link=True, event_name="change_language"):
+def get_language_list_item(language, link=True, event_name="al_change_language"):
     """Given an ordered tuple, returns a link to the current interview with lang=language code and the link title
     given in the first part of the tuple.
 

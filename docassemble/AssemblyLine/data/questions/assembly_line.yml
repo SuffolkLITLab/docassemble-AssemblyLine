@@ -1,6 +1,7 @@
 # For usage, see https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/framework/magic_variables
 ---
 include:
+  - al_language.yml
   - al_settings.yml
   - al_code.yml
   - al_saved_sessions.yml  
