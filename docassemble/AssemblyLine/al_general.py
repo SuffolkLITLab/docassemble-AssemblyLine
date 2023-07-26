@@ -1037,7 +1037,7 @@ class ALIndividual(Individual):
                 bare=bare,
             )
         )
-    
+
     def pronoun(self, **kwargs):
         """Returns a pronoun as appropriate, based on attributes.
 
@@ -1045,7 +1045,7 @@ class ALIndividual(Individual):
         on the `gender` and `person_type` attributes and whether the individual
         is the current user.
 
-        If the user selected specific pronouns, they take priority over 
+        If the user selected specific pronouns, they take priority over
         gender (only if they chose a pronoun from the list)
 
         Args:
@@ -1055,8 +1055,14 @@ class ALIndividual(Individual):
             str: The appropriate pronoun.
         """
         if self == this_thread.global_vars.user:
-            output = word('you', **kwargs)
-        elif hasattr(self, "pronouns") and isinstance(self.pronouns, DADict) and len(self.pronouns.true_values()) == 1 and self.pronouns.true_values()[0] in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]:
+            output = word("you", **kwargs)
+        elif (
+            hasattr(self, "pronouns")
+            and isinstance(self.pronouns, DADict)
+            and len(self.pronouns.true_values()) == 1
+            and self.pronouns.true_values()[0]
+            in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+        ):
             if self.pronouns["she/her/hers"]:
                 output = word("her", **kwargs)
             elif self.pronouns["he/him/his"]:
@@ -1065,15 +1071,18 @@ class ALIndividual(Individual):
                 output = word("them", **kwargs)
             elif self.pronouns["ze/zir/zirs"]:
                 output = word("zir", **kwargs)
-        elif hasattr(self, "person_type") and self.person_type in ["business", "organization"]:
+        elif hasattr(self, "person_type") and self.person_type in [
+            "business",
+            "organization",
+        ]:
             output = word("it", **kwargs)
-        elif self.gender.lower() == 'female':
-            output = word('her', **kwargs)
+        elif self.gender.lower() == "female":
+            output = word("her", **kwargs)
         elif self.gender.lower() == "male":
-            output = word('him', **kwargs)
+            output = word("him", **kwargs)
         else:
-            output = word('them', **kwargs)
-        if 'capitalize' in kwargs and kwargs['capitalize']:
+            output = word("them", **kwargs)
+        if "capitalize" in kwargs and kwargs["capitalize"]:
             return capitalize(output)
         return output
 
@@ -1087,7 +1096,7 @@ class ALIndividual(Individual):
             str: The appropriate objective pronoun.
         """
         return self.pronoun(**kwargs)
-    
+
     def pronoun_possessive(self, target, **kwargs):
         """Returns a possessive pronoun and a target word, based on attributes.
 
@@ -1102,9 +1111,17 @@ class ALIndividual(Individual):
         Returns:
             str: The appropriate possessive phrase.
         """
-        if self == this_thread.global_vars.user and ('thirdperson' not in kwargs or not kwargs['thirdperson']):
+        if self == this_thread.global_vars.user and (
+            "thirdperson" not in kwargs or not kwargs["thirdperson"]
+        ):
             output = your(target, **kwargs)
-        elif hasattr(self, "pronouns") and isinstance(self.pronouns, DADict) and len(self.pronouns.true_values()) == 1 and self.pronouns.true_values()[0] in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]:
+        elif (
+            hasattr(self, "pronouns")
+            and isinstance(self.pronouns, DADict)
+            and len(self.pronouns.true_values()) == 1
+            and self.pronouns.true_values()[0]
+            in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+        ):
             if self.pronouns["she/her/hers"]:
                 output = her(target, **kwargs)
             elif self.pronouns["he/him/his"]:
@@ -1113,15 +1130,18 @@ class ALIndividual(Individual):
                 output = their(target, **kwargs)
             elif self.pronouns["ze/zir/zirs"]:
                 output = word("zir", **kwargs) + " " + target
-        elif hasattr(self, "person_type") and self.person_type in ["business", "organization"]:
+        elif hasattr(self, "person_type") and self.person_type in [
+            "business",
+            "organization",
+        ]:
             output = its(target, **kwargs)
-        elif self.gender.lower() == 'female':
+        elif self.gender.lower() == "female":
             output = her(target, **kwargs)
         elif self.gender.lower() == "male":
             output = his(target, **kwargs)
         else:
             output = their(target, **kwargs)
-        if 'capitalize' in kwargs and kwargs['capitalize']:
+        if "capitalize" in kwargs and kwargs["capitalize"]:
             return capitalize(output)
         return output
 
@@ -1138,9 +1158,17 @@ class ALIndividual(Individual):
         Returns:
             str: The appropriate subjective pronoun.
         """
-        if self == this_thread.global_vars.user and ('thirdperson' not in kwargs or not kwargs['thirdperson']):
-            output = word('you', **kwargs)
-        elif hasattr(self, "pronouns") and isinstance(self.pronouns, DADict) and len(self.pronouns.true_values()) == 1 and self.pronouns.true_values()[0] in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]:
+        if self == this_thread.global_vars.user and (
+            "thirdperson" not in kwargs or not kwargs["thirdperson"]
+        ):
+            output = word("you", **kwargs)
+        elif (
+            hasattr(self, "pronouns")
+            and isinstance(self.pronouns, DADict)
+            and len(self.pronouns.true_values()) == 1
+            and self.pronouns.true_values()[0]
+            in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+        ):
             if self.pronouns["she/her/hers"]:
                 output = word("she", **kwargs)
             elif self.pronouns["he/him/his"]:
@@ -1149,15 +1177,18 @@ class ALIndividual(Individual):
                 output = word("they", **kwargs)
             elif self.pronouns["ze/zir/zirs"]:
                 output = word("ze", **kwargs)
-        elif hasattr(self, "person_type") and self.person_type in ["business", "organization"]:
+        elif hasattr(self, "person_type") and self.person_type in [
+            "business",
+            "organization",
+        ]:
             output = word("it", **kwargs)
-        elif self.gender.lower() == 'female':
-            output = word('she', **kwargs)
+        elif self.gender.lower() == "female":
+            output = word("she", **kwargs)
         elif self.gender.lower() == "male":
-            output = word('he', **kwargs)
+            output = word("he", **kwargs)
         else:
-            output = word('they', **kwargs)
-        if 'capitalize' in kwargs and kwargs['capitalize']:
+            output = word("they", **kwargs)
+        if "capitalize" in kwargs and kwargs["capitalize"]:
             return capitalize(output)
         return output
 
