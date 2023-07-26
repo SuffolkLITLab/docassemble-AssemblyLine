@@ -2,6 +2,7 @@ from typing import Dict, List, Literal, Union, Optional
 from docassemble.base.util import (
     Address,
     as_datetime,
+    capitalize,
     comma_and_list,
     comma_list,
     country_name,
@@ -13,18 +14,23 @@ from docassemble.base.util import (
     ensure_definition,
     get_config,
     get_country,
+    her,
+    his,
     Individual,
     IndividualName,
+    its,
     name_suffix,
     phone_number_formatted,
     phone_number_is_valid,
     state_name,
     states_list,
     subdivision_type,
+    their,
     this_thread,
     url_action,
     validation_error,
     word,
+    your,
 )
 import random
 import re
@@ -952,13 +958,13 @@ class ALIndividual(Individual):
     def gender_male(self):
         """Provide True/False for 'male' gender to assist with checkbox filling
         in PDFs with "skip undefined" turned on."""
-        return self.gender == "male"
+        return self.gender.lower() == "male"
 
     @property
     def gender_female(self):
         """Provide True/False for 'female' gender to assist with checkbox filling
         in PDFs with "skip undefined" turned on."""
-        return self.gender == "female"
+        return self.gender.lower() == "female"
 
     @property
     def gender_other(self):
@@ -971,19 +977,19 @@ class ALIndividual(Individual):
     def gender_nonbinary(self):
         """Provide True/False for 'nonbinary' gender to assist with checkbox filling
         in PDFs with "skip undefined" turned on."""
-        return self.gender == "nonbinary"
+        return self.gender.lower() == "nonbinary"
 
     @property
     def gender_unknown(self):
         """Provide True/False for 'unknown' gender to assist with checkbox filling
         in PDFs with "skip undefined" turned on."""
-        return self.gender == "unknown"
+        return self.gender.lower() == "unknown"
 
     @property
     def gender_undisclosed(self):
         """Provide True/False for 'prefer-not-to-say' gender to assist with checkbox filling
         in PDFs with "skip undefined" turned on."""
-        return self.gender == "prefer-not-to-say"
+        return self.gender.lower() == "prefer-not-to-say"
 
     @property
     def gender_self_described(self):
@@ -1030,6 +1036,99 @@ class ALIndividual(Individual):
                 bare=bare,
             )
         )
+    
+    def pronoun(self, **kwargs):
+        """Returns a pronoun as appropriate, based on attributes.
+
+        The pronoun could be "you," "her," "him," "it," or "them". It depends
+        on the `gender` and `person_type` attributes and whether the individual
+        is the current user.
+
+        Args:
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            str: The appropriate pronoun.
+        """
+        if self == this_thread.global_vars.user:
+            output = word('you', **kwargs)
+        elif hasattr(self, "person_type") and self.person_type in ["business", "organization"]:
+            output = word("it", **kwargs)
+        elif self.gender.lower() == 'female':
+            output = word('her', **kwargs)
+        elif self.gender.lower() == "male":
+            output = word('him', **kwargs)
+        else:
+            output = word('them', **kwargs)
+        if 'capitalize' in kwargs and kwargs['capitalize']:
+            return capitalize(output)
+        return output
+
+    def pronoun_objective(self, **kwargs):
+        """Returns the same pronoun as the `pronoun()` method.
+
+        Args:
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            str: The appropriate objective pronoun.
+        """
+        return self.pronoun(**kwargs)
+    
+    def pronoun_possessive(self, target, **kwargs):
+        """Returns a possessive pronoun and a target word, based on attributes.
+
+        Given a target word, the function returns "{pronoun} {target}". The pronoun could be
+        "her," "his," "its," or "their". It depends on the `gender` and `person_type` attributes
+        and whether the individual is the current user.
+
+        Args:
+            target (str): The target word to follow the pronoun.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            str: The appropriate possessive phrase.
+        """
+        if self == this_thread.global_vars.user and ('thirdperson' not in kwargs or not kwargs['thirdperson']):
+            output = your(target, **kwargs)
+        elif hasattr(self, "person_type") and self.person_type in ["business", "organization"]:
+            output = its(target, **kwargs)
+        elif self.gender.lower() == 'female':
+            output = her(target, **kwargs)
+        elif self.gender.lower() == "male":
+            output = his(target, **kwargs)
+        else:
+            output = their(target, **kwargs)
+        if 'capitalize' in kwargs and kwargs['capitalize']:
+            return capitalize(output)
+        return output
+
+    def pronoun_subjective(self, **kwargs):
+        """Returns a subjective pronoun, based on attributes.
+
+        The pronoun could be "you," "she," "he," "it," or "they". It depends
+        on the `gender` and `person_type` attributes and whether the individual
+        is the current user.
+
+        Args:
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            str: The appropriate subjective pronoun.
+        """
+        if self == this_thread.global_vars.user and ('thirdperson' not in kwargs or not kwargs['thirdperson']):
+            output = word('you', **kwargs)
+        elif hasattr(self, "person_type") and self.person_type in ["business", "organization"]:
+            output = word("it", **kwargs)
+        elif self.gender.lower() == 'female':
+            output = word('she', **kwargs)
+        elif self.gender.lower() == "male":
+            output = word('he', **kwargs)
+        else:
+            output = word('they', **kwargs)
+        if 'capitalize' in kwargs and kwargs['capitalize']:
+            return capitalize(output)
+        return output
 
 
 def section_links(nav) -> List[str]:
