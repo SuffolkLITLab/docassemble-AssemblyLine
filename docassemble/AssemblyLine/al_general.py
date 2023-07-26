@@ -1039,7 +1039,7 @@ class ALIndividual(Individual):
         )
 
     def pronoun(self, **kwargs):
-        """Returns a pronoun as appropriate, based on attributes.
+        """Returns an objective pronoun as appropriate, based on attributes.
 
         The pronoun could be "you," "her," "him," "it," or "them". It depends
         on the `gender` and `person_type` attributes and whether the individual
