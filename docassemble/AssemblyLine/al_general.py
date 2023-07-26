@@ -7,6 +7,7 @@ from docassemble.base.util import (
     comma_list,
     country_name,
     DADateTime,
+    DADict,
     DAFile,
     DAList,
     date_difference,
@@ -1044,6 +1045,9 @@ class ALIndividual(Individual):
         on the `gender` and `person_type` attributes and whether the individual
         is the current user.
 
+        If the user selected specific pronouns, they take priority over 
+        gender (only if they chose a pronoun from the list)
+
         Args:
             **kwargs: Additional keyword arguments.
 
@@ -1052,6 +1056,15 @@ class ALIndividual(Individual):
         """
         if self == this_thread.global_vars.user:
             output = word('you', **kwargs)
+        elif hasattr(self, "pronouns") and isinstance(self.pronouns, DADict) and len(self.pronouns.true_values()) == 1 and self.pronouns.true_values()[0] in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]:
+            if self.pronouns["she/her/hers"]:
+                output = word("her", **kwargs)
+            elif self.pronouns["he/him/his"]:
+                output = word("him", **kwargs)
+            elif self.pronouns["they/them/theirs"]:
+                output = word("them", **kwargs)
+            elif self.pronouns["ze/zir/zirs"]:
+                output = word("zir", **kwargs)
         elif hasattr(self, "person_type") and self.person_type in ["business", "organization"]:
             output = word("it", **kwargs)
         elif self.gender.lower() == 'female':
@@ -1091,6 +1104,15 @@ class ALIndividual(Individual):
         """
         if self == this_thread.global_vars.user and ('thirdperson' not in kwargs or not kwargs['thirdperson']):
             output = your(target, **kwargs)
+        elif hasattr(self, "pronouns") and isinstance(self.pronouns, DADict) and len(self.pronouns.true_values()) == 1 and self.pronouns.true_values()[0] in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]:
+            if self.pronouns["she/her/hers"]:
+                output = her(target, **kwargs)
+            elif self.pronouns["he/him/his"]:
+                output = his(target, **kwargs)
+            elif self.pronouns["they/them/theirs"]:
+                output = their(target, **kwargs)
+            elif self.pronouns["ze/zir/zirs"]:
+                output = word("zir", **kwargs) + " " + target
         elif hasattr(self, "person_type") and self.person_type in ["business", "organization"]:
             output = its(target, **kwargs)
         elif self.gender.lower() == 'female':
@@ -1118,6 +1140,15 @@ class ALIndividual(Individual):
         """
         if self == this_thread.global_vars.user and ('thirdperson' not in kwargs or not kwargs['thirdperson']):
             output = word('you', **kwargs)
+        elif hasattr(self, "pronouns") and isinstance(self.pronouns, DADict) and len(self.pronouns.true_values()) == 1 and self.pronouns.true_values()[0] in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]:
+            if self.pronouns["she/her/hers"]:
+                output = word("she", **kwargs)
+            elif self.pronouns["he/him/his"]:
+                output = word("he", **kwargs)
+            elif self.pronouns["they/them/theirs"]:
+                output = word("they", **kwargs)
+            elif self.pronouns["ze/zir/zirs"]:
+                output = word("ze", **kwargs)
         elif hasattr(self, "person_type") and self.person_type in ["business", "organization"]:
             output = word("it", **kwargs)
         elif self.gender.lower() == 'female':
