@@ -211,8 +211,25 @@ class ALAddress(Address):
 
         return fields
 
-    def formatted_unit(self, language=None, require=False, bare=False):
-        """Returns the unit, formatted appropriately"""
+    def formatted_unit(
+        self, language: Optional[str] = None, require: bool = False, bare: bool = False
+    ) -> str:
+        """
+        Returns the unit, formatted appropriately.
+
+        Args:
+            language (str, optional): The language in which to format the unit. Defaults to None (which uses system language).
+            require (bool, optional): A flag indicating whether the unit is required. If set to True, the function will
+                                    raise an error if the unit attribute does not exist. Defaults to False.
+            bare (bool, optional): A flag indicating whether to add the word 'Unit' before the unit number. If set to
+                                True, the function will not add 'Unit' regardless of other conditions. Defaults to False.
+
+        Returns:
+            str: The formatted unit. If the unit attribute does not exist and require is set to False, this will be an
+                empty string. If the unit attribute exists and is not None or an empty string, the function will return
+                the unit number, possibly prefixed with 'Unit'. If the unit attribute exists and is None or an empty
+                string, the function will return an empty string.
+        """
         if (
             not hasattr(self, "unit")
             and not hasattr(self, "floor")
@@ -222,10 +239,33 @@ class ALAddress(Address):
                 self.unit
             else:
                 return ""
-        if hasattr(self, "unit") and self.unit != "" and self.unit is not None:
-            if not bare and str(self.unit).isnumeric():
+        if hasattr(self, "unit") and self.unit is not None and self.unit != "":
+            unit_lower = str(self.unit).lower()
+            # Sometimes people neglect to add a word before the unit number,
+            # use some heuristics to decide when it's necessary to add one.
+            if not bare and (
+                unit_lower.isnumeric()
+                or (
+                    not " " in self.unit
+                    and not any(
+                        x in unit_lower
+                        for x in [
+                            "apt",
+                            "unit",
+                            "suite",
+                            "bldg",
+                            "fl",
+                            "apartment",
+                            "building",
+                            "floor",
+                            "ste",
+                        ]
+                    )
+                )
+            ):
                 return word("Unit", language=language) + " " + str(self.unit)
-            return str(self.unit)
+            else:
+                return str(self.unit)
         if hasattr(self, "floor") and self.floor != "" and self.floor is not None:
             return word("Floor", language=language) + " " + str(self.floor)
         if hasattr(self, "room") and self.room != "" and self.room is not None:
