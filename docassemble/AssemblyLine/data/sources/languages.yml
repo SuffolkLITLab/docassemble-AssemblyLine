@@ -1,12 +1,14 @@
+# This is a dictionary that contains the native language
+# version of a given ISO language code for display in
+# the language selection menu.
+# It is a limited selection targeted at immigrant populations in the US. 
+# Please submit a PR if you would like to add a language or a language code.
 en: 
   name: English
   native_name: English
 es:
   name: Spanish
   native_name: Español
-zh: 
-  name: Chinese
-  native_name: 中文
 fr: 
   name: French
   native_name: Français
@@ -53,11 +55,15 @@ ht:
   name: Haitian Creole
   native_name: Kreyòl ayisyen
 zh-Hans: 
-  name: Mandarin (Simplified)
-  native_name: 普通话
+  name: Chinese (Simplified)
+  native_name: 简体中文
 zh-Hant: 
-  name: Cantonese (Traditional)
-  native_name: 粵語
+  name: Chinese (Traditional)
+  native_name: 繁體中文
+# If you have a choice, prefer the more specific Chinese (Simplified) or Chinese (Traditional) codes
+zh:
+  name: Chinese
+  native_name: 中文  
 kea: 
   name: Cape Verdean Creole
   native_name: Kriolu
