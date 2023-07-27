@@ -1,6 +1,6 @@
 # This is a dictionary that contains the native language
 # version of a given ISO language code for display in
-# the language selection menu.
+# the language selection menu. It targets scripts (written language), not spoken.
 # It is a limited selection targeted at immigrant populations in the US. 
 # Please submit a PR if you would like to add a language or a language code.
 en: 
@@ -61,6 +61,7 @@ zh-Hant:
   name: Chinese (Traditional)
   native_name: 繁體中文
 # If you have a choice, prefer the more specific Chinese (Simplified) or Chinese (Traditional) codes
+# Note: because we target scripts, we omit Mandarin/Cantonese distinctions in this file.
 zh:
   name: Chinese
   native_name: 中文  
