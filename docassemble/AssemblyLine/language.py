@@ -180,7 +180,6 @@ def get_language_list_item(language, link=True, event_name="al_change_language")
     Args:
         language: a tuple containing the language name and language code
         link: whether to return a link or just the text
-        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
         event_name: the name of the event to trigger when the language is changed
 
     Returns:
