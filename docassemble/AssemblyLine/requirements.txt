@@ -3,3 +3,4 @@ docassemble.webapp
 mypy
 pandas-stubs
 sqlalchemy[mypy]
+types-PyYAML

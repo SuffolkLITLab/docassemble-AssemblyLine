@@ -1,0 +1,148 @@
+# This is a dictionary that contains the native language
+# version of a given ISO language code for display in
+# the language selection menu. It targets scripts (written language), not spoken.
+# It is a limited selection targeted at immigrant populations in the US. 
+# Please submit a PR if you would like to add a language or a language code.
+en: 
+  name: English
+  native_name: English
+es:
+  name: Spanish
+  native_name: Español
+fr: 
+  name: French
+  native_name: Français
+de: 
+  name: German
+  native_name: Deutsch
+ru: 
+  name: Russian
+  native_name: Русский
+hi: 
+  name: Hindi
+  native_name: हिन्दी
+ar: 
+  name: Arabic
+  native_name: العربية
+ja: 
+  name: Japanese
+  native_name: 日本語
+ko: 
+  name: Korean
+  native_name: 한국어
+vi: 
+  name: Vietnamese
+  native_name: Tiếng Việt
+it: 
+  name: Italian
+  native_name: Italiano
+pt: 
+  name: Portuguese
+  native_name: Português
+tl: 
+  name: Tagalog
+  native_name: Wikang Tagalog
+pl: 
+  name: Polish
+  native_name: Polski
+nl: 
+  name: Dutch
+  native_name: Nederlands
+el: 
+  name: Greek
+  native_name: Ελληνικά
+ht: 
+  name: Haitian Creole
+  native_name: Kreyòl ayisyen
+zh-Hans: 
+  name: Chinese (Simplified)
+  native_name: 简体中文
+zh-Hant: 
+  name: Chinese (Traditional)
+  native_name: 繁體中文
+# If you have a choice, prefer the more specific Chinese (Simplified) or Chinese (Traditional) codes
+# Note: because we target scripts, we omit Mandarin/Cantonese distinctions in this file.
+zh:
+  name: Chinese
+  native_name: 中文  
+kea: 
+  name: Cape Verdean Creole
+  native_name: Kriolu
+bn: 
+  name: Bengali
+  native_name: বাংলা
+so: 
+  name: Somali
+  native_name: Soomaali
+hy: 
+  name: Armenian
+  native_name: Հայերեն
+hmn: 
+  name: Hmong
+  native_name: Hmoob
+km: 
+  name: Khmer
+  native_name: ភាសាខ្មែរ
+om: 
+  name: Oromo
+  native_name: Afaan Oromoo
+am: 
+  name: Amharic
+  native_name: አማርኛ
+ne: 
+  name: Nepali
+  native_name: नेपाली
+lo: 
+  name: Lao
+  native_name: ພາສາລາວ
+my: 
+  name: Burmese
+  native_name: ဗမာစာ
+ps: 
+  name: Pashto
+  native_name: پښتو
+ku: 
+  name: Kurdish
+  native_name: Kurdî
+ta: 
+  name: Tamil
+  native_name: தமிழ்
+az: 
+  name: Azerbaijani
+  native_name: Azərbaycan
+yo: 
+  name: Yoruba
+  native_name: Yorùbá
+te: 
+  name: Telugu
+  native_name: తెలుగు
+uz: 
+  name: Uzbek
+  native_name: Oʻzbek
+pa: 
+  name: Punjabi
+  native_name: ਪੰਜਾਬੀ
+fa: 
+  name: Farsi (Persian)
+  native_name: فارسی
+sw: 
+  name: Swahili
+  native_name: Kiswahili
+ig: 
+  name: Igbo
+  native_name: Asụsụ Igbo
+ha: 
+  name: Hausa
+  native_name: هَوُسَ
+si: 
+  name: Sinhalese
+  native_name: සිංහල
+gu: 
+  name: Gujarati
+  native_name: ગુજરાતી
+kn: 
+  name: Kannada
+  native_name: ಕನ್ನಡ
+ml: 
+  name: Malayalam
+  native_name: മലയാളം

@@ -110,6 +110,10 @@ al_sessions_variables_to_remove: Set = {
     "AL_ORGANIZATION_HOMEPAGE",
     "AL_ORGANIZATION_TITLE",
     "al_user_bundle",
+    "enable_al_language",
+    "al_interview_languages",
+    "al_user_language",
+    "al_user_default_language",
     "case_name",
     "signature_date",
     # Variables from saving/loading state

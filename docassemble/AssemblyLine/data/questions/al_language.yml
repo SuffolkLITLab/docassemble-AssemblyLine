@@ -1,0 +1,41 @@
+---
+modules:
+  - .language
+---
+translations:
+  - translation_es.xlsx
+  - translation_ht.xlsx
+  - translation_pt.xlsx
+---
+code: |
+  enable_al_language = True
+---
+code: |
+  al_user_default_language = "en"
+---
+code: |
+  al_interview_languages = [al_user_default_language]
+---
+default screen parts:
+  navigation bar html: |
+    % if enable_al_language and len(al_interview_languages) > 1:
+    ${ get_language_list_dropdown(al_interview_languages,current=al_user_language ) }
+    % endif
+---
+initial: True
+code: |
+  if enable_al_language:
+    set_language(al_user_language)
+---
+code: |
+  if enable_al_language:
+    if url_args.get('lang'):
+      al_user_language = url_args.get('lang')
+    else:
+      al_user_language = al_user_default_language
+---
+event: al_change_language
+code: |
+  if 'lang' in action_arguments():
+    al_user_language = action_argument('lang')
+    set_language(al_user_language)
