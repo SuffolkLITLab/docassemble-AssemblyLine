@@ -1,7 +1,7 @@
 import unittest
 from .al_general import ALIndividual, ALAddress
 from unittest.mock import Mock
-from docassemble.base.util import DADict
+from docassemble.base.util import DADict, DAAttributeError
 
 
 class test_aladdress(unittest.TestCase):
@@ -340,6 +340,28 @@ class TestALIndividual(unittest.TestCase):
         self.assertEqual(self.individual.pronoun_subjective(), "it")
         self.assertEqual(self.individual.pronoun_subjective(capitalize=True), "It")
 
+    def test_custom_pronouns(self):
+        self.individual.pronouns = DADict(
+            auto_gather=False,
+            gathered=True,
+            elements={
+                "she/her/hers": False,
+                "he/him/his": False,
+                "they/them/theirs": False,
+                "ze/zir/zirs": False,
+                "self-described": True,
+            },
+        )
+
+        self.individual.pronouns_self_described = "Xe/Xir/Xem"
+        self.assertEqual(self.individual.pronoun_objective(), "xe")
+        self.assertEqual(self.individual.pronoun_subjective(), "xir")
+        self.assertEqual(self.individual.pronoun_possessive("fish"), "xem fish")
+
+        self.individual.pronouns_self_described = "Xe/Xir/Xirs/xem/xirself"
+        # Should raise an exception
+        with self.assertRaises(DAAttributeError):
+            self.individual.pronoun_objective()
 
 if __name__ == "__main__":
     unittest.main()

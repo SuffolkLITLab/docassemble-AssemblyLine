@@ -38,29 +38,31 @@ import re
 import pycountry
 
 __all__ = [
+    "Abuser",
+    "Abuser",
+    "AddressList",
     "ALAddress",
     "ALAddressList",
-    "ALPeopleList",
     "ALIndividual",
-    "section_links",
-    "is_phone_or_email",
-    "section_links",
-    "Landlord",
-    "Tenant",
-    "HousingAuthority",
+    "ALPeopleList",
     "Applicant",
-    "Abuser",
-    "Survivor",
-    "PeopleList",
-    "VCIndividual",
-    "AddressList",
     "Applicant",
-    "Abuser",
-    "Survivor",
     "github_modified_date",
-    "will_send_to_real_court",
-    "safe_subdivision_type",
+    "has_parsable_pronouns",
+    "HousingAuthority",
+    "is_phone_or_email",
+    "Landlord",
     "language_name",
+    "parse_custom_pronouns",
+    "PeopleList",
+    "safe_subdivision_type",
+    "section_links",
+    "section_links",
+    "Survivor",
+    "Survivor",
+    "Tenant",
+    "VCIndividual",
+    "will_send_to_real_court",
 ]
 
 ##########################################################
@@ -1060,8 +1062,16 @@ class ALIndividual(Individual):
             hasattr(self, "pronouns")
             and isinstance(self.pronouns, DADict)
             and len(self.pronouns.true_values()) == 1
-            and self.pronouns.true_values()[0]
-            in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+            and (
+                (
+                    self.pronouns.true_values()[0]
+                    in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+                )
+                or (
+                    self.pronouns.get("self-described")
+                    and has_parsable_pronouns(self.pronouns_self_described)
+                )
+            )
         ):
             if self.pronouns["she/her/hers"]:
                 output = word("her", **kwargs)
@@ -1071,6 +1081,8 @@ class ALIndividual(Individual):
                 output = word("them", **kwargs)
             elif self.pronouns["ze/zir/zirs"]:
                 output = word("zir", **kwargs)
+            elif self.pronouns.get("self-described"):
+                output = parse_custom_pronouns(self.pronouns_self_described)["o"]
         elif hasattr(self, "person_type") and self.person_type in [
             "business",
             "organization",
@@ -1119,8 +1131,16 @@ class ALIndividual(Individual):
             hasattr(self, "pronouns")
             and isinstance(self.pronouns, DADict)
             and len(self.pronouns.true_values()) == 1
-            and self.pronouns.true_values()[0]
-            in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+            and (
+                (
+                    self.pronouns.true_values()[0]
+                    in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+                )
+                or (
+                    self.pronouns.get("self-described")
+                    and has_parsable_pronouns(self.pronouns_self_described)
+                )
+            )
         ):
             if self.pronouns["she/her/hers"]:
                 output = her(target, **kwargs)
@@ -1130,6 +1150,12 @@ class ALIndividual(Individual):
                 output = their(target, **kwargs)
             elif self.pronouns["ze/zir/zirs"]:
                 output = word("zir", **kwargs) + " " + target
+            elif self.pronouns.get("self-described"):
+                output = (
+                    parse_custom_pronouns(self.pronouns_self_described)["p"]
+                    + " "
+                    + target
+                )
         elif hasattr(self, "person_type") and self.person_type in [
             "business",
             "organization",
@@ -1166,8 +1192,16 @@ class ALIndividual(Individual):
             hasattr(self, "pronouns")
             and isinstance(self.pronouns, DADict)
             and len(self.pronouns.true_values()) == 1
-            and self.pronouns.true_values()[0]
-            in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+            and (
+                (
+                    self.pronouns.true_values()[0]
+                    in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+                )
+                or (
+                    self.pronouns.get("self-described")
+                    and has_parsable_pronouns(self.pronouns_self_described)
+                )
+            )
         ):
             if self.pronouns["she/her/hers"]:
                 output = word("she", **kwargs)
@@ -1177,6 +1211,8 @@ class ALIndividual(Individual):
                 output = word("they", **kwargs)
             elif self.pronouns["ze/zir/zirs"]:
                 output = word("ze", **kwargs)
+            elif self.pronouns.get("self-described"):
+                output = parse_custom_pronouns(self.pronouns_self_described)["s"]
         elif hasattr(self, "person_type") and self.person_type in [
             "business",
             "organization",
@@ -1399,3 +1435,43 @@ def safe_states_list(country_code: str) -> List[Dict[str, str]]:
         return states_list(country_code=country_code)
     except:
         return states_list()
+
+
+def has_parsable_pronouns(pronouns: str) -> bool:
+    """
+    Returns True if the pronouns string can be parsed into a dictionary of pronouns.
+
+    Args:
+        pronouns: a string of pronouns in the format "objective/subjective/possessive"
+
+    Returns:
+        True if the pronouns string can be parsed into a dictionary of pronouns, False otherwise
+    """
+    try:
+        parse_custom_pronouns(pronouns)
+        return True
+    except:
+        return False
+
+
+def parse_custom_pronouns(pronouns: str) -> Dict[str, str]:
+    """
+    Parses a custom pronoun string into a dictionary of pronouns.
+
+    Args:
+        pronouns: a string of pronouns in the format "objective/subjective/possessive"
+
+    Returns:
+        a dictionary of pronouns in the format {"o": objective, "s": subjective, "p": possessive}
+    """
+    # test for presence of either 2 or 3 /'s
+    if not (2 <= pronouns.count("/") <= 3):
+        raise Exception("Pronouns must contain either 2 or 3 slashes.")
+
+    pronoun_list = pronouns.split("/")
+    # entry 1 is objective, entry 2 is subjective, entry 3 is possessive, entry 4 is possessive pronoun (unused)
+    return {
+        "o": pronoun_list[0].lower(),
+        "s": pronoun_list[1].lower(),
+        "p": pronoun_list[2].lower(),
+    }
