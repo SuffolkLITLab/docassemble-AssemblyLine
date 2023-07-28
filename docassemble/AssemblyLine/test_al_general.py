@@ -363,5 +363,6 @@ class TestALIndividual(unittest.TestCase):
         with self.assertRaises(DAAttributeError):
             self.individual.pronoun_objective()
 
+
 if __name__ == "__main__":
     unittest.main()
