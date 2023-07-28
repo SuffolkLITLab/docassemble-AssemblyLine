@@ -2,10 +2,12 @@ from typing import Dict, List, Literal, Union, Optional
 from docassemble.base.util import (
     Address,
     as_datetime,
+    capitalize,
     comma_and_list,
     comma_list,
     country_name,
     DADateTime,
+    DADict,
     DAFile,
     DAList,
     date_difference,
@@ -13,47 +15,54 @@ from docassemble.base.util import (
     ensure_definition,
     get_config,
     get_country,
+    her,
+    his,
     Individual,
     IndividualName,
+    its,
     name_suffix,
     phone_number_formatted,
     phone_number_is_valid,
     state_name,
     states_list,
     subdivision_type,
+    their,
     this_thread,
     url_action,
     validation_error,
     word,
+    your,
 )
 import random
 import re
 import pycountry
 
 __all__ = [
+    "Abuser",
+    "Abuser",
+    "AddressList",
     "ALAddress",
     "ALAddressList",
-    "ALPeopleList",
     "ALIndividual",
-    "section_links",
-    "is_phone_or_email",
-    "section_links",
-    "Landlord",
-    "Tenant",
-    "HousingAuthority",
+    "ALPeopleList",
     "Applicant",
-    "Abuser",
-    "Survivor",
-    "PeopleList",
-    "VCIndividual",
-    "AddressList",
     "Applicant",
-    "Abuser",
-    "Survivor",
     "github_modified_date",
-    "will_send_to_real_court",
-    "safe_subdivision_type",
+    "has_parsable_pronouns",
+    "HousingAuthority",
+    "is_phone_or_email",
+    "Landlord",
     "language_name",
+    "parse_custom_pronouns",
+    "PeopleList",
+    "safe_subdivision_type",
+    "section_links",
+    "section_links",
+    "Survivor",
+    "Survivor",
+    "Tenant",
+    "VCIndividual",
+    "will_send_to_real_court",
 ]
 
 ##########################################################
@@ -992,13 +1001,13 @@ class ALIndividual(Individual):
     def gender_male(self):
         """Provide True/False for 'male' gender to assist with checkbox filling
         in PDFs with "skip undefined" turned on."""
-        return self.gender == "male"
+        return self.gender.lower() == "male"
 
     @property
     def gender_female(self):
         """Provide True/False for 'female' gender to assist with checkbox filling
         in PDFs with "skip undefined" turned on."""
-        return self.gender == "female"
+        return self.gender.lower() == "female"
 
     @property
     def gender_other(self):
@@ -1011,19 +1020,19 @@ class ALIndividual(Individual):
     def gender_nonbinary(self):
         """Provide True/False for 'nonbinary' gender to assist with checkbox filling
         in PDFs with "skip undefined" turned on."""
-        return self.gender == "nonbinary"
+        return self.gender.lower() == "nonbinary"
 
     @property
     def gender_unknown(self):
         """Provide True/False for 'unknown' gender to assist with checkbox filling
         in PDFs with "skip undefined" turned on."""
-        return self.gender == "unknown"
+        return self.gender.lower() == "unknown"
 
     @property
     def gender_undisclosed(self):
         """Provide True/False for 'prefer-not-to-say' gender to assist with checkbox filling
         in PDFs with "skip undefined" turned on."""
-        return self.gender == "prefer-not-to-say"
+        return self.gender.lower() == "prefer-not-to-say"
 
     @property
     def gender_self_described(self):
@@ -1070,6 +1079,194 @@ class ALIndividual(Individual):
                 bare=bare,
             )
         )
+
+    def pronoun(self, **kwargs):
+        """Returns an objective pronoun as appropriate, based on attributes.
+
+        The pronoun could be "you," "her," "him," "it," or "them". It depends
+        on the `gender` and `person_type` attributes and whether the individual
+        is the current user.
+
+        If the user selected specific pronouns, they take priority over
+        gender (only if they chose a pronoun from the list)
+
+        Args:
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            str: The appropriate pronoun.
+        """
+        if self == this_thread.global_vars.user:
+            output = word("you", **kwargs)
+        elif (
+            hasattr(self, "pronouns")
+            and isinstance(self.pronouns, DADict)
+            and len(self.pronouns.true_values()) == 1
+            and (
+                (
+                    self.pronouns.true_values()[0]
+                    in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+                )
+                or (
+                    self.pronouns.get("self-described")
+                    and has_parsable_pronouns(self.pronouns_self_described)
+                )
+            )
+        ):
+            if self.pronouns["she/her/hers"]:
+                output = word("her", **kwargs)
+            elif self.pronouns["he/him/his"]:
+                output = word("him", **kwargs)
+            elif self.pronouns["they/them/theirs"]:
+                output = word("them", **kwargs)
+            elif self.pronouns["ze/zir/zirs"]:
+                output = word("zir", **kwargs)
+            elif self.pronouns.get("self-described"):
+                output = parse_custom_pronouns(self.pronouns_self_described)["o"]
+        elif hasattr(self, "person_type") and self.person_type in [
+            "business",
+            "organization",
+        ]:
+            output = word("it", **kwargs)
+        elif self.gender.lower() == "female":
+            output = word("her", **kwargs)
+        elif self.gender.lower() == "male":
+            output = word("him", **kwargs)
+        else:
+            output = word("them", **kwargs)
+        if "capitalize" in kwargs and kwargs["capitalize"]:
+            return capitalize(output)
+        return output
+
+    def pronoun_objective(self, **kwargs):
+        """Returns the same pronoun as the `pronoun()` method.
+
+        Args:
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            str: The appropriate objective pronoun.
+        """
+        return self.pronoun(**kwargs)
+
+    def pronoun_possessive(self, target, **kwargs):
+        """Returns a possessive pronoun and a target word, based on attributes.
+
+        Given a target word, the function returns "{pronoun} {target}". The pronoun could be
+        "her," "his," "its," or "their". It depends on the `gender` and `person_type` attributes
+        and whether the individual is the current user.
+
+        Args:
+            target (str): The target word to follow the pronoun.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            str: The appropriate possessive phrase.
+        """
+        if self == this_thread.global_vars.user and (
+            "thirdperson" not in kwargs or not kwargs["thirdperson"]
+        ):
+            output = your(target, **kwargs)
+        elif (
+            hasattr(self, "pronouns")
+            and isinstance(self.pronouns, DADict)
+            and len(self.pronouns.true_values()) == 1
+            and (
+                (
+                    self.pronouns.true_values()[0]
+                    in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+                )
+                or (
+                    self.pronouns.get("self-described")
+                    and has_parsable_pronouns(self.pronouns_self_described)
+                )
+            )
+        ):
+            if self.pronouns["she/her/hers"]:
+                output = her(target, **kwargs)
+            elif self.pronouns["he/him/his"]:
+                output = his(target, **kwargs)
+            elif self.pronouns["they/them/theirs"]:
+                output = their(target, **kwargs)
+            elif self.pronouns["ze/zir/zirs"]:
+                output = word("zir", **kwargs) + " " + target
+            elif self.pronouns.get("self-described"):
+                output = (
+                    parse_custom_pronouns(self.pronouns_self_described)["p"]
+                    + " "
+                    + target
+                )
+        elif hasattr(self, "person_type") and self.person_type in [
+            "business",
+            "organization",
+        ]:
+            output = its(target, **kwargs)
+        elif self.gender.lower() == "female":
+            output = her(target, **kwargs)
+        elif self.gender.lower() == "male":
+            output = his(target, **kwargs)
+        else:
+            output = their(target, **kwargs)
+        if "capitalize" in kwargs and kwargs["capitalize"]:
+            return capitalize(output)
+        return output
+
+    def pronoun_subjective(self, **kwargs):
+        """Returns a subjective pronoun, based on attributes.
+
+        The pronoun could be "you," "she," "he," "it," or "they". It depends
+        on the `gender` and `person_type` attributes and whether the individual
+        is the current user.
+
+        Args:
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            str: The appropriate subjective pronoun.
+        """
+        if self == this_thread.global_vars.user and (
+            "thirdperson" not in kwargs or not kwargs["thirdperson"]
+        ):
+            output = word("you", **kwargs)
+        elif (
+            hasattr(self, "pronouns")
+            and isinstance(self.pronouns, DADict)
+            and len(self.pronouns.true_values()) == 1
+            and (
+                (
+                    self.pronouns.true_values()[0]
+                    in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
+                )
+                or (
+                    self.pronouns.get("self-described")
+                    and has_parsable_pronouns(self.pronouns_self_described)
+                )
+            )
+        ):
+            if self.pronouns["she/her/hers"]:
+                output = word("she", **kwargs)
+            elif self.pronouns["he/him/his"]:
+                output = word("he", **kwargs)
+            elif self.pronouns["they/them/theirs"]:
+                output = word("they", **kwargs)
+            elif self.pronouns["ze/zir/zirs"]:
+                output = word("ze", **kwargs)
+            elif self.pronouns.get("self-described"):
+                output = parse_custom_pronouns(self.pronouns_self_described)["s"]
+        elif hasattr(self, "person_type") and self.person_type in [
+            "business",
+            "organization",
+        ]:
+            output = word("it", **kwargs)
+        elif self.gender.lower() == "female":
+            output = word("she", **kwargs)
+        elif self.gender.lower() == "male":
+            output = word("he", **kwargs)
+        else:
+            output = word("they", **kwargs)
+        if "capitalize" in kwargs and kwargs["capitalize"]:
+            return capitalize(output)
+        return output
 
 
 def section_links(nav) -> List[str]:
@@ -1278,3 +1475,43 @@ def safe_states_list(country_code: str) -> List[Dict[str, str]]:
         return states_list(country_code=country_code)
     except:
         return states_list()
+
+
+def has_parsable_pronouns(pronouns: str) -> bool:
+    """
+    Returns True if the pronouns string can be parsed into a dictionary of pronouns.
+
+    Args:
+        pronouns: a string of pronouns in the format "objective/subjective/possessive"
+
+    Returns:
+        True if the pronouns string can be parsed into a dictionary of pronouns, False otherwise
+    """
+    try:
+        parse_custom_pronouns(pronouns)
+        return True
+    except:
+        return False
+
+
+def parse_custom_pronouns(pronouns: str) -> Dict[str, str]:
+    """
+    Parses a custom pronoun string into a dictionary of pronouns.
+
+    Args:
+        pronouns: a string of pronouns in the format "objective/subjective/possessive"
+
+    Returns:
+        a dictionary of pronouns in the format {"o": objective, "s": subjective, "p": possessive}
+    """
+    # test for presence of either 2 or 3 /'s
+    if not (2 <= pronouns.count("/") <= 3):
+        raise Exception("Pronouns must contain either 2 or 3 slashes.")
+
+    pronoun_list = pronouns.split("/")
+    # entry 1 is objective, entry 2 is subjective, entry 3 is possessive, entry 4 is possessive pronoun (unused)
+    return {
+        "o": pronoun_list[0].lower(),
+        "s": pronoun_list[1].lower(),
+        "p": pronoun_list[2].lower(),
+    }
