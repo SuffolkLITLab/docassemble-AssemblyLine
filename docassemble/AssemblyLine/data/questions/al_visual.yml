@@ -482,7 +482,7 @@ subquestion: |
 
   **It is possible that the missing information may make this document unenforceable.**
 
-  Here is your current progress on the "${ all_variables(special='metadata').get("title").strip() }" documents you started:
+  Here is your current progress on the "${ all_variables(special='metadata').get("title","").strip() }" documents you started:
 
   ${ al_user_bundle.download_list_html(key="emergency_download") }
 buttons:
