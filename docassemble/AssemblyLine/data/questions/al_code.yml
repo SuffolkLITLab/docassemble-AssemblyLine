@@ -76,8 +76,8 @@ objects:
 # You will ALWAYS want to have your own version of these object blocks
 # in your own code.
 objects:
-  - al_court_bundle: ALDocumentBundle.using(filename="court_forms.pdf", title="Forms to download and deliver to court")
-  - al_user_bundle: ALDocumentBundle
+  - al_court_bundle: ALDocumentBundle.using(filename="court_forms.pdf", title="Forms to download and deliver to court", elements=[])
+  - al_user_bundle: ALDocumentBundle.using(filename="court_forms.pdf", title="Forms to download for your own reference", elements=[])
 ---
 objects:
   - al_final_form_to_file: ALDocumentBundle.using(elements=[al_cover_page, al_court_bundle], filename=al_court_bundle.filename, title=al_court_bundle.title)
