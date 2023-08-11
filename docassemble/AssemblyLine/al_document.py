@@ -1481,7 +1481,7 @@ class ALDocumentBundle(DAList):
         return send_button
 
     def send_button_html(
-        self, key: str = "final", show_editable_checkbox: bool = True
+        self, key: str = "final", show_editable_checkbox: bool = True, template_name: str = ""
     ) -> str:
         """
         Generate HTML for an input box and button that allows someone to send the bundle
@@ -1517,6 +1517,7 @@ class ALDocumentBundle(DAList):
             f"'{self.attr_name('send_email_action_event')}',"
             f"'{al_wants_editable_input_id}',"
             f"'{al_email_input_id}',"
+            f"'{template_name}',"
             f"'{key}')"
         )
 
@@ -1583,7 +1584,7 @@ class ALDocumentBundle(DAList):
             return send_email(
                 to=to,
                 template=template,
-                attachments=self.as_editable_list(key=key),
+                attachments=set(self.as_editable_list(key=key) + self.as_pdf_list(key=key)),
                 **kwargs,
             )
         else:
