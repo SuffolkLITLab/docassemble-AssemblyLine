@@ -6,9 +6,14 @@ from docassemble.base.util import (
     as_datetime,
     create_session,
     DADateTime,
+    DADict,
     DAFile,
     DAFileCollection,
     DAFileList,
+    DALazyTemplate,
+    DAList,
+    DAObject,
+    DASet,
     format_time,
     get_config,
     get_default_timezone,
@@ -106,15 +111,16 @@ al_sessions_variables_to_remove: Set = {
     "AL_DEFAULT_LANGUAGE",
     "AL_DEFAULT_OVERFLOW_MESSAGE",
     "AL_DEFAULT_STATE",
+    "al_enable_incomplete_downloads",
+    "al_interview_languages",
     "al_logo",
     "AL_ORGANIZATION_HOMEPAGE",
     "AL_ORGANIZATION_TITLE",
     "al_user_bundle",
-    "enable_al_language",
-    "al_interview_languages",
-    "al_user_language",
     "al_user_default_language",
+    "al_user_language",
     "case_name",
+    "enable_al_language",
     "signature_date",
     # Variables from saving/loading state
     "al_formatted_sessions",
@@ -179,6 +185,8 @@ al_sessions_variables_to_remove: Set = {
     "Union",
     # Variables that should always be created by code, so safe to recalculate
     "al_menu_items",
+    "al_menu_items_default_items",
+    "al_menu_items_custom_items",
     "menu_items",
     "user_role",
     "user_started_case",
@@ -207,8 +215,18 @@ def _package_name(package_name: Optional[str] = None):
 al_session_store_default_filename = f"{_package_name()}:al_saved_sessions_store.yml"
 
 
-def is_file_like(obj):
-    return isinstance(
+def is_file_like(obj: Any) -> bool:
+    """
+    Returns True if the object is a file-like object (or a DALazyTemplate)
+    File-like objects should be removed from answer sets.
+    
+    Args:
+        obj: The object to check.
+    
+    Returns:
+        True if the object is a file-like object, False otherwise.
+    """
+    if isinstance(
         obj,
         (
             DAFile,
@@ -219,8 +237,75 @@ def is_file_like(obj):
             ALStaticDocument,
             ALExhibit,
             ALExhibitList,
+            DALazyTemplate,
         ),
-    )
+    ):
+        return True
+
+    return False
+
+def filter_file_like(obj: Any) -> Any:
+    """
+    Recursively filters out file-like elements from an object. 
+    
+    The function delves into nested structures such as lists, sets, dictionaries, 
+    and DAObject attributes to remove elements or attributes that are file-like.
+    If the main object or any nested object/attribute is file-like, it is discarded.
+
+    Args:
+        obj (Any): The object to filter. This can be a basic Python type, DAList, DASet, 
+                   DADict, DAObject, or any other nested combination.
+
+    Returns:
+        Any: The filtered object. If the main object is 
+        file-like, returns None. If the object is a list, set, or dict, the returned object 
+        will have the same type but with file-like elements removed. If it's a DAObject, 
+        a new object of the same type is returned with file-like attributes removed.
+    """
+    if is_file_like(obj):
+        return None
+    elif isinstance(obj, DAList):
+        result = obj.__class__()
+        result.elements = [filter_file_like(item) for item in obj.elements if filter_file_like(item) is not None]
+        # copy other attributes
+        for attr in dir(obj):
+            if attr != "elements" and not attr.startswith("__") and not callable(getattr(obj, attr)):
+                setattr(result, attr, getattr(obj, attr))
+        result.set_instance_name(obj.instanceName)
+        return result
+    elif isinstance(obj, DASet):
+        result = obj.__class__()
+        result.elements = {filter_file_like(item) for item in obj.elements if filter_file_like(item) is not None}
+        # copy other attributes
+        for attr in dir(obj):
+            if attr != "elements" and not attr.startswith("__") and not callable(getattr(obj, attr)):
+                setattr(result, attr, getattr(obj, attr))
+        result.set_instance_name(obj.instanceName)
+        return result
+    elif isinstance(obj, DADict):
+        result = obj.__class__()
+        result.elements = {
+            key: filter_file_like(value)
+            for key, value in obj.elements.items()
+            if filter_file_like(value) is not None
+        }
+        # copy other attributes
+        for attr in dir(obj):
+            if attr != "elements" and not attr.startswith("__") and not callable(getattr(obj, attr)):
+                setattr(result, attr, getattr(obj, attr))
+        result.set_instance_name(obj.instanceName)
+        return result
+    elif isinstance(obj, DAObject):
+        new_obj = obj.__class__()
+        for attr in dir(obj):
+            if not attr.startswith("__") and not callable(getattr(obj, attr)):
+                value = filter_file_like(getattr(obj, attr))
+                if value is not None:
+                    setattr(new_obj, attr, value)
+        new_obj.set_instance_name(obj.instanceName)
+        return new_obj
+    else:
+        return obj
 
 
 def set_interview_metadata(
@@ -884,6 +969,8 @@ def save_interview_answers(
     return new_session_id
 
 
+
+
 def get_filtered_session_variables(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
@@ -902,14 +989,14 @@ def get_filtered_session_variables(
     else:
         all_vars = all_variables(simplify=False)
 
-    # Remove items that we were explicitly told to remove
-    # Delete all files and ALDocuments
-    return {
-        item: all_vars[item]
-        for item in all_vars
-        if not item in variables_to_filter and not is_file_like(all_vars[item])
-    }
+    # filter all_vars for top level items that are in `variables_to_filter`
+    # and to recursively remove any file-like objects
 
+    return {
+        item: filter_file_like(value)
+        for item, value in all_vars.items()
+        if item not in variables_to_filter and filter_file_like(value) is not None
+    }
 
 def get_filtered_session_variables_string(
     filename: Optional[str] = None,
