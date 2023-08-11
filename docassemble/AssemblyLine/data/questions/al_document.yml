@@ -11,13 +11,46 @@ features:
 generic object: ALDocumentBundle
 event: x.send_email_action_event
 code: |
-  email_success = x.send_email(to=action_argument('email'), editable=action_argument('editable'), template=action_argument('template'))
+  email_success = x.send_email(
+      to=action_argument('email'),
+      editable=action_argument('editable'),
+      template=(
+        value(action_argument('template_name'))
+        if action_argument('template_name')
+        else None
+      ),
+      key=action_argument('key')
+  )
   if email_success:
     # Exact phrase below is in Docassemble's words dictionary
     log(word('E-mail was sent to') + ' ' + action_argument('email') ,'success')
   else:
     # E-mail failed is not in the default Docassemble words dictionary
     log(word('E-mail failed'), 'error')
+---
+generic object: ALDocumentBundle
+event: x.send_email_to_action_event
+code: |
+  email_success = x.send_email(
+      to=action_argument('email'),
+      editable=action_argument('editable'),
+      template=(
+        value(action_argument('template_name'))
+        if action_argument('template_name')
+        else None
+      ),
+      key=action_argument('key'),
+  )
+  if email_success:
+    log(word('E-mail successfully sent'), 'success') # on-screen flash
+    log("Email sent to " + action_argument('email')) # to log file
+  else:
+    log(word('E-mail failed'), 'error')
+
+  json_response({'success': email_success})
+  
+
+
 ---
 generic object: ALDocumentBundle
 code: |
