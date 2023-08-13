@@ -77,5 +77,48 @@ with some very short words, but a whole lot of them, so it'll be over the overfl
         self.assertTrue(overflow_value.startswith("very"), msg=f"{ overflow_value }")
 
 
+class TestOriginalOrOverflowMessage(unittest.TestCase):
+    def test_original_value_shorter_than_trigger(self):
+        testcase2 = "Short text"
+        test_instance = ALAddendumField(field_name="testcase2")
+        test_instance.overflow_trigger = 10
+
+        result = test_instance.original_or_overflow_message(
+            overflow_message="Overflow occurred.",
+        )
+        self.assertEqual(
+            result, "Short text"
+        )  # Original value shorter than overflow_trigger
+
+    def test_original_value_exceeds_trigger(self):
+        testcase3 = "A very long text that exceeds the overflow trigger"
+        test_instance = ALAddendumField(field_name="testcase3")
+        test_instance.overflow_trigger = 10
+
+        result = test_instance.original_or_overflow_message(
+            overflow_message="Overflow occurred.",
+            preserve_newlines=True,
+        )
+        self.assertEqual(
+            result, "Overflow occurred."
+        )  # Original value exceeds the overflow_trigger
+
+    def test_original_value_exceeds_trigger_with_newlines(self):
+        testcase4 = (
+            "A medium\n length text\nthat exceeds\nthe overflow trigger with newlines"
+        )
+        test_instance = ALAddendumField(field_name="testcase4")
+        test_instance.overflow_trigger = 80
+
+        result = test_instance.original_or_overflow_message(
+            overflow_message="Overflow occurred.",
+            preserve_newlines=True,
+            preserve_words=True,
+        )
+        self.assertEqual(
+            result, "Overflow occurred."
+        )  # Original value exceeds the overflow_trigger, but preserve_newlines is True
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -214,6 +214,88 @@ class ALAddendumField(DAObject):
         """
         return self.value_if_defined()
 
+    def has_overflow(
+        self,
+        overflow_message: str = "",
+        input_width: int = 80,
+        preserve_newlines: bool = False,
+        _original_value: Optional[str] = None,
+        preserve_words: bool = True,
+    ) -> bool:
+        """
+        Return True only if the value's length exceeds the overflow trigger.
+
+        Args:
+            overflow_message (str): A short message to go on the page where text is cutoff.
+            input_width (int): The width, in characters, of the input box. Defaults to 80.
+            preserve_newlines (bool): Determines whether newlines are preserved in the "safe" text.
+                Defaults to False, which means all newlines are removed. This allows more text to appear
+                before being sent to the addendum.
+            _original_value (Any): for speed reasons, you can provide the full text and just use this
+                method to determine if the overflow trigger is exceeded. If no _original_value is
+                provided, this method will determine it using the value_if_defined() method.
+            preserve_words (bool): If True, the algorithm will try to preserve whole words when
+                truncating the text. If False, the algorithm will truncate the text at the overflow
+                trigger, regardless of whether it is in the middle of a word.
+        """
+        if _original_value:
+            val = _original_value
+        else:
+            val = self.value_if_defined()
+
+        return (
+            self.safe_value(
+                overflow_message=overflow_message,
+                input_width=input_width,
+                preserve_newlines=preserve_newlines,
+                _original_value=_original_value,
+                preserve_words=preserve_words,
+            )
+            != val
+        )
+
+    def original_or_overflow_message(
+        self,
+        overflow_message: str = "",
+        input_width: int = 80,
+        preserve_newlines: bool = False,
+        _original_value: Optional[str] = None,
+        preserve_words: bool = True,
+    ) -> Union[str, List[Any]]:
+        """
+        Return the original value if it is less than the overflow trigger (once processed), otherwise return the overflow message.
+
+        Unlike safe_value(), this will never output a partial value.
+
+        Args:
+            overflow_message (str): A short message to go on the page where text is cutoff.
+            input_width (int): The width, in characters, of the input box. Defaults to 80.
+            preserve_newlines (bool): Determines whether newlines are preserved in the "safe" text.
+                Defaults to False, which means all newlines are removed. This allows more text to appear
+                before being sent to the addendum.
+            _original_value (Any): for speed reasons, you can provide the full text and just use this
+                method to determine if the overflow trigger is exceeded. If no _original_value is
+                provided, this method will determine it using the value_if_defined() method.
+            preserve_words (bool): If True, the algorithm will try to preserve whole words when
+                truncating the text. If False, the algorithm will truncate the text at the overflow
+                trigger, regardless of whether it is in the middle of a word.
+        """
+        if _original_value:
+            val = _original_value
+        else:
+            val = self.value_if_defined()
+
+        if not self.has_overflow(
+            overflow_message=overflow_message,
+            input_width=input_width,
+            preserve_newlines=preserve_newlines,
+            _original_value=val,
+            preserve_words=preserve_words,
+        ):
+            return val
+
+        return overflow_message
+
     def safe_value(
         self,
         overflow_message: str = "",
@@ -261,7 +343,9 @@ class ALAddendumField(DAObject):
             return value
 
         max_lines = self.max_lines(input_width=input_width)
-        max_chars = max(self.overflow_trigger - len(overflow_message), 0)
+        max_chars = max(
+            self.overflow_trigger - len(overflow_message), 1
+        )  # width needs to be at least 1 char
 
         # Strip newlines from strings because they take extra space
         if isinstance(value, str):
@@ -809,6 +893,47 @@ class ALDocument(DADict):
 
     def overflow(self):
         return self.overflow_fields.overflow()
+
+    def original_or_overflow_message(
+        self,
+        field_name: str,
+        overflow_message: str = "",
+        input_width: int = 80,
+        preserve_newlines: bool = False,
+        _original_value: Optional[str] = None,
+        preserve_words: bool = True,
+    ) -> Union[str, List[Any]]:
+        """
+        Helper syntax to access a member field.
+
+        Return the original value if it is less than the overflow trigger (once processed), otherwise return the overflow message.
+
+        Unlike safe_value(), this will never output a partial value.
+
+        Args:
+            field_name (str): The name of the field to check.
+            overflow_message (str): A short message to go on the page where text is cutoff.
+            input_width (int): The width, in characters, of the input box. Defaults to 80.
+            preserve_newlines (bool): Determines whether newlines are preserved in the "safe" text.
+                Defaults to False, which means all newlines are removed. This allows more text to appear
+                before being sent to the addendum.
+            _original_value (Any): for speed reasons, you can provide the full text and just use this
+                method to determine if the overflow trigger is exceeded. If no _original_value is
+                provided, this method will determine it using the value_if_defined() method.
+            preserve_words (bool): If True, the algorithm will try to preserve whole words when
+                truncating the text. If False, the algorithm will truncate the text at the overflow
+                trigger, regardless of whether it is in the middle of a word.
+        """
+        if overflow_message is None:
+            overflow_message = self.default_overflow_message
+
+        return self.overflow_fields[field_name].original_or_overflow_message(
+            overflow_message=overflow_message,
+            input_width=input_width,
+            preserve_newlines=preserve_newlines,
+            _original_value=_original_value,
+            preserve_words=preserve_words,
+        )
 
     def safe_value(
         self,

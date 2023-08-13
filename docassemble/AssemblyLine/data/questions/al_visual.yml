@@ -69,54 +69,68 @@ features:
 ---
 initial: True
 code: |
-  # Set the dropdown/hamburger menu items
-  # by default we just add a "Start over" link
-  if _internal.get('steps') > 1:
-    menu_items = al_menu_items
-  else:
-    # Skip the "start over", download, and exit and erase menu item
-    if al_enable_incomplete_downloads:
-      menu_items = al_menu_items[3:]
-    else:
-      menu_items = al_menu_items[2:]
+  menu_items = [
+    item for item in al_menu_items if not item.get("hidden", False)
+  ]
+---
+code: |
+  al_menu_items_custom_items = []
 ---
 reconsider: True
 code: |
-  al_menu_items_tmp = [
-    {"url": url_ask(['al_start_over_confirmation','al_start_over']),
-    "label": "Start over"
-    },
-    {
-      "url": url_ask(['al_exit_logout_confirmation', 'al_exit_logout']),
-      "label": "Exit and delete my answers"
-    },
-  ]
-
-  if al_enable_incomplete_downloads:
-    al_menu_items_tmp.append({
-        "url": url_action('al_error_action_download_screen'), 
-        "label": "Download current progress"
-    })
-  
-  # Answer set feature is behind a server-wide configuration option
-  if get_config('assembly line',{}).get('enable answer sets'):
-    al_menu_items_tmp.extend([
-    {"url": url_ask(["al_sessions_snapshot_label", {"recompute": ["al_sessions_save_session_snapshot"]}, "al_sessions_save_status"]),
-    "label": "Save answer set"
-    },
-    action_menu_item("Load answer set", "al_load_saved_session"),
-  ]
-  )
-  
-  if get_config('assembly line',{}).get('enable answer set imports'):
-    al_menu_items_tmp.append(
-      {"url": url_ask(["al_sessions_json_file", {"recompute": ["al_sessions_import_json"]}, "al_sessions_load_status"]),
-      "label": "Import answer set"
-      }
-    )
-    
-  al_menu_items = al_menu_items_tmp
-  del al_menu_items_tmp
+  al_menu_items = al_menu_items_custom_items + al_menu_items_default_items
+---
+reconsider: True
+variable name: al_menu_items_default_items
+data from code:
+  - url: 
+      url_ask(['al_start_over_confirmation','al_start_over'])
+    label: str(al_start_over_string)
+    hidden: _internal.get('steps') < 2
+  - url: |
+      url_ask(['al_exit_logout_confirmation', 'al_exit_logout'])
+    label: str(al_exit_logout_string)
+    hidden: _internal.get('steps') < 2
+  - url: |
+      url_action('al_error_action_download_screen')
+    label: str(al_download_progress_string)
+    hidden: (not al_enable_incomplete_downloads) or (_internal.get('steps') < 2)
+  - url: |
+      url_ask(["al_sessions_snapshot_label", {"recompute": ["al_sessions_save_session_snapshot"]}, "al_sessions_save_status"])
+    label: str(al_save_answer_set_string)
+    hidden: (not get_config('assembly line',{}).get('enable answer sets')) or (_internal.get('steps') < 2)
+  - url: |
+      url_action('al_load_saved_session')
+    label: str(al_load_answer_set_string)
+    hidden: (not get_config('assembly line',{}).get('enable answer sets')) or (_internal.get('steps') < 2)
+  - url: |
+      url_action('al_error_action_download_screen')
+    label: str(al_download_answer_set_string)
+    hidden: (not get_config('assembly line',{}).get('enable answer set imports')) or (_internal.get('steps') < 2)
+---
+template: al_start_over_string
+content: >-
+  Start over
+---
+template: al_exit_logout_string
+content: >-
+  Exit and delete my answers
+---
+template: al_download_progress_string
+content: >-
+  Download current progress
+---
+template: al_save_answer_set_string
+content: >-
+  Save answer set
+---
+template: al_load_answer_set_string
+content: >-
+  Load answer set
+---
+template: al_download_answer_set_string
+content: >-
+  Download answer set
 ---
 event: al_exit_logout
 code: |
@@ -332,6 +346,10 @@ back button label: |
 ---
 template: about_this_interview_version_info
 content: |
+  % if all_variables(special='metadata').get('help_page_title','').rstrip() and all_variables(special='metadata').get('help_page_url','').rstrip():
+  Learn more: [${ all_variables(special='metadata').get('help_page_title','').rstrip() }](${ all_variables(special='metadata').get('help_page_url','').rstrip() }).
+  % endif
+
   "${all_variables(special='metadata').get('title','').rstrip()}" version 
   `${ package_version_number }`; AssemblyLine version `${ al_version }`.
 
@@ -347,7 +365,7 @@ content: |
   % else:
     <% MAIN_METADATA = {} %>
   % endif
-  % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form").strip() == "None" and MAIN_METADATA.get("original_form").startswith("http"):
+  % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form", "").strip() == "None" and MAIN_METADATA.get("original_form").startswith("http"):
   [View the original version of this form](${ MAIN_METADATA.get("original_form") }).
   % endif
   
@@ -438,8 +456,8 @@ subquestion: |
   % if al_enable_incomplete_downloads:
   * Try to [download your work in progress](${ url_action("al_error_action_download_screen") })
   % endif
-  % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form").strip() == "None":
-  * [Download a blank "${ all_variables(special='metadata').get("title").strip() }"](${ MAIN_METADATA.get("original_form") } )
+  % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form", "").strip() == "None":
+  * [Download a blank "${ all_variables(special='metadata').get("title", "").strip() }"](${ MAIN_METADATA.get("original_form") } )
   % endif
   * Visit the [${ AL_ORGANIZATION_TITLE } home page](${ AL_ORGANIZATION_HOMEPAGE }) and try another interview
   % if al_show_email_to_user_on_errors and get_config("error notification email"):
@@ -482,7 +500,7 @@ subquestion: |
 
   **It is possible that the missing information may make this document unenforceable.**
 
-  Here is your current progress on the "${ all_variables(special='metadata').get("title").strip() }" documents you started:
+  Here is your current progress on the "${ all_variables(special='metadata').get("title","").strip() }" documents you started:
 
   ${ al_user_bundle.download_list_html(key="emergency_download") }
 buttons:
@@ -494,7 +512,13 @@ subject: |
   Technical information
 content: |
   <h2 class="h4">${ word("Error") }</h2>
+  % if action_argument("error_message"):
   ${ action_argument('error_message') }
+  % else:
+  The error details are no longer available.
+  Use the "back" button to retry the last action
+  and view more information about the error.
+  % endif
 
   % if get_config("debug") and action_argument("error_history"):
   <h2 class="h4">${ word("History") }</h2>
