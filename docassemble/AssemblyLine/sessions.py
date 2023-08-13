@@ -244,70 +244,6 @@ def is_file_like(obj: Any) -> bool:
 
     return False
 
-def filter_file_like(obj: Any) -> Any:
-    """
-    Recursively filters out file-like elements from an object. 
-    
-    The function delves into nested structures such as lists, sets, dictionaries, 
-    and DAObject attributes to remove elements or attributes that are file-like.
-    If the main object or any nested object/attribute is file-like, it is discarded.
-
-    Args:
-        obj (Any): The object to filter. This can be a basic Python type, DAList, DASet, 
-                   DADict, DAObject, or any other nested combination.
-
-    Returns:
-        Any: The filtered object. If the main object is 
-        file-like, returns None. If the object is a list, set, or dict, the returned object 
-        will have the same type but with file-like elements removed. If it's a DAObject, 
-        a new object of the same type is returned with file-like attributes removed.
-    """
-    if is_file_like(obj):
-        return None
-    elif isinstance(obj, DAList):
-        result = obj.__class__()
-        result.elements = [filter_file_like(item) for item in obj.elements if filter_file_like(item) is not None]
-        # copy other attributes
-        for attr in dir(obj):
-            if attr != "elements" and not attr.startswith("__") and not callable(getattr(obj, attr)):
-                setattr(result, attr, getattr(obj, attr))
-        result.set_instance_name(obj.instanceName)
-        return result
-    elif isinstance(obj, DASet):
-        result = obj.__class__()
-        result.elements = {filter_file_like(item) for item in obj.elements if filter_file_like(item) is not None}
-        # copy other attributes
-        for attr in dir(obj):
-            if attr != "elements" and not attr.startswith("__") and not callable(getattr(obj, attr)):
-                setattr(result, attr, getattr(obj, attr))
-        result.set_instance_name(obj.instanceName)
-        return result
-    elif isinstance(obj, DADict):
-        result = obj.__class__()
-        result.elements = {
-            key: filter_file_like(value)
-            for key, value in obj.elements.items()
-            if filter_file_like(value) is not None
-        }
-        # copy other attributes
-        for attr in dir(obj):
-            if attr != "elements" and not attr.startswith("__") and not callable(getattr(obj, attr)):
-                setattr(result, attr, getattr(obj, attr))
-        result.set_instance_name(obj.instanceName)
-        return result
-    elif isinstance(obj, DAObject):
-        new_obj = obj.__class__()
-        for attr in dir(obj):
-            if not attr.startswith("__") and not callable(getattr(obj, attr)):
-                value = filter_file_like(getattr(obj, attr))
-                if value is not None:
-                    setattr(new_obj, attr, value)
-        new_obj.set_instance_name(obj.instanceName)
-        return new_obj
-    else:
-        return obj
-
-
 def set_interview_metadata(
     filename: str, session_id: int, data: Dict, metadata_key_name="metadata"
 ) -> None:
@@ -987,16 +923,38 @@ def get_filtered_session_variables(
     if filename and session_id:
         all_vars = get_session_variables(filename, session_id, simplify=False)
     else:
-        all_vars = all_variables(simplify=False)
+        all_vars = all_variables(simplify=False, make_copy=True)
 
-    # filter all_vars for top level items that are in `variables_to_filter`
-    # and to recursively remove any file-like objects
+    all_vars = {k: v for k, v in all_vars.items() if k not in variables_to_filter}
 
-    return {
-        item: filter_file_like(value)
-        for item, value in all_vars.items()
-        if item not in variables_to_filter and filter_file_like(value) is not None
-    }
+    items_to_check = list(all_vars.items())
+
+    while items_to_check:
+        key, value = items_to_check.pop()
+
+        if is_file_like(value):
+            del all_vars[key]
+            continue
+
+        if isinstance(value, DAObject):
+            for attr in dir(value):
+                attr_val = getattr(value, attr)
+                if is_file_like(attr_val):
+                    delattr(value, attr)
+                elif isinstance(attr_val, (DAList, DASet, DAObject)):
+                    items_to_check.append((attr, attr_val))
+
+        if isinstance(value, (DAList, DASet)):
+            new_elements = []
+            for subitem in value:
+                if not is_file_like(subitem):
+                    new_elements.append(subitem)
+                    if isinstance(subitem, (DAList, DASet, DAObject)):
+                        items_to_check.append((None, subitem))
+            value.elements = new_elements if isinstance(value, DAList) else set(new_elements)
+
+    return all_vars
+
 
 def get_filtered_session_variables_string(
     filename: Optional[str] = None,
