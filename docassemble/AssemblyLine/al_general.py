@@ -1,3 +1,4 @@
+from copy import deepcopy
 from typing import Dict, List, Literal, Union, Optional
 from docassemble.base.util import (
     Address,
@@ -47,6 +48,7 @@ __all__ = [
     "ALPeopleList",
     "Applicant",
     "Applicant",
+    "get_visible_al_nav_items",
     "github_modified_date",
     "has_parsable_pronouns",
     "HousingAuthority",
@@ -1515,3 +1517,50 @@ def parse_custom_pronouns(pronouns: str) -> Dict[str, str]:
         "s": pronoun_list[1].lower(),
         "p": pronoun_list[2].lower(),
     }
+
+def get_visible_al_nav_items(nav_items: List[Union[str, dict]]) -> List[Union[str, dict]]:
+    """
+    Processes a list of nav items and returns only the ones that are not hidden.
+    Can be used to control the visible nav items in a more declarative way while keeping
+    the navigation dynamic.
+
+    Expects a list like this:
+
+    data = [
+        {"key": "value", "hidden": True},
+        "top level item",
+        {"key2": [{"subkey": "subvalue", "hidden": False}, {"subkey": "subvalue2", "hidden": True}]},
+    ]
+    
+    Args:
+        nav_items: a list of nav items
+
+    Returns:
+        a list of nav items with hidden items removed
+    """
+    new_list: List[Union[str, dict]] = []
+    
+    for item in nav_items:
+        # For strings at top level
+        if isinstance(item, str):
+            new_list.append(item)
+            continue
+
+        # For dictionaries at top level
+        item_copy = deepcopy(item)
+        if not item_copy.pop("hidden", False):  # if not hidden
+            for key, val in item_copy.items():
+                if isinstance(val, list):  # if value of a key is a list
+                    new_sublist: List[Union[str, dict]] = []
+                    for subitem in val:
+                        # Add subitem strings as-is
+                        if isinstance(subitem, str):
+                            new_sublist.append(subitem)
+                        # Add dictionaries if not hidden
+                        elif isinstance(subitem, dict) and not subitem.pop("hidden", False):
+                            new_sublist.append(subitem)
+                    item_copy[key] = new_sublist
+            new_list.append(item_copy)
+        continue
+
+    return new_list
