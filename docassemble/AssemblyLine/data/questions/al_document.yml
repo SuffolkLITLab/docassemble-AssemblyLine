@@ -42,10 +42,9 @@ code: |
       key=action_argument('key'),
   )
   if email_success:
-    log(word('E-mail successfully sent'), 'success') # on-screen flash
     log("Email sent to " + action_argument('email')) # to log file
   else:
-    log(word('E-mail failed'), 'error')
+    log(word('E-mail failed to ') + action_argument('email'))
 
   json_response({'success': email_success})
   
