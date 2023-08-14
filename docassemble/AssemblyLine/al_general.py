@@ -1518,7 +1518,10 @@ def parse_custom_pronouns(pronouns: str) -> Dict[str, str]:
         "p": pronoun_list[2].lower(),
     }
 
-def get_visible_al_nav_items(nav_items: List[Union[str, dict]]) -> List[Union[str, dict]]:
+
+def get_visible_al_nav_items(
+    nav_items: List[Union[str, dict]]
+) -> List[Union[str, dict]]:
     """
     Processes a list of nav items and returns only the ones that are not hidden.
     Can be used to control the visible nav items in a more declarative way while keeping
@@ -1531,7 +1534,7 @@ def get_visible_al_nav_items(nav_items: List[Union[str, dict]]) -> List[Union[st
         "top level item",
         {"key2": [{"subkey": "subvalue", "hidden": False}, {"subkey": "subvalue2", "hidden": True}]},
     ]
-    
+
     Args:
         nav_items: a list of nav items
 
@@ -1539,7 +1542,7 @@ def get_visible_al_nav_items(nav_items: List[Union[str, dict]]) -> List[Union[st
         a list of nav items with hidden items removed
     """
     new_list: List[Union[str, dict]] = []
-    
+
     for item in nav_items:
         # For strings at top level
         if isinstance(item, str):
@@ -1557,7 +1560,9 @@ def get_visible_al_nav_items(nav_items: List[Union[str, dict]]) -> List[Union[st
                         if isinstance(subitem, str):
                             new_sublist.append(subitem)
                         # Add dictionaries if not hidden
-                        elif isinstance(subitem, dict) and not subitem.pop("hidden", False):
+                        elif isinstance(subitem, dict) and not subitem.pop(
+                            "hidden", False
+                        ):
                             new_sublist.append(subitem)
                     item_copy[key] = new_sublist
             new_list.append(item_copy)

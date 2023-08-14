@@ -401,20 +401,30 @@ class TestALIndividual(unittest.TestCase):
         with self.assertRaises(DAAttributeError):
             self.individual.pronoun_objective()
 
-class test_get_visible_al_nav_items(unittest.TestCase):
 
+class test_get_visible_al_nav_items(unittest.TestCase):
     def test_case_1(self):
         data = [
             "Selecting_Legal_Category",
             {"personal_injury": "Gather Evidence", "hidden": False},
             {"divorce": "Collect Financial Documents", "hidden": False},
-            {"business_dispute": ["Interview Witnesses", {"subtask": "Document Communication", "hidden": False}]}
+            {
+                "business_dispute": [
+                    "Interview Witnesses",
+                    {"subtask": "Document Communication", "hidden": False},
+                ]
+            },
         ]
         expected = [
             "Selecting_Legal_Category",
             {"personal_injury": "Gather Evidence"},
             {"divorce": "Collect Financial Documents"},
-            {"business_dispute": ["Interview Witnesses", {"subtask": "Document Communication"}]}
+            {
+                "business_dispute": [
+                    "Interview Witnesses",
+                    {"subtask": "Document Communication"},
+                ]
+            },
         ]
         self.assertEqual(get_visible_al_nav_items(data), expected)
 
@@ -423,14 +433,19 @@ class test_get_visible_al_nav_items(unittest.TestCase):
             "Drafting_Documents",
             {"pre_nup": "List Assets"},
             "Finding_Legal_Representative",
-            {"business_formation": ["Choose Business Type", {"subtask": "Decide Ownership Structure", "hidden": True}]},
-            {"real_estate": "Draft Lease Agreement", "hidden": True}
+            {
+                "business_formation": [
+                    "Choose Business Type",
+                    {"subtask": "Decide Ownership Structure", "hidden": True},
+                ]
+            },
+            {"real_estate": "Draft Lease Agreement", "hidden": True},
         ]
         expected = [
             "Drafting_Documents",
             {"pre_nup": "List Assets"},
             "Finding_Legal_Representative",
-            {"business_formation": ["Choose Business Type"]}
+            {"business_formation": ["Choose Business Type"]},
         ]
         self.assertEqual(get_visible_al_nav_items(data), expected)
 
@@ -438,12 +453,24 @@ class test_get_visible_al_nav_items(unittest.TestCase):
         data = [
             "Negotiating_Terms",
             "Reviewing_Contracts",
-            {"estate_planning": ["Draft Will", {"subtask": "Designate Beneficiaries", "hidden": False}, {"subtask": "Determine Power of Attorney", "hidden": False}]}
+            {
+                "estate_planning": [
+                    "Draft Will",
+                    {"subtask": "Designate Beneficiaries", "hidden": False},
+                    {"subtask": "Determine Power of Attorney", "hidden": False},
+                ]
+            },
         ]
         expected = [
             "Negotiating_Terms",
             "Reviewing_Contracts",
-            {"estate_planning": ["Draft Will", {"subtask": "Designate Beneficiaries"}, {"subtask": "Determine Power of Attorney"}]}
+            {
+                "estate_planning": [
+                    "Draft Will",
+                    {"subtask": "Designate Beneficiaries"},
+                    {"subtask": "Determine Power of Attorney"},
+                ]
+            },
         ]
         self.assertEqual(get_visible_al_nav_items(data), expected)
 
@@ -451,13 +478,20 @@ class test_get_visible_al_nav_items(unittest.TestCase):
         data = [
             {"employment_law": "Understand Employee Rights", "hidden": False},
             "Preparing_for_Court",
-            {"criminal_defense": ["Know Your Rights", {"subtask": "Hire Defense Attorney", "hidden": True}]}
+            {
+                "criminal_defense": [
+                    "Know Your Rights",
+                    {"subtask": "Hire Defense Attorney", "hidden": True},
+                ]
+            },
         ]
         expected = [
             {"employment_law": "Understand Employee Rights"},
             "Preparing_for_Court",
-            {"criminal_defense": ["Know Your Rights"]}
+            {"criminal_defense": ["Know Your Rights"]},
         ]
         self.assertEqual(get_visible_al_nav_items(data), expected)
+
+
 if __name__ == "__main__":
     unittest.main()
