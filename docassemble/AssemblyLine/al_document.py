@@ -1606,7 +1606,10 @@ class ALDocumentBundle(DAList):
         return send_button
 
     def send_button_html(
-        self, key: str = "final", show_editable_checkbox: bool = True, template_name: str = ""
+        self,
+        key: str = "final",
+        show_editable_checkbox: bool = True,
+        template_name: str = "",
     ) -> str:
         """
         Generate HTML for an input box and button that allows someone to send the bundle
@@ -1688,11 +1691,11 @@ class ALDocumentBundle(DAList):
     ) -> bool:
         """
         Send an email with the current bundle as a series of flat pdfs (one per bundle entry)
-        or as editable documents. This function is similar to 
+        or as editable documents. This function is similar to
         https://docassemble.org/docs/functions.html#send_email with additional parameters.
 
         Args:
-            to (Any): The email address or list of addresses to send to. It can be a string 
+            to (Any): The email address or list of addresses to send to. It can be a string
                 or objects with such. Similar to da send_email `to`.
             key (str, optional): Specifies which version of the document to send. Defaults to "final".
             editable (bool, optional): If True, sends the editable documents. Defaults to False.
@@ -1709,7 +1712,9 @@ class ALDocumentBundle(DAList):
             return send_email(
                 to=to,
                 template=template,
-                attachments=set(self.as_editable_list(key=key) + self.as_pdf_list(key=key)),
+                attachments=set(
+                    self.as_editable_list(key=key) + self.as_pdf_list(key=key)
+                ),
                 **kwargs,
             )
         else:
