@@ -141,6 +141,17 @@ code: |
   command('new_session')
 ---
 code: |
+  enable_al_nav_sections = False
+---
+code: |
+  al_nav_sections = []
+---
+initial: True
+code: |
+  if enable_al_nav_sections:
+    nav.set_sections(get_visible_al_nav_items(al_nav_sections))
+---
+code: |
   send_icon = "envelope"
 ---
 code: |
