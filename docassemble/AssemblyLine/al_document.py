@@ -1550,15 +1550,82 @@ class ALDocumentBundle(DAList):
 
         return html
 
-    def send_button_html(
-        self, key: str = "final", show_editable_checkbox: bool = True
+    def send_button_to_html(
+        self,
+        email: str,
+        editable: bool = False,
+        template_name: str = "",
+        label: str = "Send",
+        icon: str = "envelope",
+        color: str = "primary",
+        key: str = "final",
     ) -> str:
         """
-        Generate HTML for an input box and button that allows someone to send
-        the bundle to the specified email address.
+        Generate HTML for a button that allows someone to send the bundle to a
+        specific email address. The email address is not editable by the end user
+        in contrast to send_button_html.
+
+        Args:
+            email (str): The recipient's email address.
+            editable (bool, optional): Flag indicating if the bundle is editable. Defaults to False.
+            template_name (str, optional): The name of the template to be used. Defaults to an empty string.
+            label (str, optional): The label for the button. Defaults to "Send".
+            icon (str, optional): The Fontawesome icon for the button. Defaults to "envelope".
+            color (str, optional): The Bootstrap color of the button. Defaults to "primary".
+            key (str, optional): A key used to identify which version of the ALDocument to send. Defaults to "final".
+
+        Returns:
+            str: The generated HTML string for the button.
+        """
+        if not self.has_enabled_documents():
+            return ""  # Don't let people email an empty set of documents
+        if not hasattr(self, "_cached_get_email_copy"):
+            self._cached_get_email_copy = str(self.get_email_copy)
+        name = html_safe_str(self.instanceName)
+        al_send_button_id = "al_send_email_to_button_" + name
+
+        javascript_string = (
+            f"javascript:aldocument_send_to_action("
+            f"'{self.attr_name('send_email_to_action_event')}',"
+            f"'{editable}',"
+            f"'{email}',"
+            f"'{al_send_button_id}',"
+            f"'{template_name}',"
+            f"'{key}')"
+        )
+        send_button = action_button_html(
+            javascript_string,
+            label=label,
+            icon=icon,
+            color=color,
+            size="md",
+            classname="al_send_email_button al_button",
+            id_tag=al_send_button_id,
+        )
+
+        return send_button
+
+    def send_button_html(
+        self,
+        key: str = "final",
+        show_editable_checkbox: bool = True,
+        template_name: str = "",
+    ) -> str:
+        """
+        Generate HTML for an input box and button that allows someone to send the bundle
+        to the specified email address.
 
         Optionally, display a checkbox that allows someone to decide whether or not to
         include an editable (Word) copy of the file, if and only if it is available.
+
+        Args:
+            key (str, optional): A key used to identify which version of the ALDocument to send. Defaults to "final".
+            show_editable_checkbox (bool, optional): Flag indicating if the checkbox
+                for deciding the inclusion of an editable (Word) copy should be displayed.
+                Defaults to True.
+
+        Returns:
+            str: The generated HTML string for the input box and button.
         """
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
@@ -1576,7 +1643,10 @@ class ALDocumentBundle(DAList):
         javascript_string = (
             f"javascript:aldocument_send_action("
             f"'{self.attr_name('send_email_action_event')}',"
-            f"'{al_wants_editable_input_id}','{al_email_input_id}')"
+            f"'{al_wants_editable_input_id}',"
+            f"'{al_email_input_id}',"
+            f"'{template_name}',"
+            f"'{key}')"
         )
 
         # Container of whole email section with header
@@ -1620,17 +1690,20 @@ class ALDocumentBundle(DAList):
         **kwargs,
     ) -> bool:
         """
-        Send an email with the current bundle as a series of flat pdfs (one per bundle entry) or
-        as editable documents.
-        Can be used the same as https://docassemble.org/docs/functions.html#send_email with
-        two optional additional params.
+        Send an email with the current bundle as a series of flat pdfs (one per bundle entry)
+        or as editable documents. This function is similar to
+        https://docassemble.org/docs/functions.html#send_email with additional parameters.
 
-        keyword arguments:
-        @param to {string} - Same as da send_email `to` - email address(es) or objects with such.
-        @param [key] {string} - Optional. Which version of the doc. Default: 'final'
-        @param [editable] {bool} - Optional. User wants the editable docs. Default: False
-        @param template {object} - Same as da `send_email` `template` variable.
-        @param * {*} - Any other parameters you'd send to a da `send_email` function
+        Args:
+            to (Any): The email address or list of addresses to send to. It can be a string
+                or objects with such. Similar to da send_email `to`.
+            key (str, optional): Specifies which version of the document to send. Defaults to "final".
+            editable (bool, optional): If True, sends the editable documents. Defaults to False.
+            template (Any): The template variable, similar to da `send_email` `template` variable.
+            **kwargs: Additional parameters to pass to the da `send_email` function.
+
+        Returns:
+            bool: Indicates if the email was sent successfully.
         """
         if not template:
             template = self.send_email_template
@@ -1639,7 +1712,9 @@ class ALDocumentBundle(DAList):
             return send_email(
                 to=to,
                 template=template,
-                attachments=self.as_editable_list(key=key),
+                attachments=set(
+                    self.as_editable_list(key=key) + self.as_pdf_list(key=key)
+                ),
                 **kwargs,
             )
         else:
