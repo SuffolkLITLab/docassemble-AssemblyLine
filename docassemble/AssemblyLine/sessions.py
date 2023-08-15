@@ -196,7 +196,7 @@ system_interviews: List[Dict[str, Any]] = interview_menu()
 def _package_name(package_name: Optional[str] = None):
     """Get package name without the name of the current module, like: docassemble.ALWeaver instead of
     docassemble.ALWeaver.advertise_capabilities
-    
+
     Args:
         package_name (str, optional): The package name to process. Defaults to None.
 
@@ -214,13 +214,13 @@ def _package_name(package_name: Optional[str] = None):
 al_session_store_default_filename = f"{_package_name()}:al_saved_sessions_store.yml"
 
 
-def is_file_like(obj:Any) -> bool:
+def is_file_like(obj: Any) -> bool:
     """
     Return True if the object is a file-like object.
 
     Args:
         obj (Any): The object to test
-    
+
     Returns:
         bool: True if the object is a file-like object.
     """
@@ -673,7 +673,7 @@ def radial_progress(answer: Dict[str, Union[str, int]]):
 
     Args:
         answer (Dict[str, Union[str, int]]): The answer dictionary to get the interview progress from
-    
+
     Returns:
         str: HTML for a radial progress bar, or the number of steps if progress isn't available in the metadata.
     """
@@ -891,7 +891,7 @@ def rename_interview_answers(
 ) -> None:
     """Update the 'title' metadata of an interview, as stored in the dedicated `metadata` column, without touching other
     metadata that may be present.
-    
+
     Args:
         filename (str): The filename of the interview to rename
         session_id (int): The session ID of the interview to rename
@@ -948,7 +948,7 @@ def rename_current_session(
 ) -> None:
     """Update the "title" metadata entry for the current session without changing any other
     metadata that might be present.
-    
+
     Args:
         new_name (str): The new name to set for the interview
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
@@ -981,7 +981,7 @@ def save_interview_answers(
         original_interview_filename (str, optional): Original filename of the interview. Defaults to None.
         source_filename (str, optional): Source filename to get session variables from. Defaults to None.
         source_session (str, optional): Session ID of the source file. Defaults to None.
-    
+
     Returns:
         str: ID of the new session.
     """
@@ -1047,15 +1047,15 @@ def get_filtered_session_variables(
     variables_to_filter: Union[Set[str], List[str], None] = None,
 ) -> Dict[str, Any]:
     """
-    Retrieves a filtered subset of variables from a specified interview and session. 
-    If no filename and session ID are given, it will return a filtered list of variables 
+    Retrieves a filtered subset of variables from a specified interview and session.
+    If no filename and session ID are given, it will return a filtered list of variables
     from the current interview.
 
     Args:
         filename (Optional[str], optional): Filename of the session. Defaults to None.
         session_id (Optional[int], optional): Session ID to retrieve variables from. Defaults to None.
         variables_to_filter (Union[Set[str], List[str], None], optional): List or set of variables to exclude. Defaults to `al_sessions_variables_to_remove`.
-    
+
     Returns:
         Dict[str, Any]: A dictionary of filtered session variables.
     """
@@ -1082,14 +1082,14 @@ def get_filtered_session_variables_string(
     variables_to_filter: Union[Set[str], List[str], None] = None,
 ) -> str:
     """
-    Returns a JSON string that represents the filtered contents of a specified filename and session ID. 
+    Returns a JSON string that represents the filtered contents of a specified filename and session ID.
     If no filename and session ID are provided, the current session's variables will be used.
 
     Args:
         filename (Optional[str], optional): Filename of the session. Defaults to None.
         session_id (Optional[int], optional): Session ID to retrieve variables from. Defaults to None.
         variables_to_filter (Union[Set[str], List[str], None], optional): List or set of variables to exclude. Defaults to `al_sessions_variables_to_remove`.
-    
+
     Returns:
         str: A JSON-formatted string of filtered session variables.
     """
@@ -1107,8 +1107,8 @@ def load_interview_answers(
     variables_to_filter: Optional[List[str]] = None,
 ) -> Optional[int]:
     """
-    Loads answers from a specified session. If the parameter `new_session` is set to True, it will create 
-    a new session with the provided or current interview filename. Otherwise, it will load the answers into 
+    Loads answers from a specified session. If the parameter `new_session` is set to True, it will create
+    a new session with the provided or current interview filename. Otherwise, it will load the answers into
     the active session. This function is primarily used for migrating answers between sessions.
 
     Args:
@@ -1117,7 +1117,7 @@ def load_interview_answers(
         new_session (bool, optional): Determines whether to create a new session. Defaults to False.
         new_interview_filename (Optional[str], optional): Filename for the new session. Defaults to None.
         variables_to_filter (Optional[List[str]], optional): List of variables to exclude. Defaults to None.
-    
+
     Returns:
         Optional[int]: ID of the newly created session if `new_session` is True, otherwise True or False based on success.
     """
@@ -1147,8 +1147,8 @@ def load_interview_json(
     variables_to_filter: Optional[List[str]] = None,
 ) -> Optional[int]:
     """
-    Given a JSON string, this function loads the specified variables into a Docassemble session. 
-    JSON strings containing annotated class names will be transformed into Docassemble objects. 
+    Given a JSON string, this function loads the specified variables into a Docassemble session.
+    JSON strings containing annotated class names will be transformed into Docassemble objects.
     If the `new_session` argument is not set, the JSON answers will be loaded into the current interview.
 
     Args:
@@ -1185,8 +1185,8 @@ def export_interview_variables(
     output: DAFile = None,
 ) -> DAFile:
     """
-    Generates a DAFile containing a JSON representation of a specified session's interview answers. 
-    The resultant output is compatible with `set_session_variables(process_objects=True)` and 
+    Generates a DAFile containing a JSON representation of a specified session's interview answers.
+    The resultant output is compatible with `set_session_variables(process_objects=True)` and
     `set_variables(process_objects=True)` methods.
 
     Args:

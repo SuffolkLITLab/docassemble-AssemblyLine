@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Dict, List, Literal, Union, Optional
+from typing import Dict, List, Literal, Union, Optional, Any
 from docassemble.base.util import (
     Address,
     as_datetime,
@@ -75,10 +75,10 @@ def safe_subdivision_type(country_code: str) -> Optional[str]:
     """
     Returns the subdivision type for the country with the given country code.
     If no subdivision type is found, returns None.
-    
+
     Args:
         country_code (str): The ISO-3166-1 alpha-2 code for the country.
-    
+
     Returns:
         str: The subdivision type for the country with the given country code.
     """
@@ -114,10 +114,10 @@ class ALAddress(Address):
     ) -> List[Dict[str, Any]]:
         """
         Return a YAML structure representing the list of fields for the object's address.
-        
-        Optionally, allow the user to specify they do not have an address. When using 
-        `allow_no_address=True`, ensure to trigger the question with `users[0].address.has_no_address` 
-        rather than `users[0].address.address`. If `show_if` is used, it will not be applied when 
+
+        Optionally, allow the user to specify they do not have an address. When using
+        `allow_no_address=True`, ensure to trigger the question with `users[0].address.has_no_address`
+        rather than `users[0].address.address`. If `show_if` is used, it will not be applied when
         `allow_no_address` is also used. Ensure `country_code` adheres to ISO-3166-1 alpha-2 code standard.
 
         NOTE: This function is stateful under specific conditions. Refer to the conditions mentioned below.
@@ -134,15 +134,15 @@ class ALAddress(Address):
             list: A list of YAML structure representing address fields.
 
         Notes:
-            - The function will set the `country` attribute of the Address to `country_code` under these 
+            - The function will set the `country` attribute of the Address to `country_code` under these
             circumstances:
                 1. The `country_code` parameter is used.
                 2. The `show_country` parameter is not used.
                 3. `country_code` differs from the value returned by `get_country()`.
 
-            - Link to ISO-3166-1 alpha-2 codes: 
+            - Link to ISO-3166-1 alpha-2 codes:
             [Officially assigned code elements](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements).
-        """        
+        """
         # make sure the state name still returns a meaningful value if the interview country
         # differs from the server's country.
         if country_code and country_code != get_country() and not show_country:
@@ -317,9 +317,9 @@ class ALAddress(Address):
 
     def block(
         self,
-        language: str = None,
+        language: Optional[str] = None,
         international: bool = False,
-        show_country: bool = None,
+        show_country: Optional[bool] = None,
         bare: bool = False,
         long_state: bool = False,
     ):
@@ -329,7 +329,7 @@ class ALAddress(Address):
             include_unit (bool): If True, includes the unit in the formatted address. Defaults to True.
             omit_default_country (bool): If True, omits the default country from the formatted address. Defaults to True.
             language (str, optional): Language for the address format.
-            show_country (bool, optional): If True, includes the country in the formatted address. 
+            show_country (bool, optional): If True, includes the country in the formatted address.
                 If None, decides based on the country attribute.
             bare (bool): If True, excludes certain formatting elements. Defaults to False.
             long_state (bool): If True, uses the full state name. Defaults to False.
@@ -379,7 +379,7 @@ class ALAddress(Address):
             elif hasattr(self, "postal_code") and self.postal_code:
                 i18n_address["postal_code"] = str(self.postal_code)
             i18n_address["country_code"] = self._get_country()
-            return i18n_address.format_address(i18n_address).replace("\n", line_breaker)
+            return i18n_address.format_address(i18n_address).replace("\n", line_breaker)  # type: ignore
         output = ""
         if self.city_only is False:
             if (
@@ -418,7 +418,7 @@ class ALAddress(Address):
             output += line_breaker + country_name(self._get_country())
         return output
 
-    def line_one(self, language: str = None, bare: bool = False) -> str:
+    def line_one(self, language: Optional[str] = None, bare: bool = False) -> str:
         """Returns the first line of the address, including the unit number if it exists.
 
         Args:
@@ -449,7 +449,7 @@ class ALAddress(Address):
             output += ", " + the_unit
         return output
 
-    def line_two(self, language: str = None, long_state: bool = False) -> str:
+    def line_two(self, language: Optional[str] = None, long_state: bool = False) -> str:
         """Returns the second line of the address, including city, state, and postal code.
 
         Args:
@@ -491,7 +491,7 @@ class ALAddress(Address):
             include_unit (bool): If True, includes the unit in the formatted address. Defaults to True.
             omit_default_country (bool): If True, omits the default country from the formatted address. Defaults to True.
             language (str, optional): Language for the address format.
-            show_country (bool, optional): If True, includes the country in the formatted address. 
+            show_country (bool, optional): If True, includes the country in the formatted address.
                 If None, decides based on the country attribute.
             bare (bool): If True, excludes certain formatting elements. Defaults to False.
             long_state (bool): If True, uses the full state name. Defaults to False.
@@ -554,8 +554,8 @@ class ALAddress(Address):
 
         If geocoding is successful, the method returns the "long" normalized version
         of the address. All methods, such as `my_address.normalized_address().block()`, are
-        still available on the returned object. However, note that the returned object will 
-        be a standard Address object, not an ALAddress object. If geocoding fails, it returns 
+        still available on the returned object. However, note that the returned object will
+        be a standard Address object, not an ALAddress object. If geocoding fails, it returns
         the version of the address as entered by the user.
 
         Returns:
@@ -570,7 +570,7 @@ class ALAddress(Address):
             return self.norm_long
         return self
 
-    def state_name(self, country_code: str = None) -> str:
+    def state_name(self, country_code: Optional[str] = None) -> str:
         """Returns the full state name based on the state abbreviation.
 
         If a `country_code` is provided, it will override the country attribute of the Address
@@ -581,7 +581,7 @@ class ALAddress(Address):
 
         Args:
             country_code (str, optional): ISO-3166-1 alpha-2 code to override the country attribute of
-            the Address object. For valid codes, refer to: 
+            the Address object. For valid codes, refer to:
             https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements
 
         Returns:
@@ -607,8 +607,8 @@ class ALAddress(Address):
 class ALAddressList(DAList):
     """A class to store a list of ALAddress objects.
 
-    Extends the DAList class and specifically caters to ALAddress objects. 
-    It provides methods to initialize the list and get a string representation 
+    Extends the DAList class and specifically caters to ALAddress objects.
+    It provides methods to initialize the list and get a string representation
     of the list in a formatted manner.
     """
 
@@ -619,12 +619,12 @@ class ALAddressList(DAList):
     def __str__(self) -> str:
         """Provide a string representation of the ALAddressList.
 
-        This method returns the addresses in the list formatted in a 
+        This method returns the addresses in the list formatted in a
         comma-separated manner using the on_one_line method of ALAddress.
 
         Returns:
             str: Formatted string of all addresses in the list.
-        """        
+        """
         return comma_and_list([item.on_one_line() for item in self])
 
 
@@ -633,6 +633,7 @@ class ALNameList(DAList):
 
     Extends the DAList class and is tailored for IndividualName objects.
     """
+
     def init(self, *pargs, **kwargs):
         super().init(*pargs, **kwargs)
         self.object_type = IndividualName
@@ -647,8 +648,8 @@ class ALNameList(DAList):
 
 
 class ALPeopleList(DAList):
-    """Class to store a list of ALIndividual objects, representing people.
-    """
+    """Class to store a list of ALIndividual objects, representing people."""
+
     def init(self, *pargs, **kwargs):
         super(ALPeopleList, self).init(*pargs, **kwargs)
         self.object_type = ALIndividual
@@ -678,7 +679,7 @@ class ALPeopleList(DAList):
 
         Returns:
             str: Formatted string of familiar names.
-        """        
+        """
         return comma_and_list([person.name.familiar() for person in self])
 
     def familiar_or(self) -> str:
@@ -686,7 +687,7 @@ class ALPeopleList(DAList):
 
         Returns:
             str: Formatted string of familiar names separated by 'or'.
-        """        
+        """
         return comma_and_list(
             [person.name.familiar() for person in self], and_string=word("or")
         )
@@ -726,8 +727,8 @@ class ALPeopleList(DAList):
 class ALIndividual(Individual):
     """Used to represent an Individual on the assembly line project.
 
-    This class extends the Individual class and adds more tailored attributes and methods 
-    relevant for the assembly line project. Specifically, it has attributes for previous addresses, 
+    This class extends the Individual class and adds more tailored attributes and methods
+    relevant for the assembly line project. Specifically, it has attributes for previous addresses,
     other addresses, mailing addresses, previous names, aliases, and a preferred name.
 
     Attributes:
@@ -740,7 +741,7 @@ class ALIndividual(Individual):
         preferred_name (IndividualName): The preferred name.
 
     Note:
-        Objects as attributes should not be passed directly to the constructor due to 
+        Objects as attributes should not be passed directly to the constructor due to
         initialization requirements in the Docassemble framework. See the `init` method.
     """
 
@@ -783,13 +784,13 @@ class ALIndividual(Individual):
 
         Returns:
             Union[DAFile, str]: The signature if the condition is met, otherwise an empty string.
-        """        
+        """
         if i == "final":
             return self.signature
         else:
             return ""
 
-    def phone_numbers(self, country:Optional[str]=None) -> str:
+    def phone_numbers(self, country: Optional[str] = None) -> str:
         """Fetches and formats the phone numbers of the individual.
 
         Args:
@@ -797,7 +798,7 @@ class ALIndividual(Individual):
 
         Returns:
             str: Formatted string of phone numbers.
-        """        
+        """
         nums = []
         if hasattr(self, "mobile_number") and self.mobile_number:
             try:
@@ -872,7 +873,7 @@ class ALIndividual(Individual):
 
         Returns:
             str: Formatted age string in years, months, weeks, or days.
-        """        
+        """
         dd = date_difference(self.birthdate)
         if dd.years >= 2:
             return "%d years" % (int(dd.years),)
@@ -887,7 +888,7 @@ class ALIndividual(Individual):
 
         Returns:
             Union[Address, ALAddress]: The normalized address object.
-        """        
+        """
         return self.address.normalized_address()
 
     # This design helps us translate the prompts for common fields just once
@@ -906,7 +907,7 @@ class ALIndividual(Individual):
                 Default is "person".
             show_suffix (bool, optional): Determines if the name's suffix (e.g., Jr., Sr.) should be included in the prompts.
                 Default is True.
-            show_if (Union[str, Dict[str, str], None], optional): Condition to determine which fields to show. 
+            show_if (Union[str, Dict[str, str], None], optional): Condition to determine which fields to show.
                 It can be a string, a dictionary with conditions, or None. Default is None.
 
         Returns:
@@ -1031,7 +1032,7 @@ class ALIndividual(Individual):
     ) -> List[Dict[str, str]]:
         """
         Generate field prompts for capturing an address.
-        
+
         Args:
             country_code (str): The default country for the address. Defaults to "US".
             default_state (Optional[str]): Default state if applicable. Defaults to None.
@@ -1039,7 +1040,7 @@ class ALIndividual(Individual):
             show_county (bool): Whether to display the county field. Defaults to False.
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             allow_no_address (bool): Whether to permit entries with no address. Defaults to False.
-        
+
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for addresses.
         """
@@ -1060,11 +1061,11 @@ class ALIndividual(Individual):
         """
         Generate fields for capturing gender information, including a
         self-described option.
-        
+
         Args:
             show_help (bool): Whether to show additional help text. Defaults to False.
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
-        
+
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for gender.
         """
@@ -1107,14 +1108,14 @@ class ALIndividual(Individual):
     ):
         """
         Generate fields for capturing pronoun information.
-        
+
         Args:
             show_help (bool): Whether to show additional help text. Defaults to False.
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             required (bool): Whether the field is required. Defaults to False.
             shuffle (bool): Whether to shuffle the order of pronouns. Defaults to False.
             show_unknown (Union[Literal["guess"], bool]): Whether to show an "unknown" option. Can be "guess", True, or False. Defaults to "guess".
-        
+
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for pronouns.
         """
@@ -1160,9 +1161,9 @@ class ALIndividual(Individual):
     def get_pronouns(self) -> set:
         """
         Retrieve a set of the individual's pronouns.
-        
+
         If the individual has selected the "self-described" option, it will use their custom input.
-        
+
         Returns:
             set: A set of strings representing the individual's pronouns.
         """
@@ -1181,12 +1182,12 @@ class ALIndividual(Individual):
     ):
         """
         Generate fields for capturing language preferences.
-        
+
         Args:
             choices (Optional[List[Dict[str, str]]]): A list of language choices. Defaults to None.
             style (str): The display style of choices. Defaults to "radio".
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
-        
+
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for language preferences.
         """
@@ -1220,8 +1221,8 @@ class ALIndividual(Individual):
         Get the human-readable version of the individual's selected language.
 
         Returns:
-            str: The human-readable version of the language. If 'other' is selected, 
-            it returns the value in `language_other`. Otherwise, it uses the 
+            str: The human-readable version of the language. If 'other' is selected,
+            it returns the value in `language_other`. Otherwise, it uses the
             `language_name` function.
         """
         if self.language == "other":
@@ -1234,7 +1235,7 @@ class ALIndividual(Individual):
         """
         Check if the gender is male.
 
-        Used to assist with checkbox filling in PDFs with "skip undefined" 
+        Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
 
         Returns:
@@ -1247,19 +1248,20 @@ class ALIndividual(Individual):
         """
         Check if the gender is female.
 
-        Used to assist with checkbox filling in PDFs with "skip undefined" 
+        Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
 
         Returns:
             bool: True if gender is 'female', False otherwise.
-        """        return self.gender.lower() == "female"
+        """
+        return self.gender.lower() == "female"
 
     @property
     def gender_other(self):
         """
         Check if the gender is not male or female.
 
-        Used to assist with checkbox filling in PDFs with "skip undefined" 
+        Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
 
         Returns:
@@ -1272,7 +1274,7 @@ class ALIndividual(Individual):
         """
         Check if the gender is nonbinary.
 
-        Used to assist with checkbox filling in PDFs with "skip undefined" 
+        Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
 
         Returns:
@@ -1285,7 +1287,7 @@ class ALIndividual(Individual):
         """
         Check if the gender is unknown.
 
-        Used to assist with checkbox filling in PDFs with "skip undefined" 
+        Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
 
         Returns:
@@ -1298,7 +1300,7 @@ class ALIndividual(Individual):
         """
         Check if the gender is not disclosed.
 
-        Used to assist with checkbox filling in PDFs with "skip undefined" 
+        Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
 
         Returns:
@@ -1311,7 +1313,7 @@ class ALIndividual(Individual):
         """
         Check if the gender is self described.
 
-        Used to assist with checkbox filling in PDFs with "skip undefined" 
+        Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
 
         Returns:
@@ -1354,7 +1356,7 @@ class ALIndividual(Individual):
 
         Returns:
             str: The formatted address block.
-        """        
+        """
         if this_thread.evaluation_context == "docx":
             return (
                 self.name.full()
@@ -1567,7 +1569,7 @@ class ALIndividual(Individual):
 
 
 # (DANav isn't in public DA API, but currently in functions.py)
-def section_links(nav) -> List[str]: #type: ignore 
+def section_links(nav) -> List[str]:  # type: ignore
     """Returns a list of clickable navigation links without animation."""
     sections = nav.get_sections()
     section_link = []
@@ -1788,10 +1790,10 @@ def language_name(language_code: str) -> str:
     """Given a 2 digit language code abbreviation, returns the full
     name of the language. The language name will be passed through the `word()`
     function.
-    
+
     Args:
         language_code (str): A 2 digit language code abbreviation.
-    
+
     Returns:
         str: The full name of the language.
     """
@@ -1808,10 +1810,10 @@ def language_name(language_code: str) -> str:
 def safe_states_list(country_code: str) -> List[Dict[str, str]]:
     """Wrapper around states_list that doesn't error if passed
     an invalid country_code (e.g., a country name spelled out)
-    
+
     Args:
         country_code (str): A 2 digit country code abbreviation.
-    
+
     Returns:
         List[Dict[str, str]]: A list of dictionaries with field prompts for states.
     """
