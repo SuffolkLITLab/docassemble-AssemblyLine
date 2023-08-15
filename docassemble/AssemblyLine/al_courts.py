@@ -384,7 +384,7 @@ class ALCourtLoader(DAObject):
 
         Args:
             intrinsicName (str): The intrinsic name you want to assign to the returned object (used for DA namespace searching).
-            index (int): The index position of the court in the dataframe.
+            index (Union[int, str]): The index position of the court in the dataframe.
             ensure_lat_long (bool, optional): Whether to ensure the presence of latitude and longitude data. Defaults to True.
 
         Returns:
