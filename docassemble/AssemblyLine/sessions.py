@@ -675,7 +675,7 @@ def radial_progress(answer: Dict[str, Union[str, int]]):
         answer (Dict[str, Union[str, int]]): The answer dictionary to get the interview progress from
 
     Returns:
-        str: HTML for a radial progress bar, or the number of steps if progress isn't available in the metadata.
+        str: the HTML as a string
     """
     if not answer.get("progress"):
         return f"Page {answer.get('steps') or answer.get('num_keys') or 1}"
