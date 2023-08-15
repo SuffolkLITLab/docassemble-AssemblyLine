@@ -198,7 +198,7 @@ def _package_name(package_name: Optional[str] = None):
     docassemble.ALWeaver.advertise_capabilities
 
     Args:
-        package_name (str, optional): The package name to process. Defaults to None.
+        package_name (str, optional): The package name to process. If `None`, will use the existing package name `__name__` instead
 
     Returns:
         str: The package name without the current module name.
