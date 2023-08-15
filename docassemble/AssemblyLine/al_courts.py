@@ -43,7 +43,17 @@ class ALCourt(Court):
 
     def _map_info(self) -> List[Dict[str, Any]]:
         """
-        Create information that can be used to display court locations on a map.
+        Create information that can be used to display court locations on a Docassemble map.
+
+        See: https://docassemble.org/docs/functions.html#map_of
+
+        Returns: 
+            List[Dict[str, Any]] - a list of dictionaries, each of which contains
+                the following keys:
+                    - latitude: float
+                    - longitude: float
+                    - info: str
+                    - icon: str (optional)
         """
         the_info = str(self.name)
         the_info += "  [NEWLINE]  " + self.address.block()
@@ -62,6 +72,8 @@ class ALCourt(Court):
         This may not match the court's name. If the name omits city, we
         append city name to the court name. This is good for a drop-down selection
         list.
+
+        Returns: str
         """
         # Avoid forcing the interview to define the court's address
         if hasattr(self, "address") and hasattr(self.address, "city"):
@@ -75,6 +87,8 @@ class ALCourt(Court):
         """
         Returns a markdown formatted string with the name and address of the court.
         More concise version without description; suitable for a responsive case.
+
+        Returns: str
         """
         return f"**{ self.short_label() }**[BR]{ self.address.on_one_line() }"
 
@@ -83,18 +97,24 @@ class ALCourt(Court):
         Returns a Markdown formatted string that includes the disambiguated name and
         the description of the court, for inclusion in the results page with radio
         buttons.
+
+        Returns: str
         """
         all_info = f"**{ self.short_label() }**"
         if hasattr(self, "address"):
             all_info = f"{ all_info }[BR]{ self.address.on_one_line() }"
         return f"{ all_info }[BR]{ self.description }"
 
-    def from_row(self, df_row, ensure_lat_long=True) -> None:
+    def from_row(self, df_row: pd.Series, ensure_lat_long:bool=True) -> None:
         """
-        Loads data from a single Pandas Dataframe into a court object.
+        Loads data from a single Pandas Dataframe into the current court object.
         Note: It will try to convert column names that don't make valid
         attributes. Best practice is to use good attribute names (no spaces) that don't interfere
         with existing attributes or methods of DAObject
+
+        Args:
+            df_row: Pandas Series object
+            ensure_lat_long: bool, whether to use Google Maps to geocode the address if we don't have coordinates
         """
         # A few columns we expect to see:
         # name
@@ -155,8 +175,20 @@ class ALCourt(Court):
                 # self.location = self.address.location
 
     def geolocate(self):
-        self.address.geolocate()
+        """
+        Use Google Maps to geocode the court's address and store the result in the location attribute.
+
+        Deprecated: use geocode() instead.
+        """
+        self.geocode()
+
+    def geocode(self):
+        """
+        Use Google Maps to geocode the court's address and store the result in the location attribute.
+        """
+        self.address.geocode()
         self.location = self.address.location
+
 
 
 class ALCourtLoader(DAObject):
@@ -164,6 +196,9 @@ class ALCourtLoader(DAObject):
     Object to hold some methods surrounding loading/filtering courts.
 
     Built around Pandas dataframe.
+
+    Attributes:
+        filename (str): Path to the file containing court information.    
     """
 
     def init(self, *pargs, **kwargs):
@@ -180,12 +215,26 @@ class ALCourtLoader(DAObject):
     # Only solution I can think of would require court database owners to assign each court a unique ID
     # and something that triggers recalculating the court address/etc info.
 
-    def all_courts(self) -> list:
-        """Return all courts without any filtering"""
+    def all_courts(self) -> List[ALCourt]:
+        """
+        Return a list of all courts in the spreadsheet.
+
+        Returns: 
+            List[ALCourt]: List of all ALCourt instances without filtering.
+        """
         return self.filter_courts(None)
 
-    def unique_column_values(self, column_name) -> Set[str]:
-        """get a list of all unique values in the given column"""
+    def unique_column_values(self, column_name: str) -> Set[str]:
+        """
+        Retrieve a set of unique values present in a specified dataframe column.
+
+        Args:
+            column_name (str): The name of the column in the dataframe.
+
+        Returns:
+            Set[str]: A set containing unique values from the specified column.
+                      Returns an empty set if an error occurs.
+        """
         df = self._load_courts()
         try:
             return set(df[column_name].unique())
@@ -193,13 +242,33 @@ class ALCourtLoader(DAObject):
             return set()
 
     def county_list(self, column_name: str = "address_county"):
-        """Get a list of all unique county names in the given spreadsheet"""
+        """
+        Get a list of all unique names for the specified column in the given spreadsheet.
+        Typically used to get a list of all possible counties that have a court.
+        
+        Args:
+            column_name (str): The name of the column in the dataframe.
+        
+        Returns:
+            List[str]: A list of all unique values in the specified row in the given spreadsheet
+        """
         return self.unique_column_values(column_name)
 
     def county_has_one_court(
         self, county_name: str, county_column: str = "address_county"
     ) -> bool:
-        """Returns True if there is only one court associated with the specified county"""
+        """
+        Returns True if there is only one court associated with the specified county
+        in the spreadsheet. Returns False otherwise.
+
+        Args:
+            county_name (str): The name of the county to check.
+            county_column (str): The name of the column in the dataframe that contains the county names.
+                                    Defaults to "address_county".
+
+        Returns:
+            bool: True if there is only one court associated with the specified county in the spreadsheet.
+        """
         return (
             len(self.filter_courts(court_types=county_name, column=county_column)) == 1
         )
@@ -210,8 +279,20 @@ class ALCourtLoader(DAObject):
         county_name: str,
         county_column: str = "address_county",
     ) -> ALCourt:
-        """Return the first court matching the county name. Should only be used
-        when you know there is exactly one match"""
+        """
+        Return the first court matching the county name. Should only be used
+        when you know there is exactly one match
+        
+        Args:
+            intrinsicName (str): The intrinsic name you want the newly returned object to have (used for DA namespace searching).
+            county_name (str): The name of the county to check.
+            county_column (str): The name of the column in the dataframe that contains the county names.
+                                    Defaults to "address_county".
+        
+        Returns:
+            ALCourt: The first court matching the county name.    
+
+        """
         matches = self.filter_courts(court_types=county_name, column=county_column)
         if len(matches) > 0:
             return self.as_court(intrinsicName, next(iter(matches))[0])
@@ -225,16 +306,23 @@ class ALCourtLoader(DAObject):
         search_string: Optional[str] = None,
         search_columns: Optional[Union[List[str], str]] = None,
     ) -> List[dict]:
-        """Get a list of all courts in the provided county, suitable for displaying
-        as a drop-down or radio button list in Docassemble. The results will be a
-        dictionary where the key is the index in the dataframe, to be used to
-        retrieve the court's full details later with the as_court() method.
+        """
+        Retrieve a list of all courts in the specified county.
 
-        :param county_name: str name of a county
-        :param county_column: str column heading which contains county name. Defaults to "address_county"
-        :param display_column: str column heading which will be used for display in drop down
-        :param search_string: str, optional a keyword that will be checked in the filtered list of results
-        :param search_columns: str or List[str], optional columns to aggregate and then do case-insensitive search across with the search_string
+        This function fetches courts suitable for displaying as a drop-down or radio button list 
+        in Docassemble. The results are dictionaries where the key is the index in the dataframe, 
+        useful for retrieving the court's full details later using the as_court() method.
+
+        Args:
+            county_name (str): Name of the county.
+            county_column (str, optional): Column heading which contains county name. Defaults to "address_county".
+            display_column (str, optional): Column heading used for display in the drop-down. Defaults to "name".
+            search_string (Optional[str], optional): A keyword to filter the list of results. Defaults to None.
+            search_columns (Optional[Union[List[str], str]], optional): Columns to aggregate and search across with 
+                the search_string in a case-insensitive manner. Defaults to None.
+
+        Returns:
+            List[dict]: List of dictionaries representing matching courts.
         """
         return self.filter_courts(
             court_types=county_name,
@@ -251,16 +339,24 @@ class ALCourtLoader(DAObject):
         display_column: str = "name",
         search_string: Optional[str] = None,
         search_columns: Optional[Union[List[str], str]] = None,
-    ) -> List[dict]:
+    ) -> List[Dict[int, str]]:
         """
-        Return a subset of courts as a list of dictionaries, like:
-        index: name
+        Return a filtered subset of courts represented as a list of dictionaries.
 
-        :param court_types: List[str] or str, exact string match[es] you want to use to filter results (inclusive). E.g., "District" or ["Municipal","Superior"]
-        :param column: str column heading which you want to search. Defaults to "department"
-        :param display_column: str column heading which will be used for display in drop down
-        :param search_string: str, optional a keyword that will be checked in the filtered list of results
-        :param search_columns: str or List[str], optional columns to aggregate and then do case-insensitive search across with the search_string
+        Each dictionary has the format {index: name}, where "index" refers to the dataframe index and "name" 
+        is determined by the `display_column`.
+
+        Args:
+            court_types (Optional[Union[List[str], str]]): Exact string match or matches used to filter results 
+                (inclusive). Examples include "District" or ["Municipal","Superior"].
+            column (str, optional): Column heading to search. Defaults to "department".
+            display_column (str, optional): Column heading used for display in the drop-down. Defaults to "name".
+            search_string (Optional[str], optional): A keyword to filter the list of results. Defaults to None.
+            search_columns (Optional[Union[List[str], str]], optional): Columns to aggregate and search across with 
+                the search_string in a case-insensitive manner. Defaults to None.
+
+        Returns:
+            List[Dict[int, str]]: List of dictionaries representing filtered courts.
         """
         df = self._load_courts()
         if court_types:
@@ -281,9 +377,17 @@ class ALCourtLoader(DAObject):
             ]
         return list(filtered[display_column].items())
 
-    def as_court(self, intrinsicName, index, ensure_lat_long=True):
+    def as_court(self, intrinsicName: str, index: int, ensure_lat_long: bool = True) -> ALCourt:
         """
-        Return the court at the specified index as an ALCourt object
+        Retrieve the court at the specified index as an ALCourt object.
+
+        Args:
+            intrinsicName (str): The intrinsic name you want to assign to the returned object (used for DA namespace searching).
+            index (int): The index position of the court in the dataframe.
+            ensure_lat_long (bool, optional): Whether to ensure the presence of latitude and longitude data. Defaults to True.
+
+        Returns:
+            ALCourt: An ALCourt object initialized with data from the specified index.
         """
         court = ALCourt(intrinsicName)
         df = self._load_courts()
@@ -294,9 +398,17 @@ class ALCourtLoader(DAObject):
         court.from_row(row, ensure_lat_long=ensure_lat_long)
         return court
 
-    def _load_courts(self):
+    def _load_courts(self) -> pd.DataFrame:
         """
-        Return list of courts
+        Load and return the list of courts from the specified file.
+
+        The method determines the file type (.csv, .xlsx, or .json) based on its extension and reads it accordingly.
+
+        Returns:
+            pd.DataFrame: A dataframe containing the list of courts.
+
+        Raises:
+            Exception: If the file type is neither CSV, XLSX, nor JSON.
         """
         if not hasattr(self, "filename") and hasattr(self, "file_name"):
             self.filename = self.file_name
