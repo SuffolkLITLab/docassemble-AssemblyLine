@@ -242,14 +242,14 @@ class ALCourtLoader(DAObject):
 
     def county_list(self, column_name: str = "address_county"):
         """
-        Get a list of all unique names for the specified column in the given spreadsheet.
+        Get a set of all unique names for the specified column in the given spreadsheet.
         Typically used to get a list of all possible counties that have a court.
 
         Args:
             column_name (str): The name of the column in the dataframe.
 
         Returns:
-            List[str]: A list of all unique values in the specified row in the given spreadsheet
+            Set[str]: A list of all unique values in the specified row in the given spreadsheet
         """
         return self.unique_column_values(column_name)
 

@@ -1105,7 +1105,7 @@ def load_interview_answers(
     new_session: bool = False,
     new_interview_filename: Optional[str] = None,
     variables_to_filter: Optional[List[str]] = None,
-) -> Optional[int]:
+) -> Optional[Union[int, bool]]:
     """
     Loads answers from a specified session. If the parameter `new_session` is set to True, it will create
     a new session with the provided or current interview filename. Otherwise, it will load the answers into
@@ -1119,7 +1119,7 @@ def load_interview_answers(
         variables_to_filter (Optional[List[str]], optional): List of variables to exclude. Defaults to None.
 
     Returns:
-        Optional[int]: ID of the newly created session if `new_session` is True, otherwise True or False based on success.
+        Optional[Union[int, bool]]: ID of the newly created session if `new_session` is True, otherwise True or False based on success.
     """
 
     old_variables = get_filtered_session_variables(
@@ -1158,7 +1158,7 @@ def load_interview_json(
         variables_to_filter (Optional[List[str]], optional): List of variables to exclude. Defaults to None.
 
     Returns:
-        Optional[int]: ID of the newly created session if `new_session` is True, otherwise True or False based on success.
+        Optional[Union[int, bool]]: ID of the newly created session if `new_session` is True, otherwise True or False based on success.
     """
     json_processed = json.loads(json_string)
 
@@ -1196,7 +1196,7 @@ def export_interview_variables(
         output (DAFile, optional):
 
     Returns:
-        Optional[int]: ID of the newly created session if `new_session` is True, otherwise True or False based on success.
+        DAFile: DAFile with a JSON representation of the answers
     """
     if not output:
         output = DAFile()

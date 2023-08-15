@@ -80,7 +80,7 @@ def safe_subdivision_type(country_code: str) -> Optional[str]:
         country_code (str): The ISO-3166-1 alpha-2 code for the country.
 
     Returns:
-        str: The subdivision type for the country with the given country code.
+        Optional[str]: The subdivision type for the country with the given country code.
     """
     try:
         return subdivision_type(country_code)
@@ -648,7 +648,9 @@ class ALNameList(DAList):
 
 
 class ALPeopleList(DAList):
-    """Class to store a list of ALIndividual objects, representing people."""
+    """Class to store a list of ALIndividual objects, representing people.
+    
+    For example, defendants, plaintiffs, or children."""
 
     def init(self, *pargs, **kwargs):
         super(ALPeopleList, self).init(*pargs, **kwargs)
@@ -661,7 +663,7 @@ class ALPeopleList(DAList):
 
         Args:
             comma_string (str, optional): The string to use between name-address pairs. Defaults to '; '.
-            bare (bool, optional): If True, represents the address in a minimalistic way. Defaults to False.
+            bare (bool, optional): If True, prevents appending the word "Unit" to the unit attribute. Defaults to False.
 
         Returns:
             str: Formatted string of names followed by addresses.
@@ -777,7 +779,7 @@ class ALIndividual(Individual):
             self.initializeAttribute("preferred_name", IndividualName)
 
     def signature_if_final(self, i: str) -> Union[DAFile, str]:
-        """Returns the individual's signature if a condition is met.
+        """Returns the individual's signature if `i` is "final", which usually means we are assembling the final version of the document (as opposed to a preview).
 
         Args:
             i (str): The condition which, if set to "final", returns the signature.
@@ -794,7 +796,7 @@ class ALIndividual(Individual):
         """Fetches and formats the phone numbers of the individual.
 
         Args:
-            country (str, optional): The country for phone number formatting.
+            country (str, optional): The country for phone number formatting. Defaults to the country of the docassemble server.
 
         Returns:
             str: Formatted string of phone numbers.
@@ -858,9 +860,6 @@ class ALIndividual(Individual):
         )
 
     def merge_letters(self, new_letters: str):
-        """
-        Very specific to 209A package, should be removed.
-        """
         # TODO: move to 209A package
         """If the Individual has a child_letters attribute, add the new letters to the existing list"""
         if hasattr(self, "child_letters"):
@@ -872,7 +871,7 @@ class ALIndividual(Individual):
         """Calculates and formats the age of the individual based on their birthdate.
 
         Returns:
-            str: Formatted age string in years, months, weeks, or days.
+            str: Formatted age string that shows the most relevant time unit; for example, if under 2 years, it will return "X months".
         """
         dd = date_difference(self.birthdate)
         if dd.years >= 2:
@@ -914,7 +913,7 @@ class ALIndividual(Individual):
             List[Dict[str, str]]: A list of dictionaries where each dictionary contains field prompt details.
 
         Note:
-            If `person_or_business` is set to None, the method will consider both entity types (i.e., "person" and "business")
+            If `person_or_business` is set to None, the method will offer the end user a choice
             and will set appropriate "show ifs" conditions for each type.
         """
         if person_or_business == "person":

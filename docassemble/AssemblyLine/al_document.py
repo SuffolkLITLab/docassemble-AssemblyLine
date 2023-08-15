@@ -651,7 +651,7 @@ class ALAddendumField(DAObject):
                                   Defaults to a predetermined path.
 
         Returns:
-            IncludeDocxTemplate: A docx template with the inserted table.
+            A docx template with the inserted table.
         """
         return include_docx_template(
             path, columns=self.columns(), rows=self.overflow_value()
@@ -667,7 +667,7 @@ class ALAddendumFieldDict(DAOrderedDict):
     if an overflow condition exists and to correctly display fields in various
     contexts, ensuring only the necessary text is shown.
 
-    Each entry in this dictionary has an associated `field_name` to facilitate identification.
+    Adding a new entry will implicitly set the `field_name` attribute of the field
 
     Attributes:
         style (str): Determines the display behavior. If set to "overflow_only",
@@ -1279,7 +1279,7 @@ class ALStaticDocument(DAStaticFile):
         Get the document as a list.
 
         Returns:
-            List[DAStaticFile]: A list containing the document.
+            List[DAStaticFile]: A list containing this document.
         """
         return [self]
 
@@ -1648,7 +1648,7 @@ class ALDocumentBundle(DAList):
 
         Args:
             key (str): Identifier for the document version, default is "final".
-            refresh (bool): Flag to reconsider the 'enabled' attribute, default is True.
+            refresh (bool): Flag to reconsider the 'enabled' attribute and regenerate the enabled documents, default is True.
             pdfa (bool): Flag to return the documents in PDF/A format, default is False.
 
         Returns:
@@ -2766,9 +2766,9 @@ class ALExhibitDocument(ALDocument):
         Despite the name, renders the document as a PDF. Provided for signature compatibility.
 
         Args:
-            key (str): Identifier key for the document. Default is "final".
-            refresh (bool): If True, refreshes the DOCX document. Default is True.
-            append_matching_suffix (bool): If True, appends a matching suffix to the filename (for automated tests).
+            key (str, optional): Identifier key for the document. Default is "final".
+            refresh (bool, optional): If True, refreshes the DOCX document. Default is True.
+            append_matching_suffix (bool, optional): If True, appends a matching suffix to the filename (for automated tests).
 
         Returns:
             DAFile: The document rendered as a PDF.
