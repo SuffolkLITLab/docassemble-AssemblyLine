@@ -1637,7 +1637,7 @@ def will_send_to_real_court() -> bool:
     For legacy email to court forms, this checks to see if the form
     is being run on the dev, test, or production server.
 
-    Dev or root needs to be in the URL root: can change in the config file
+    The text "dev" or "test" needs to be in the URL root in the DA config: can change in `/config`.
     """
     return not (
         get_config("debug")
