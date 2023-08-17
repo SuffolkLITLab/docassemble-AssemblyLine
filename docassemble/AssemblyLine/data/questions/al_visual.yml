@@ -185,15 +185,6 @@ default screen parts:
     [:info-circle: About](${ url_action('about_this_interview') })
     [:comment-dots: Feedback](${ feedback_link(user_info(), i=feedback_form, github_repo=github_repo_name, github_user=github_user, package_version=package_version_number) } ){:target="_blank"}
 ---
-image sets:
-  smashicons:
-    attribution: |
-      Icon made by
-      [Smashicons](https://www.flaticon.com/authors/smashicons)
-    images:
-      form: sign-form.svg
-      form-lineal: sign-form-lineal.svg
----
 continue button field: al_share_form_screen
 id: al share form screen
 question: |

@@ -34,7 +34,6 @@ objects:
   - x.service_address: ALAddress
 ---
 id: basic questions intro screen
-decoration: form-lineal
 question: |
   ${interview_short_title}: ${ AL_ORGANIZATION_TITLE}
 subquestion: |
