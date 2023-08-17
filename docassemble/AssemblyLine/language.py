@@ -115,11 +115,10 @@ def get_language_list_dropdown_item(
     Args:
         language: a tuple containing the language name and language code
         link: whether to return a link or just the text
-        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
         event_name: the name of the event to trigger when the language is changed
 
     Returns:
-        A string containing the HTML for a dropdown menu item for language selection.
+        str: A string containing the HTML for a dropdown menu item for language selection.
     """
 
     if link:
@@ -144,11 +143,10 @@ def get_language_list(
 
     Args:
         languages: a list of tuples containing the language name and language code (deprecated)
-        lang_codes: a list of ISO 639-1 language codes (e.g. ['en', 'es'])
         current: the current language code
+        lang_codes: a list of ISO 639-1 language codes (e.g. ['en', 'es'])
         languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
         event_name: the name of the event to trigger when the language is changed
-
 
     Returns:
         A string containing the HTML for an unordered inline list of language selection.
@@ -173,7 +171,7 @@ def get_language_list(
     return list_start + list_end
 
 
-def get_language_list_item(language, link=True, event_name="al_change_language"):
+def get_language_list_item(language, link=True, event_name="al_change_language") -> str:
     """Given an ordered tuple, returns a link to the current interview with lang=language code and the link title
     given in the first part of the tuple.
 
@@ -183,7 +181,7 @@ def get_language_list_item(language, link=True, event_name="al_change_language")
         event_name: the name of the event to trigger when the language is changed
 
     Returns:
-        A string containing the HTML for an unordered inline list item for language selection.
+        str: A string containing the HTML for an unordered inline list item for language selection.
     """
     li_start = '<li class="list-inline-item">'
     li_end = "</li>"
