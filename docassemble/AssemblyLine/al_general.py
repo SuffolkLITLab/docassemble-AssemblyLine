@@ -649,7 +649,7 @@ class ALNameList(DAList):
 
 class ALPeopleList(DAList):
     """Class to store a list of ALIndividual objects, representing people.
-    
+
     For example, defendants, plaintiffs, or children."""
 
     def init(self, *pargs, **kwargs):
@@ -859,16 +859,13 @@ class ALIndividual(Individual):
             and_string=word("or"),
         )
 
-    def merge_letters(self, new_letters: str) -> str:
+    def merge_letters(self, new_letters: str) -> None:
         """If the Individual has a child_letters attribute, add the new letters to the existing list
-        
+
         Avoid using. Only used in 209A.
 
         Args:
             new_letters (str): The new letters to add to the existing list of letters
-        
-        Returns:
-            str: The updated list of letters
         """
         # TODO: move to 209A package
         if hasattr(self, "child_letters"):
@@ -1555,7 +1552,7 @@ class ALIndividual(Individual):
 # (DANav isn't in public DA API, but currently in functions.py)
 def section_links(nav) -> List[str]:  # type: ignore
     """Returns a list of clickable navigation links without animation.
-    
+
     Args:
         nav: The navigation object.
 
@@ -1645,7 +1642,7 @@ def will_send_to_real_court() -> bool:
 # This one is only used for 209A--should move there along with the combined_letters() method
 def filter_letters(letter_strings: Union[List[str], str]) -> str:
     """Used to take a list of letters like ["A","ABC","AB"] and filter out any duplicate letters.
-    
+
     Avoid using, this is created for 209A.
 
     Args:
