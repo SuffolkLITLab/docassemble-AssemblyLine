@@ -209,18 +209,18 @@ class ALAddendumField(DAObject):
         content adheres to whitespace preferences specified by the parameters.
 
         Args:
-            preserve_newlines (bool, optional): Determines the treatment of newline characters. 
-                If True, the returned string can contain single newline characters. Sequences of newline 
+            preserve_newlines (bool, optional): Determines the treatment of newline characters.
+                If True, the returned string can contain single newline characters. Sequences of newline
                 characters, including Windows-style "rn", will be reduced to a single "n". Double spaces
-                will be replaced with a single space. If False, all whitespace, including newlines and 
+                will be replaced with a single space. If False, all whitespace, including newlines and
                 tabs, will be replaced with a single space. Defaults to False.
-            
+
             input_width (int, optional): The width of the input field or display area, used for determining
                 overflow. Defaults to 80.
-            
+
             overflow_message (str, optional): Message indicating overflow in the safe value. Defaults to "".
-            
-            preserve_words (bool, optional): If True, ensures words are not split between the main content 
+
+            preserve_words (bool, optional): If True, ensures words are not split between the main content
                 and the overflow. Defaults to True.
 
         Returns:
@@ -314,7 +314,7 @@ class ALAddendumField(DAObject):
             preserve_words (bool): If True, the algorithm will try to preserve whole words when
                 truncating the text. If False, the algorithm will truncate the text at the overflow
                 trigger, regardless of whether it is in the middle of a word.
-        
+
         Returns:
             bool: True if the value's length exceeds the overflow trigger, False otherwise.
         """
@@ -509,7 +509,7 @@ class ALAddendumField(DAObject):
             skip_empty_attributes (bool, optional): Determines whether empty attributes are included in the list.
                                                     Defaults to True.
             skip_attributes (Optional[set], optional): A set of attributes to ignore. Defaults to {"complete"}.
-        
+
         Returns:
             Optional[list]: A list of columns or None if no meaningful columns can be determined.
         """
@@ -1897,7 +1897,7 @@ class ALDocumentBundle(DAList):
             view_icon (str): Icon for the 'view' button, default is "eye".
             download_label (str): Label for the 'download' button, default is "Download".
             download_icon (str): Icon for the 'download' button, default is "download".
-        
+
         Returns:
             str: HTML representation of a table with documents and their associated actions.
         """
@@ -2418,8 +2418,8 @@ class ALExhibit(DAObject):
     @property
     def complete(self) -> bool:
         """
-        For purposes of list gathering, trigger the attributes in the order necessary 
-        to gather a complete exhibit object. 
+        For purposes of list gathering, trigger the attributes in the order necessary
+        to gather a complete exhibit object.
 
         Indicates if the exhibit is complete.
 

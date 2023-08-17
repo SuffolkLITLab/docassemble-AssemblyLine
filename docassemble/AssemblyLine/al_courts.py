@@ -73,7 +73,7 @@ class ALCourt(Court):
         append city name to the court name. This is good for a drop-down selection
         list.
 
-        Returns: 
+        Returns:
             str: string representing the court's name, with city if needed to disambiguate
         """
         # Avoid forcing the interview to define the court's address
@@ -89,7 +89,7 @@ class ALCourt(Court):
         Returns a markdown formatted string with the name and address of the court.
         More concise version without description; suitable for a responsive case.
 
-        Returns: 
+        Returns:
             str: string representing the court's name and address
         """
         return f"**{ self.short_label() }**[BR]{ self.address.on_one_line() }"
@@ -100,7 +100,7 @@ class ALCourt(Court):
         the description of the court, for inclusion in the results page with radio
         buttons.
 
-        Returns: 
+        Returns:
             str: string representing the court's name and description
         """
         all_info = f"**{ self.short_label() }**"
@@ -243,7 +243,7 @@ class ALCourtLoader(DAObject):
         except:
             return set()
 
-    def county_list(self, column_name: str = "address_county")-> Set[str]:
+    def county_list(self, column_name: str = "address_county") -> Set[str]:
         """
         Get a set of all unique names for the specified column in the given spreadsheet.
         Typically used to get a list of all possible counties that have a court.
