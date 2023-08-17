@@ -201,34 +201,30 @@ class ALAddendumField(DAObject):
         input_width: int = 80,
         overflow_message: str = "",
         preserve_words: bool = True,
-    ):
+    ) -> Any:
         """
-        Retrieve the overflow portion of a variable which exceeds the content of `safe_value()`.
+        Retrieve the overflow portion of a variable that exceeds the content of `safe_value()`.
 
-        This function addresses both list-like objects and strings. It ensures that the returned overflow
-        content has been modified to meet whitespace preferences specified by the parameters.
+        This function addresses both list-like objects and strings, ensuring that the returned overflow
+        content adheres to whitespace preferences specified by the parameters.
 
-        Parameters:
-            preserve_newlines (bool, optional):
-                If True, the returned string can contain single newline characters. Any sequence of
-                newline characters (including Windows-style "\r\n") will be reduced to a single "\n".
-                Double spaces will be replaced with a single space. If False, all kinds of whitespace,
-                including newlines and tabs, will be replaced with a single space. Defaults to False.
-
-            input_width (int, optional):
-                The width of the input field or display area, used for determining overflow.
-                Defaults to 80.
-
-            overflow_message (str, optional):
-                A message to indicate overflow in the safe value. Defaults to an empty string.
-
-            preserve_words (bool, optional):
-                If True, ensures that words are not split between the main content and the overflow.
-                Defaults to True.
+        Args:
+            preserve_newlines (bool, optional): Determines the treatment of newline characters. 
+                If True, the returned string can contain single newline characters. Sequences of newline 
+                characters, including Windows-style "rn", will be reduced to a single "n". Double spaces
+                will be replaced with a single space. If False, all whitespace, including newlines and 
+                tabs, will be replaced with a single space. Defaults to False.
+            
+            input_width (int, optional): The width of the input field or display area, used for determining
+                overflow. Defaults to 80.
+            
+            overflow_message (str, optional): Message indicating overflow in the safe value. Defaults to "".
+            
+            preserve_words (bool, optional): If True, ensures words are not split between the main content 
+                and the overflow. Defaults to True.
 
         Returns:
-            str: The portion of the variable that exceeds the content safe to display and should be
-            considered as overflow.
+            Any: The portion of the variable exceeding the content safe for display, considered as overflow.
         """
         # Handle a Boolean overflow first
         if isinstance(self.overflow_trigger, bool) and self.overflow_trigger:
@@ -318,6 +314,9 @@ class ALAddendumField(DAObject):
             preserve_words (bool): If True, the algorithm will try to preserve whole words when
                 truncating the text. If False, the algorithm will truncate the text at the overflow
                 trigger, regardless of whether it is in the middle of a word.
+        
+        Returns:
+            bool: True if the value's length exceeds the overflow trigger, False otherwise.
         """
         if _original_value:
             val = _original_value
@@ -360,6 +359,9 @@ class ALAddendumField(DAObject):
             preserve_words (bool): If True, the algorithm will try to preserve whole words when
                 truncating the text. If False, the algorithm will truncate the text at the overflow
                 trigger, regardless of whether it is in the middle of a word.
+
+        Returns:
+            Union[str, List[Any]]: Either a string representing the overflow message or the original value
         """
         if _original_value:
             val = _original_value
@@ -387,17 +389,17 @@ class ALAddendumField(DAObject):
     ) -> Union[str, List[Any]]:
         """
         Return just the portion of the variable that heuristics suggest will fit in the specified overflow_trigger
-        limit. If the value is not defined, return empty string.
+        limit. If the value is not defined, return an empty string.
 
         When `preserve_newlines` is `True`, the output will be limited to a number of lines, not a number
         of characters. The max number of lines will be calculated as `floor(self.overflow_trigger/input_width)`.
         Therefore, it is important that `input_width` is a divisor of `overflow_trigger`.
 
-        Whitespace will be altered. If preserve_newlines is true, the return value may have newlines,
-        but double newlines and Windows style (\r\n) will be replaced with \n. Double spaces will replaced
+        Whitespace will be altered. If `preserve_newlines` is true, the return value may have newlines,
+        but double newlines and Windows style (rn) will be replaced with n. Double spaces will be replaced
         with a single space.
 
-        If preserve_newlines is false, all whitespace, including newlines and tabs, will be replaced
+        If `preserve_newlines` is false, all whitespace, including newlines and tabs, will be replaced
         with a single space.
 
         Args:
@@ -406,11 +408,14 @@ class ALAddendumField(DAObject):
             preserve_newlines (bool): Determines whether newlines are preserved in the "safe" text.
                 Defaults to False, which means all newlines are removed. This allows more text to appear
                 before being sent to the addendum.
-            _original_value (Any): for speed reasons, you can provide the full text and just use this
-                method to determine if the overflow trigger is exceeded. If no _original_value is
-                provided, this method will determine it using the value_if_defined() method.
-        """
+            _original_value (Optional[str]): For speed reasons, you can provide the full text and just use this
+                method to determine if the overflow trigger is exceeded. If no `_original_value` is
+                provided, this method will determine it using the `value_if_defined()` method.
+            preserve_words (bool): Indicates whether words should be preserved in their entirety without being split.
 
+        Returns:
+            Union[str, List[Any]]: The portion of the variable that fits within the overflow trigger.
+        """
         # Handle simplest case first
         if _original_value:
             value = _original_value
@@ -491,7 +496,7 @@ class ALAddendumField(DAObject):
         return str(self.value_if_defined())
 
     def columns(
-        self, skip_empty_attributes: bool = True, skip_attributes: set = {"complete"}
+        self, skip_empty_attributes: bool = True, skip_attributes: Optional[set] = None
     ) -> Optional[list]:
         """
         Return a list of the attributes present within the object that would make sense to go
@@ -500,9 +505,16 @@ class ALAddendumField(DAObject):
         If the `headers` attribute exists, this will be prioritized. Otherwise, the method will infer columns
         from the first value in the list. Empty attributes and the `complete` attribute are typically ignored.
 
+        Args:
+            skip_empty_attributes (bool, optional): Determines whether empty attributes are included in the list.
+                                                    Defaults to True.
+            skip_attributes (Optional[set], optional): A set of attributes to ignore. Defaults to {"complete"}.
+        
         Returns:
             Optional[list]: A list of columns or None if no meaningful columns can be determined.
         """
+        if not skip_attributes:
+            skip_attributes = {"complete"}
         if hasattr(self, "headers"):
             return self.headers
         else:
@@ -638,7 +650,7 @@ class ALAddendumField(DAObject):
     def overflow_docx(
         self,
         path: str = "docassemble.ALDocumentDict:data/templates/addendum_table.docx",
-    ):
+    ) -> Any:
         """
         Insert a formatted table into a docx file, representing the overflow values.
 
@@ -695,7 +707,7 @@ class ALAddendumFieldDict(DAOrderedDict):
         super().initializeObject(*pargs, **kwargs)
         self[the_key].field_name = the_key
 
-    def from_list(self, data):
+    def from_list(self, data) -> None:
         """
         Populate the dictionary using a list of field data.
 
@@ -707,6 +719,7 @@ class ALAddendumFieldDict(DAOrderedDict):
             new_field = self.initializeObject(entry["field_name"], ALAddendumField)
             new_field.field_name = entry["field_name"]
             new_field.overflow_trigger = entry["overflow_trigger"]
+        return
 
     def defined_fields(self, style="overflow_only") -> list:
         """
@@ -1090,7 +1103,7 @@ class ALDocument(DADict):
         """
         return self.overflow_fields.has_overflow()
 
-    def overflow(self):
+    def overflow(self) -> list:
         """
         Retrieves a list of fields that have overflowed their character limits.
 
@@ -1128,6 +1141,9 @@ class ALDocument(DADict):
             preserve_words (bool): If True, the algorithm will try to preserve whole words when
                 truncating the text. If False, the algorithm will truncate the text at the overflow
                 trigger, regardless of whether it is in the middle of a word.
+
+        Returns:
+            Union[str, List[Any]]: Either the original value or the overflow message, never a truncated value.
         """
         if overflow_message is None:
             overflow_message = self.default_overflow_message
@@ -1278,6 +1294,10 @@ class ALStaticDocument(DAStaticFile):
         """
         Get the document as a list.
 
+        Args:
+            key (str): Key to access the document. Defaults to "final".
+            refresh (bool): Whether to refresh the document. Defaults to True.
+
         Returns:
             List[DAStaticFile]: A list containing this document.
         """
@@ -1368,6 +1388,9 @@ class ALStaticDocument(DAStaticFile):
 
     def is_enabled(self, **kwargs) -> bool:
         """Check if the document is enabled.
+
+        Args:
+            **kwargs: Unused (for signature compatibility only)
 
         Returns:
             bool: True if the document is enabled, otherwise False.
@@ -1863,6 +1886,20 @@ class ALDocumentBundle(DAList):
         combined into one pdf with 'view' and 'download' buttons.
 
         Deprecated; use download_list_html instead
+
+        Args:
+            key (str): Identifier for the document version, default is "final".
+            format (str): Specifies the format of the files in the list. Can be "pdf", "docx", or "original". Default is "pdf".
+            pdfa (bool): Flag to return the documents in PDF/A format, default is False.
+            view (bool): Flag to include a 'view' button, default is True.
+            refresh (bool): Flag to reconsider the 'enabled' attribute, default is True.
+            view_label (str): Label for the 'view' button, default is "View".
+            view_icon (str): Icon for the 'view' button, default is "eye".
+            download_label (str): Label for the 'download' button, default is "Download".
+            download_icon (str): Icon for the 'download' button, default is "download".
+        
+        Returns:
+            str: HTML representation of a table with documents and their associated actions.
         """
         log(
             "ALDocumentBundle.download_html is deprecated; use download_list_html instead"
@@ -2029,6 +2066,7 @@ class ALDocumentBundle(DAList):
             show_editable_checkbox (bool, optional): Flag indicating if the checkbox
                 for deciding the inclusion of an editable (Word) copy should be displayed.
                 Defaults to True.
+            template_name (str, optional): The name of the template to be used. Defaults to an empty string.
 
         Returns:
             str: The generated HTML string for the input box and button.
@@ -2294,7 +2332,7 @@ class ALExhibit(DAObject):
             log("developer warning: ocr_ready was called but _ocr_start wasn't!")
         return True
 
-    def ocr_pages(self):
+    def ocr_pages(self) -> List[DAFile]:
         """
         Retrieve the OCR-processed version of pages if available, else return the original pages.
 
@@ -2329,11 +2367,16 @@ class ALExhibit(DAObject):
         """
         Generates a PDF version of the exhibit, with optional features like Bates numbering or a cover page.
 
+        Note that these are keyword only parameters, not positional.
+
         Args:
+            refresh (bool): If True, forces the exhibit to refresh before generating the PDF. (unused, provided for signature compatibility)
             prefix (str): Prefix for Bates numbering if 'add_page_numbers' is True.
+            pdfa (bool): If True, the generated PDF will be in PDF/A format.
             add_page_numbers (bool): If True, apply Bates numbering starting from 'self.start_page'.
             add_cover_page (bool): If True, prepend the exhibit with a cover page.
             filename (Optional[str]): Custom filename for the generated PDF. Default is "exhibits.pdf".
+            append_matching_suffix (bool): If True, appends a suffix to the filename based on certain matching criteria.
 
         Returns:
             DAFile: PDF representation of the exhibit.
@@ -2375,11 +2418,12 @@ class ALExhibit(DAObject):
     @property
     def complete(self) -> bool:
         """
-        For purposes of list gathering, trigger the attributes in order that are necessary
-        to gather a complete exhibit object.
+        For purposes of list gathering, trigger the attributes in the order necessary 
+        to gather a complete exhibit object. 
 
-        Returns:
-            bool: True if exhibit is complete.
+        Indicates if the exhibit is complete.
+
+        Note: This property always returns True after triggering the required attributes.
         """
         self.title
         self.pages.gather()

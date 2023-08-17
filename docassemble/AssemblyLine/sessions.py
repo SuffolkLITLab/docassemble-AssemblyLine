@@ -642,7 +642,7 @@ def pascal_to_zwspace(text: str) -> str:
     return re_outer.sub(r"\1​\2", re_inner.sub(r"​\1\2", text))
 
 
-def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True):
+def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True) -> str:
     """
     Return first defined of the "title" metadata, the "auto_title" metadata, or empty string.
 
@@ -650,6 +650,7 @@ def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True):
 
     Args:
         answer (Dict[str, str]): The answer dictionary to get the interview subtitle from
+        exclude_identical (bool, optional): If True, excludes the subtitle if it is identical to the title. Defaults to True.
 
     Returns:
         str: The human readable interview subtitle
@@ -663,11 +664,10 @@ def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True):
         )
     ):
         return pascal_to_zwspace(answer["auto_title"])
-    else:
-        return ""
+    return ""
 
 
-def radial_progress(answer: Dict[str, Union[str, int]]):
+def radial_progress(answer: Dict[str, Union[str, int]]) -> str:
     """
     Return HTML for a radial progress bar, or the number of steps if progress isn't available in the metadata.
 
@@ -1193,7 +1193,7 @@ def export_interview_variables(
         filename (Optional[str], optional): Filename of the session. Defaults to None.
         session_id (Optional[int], optional): Session ID to retrieve variables from. Defaults to None.
         variables_to_filter (Union[Set, List[str], None], optional): List or set of variables to exclude. Defaults to None.
-        output (DAFile, optional):
+        output (DAFile, optional): DAFile to write the JSON output to. If None, a new DAFile is created.
 
     Returns:
         DAFile: DAFile with a JSON representation of the answers

@@ -581,8 +581,8 @@ class ALAddress(Address):
 
         Args:
             country_code (str, optional): ISO-3166-1 alpha-2 code to override the country attribute of
-            the Address object. For valid codes, refer to:
-            https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements
+                the Address object. For valid codes, refer to:
+                https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements
 
         Returns:
             str: The full state name corresponding to the state abbreviation. If an error occurs
@@ -694,7 +694,7 @@ class ALPeopleList(DAList):
             [person.name.familiar() for person in self], and_string=word("or")
         )
 
-    def short_list(self, limit: int, truncate_string: str = ", et. al."):
+    def short_list(self, limit: int, truncate_string: str = ", et. al.") -> str:
         """Return a subset of the list, truncated with 'et. al.' if it exceeds a given limit.
 
         Args:
@@ -709,7 +709,7 @@ class ALPeopleList(DAList):
         else:
             return comma_and_list(self)
 
-    def full_names(self, comma_string=", ", and_string=word("and")):
+    def full_names(self, comma_string=", ", and_string=word("and")) -> str:
         """Return a formatted list of full names of individuals.
 
         Args:
@@ -859,9 +859,18 @@ class ALIndividual(Individual):
             and_string=word("or"),
         )
 
-    def merge_letters(self, new_letters: str):
+    def merge_letters(self, new_letters: str) -> str:
+        """If the Individual has a child_letters attribute, add the new letters to the existing list
+        
+        Avoid using. Only used in 209A.
+
+        Args:
+            new_letters (str): The new letters to add to the existing list of letters
+        
+        Returns:
+            str: The updated list of letters
+        """
         # TODO: move to 209A package
-        """If the Individual has a child_letters attribute, add the new letters to the existing list"""
         if hasattr(self, "child_letters"):
             self.child_letters: str = filter_letters([new_letters, self.child_letters])
         else:
@@ -1056,7 +1065,7 @@ class ALIndividual(Individual):
 
     def gender_fields(
         self, show_help=False, show_if: Union[str, Dict[str, str], None] = None
-    ):
+    ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing gender information, including a
         self-described option.
@@ -1104,7 +1113,7 @@ class ALIndividual(Individual):
         required: bool = False,
         shuffle: bool = False,
         show_unknown: Optional[Union[Literal["guess"], bool]] = "guess",
-    ):
+    ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing pronoun information.
 
@@ -1178,7 +1187,7 @@ class ALIndividual(Individual):
         choices: Optional[List[Dict[str, str]]] = None,
         style: str = "radio",
         show_if: Union[str, Dict[str, str], None] = None,
-    ):
+    ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing language preferences.
 
@@ -1215,7 +1224,7 @@ class ALIndividual(Individual):
             fields[0]["show if"] = show_if
         return fields
 
-    def language_name(self):
+    def language_name(self) -> str:
         """
         Get the human-readable version of the individual's selected language.
 
@@ -1232,98 +1241,77 @@ class ALIndividual(Individual):
     @property
     def gender_male(self):
         """
-        Check if the gender is male.
+        Returns True only if the gender is male.
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-            bool: True if gender is 'male', False otherwise.
         """
         return self.gender.lower() == "male"
 
     @property
     def gender_female(self):
         """
-        Check if the gender is female.
+        Returns True only if the gender is female.
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-            bool: True if gender is 'female', False otherwise.
         """
         return self.gender.lower() == "female"
 
     @property
     def gender_other(self):
         """
-        Check if the gender is not male or female.
+        Returns True only if the gender is not male or female.
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-            bool: True if gender is neither 'male' or 'female', False otherwise.
         """
         return (self.gender != "male") and (self.gender != "female")
 
     @property
     def gender_nonbinary(self):
         """
-        Check if the gender is nonbinary.
+        Returns True only if the gender is nonbinary.
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-            bool: True if gender is 'nobinary', False otherwise.
         """
         return self.gender.lower() == "nonbinary"
 
     @property
     def gender_unknown(self):
         """
-        Check if the gender is unknown.
+        Returns True only if the gender is unknown.
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-            bool: True if gender is 'unknown', False otherwise.
         """
         return self.gender.lower() == "unknown"
 
     @property
     def gender_undisclosed(self):
         """
-        Check if the gender is not disclosed.
+        Returns True only if the gender is not disclosed.
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-            bool: True if gender is 'prefer-not-to-say', False otherwise.
         """
         return self.gender.lower() == "prefer-not-to-say"
 
     @property
     def gender_self_described(self):
         """
-        Check if the gender is self described.
+        Returns True only if the gender is self described.
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-            bool: True if gender is none of the Assembly Line's pre-defined choices, False otherwise.
         """
         return not (
             self.gender
             in ["prefer-not-to-say", "male", "female", "unknown", "nonbinary"]
         )
 
-    def contact_fields(self):
+    def contact_fields(self) -> None:
         """
         Return field prompts for other contact info
         """
@@ -1332,12 +1320,9 @@ class ALIndividual(Individual):
     @property
     def initials(self):
         """
-        Compute the initials of the individual.
+        Return the initials of the individual as a string.
 
         For example, "Quinten K Steenhuis" would return "QKS".
-
-        Returns:
-            str: The initials extracted from the individual's name.
         """
         return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1] if hasattr(self.name, 'last') else ''}"
 
@@ -1569,7 +1554,14 @@ class ALIndividual(Individual):
 
 # (DANav isn't in public DA API, but currently in functions.py)
 def section_links(nav) -> List[str]:  # type: ignore
-    """Returns a list of clickable navigation links without animation."""
+    """Returns a list of clickable navigation links without animation.
+    
+    Args:
+        nav: The navigation object.
+
+    Returns:
+        List[str]: A list of clickable navigation links without animation.
+    """
     sections = nav.get_sections()
     section_link = []
     for section in sections:
@@ -1637,6 +1629,9 @@ def will_send_to_real_court() -> bool:
     is being run on the dev, test, or production server.
 
     The text "dev" or "test" needs to be in the URL root in the DA config: can change in `/config`.
+
+    Returns:
+        bool: True if the form is being run on the dev, test, or production server.
     """
     return not (
         get_config("debug")
@@ -1649,7 +1644,16 @@ def will_send_to_real_court() -> bool:
 # TODO: move to 209A package
 # This one is only used for 209A--should move there along with the combined_letters() method
 def filter_letters(letter_strings: Union[List[str], str]) -> str:
-    """Used to take a list of letters like ["A","ABC","AB"] and filter out any duplicate letters."""
+    """Used to take a list of letters like ["A","ABC","AB"] and filter out any duplicate letters.
+    
+    Avoid using, this is created for 209A.
+
+    Args:
+        letter_strings (Union[List[str], str]): A list of letters.
+
+    Returns:
+        str: A string of unique letters.
+    """
     # There is probably a cute one liner, but this is easy to follow and
     # probably same speed
     unique_letters = set()
@@ -1671,7 +1675,7 @@ def filter_letters(letter_strings: Union[List[str], str]) -> str:
 
 def fa_icon(
     icon: str, color: str = "primary", color_css: Optional[str] = None, size: str = "sm"
-):
+) -> str:
     """
     Return HTML for a font-awesome icon of the specified size and color. You can reference
     a CSS variable (such as Bootstrap theme color) or a true CSS color reference, such as 'blue' or
