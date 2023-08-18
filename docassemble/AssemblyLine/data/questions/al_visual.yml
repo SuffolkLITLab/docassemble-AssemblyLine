@@ -535,3 +535,9 @@ content: |
   ${ action_argument("error_trace")}
   </pre>
   % endif
+---
+# This image reference is deprecated and may be removed by the end of 2023
+image sets:
+  deprecated:
+    images:
+      form-lineal: placeholder.png
