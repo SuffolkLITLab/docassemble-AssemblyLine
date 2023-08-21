@@ -232,7 +232,7 @@ def is_file_like(obj: Any) -> bool:
     Returns:
         bool: True if the object is a file-like object.
     """
-    return isinstance(
+    if isinstance(
         obj,
         (
             DAFile,
