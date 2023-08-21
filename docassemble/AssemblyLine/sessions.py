@@ -250,6 +250,7 @@ def is_file_like(obj: Any) -> bool:
 
     return False
 
+
 def set_interview_metadata(
     filename: str, session_id: int, data: Dict, metadata_key_name="metadata"
 ) -> None:
@@ -1084,7 +1085,7 @@ def get_filtered_session_variables(
 
     while items_to_check:
         key, value = items_to_check.pop()
-        
+
         # This condition only will apply to "top level" variables
         if is_file_like(value):
             del all_vars[key]
@@ -1093,14 +1094,18 @@ def get_filtered_session_variables(
         if isinstance(value, DAObject):
             # docassemble overrides both __dir__ and __getattr__ for reasons
             # we need to use the base Python versions to get what we expect
-            attr_list = list(value.__dict__.keys()) # skip over properties etc. vs using object.dir()
+            attr_list = list(
+                value.__dict__.keys()
+            )  # skip over properties etc. vs using object.dir()
             for attr in attr_list:
                 attr_val = object.__getattribute__(value, attr)
                 if is_file_like(attr_val):
                     delattr(value, attr)
                 elif isinstance(attr_val, (DAList, DASet, DAObject)):
-                    items_to_check.append((None, attr_val)) # mimic dict.items() but the key isn't used
- 
+                    items_to_check.append(
+                        (None, attr_val)
+                    )  # mimic dict.items() but the key isn't used
+
         if isinstance(value, (DAList, DASet)):
             new_elements = []
             for subitem in value.elements:
@@ -1108,7 +1113,9 @@ def get_filtered_session_variables(
                     new_elements.append(subitem)
                     if isinstance(subitem, (DAList, DASet, DAObject)):
                         items_to_check.append((None, subitem))
-            value.elements = new_elements if isinstance(value, DAList) else set(new_elements)
+            value.elements = (
+                new_elements if isinstance(value, DAList) else set(new_elements)
+            )
 
     return all_vars
 
