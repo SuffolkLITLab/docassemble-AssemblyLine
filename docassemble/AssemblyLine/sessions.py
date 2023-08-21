@@ -6,9 +6,14 @@ from docassemble.base.util import (
     as_datetime,
     create_session,
     DADateTime,
+    DADict,
     DAFile,
     DAFileCollection,
     DAFileList,
+    DALazyTemplate,
+    DAList,
+    DAObject,
+    DASet,
     format_time,
     get_config,
     get_default_timezone,
@@ -106,15 +111,16 @@ al_sessions_variables_to_remove: Set = {
     "AL_DEFAULT_LANGUAGE",
     "AL_DEFAULT_OVERFLOW_MESSAGE",
     "AL_DEFAULT_STATE",
+    "al_enable_incomplete_downloads",
+    "al_interview_languages",
     "al_logo",
     "AL_ORGANIZATION_HOMEPAGE",
     "AL_ORGANIZATION_TITLE",
     "al_user_bundle",
-    "enable_al_language",
-    "al_interview_languages",
-    "al_user_language",
     "al_user_default_language",
+    "al_user_language",
     "case_name",
+    "enable_al_language",
     "signature_date",
     # Variables from saving/loading state
     "al_formatted_sessions",
@@ -179,6 +185,8 @@ al_sessions_variables_to_remove: Set = {
     "Union",
     # Variables that should always be created by code, so safe to recalculate
     "al_menu_items",
+    "al_menu_items_default_items",
+    "al_menu_items_custom_items",
     "menu_items",
     "user_role",
     "user_started_case",
@@ -224,7 +232,7 @@ def is_file_like(obj: Any) -> bool:
     Returns:
         bool: True if the object is a file-like object.
     """
-    return isinstance(
+    if isinstance(
         obj,
         (
             DAFile,
@@ -235,8 +243,12 @@ def is_file_like(obj: Any) -> bool:
             ALStaticDocument,
             ALExhibit,
             ALExhibitList,
+            DALazyTemplate,
         ),
-    )
+    ):
+        return True
+
+    return False
 
 
 def set_interview_metadata(
@@ -1065,15 +1077,47 @@ def get_filtered_session_variables(
     if filename and session_id:
         all_vars = get_session_variables(filename, session_id, simplify=False)
     else:
-        all_vars = all_variables(simplify=False)
+        all_vars = all_variables(simplify=False, make_copy=True)
 
-    # Remove items that we were explicitly told to remove
-    # Delete all files and ALDocuments
-    return {
-        item: all_vars[item]
-        for item in all_vars
-        if not item in variables_to_filter and not is_file_like(all_vars[item])
-    }
+    all_vars = {k: v for k, v in all_vars.items() if k not in variables_to_filter}
+
+    items_to_check = list(all_vars.items())
+
+    while items_to_check:
+        key, value = items_to_check.pop()
+
+        # This condition only will apply to "top level" variables
+        if is_file_like(value):
+            del all_vars[key]
+            continue
+
+        if isinstance(value, DAObject):
+            # docassemble overrides both __dir__ and __getattr__ for reasons unknown
+            # we need to use the base Python versions to get what we expect
+            attr_list = list(
+                value.__dict__.keys()
+            )  # skip over properties etc. vs using object.dir()
+            for attr in attr_list:
+                attr_val = object.__getattribute__(value, attr)
+                if is_file_like(attr_val):
+                    delattr(value, attr)
+                elif isinstance(attr_val, (DAList, DASet, DAObject)):
+                    items_to_check.append(
+                        (None, attr_val)
+                    )  # mimic dict.items() but the key isn't used
+
+        if isinstance(value, (DAList, DASet)):
+            new_elements = []
+            for subitem in value.elements:
+                if not is_file_like(subitem):
+                    new_elements.append(subitem)
+                    if isinstance(subitem, (DAList, DASet, DAObject)):
+                        items_to_check.append((None, subitem))
+            value.elements = (
+                new_elements if isinstance(value, DAList) else set(new_elements)
+            )
+
+    return all_vars
 
 
 def get_filtered_session_variables_string(
