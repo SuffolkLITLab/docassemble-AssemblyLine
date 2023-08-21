@@ -905,8 +905,6 @@ def save_interview_answers(
     return new_session_id
 
 
-
-
 def get_filtered_session_variables(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
@@ -931,22 +929,26 @@ def get_filtered_session_variables(
 
     while items_to_check:
         key, value = items_to_check.pop()
-
+        
+        # This condition only will apply to "top level" variables
         if is_file_like(value):
             del all_vars[key]
             continue
 
         if isinstance(value, DAObject):
-            for attr in dir(value):
-                attr_val = getattr(value, attr)
+            # docassemble overrides both __dir__ and __getattr__ for reasons
+            # we need to use the base Python versions to get what we expect
+            attr_list = list(value.__dict__.keys()) # skip over properties etc. vs using object.dir()
+            for attr in attr_list:
+                attr_val = object.__getattribute__(value, attr)
                 if is_file_like(attr_val):
                     delattr(value, attr)
                 elif isinstance(attr_val, (DAList, DASet, DAObject)):
-                    items_to_check.append((attr, attr_val))
-
+                    items_to_check.append((None, attr_val)) # mimic dict.items() but the key isn't used
+ 
         if isinstance(value, (DAList, DASet)):
             new_elements = []
-            for subitem in value:
+            for subitem in value.elements:
                 if not is_file_like(subitem):
                     new_elements.append(subitem)
                     if isinstance(subitem, (DAList, DASet, DAObject)):
