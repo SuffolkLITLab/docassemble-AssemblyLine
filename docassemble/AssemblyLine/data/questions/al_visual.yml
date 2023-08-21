@@ -141,6 +141,17 @@ code: |
   command('new_session')
 ---
 code: |
+  enable_al_nav_sections = False
+---
+code: |
+  al_nav_sections = []
+---
+initial: True
+code: |
+  if enable_al_nav_sections:
+    nav.set_sections(get_visible_al_nav_items(al_nav_sections))
+---
+code: |
   send_icon = "envelope"
 ---
 code: |
@@ -173,15 +184,6 @@ default screen parts:
     [:share-alt-square: Share](${ url_ask([{'undefine': ['al_sharing_type','al_how_share_link']}, 'al_share_form_screen', {'recompute': ['al_did_share_form']}, 'al_share_results']) })
     [:info-circle: About](${ url_action('about_this_interview') })
     [:comment-dots: Feedback](${ feedback_link(user_info(), i=feedback_form, github_repo=github_repo_name, github_user=github_user, package_version=package_version_number) } ){:target="_blank"}
----
-image sets:
-  smashicons:
-    attribution: |
-      Icon made by
-      [Smashicons](https://www.flaticon.com/authors/smashicons)
-    images:
-      form: sign-form.svg
-      form-lineal: sign-form-lineal.svg
 ---
 continue button field: al_share_form_screen
 id: al share form screen
@@ -533,3 +535,9 @@ content: |
   ${ action_argument("error_trace")}
   </pre>
   % endif
+---
+# This image reference is deprecated and may be removed by the end of 2023
+image sets:
+  deprecated:
+    images:
+      form-lineal: placeholder.png
