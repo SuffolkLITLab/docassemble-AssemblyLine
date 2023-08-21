@@ -1092,7 +1092,7 @@ def get_filtered_session_variables(
             continue
 
         if isinstance(value, DAObject):
-            # docassemble overrides both __dir__ and __getattr__ for reasons
+            # docassemble overrides both __dir__ and __getattr__ for reasons unknown
             # we need to use the base Python versions to get what we expect
             attr_list = list(
                 value.__dict__.keys()
