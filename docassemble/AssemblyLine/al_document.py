@@ -1463,7 +1463,7 @@ class ALDocumentBundle(DAList):
         Args:
             key (str): Identifier for the document version, default is "final".
             refresh (bool): Flag to return a newly assembled version, default is True.
-            pdfa (bool): Flag to return the PDF in PDF/A format, default is False.
+            pdfa (bool): If True, generates a PDF/A compliant document, defaults to False.
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
                                             Used primarily to enhance automated tests.
 
@@ -1537,8 +1537,8 @@ class ALDocumentBundle(DAList):
         Args:
             key (str): Identifier for the document version, default is "final".
             refresh (bool): Flag to reconsider the 'enabled' attribute, default is True.
-            pdfa (bool): Flag to include the document in PDF/A format, default is False.
-            title (str): Title of the zip file, default is the bundle's title.
+            pdfa (bool): If True, all PDFs in the zip will be PDF/A compliant, defaults to False.
+            title (str): Title of the zip file, shown next to the button to download the zip. Defaults to the bundle's title.
             format (str): Format of the documents in the zip file (e.g., "pdf", "docx", "original"), default is "pdf".
             include_pdf (bool): Flag to include a PDF version of the document if it's originally in docx format, default is True.
 
@@ -1559,7 +1559,7 @@ class ALDocumentBundle(DAList):
             for doc in self.enabled_documents(refresh=refresh):
                 docs.append(doc.as_docx(key=key, refresh=refresh))
                 if include_pdf and doc._is_docx():
-                    docs.append(doc.as_pdf(key=key, refresh=refresh))
+                    docs.append(doc.as_pdf(key=key, pdfa=pdfa, refresh=refresh))
         elif format == "original":
             # We don't try to convert to PDF if format=="original" (for things like XLSX files)
             docs = [doc[key] for doc in self.enabled_documents(refresh=refresh)]
@@ -1759,7 +1759,7 @@ class ALDocumentBundle(DAList):
             view_icon (str): Icon for the 'view' button, default is "eye".
             download_label (str): Label for the 'download' button, default is "Download".
             download_icon (str): Icon for the 'download' button, default is "download".
-            zip_label (Optional[str]): Label for the zip option, if not provided, the format will be used.
+            zip_label (Optional[str]): Label for the zip option. If not provided, uses the generic template for `self.zip_label` ("Download all").
             zip_icon (str): Icon for the zip option, default is "file-archive".
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
             include_email (bool): Flag to include an email option, default is False.
