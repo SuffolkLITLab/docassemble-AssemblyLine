@@ -185,3 +185,9 @@ code: |
   else:
     # If the user role was set to "unknown" at the time wizard run
     user_role = user_ask_role
+---
+# A bit of HTML required for ALKiln to be used in interviews.
+# To add to your unstyled alkiln interviews, include it in your `default screen parts: post`
+template: alkiln_trigger_html
+content: |
+    <div data-variable="${ encode_name(str( user_info().variable )) }" id="trigger" aria-hidden="true" style="display: none;"></div>
