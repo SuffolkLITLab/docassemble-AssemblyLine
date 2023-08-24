@@ -16,3 +16,4 @@ jobs:
       - uses: SuffolkLITLab/ALActions/black-formatting@main
         with:
           MAKE_PR: "true"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
