@@ -39,7 +39,15 @@ class ALCourt(Court):
             self.initializeAttribute("location", LatitudeLongitude)
 
     def __str__(self) -> str:
-        return str(self.name)
+      return str(self.name)
+
+
+
+
+
+
+
+
 
     def _map_info(self) -> List[Dict[str, Any]]:
         """
