@@ -1,4 +1,4 @@
-name: black-action
+name: formatting action
 on:
   # Trigger the workflow on push or pull request,
   # but only for the main branch
@@ -10,10 +10,11 @@ on:
       - main
 jobs:
   linter_name:
-    name: runner / black
+    name: formatting
     runs-on: ubuntu-latest
     steps:
       - uses: SuffolkLITLab/ALActions/black-formatting@main
         with:
           MAKE_PR: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: SuffolkLITLab/ALActions/docsig@docsig
