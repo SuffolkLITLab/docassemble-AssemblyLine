@@ -696,7 +696,7 @@ class ALAddendumFieldDict(DAOrderedDict):
             self.from_list(self.data)
             del self.data
 
-    def initializeObject(self, *pargs, **kwargs) -> None:
+    def initializeObject(self, *pargs, **kwargs) -> Any:
         """
         Initializes a new dictionary entry and sets its `field_name` attribute.
 
@@ -704,13 +704,14 @@ class ALAddendumFieldDict(DAOrderedDict):
         its own field name by setting the `field_name` attribute.
 
         Args:
-            *pargs: List of arguments to use to create the DAOrderedDict. The 0th arg is
+            *pargs: List of arguments to use to create the dict entry. The 0th arg is
                 also used to set the `field_name` attribute.
-            **kwargs: List of keyword arguments used to create the dict
+            **kwargs: List of keyword arguments used to create the dict entry
         """
         the_key = pargs[0]
-        super().initializeObject(*pargs, **kwargs)
+        newobj = super().initializeObject(*pargs, **kwargs)
         self[the_key].field_name = the_key
+        return newobj
 
     def from_list(self, data) -> None:
         """
