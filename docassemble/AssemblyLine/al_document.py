@@ -2435,8 +2435,7 @@ class ALExhibit(DAObject):
 
         Indicates if the exhibit is complete.
 
-        Returns:
-          bool: This property always returns True after triggering the required attributes.
+        NOTE: This property always returns True after triggering the required attributes.
         """
         self.title
         self.pages.gather()

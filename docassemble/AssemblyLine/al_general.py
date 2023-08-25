@@ -1237,77 +1237,70 @@ class ALIndividual(Individual):
     @property
     def gender_male(self) -> bool:
         """
+        Returns True only if the gender is male.
+
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-          bool: True only if the gender is male.
         """
         return self.gender.lower() == "male"
 
     @property
     def gender_female(self) -> bool:
         """
+        Returns True only if the gender is female.
+
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-          bool: True only if the gender is female.
         """
         return self.gender.lower() == "female"
 
     @property
     def gender_other(self) -> bool:
         """
+        Returns True only if the gender is not male or female.
+
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-          bool: True only if the gender is not male or female.
         """
         return (self.gender != "male") and (self.gender != "female")
 
     @property
     def gender_nonbinary(self) -> bool:
         """
+        Returns True only if the gender is nonbinary.
+
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-          bool: True only if the gender is nonbinary.
         """
         return self.gender.lower() == "nonbinary"
 
     @property
     def gender_unknown(self) -> bool:
         """
+        Returns True only if the gender is unknown.
+
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-          bool: True only if the gender is unknown.
         """
         return self.gender.lower() == "unknown"
 
     @property
     def gender_undisclosed(self) -> bool:
         """
+        Returns True only if the gender is not disclosed ("prefer-not-to-say")
+
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-          bool: True only if the gender is not disclosed ("prefer-not-to-say")
         """
         return self.gender.lower() == "prefer-not-to-say"
 
     @property
     def gender_self_described(self) -> bool:
         """
+        Returns True only if the gender is self described.
+
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
-
-        Returns:
-          bool: True only if the gender is self described.
         """
         return not (
             self.gender
@@ -1323,10 +1316,9 @@ class ALIndividual(Individual):
     @property
     def initials(self) -> str:
         """
-        For example, "Quinten K Steenhuis" would return "QKS".
+        Returns the initials of the individual as a string.
 
-        Return:
-          str: the initials of the individual as a string.
+        For example, "Quinten K Steenhuis" would return "QKS".
         """
         return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1] if hasattr(self.name, 'last') else ''}"
 
