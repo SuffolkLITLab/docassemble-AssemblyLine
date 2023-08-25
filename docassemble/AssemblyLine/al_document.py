@@ -696,7 +696,7 @@ class ALAddendumFieldDict(DAOrderedDict):
             self.from_list(self.data)
             del self.data
 
-    def initializeObject(self, *pargs, **kwargs):
+    def initializeObject(self, *pargs, **kwargs) -> None:
         """
         Initializes a new dictionary entry and sets its `field_name` attribute.
 
