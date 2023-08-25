@@ -696,16 +696,25 @@ class ALAddendumFieldDict(DAOrderedDict):
             self.from_list(self.data)
             del self.data
 
-    def initializeObject(self, *pargs, **kwargs):
+    def initializeObject(self, *pargs, **kwargs) -> Any:
         """
         Initializes a new dictionary entry and sets its `field_name` attribute.
 
         When an entry is implicitly created, this method ensures the item knows
         its own field name by setting the `field_name` attribute.
+
+        Args:
+            *pargs: List of arguments to use to create the dict entry. The 0th arg is
+                also used to set the `field_name` attribute.
+            **kwargs: List of keyword arguments used to create the dict entry
+
+        Returns:
+          The new dictionary entry created
         """
         the_key = pargs[0]
-        super().initializeObject(*pargs, **kwargs)
+        newobj = super().initializeObject(*pargs, **kwargs)
         self[the_key].field_name = the_key
+        return newobj
 
     def from_list(self, data) -> None:
         """
@@ -1378,6 +1387,9 @@ class ALStaticDocument(DAStaticFile):
         Display the document.
 
         This method provides a workaround for problems generating thumbnails.
+
+        Args:
+            **kwargs: Args to pass to DAFile's show function
 
         Returns:
             DAFile: Displayable version of the document.
@@ -2423,7 +2435,7 @@ class ALExhibit(DAObject):
 
         Indicates if the exhibit is complete.
 
-        Note: This property always returns True after triggering the required attributes.
+        NOTE: This property always returns True after triggering the required attributes.
         """
         self.title
         self.pages.gather()
