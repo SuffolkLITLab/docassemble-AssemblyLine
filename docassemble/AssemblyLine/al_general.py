@@ -322,13 +322,12 @@ class ALAddress(Address):
         show_country: Optional[bool] = None,
         bare: bool = False,
         long_state: bool = False,
-    ):
+    ) -> str:
         """Returns a one-line formatted address, primarily for geocoding.
 
         Args:
-            include_unit (bool): If True, includes the unit in the formatted address. Defaults to True.
-            omit_default_country (bool): If True, omits the default country from the formatted address. Defaults to True.
             language (str, optional): Language for the address format.
+            international (bool): If True, formats the address as an international address. Defaults to False.
             show_country (bool, optional): If True, includes the country in the formatted address.
                 If None, decides based on the country attribute.
             bare (bool): If True, excludes certain formatting elements. Defaults to False.
@@ -1236,72 +1235,79 @@ class ALIndividual(Individual):
             return language_name(self.language)
 
     @property
-    def gender_male(self):
+    def gender_male(self) -> bool:
         """
-        Returns True only if the gender is male.
-
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Returns:
+          bool: True only if the gender is male.
         """
         return self.gender.lower() == "male"
 
     @property
-    def gender_female(self):
+    def gender_female(self) -> bool:
         """
-        Returns True only if the gender is female.
-
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Returns:
+          bool: True only if the gender is female.
         """
         return self.gender.lower() == "female"
 
     @property
-    def gender_other(self):
+    def gender_other(self) -> bool:
         """
-        Returns True only if the gender is not male or female.
-
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Returns:
+          bool: True only if the gender is not male or female.
         """
         return (self.gender != "male") and (self.gender != "female")
 
     @property
-    def gender_nonbinary(self):
+    def gender_nonbinary(self) -> bool:
         """
-        Returns True only if the gender is nonbinary.
-
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Returns:
+          bool: True only if the gender is nonbinary.
         """
         return self.gender.lower() == "nonbinary"
 
     @property
-    def gender_unknown(self):
+    def gender_unknown(self) -> bool:
         """
-        Returns True only if the gender is unknown.
-
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Returns:
+          bool: True only if the gender is unknown.
         """
         return self.gender.lower() == "unknown"
 
     @property
-    def gender_undisclosed(self):
+    def gender_undisclosed(self) -> bool:
         """
-        Returns True only if the gender is not disclosed.
-
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Returns:
+          bool: True only if the gender is not disclosed ("prefer-not-to-say")
         """
         return self.gender.lower() == "prefer-not-to-say"
 
     @property
-    def gender_self_described(self):
+    def gender_self_described(self) -> bool:
         """
-        Returns True only if the gender is self described.
-
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Returns:
+          bool: True only if the gender is self described.
         """
         return not (
             self.gender
@@ -1315,17 +1321,18 @@ class ALIndividual(Individual):
         pass
 
     @property
-    def initials(self):
+    def initials(self) -> str:
         """
-        Return the initials of the individual as a string.
-
         For example, "Quinten K Steenhuis" would return "QKS".
+
+        Return:
+          str: the initials of the individual as a string.
         """
         return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1] if hasattr(self.name, 'last') else ''}"
 
     def address_block(
         self, language=None, international=False, show_country=False, bare=False
-    ):
+    ) -> str:
         """
         Generate a formatted address block for mailings.
 
@@ -1360,7 +1367,7 @@ class ALIndividual(Individual):
             )
         )
 
-    def pronoun(self, **kwargs):
+    def pronoun(self, **kwargs) -> str:
         """Returns an objective pronoun as appropriate, based on attributes.
 
         The pronoun could be "you," "her," "him," "it," or "them". It depends
@@ -1418,7 +1425,7 @@ class ALIndividual(Individual):
             return capitalize(output)
         return output
 
-    def pronoun_objective(self, **kwargs):
+    def pronoun_objective(self, **kwargs) -> str:
         """Returns the same pronoun as the `pronoun()` method.
 
         Args:
@@ -1429,7 +1436,7 @@ class ALIndividual(Individual):
         """
         return self.pronoun(**kwargs)
 
-    def pronoun_possessive(self, target, **kwargs):
+    def pronoun_possessive(self, target, **kwargs) -> str:
         """Returns a possessive pronoun and a target word, based on attributes.
 
         Given a target word, the function returns "{pronoun} {target}". The pronoun could be
@@ -1491,7 +1498,7 @@ class ALIndividual(Individual):
             return capitalize(output)
         return output
 
-    def pronoun_subjective(self, **kwargs):
+    def pronoun_subjective(self, **kwargs) -> str:
         """Returns a subjective pronoun, based on attributes.
 
         The pronoun could be "you," "she," "he," "it," or "they". It depends

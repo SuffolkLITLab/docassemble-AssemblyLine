@@ -1,6 +1,14 @@
 [tool.black]
 extend-exclude = '(__init__.py|setup.py)'
 
+[tool.docsig]
+check-property-returns = true
+check-overriden = true
+check-class = true
+disable = [
+  "E113"
+]
+
 [tool.mypy]
 # global options
 exclude = '''(?x)(
