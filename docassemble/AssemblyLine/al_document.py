@@ -707,6 +707,9 @@ class ALAddendumFieldDict(DAOrderedDict):
             *pargs: List of arguments to use to create the dict entry. The 0th arg is
                 also used to set the `field_name` attribute.
             **kwargs: List of keyword arguments used to create the dict entry
+
+        Returns:
+          The new dictionary entry created
         """
         the_key = pargs[0]
         newobj = super().initializeObject(*pargs, **kwargs)
