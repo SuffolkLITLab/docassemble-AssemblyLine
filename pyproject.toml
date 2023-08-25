@@ -5,6 +5,10 @@ extend-exclude = '(__init__.py|setup.py)'
 check-property-returns = true
 check-overriden = true
 check-class = true
+# This ignores *pargs, or positional args, to functions
+# Most of these are from docassemble's API
+ignore-args = true
+ignore-kwargs = true
 disable = [
   "E113"
 ]
