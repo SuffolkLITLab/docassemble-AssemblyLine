@@ -17,4 +17,4 @@ jobs:
         with:
           MAKE_PR: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: SuffolkLITLab/ALActions/docsig@docsig
+      - uses: SuffolkLITLab/ALActions/docsig@main
