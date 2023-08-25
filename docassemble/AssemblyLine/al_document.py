@@ -702,6 +702,11 @@ class ALAddendumFieldDict(DAOrderedDict):
 
         When an entry is implicitly created, this method ensures the item knows
         its own field name by setting the `field_name` attribute.
+
+        Args:
+            *pargs: List of arguments to use to create the DAOrderedDict. The 0th arg is
+                also used to set the `field_name` attribute.
+            **kwargs: List of keyword arguments used to create the dict
         """
         the_key = pargs[0]
         super().initializeObject(*pargs, **kwargs)
@@ -1378,6 +1383,9 @@ class ALStaticDocument(DAStaticFile):
         Display the document.
 
         This method provides a workaround for problems generating thumbnails.
+
+        Args:
+            **kwargs: Args to pass to DAFile's show function
 
         Returns:
             DAFile: Displayable version of the document.
