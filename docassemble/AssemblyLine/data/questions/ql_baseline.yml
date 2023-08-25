@@ -2,6 +2,9 @@
 # This file holds the default questions for various object
 # types. Things like how to ask for a person's name
 ---
+include:
+  - al_terms_of_use.yml
+---
 objects:
   - interview_metadata: DADict.using(object_type=DADict.using(auto_gather=False, gathered=True), auto_gather=False, gathered=True)
   - users: ALPeopleList.using(there_are_any=True)
@@ -66,15 +69,17 @@ subquestion: |
   (:comment-alt:) in the navigation bar to connect to a live advocate for help.
   % endif
 fields:
-  - To continue, you must accept our [terms of use](${ AL_ORGANIZATION_HOMEPAGE }/privacy/): acknowledged_information_use
+  - note: |
+      ${ display_template(al_terms_of_use, scrollable=True) }
+  - To continue, you must accept our terms of use: acknowledged_information_use
     datatype: checkboxes
-    none of the above: False    
+    none of the above: False
     minlength: 1
     choices:
       - I accept the terms of use.
     validation messages:
       minlength: |
-        You cannot continue unless you agree to the terms of use.        
+        You cannot continue unless you agree to the terms of use.
 continue button field: al_intro_screen
 terms:
   green words: |
