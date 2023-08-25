@@ -8,7 +8,7 @@ code: |
   AL_PRODUCTION_SITE_HOSTING_PROVIDER = AL_ORGANIZATION_TITLE
 ---
 code: |
-  AL_TERMS_OF_USE_GOVERNING_JURISDICTION =  state_name(AL_DEFAULT_STATE, country_code=AL_DEFAULT_COUNTRY)
+  AL_TERMS_OF_USE_GOVERNING_JURISDICTION =  state_name(AL_DEFAULT_STATE, country_code=AL_DEFAULT_COUNTRY) or "the United States" if AL_DEFAULT_COUNTRY == "US" else country_name(AL_DEFAULT_COUNTRY)
 ---
 template: al_terms_of_use
 subject: ""
@@ -55,7 +55,7 @@ content: |
   * When you visit some pages of the site, the site may ask if you want to apply to get a free lawyer from legal aid. You get to decide if you want to share your personal information.
   * You may choose to email completed forms or share a link to your in-progress work at any time to any person.
 
-  <h3 class="h5">These terms of use can change</h3>
+  <h3 class="h5">These Terms of Use can change</h3>
 
   We may change these Terms of Use at any time with no notice. Please review the terms on a regular basis to see any changes.
 
