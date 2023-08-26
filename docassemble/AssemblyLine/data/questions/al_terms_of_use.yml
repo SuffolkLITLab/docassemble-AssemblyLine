@@ -1,26 +1,36 @@
 ---
-code: |
-  # Customize this with the preferred contact information. It could be a physical address
-  # rather than an email.
-  AL_DEFAULT_CONTACT_INFORMATION = get_config("server administrator email", AL_ORGANIZATION_TITLE)
----
-code: |
-  AL_PRODUCTION_SITE_HOSTING_PROVIDER = AL_ORGANIZATION_TITLE
----
-code: |
-  AL_TERMS_OF_USE_GOVERNING_JURISDICTION =  state_name(AL_DEFAULT_STATE, country_code=AL_DEFAULT_COUNTRY) or "the United States" if AL_DEFAULT_COUNTRY == "US" else country_name(AL_DEFAULT_COUNTRY)
----
 template: al_terms_of_use
 subject: ""
 content: |
   <h2 class="h5">Terms of Use and Privacy Policy</h2>
 
-  This website is free to use. ${ AL_ORGANIZATION_TITLE } hosts the site.
+  This website is free to use. 
+  % if get_config("default title") and get_config("default title") != "docassemble":
+  ${ get_config("default title") }
+  % else:
+  ${ AL_ORGANIZATION_TITLE }
+  % endif
+  hosts the site.
+
+  % if (not get_config("default title") == AL_ORGANIZATION_TITLE) and get_config("default title") != "docassemble":
+  And it includes content from ${ AL_ORGANIZATION_TITLE }.
+  % endif
 
   <h3 class="h5">You need to know</h3>
 
-  * **This website does not provide legal advice**. If you need legal advice, you can use [LSC.gov](https://www.lsc.gov/about-lsc/what-legal-aid/i-need-legal-help) to find a lawyer.
-  * The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold ${ AL_ORGANIZATION_TITLE } or the information providers on this site liable.
+  * **This website does not provide legal advice**. 
+  % if AL_DEFAULT_COUNTRY == "US":
+  If you need legal advice, you can use [LSC.gov](https://www.lsc.gov/about-lsc/what-legal-aid/i-need-legal-help) to find a lawyer.
+  % else:
+  If you need legal adice, call your local legal aid organization or lawyer referral service.
+  % endif
+  * The information and documents on this website have no warranty. We provide the information “as-is.” By using the site, you agree not to hold 
+  % if get_config("default title") and get_config("default title") != "docassemble":
+  ${ get_config("default title") }
+  % else:
+  ${ AL_ORGANIZATION_TITLE }
+  % endif
+  or the information providers on this site liable.
   * We work hard to keep the information on the site up to date. Lawyers drafted and reviewed the documents this site uses. But laws and local rules change over time. These changes can make a document unenforceable when you use it.
   * We do our best to keep the site working! To do that, we allow you to submit feedback so we can track problems on the site. But we cannot provide individual technical support.
 
@@ -33,7 +43,7 @@ content: |
 
   <h3 class="h5">Information we and others collect</h3>
 
-  * We collect the information that you type to help you complete your forms. We delete all information 180 days after you last update it. You can also delete information immediately.
+  * We collect the information that you type to help you complete your forms. We delete all information ${ get_config("interview delete days", 90)} days after you last update it. You can also delete information immediately.
   * We log information including IP addresses and web browsers from all visitors. We use this information to keep our site secure. We keep logs for up to 180 days.
   * We use Google Maps to help fill in addresses automatically. This feature sends your IP address to Google Maps to get your approximate location.
   * We use Google Analytics to learn how people use our website. This helps us understand which pages are hardest to use. Google may use this information to show you better advertisements.
@@ -61,7 +71,15 @@ content: |
 
   If you use the site after we make changes, you accept our changed Terms of Use.
 
-  <h3 class="h5">The laws of ${ AL_TERMS_OF_USE_GOVERNING_JURISDICTION } apply to these Terms of Use</h3>
+  <h3 class="h5">The laws of 
+  % if state_name(AL_DEFAULT_STATE, country_code=AL_DEFAULT_COUNTRY):
+  ${ state_name(AL_DEFAULT_STATE, country_code=AL_DEFAULT_COUNTRY) } 
+  % elif AL_DEFAULT_COUNTRY == "US":
+  the United States
+  % else:
+  ${ country_name(AL_DEFAULT_COUNTRY) }
+  % endif
+  apply to these Terms of Use</h3>
 
   If a judge decides that one of the terms in this Terms of Use is unenforceable, it will not change the terms that remain.
 
@@ -69,4 +87,4 @@ content: |
 
   Send any questions to:
 
-  ${ AL_DEFAULT_CONTACT_INFORMATION }
+  ${ get_config("server administrator contact address", get_config("server administrator email", AL_ORGANIZATION_TITLE)) }
