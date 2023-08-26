@@ -4,11 +4,12 @@ include:
   - al_language.yml
   - al_settings.yml
   - al_code.yml
-  - al_saved_sessions.yml  
+  - al_saved_sessions.yml
   - al_visual.yml
   - al_document.yml
   - ql_baseline.yml
-  - docassemble.ALToolbox:phone-number-validation.yml  
+  - docassemble.ALToolbox:phone-number-validation.yml
+  - docassemble.ALToolbox:display_template.yml
 ---
 modules:
   - docassemble.ALToolbox.misc

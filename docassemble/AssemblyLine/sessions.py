@@ -116,6 +116,7 @@ al_sessions_variables_to_remove: Set = {
     "al_logo",
     "AL_ORGANIZATION_HOMEPAGE",
     "AL_ORGANIZATION_TITLE",
+    "al_terms_of_use",
     "al_user_bundle",
     "al_user_default_language",
     "al_user_language",
