@@ -2,6 +2,7 @@ tests/chromedriver
 *DS_Store*
 node_modules*
 .env
+.envrc
 npm-debug.log
 error*.jpg
 screenshot_*.jpg

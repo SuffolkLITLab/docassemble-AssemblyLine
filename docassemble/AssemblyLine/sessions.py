@@ -1,12 +1,10 @@
 from collections.abc import Iterable
 from typing import List, Dict, Any, Optional, Set, Union, Optional
 from docassemble.base.util import (
-    action_button_html,
     all_variables,
     as_datetime,
     create_session,
     DADateTime,
-    DADict,
     DAFile,
     DAFileCollection,
     DAFileList,
@@ -33,7 +31,6 @@ from docassemble.base.util import (
     variables_snapshot_connection,
     word,
 )
-from docassemble.webapp.users.models import UserModel
 from docassemble.webapp.db_object import init_sqlalchemy
 from sqlalchemy.sql import text
 from docassemble.base.functions import server, safe_json, serializable_dict
