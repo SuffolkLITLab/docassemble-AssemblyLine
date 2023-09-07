@@ -2315,3 +2315,20 @@ generic object: ALIndividual
 template: x.pronoun_self_described_label
 content: |
   Self described pronouns
+---
+############# Contact method strings ################
+---
+generic object: ALIndividual
+template: x.phone_number_contact_label
+content: |
+  by phone at
+---
+generic object: ALIndividual
+template: x.email_contact_label
+content: |
+  by email at
+---
+generic object: ALIndividual
+template: x.other_contact_method_label
+content: |
+  by

@@ -843,15 +843,15 @@ class ALIndividual(Individual):
         """
         methods = []
         if self.phone_numbers():
-            methods.append({self.phone_numbers(): word("by phone at ")})
+            methods.append({self.phone_numbers(): str(self.phone_number_contact_label)})
         if hasattr(self, "email") and self.email:
-            methods.append({self.email: word("by email at ")})
+            methods.append({self.email: str(self.email_contact_label)})
         if hasattr(self, "other_contact_method") and self.other_contact_method:
-            methods.append({self.other_contact_method: "by "})
+            methods.append({self.other_contact_method: str(self.other_contact_method_label)})
 
         return comma_and_list(
             [
-                list(method.values())[0] + list(method.keys())[0]
+                list(method.values())[0] + " " + list(method.keys())[0]
                 for method in methods
                 if len(method)
             ],
