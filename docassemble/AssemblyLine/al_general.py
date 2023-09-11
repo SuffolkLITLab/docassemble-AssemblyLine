@@ -254,7 +254,7 @@ class ALAddress(Address):
             if show_if:
                 for field in fields:
                     field["show if"] = show_if
-        
+
         if ask_if_impounded:
             fields.append(
                 {
@@ -355,11 +355,8 @@ class ALAddress(Address):
         else:
             line_breaker = " [NEWLINE] "
 
-        if not show_impounded and (
-            hasattr(self, "impounded")
-            and self.impounded
-        ):
-                return str(self.impounded_output_label)
+        if not show_impounded and (hasattr(self, "impounded") and self.impounded):
+            return str(self.impounded_output_label)
         if (
             hasattr(self, "has_no_address")
             and self.has_no_address
@@ -436,7 +433,12 @@ class ALAddress(Address):
             output += line_breaker + country_name(self._get_country())
         return output
 
-    def line_one(self, language: Optional[str] = None, bare: bool = False, show_impounded: bool = False) -> str:
+    def line_one(
+        self,
+        language: Optional[str] = None,
+        bare: bool = False,
+        show_impounded: bool = False,
+    ) -> str:
         """Returns the first line of the address, including the unit number if it exists.
 
         Args:
@@ -447,11 +449,8 @@ class ALAddress(Address):
         Returns:
             str: The first line of the address.
         """
-        if not show_impounded and (
-            hasattr(self, "impounded")
-            and self.impounded
-        ):
-                return str(self.impounded_output_label)        
+        if not show_impounded and (hasattr(self, "impounded") and self.impounded):
+            return str(self.impounded_output_label)
         if (
             hasattr(self, "has_no_address")
             and self.has_no_address
@@ -473,7 +472,12 @@ class ALAddress(Address):
             output += ", " + the_unit
         return output
 
-    def line_two(self, language: Optional[str] = None, long_state: bool = False, show_impounded: bool = False) -> str:
+    def line_two(
+        self,
+        language: Optional[str] = None,
+        long_state: bool = False,
+        show_impounded: bool = False,
+    ) -> str:
         """Returns the second line of the address, including city, state, and postal code.
 
         Args:
@@ -484,11 +488,8 @@ class ALAddress(Address):
         Returns:
             str: The second line of the address.
         """
-        if not show_impounded and (
-            hasattr(self, "impounded")
-            and self.impounded
-        ):
-                return str(self.impounded_output_label)        
+        if not show_impounded and (hasattr(self, "impounded") and self.impounded):
+            return str(self.impounded_output_label)
         output = ""
         # if hasattr(self, 'sublocality') and self.sublocality:
         #    output += str(self.sublocality) + ", "
@@ -531,11 +532,8 @@ class ALAddress(Address):
         Returns:
             str: The one-line formatted address.
         """
-        if not show_impounded and (
-            hasattr(self, "impounded")
-            and self.impounded
-        ):
-                return str(self.impounded_output_label)        
+        if not show_impounded and (hasattr(self, "impounded") and self.impounded):
+            return str(self.impounded_output_label)
         if (
             hasattr(self, "has_no_address")
             and self.has_no_address
@@ -831,7 +829,9 @@ class ALIndividual(Individual):
         else:
             return ""
 
-    def phone_numbers(self, country: Optional[str] = None, show_impounded:bool = False) -> str:
+    def phone_numbers(
+        self, country: Optional[str] = None, show_impounded: bool = False
+    ) -> str:
         """Fetches and formats the phone numbers of the individual.
 
         Args:
@@ -868,8 +868,7 @@ class ALIndividual(Individual):
             return ""
         # Check for impounded phone number
         elif not show_impounded and (
-            hasattr(self, "phone_impounded")
-            and self.phone_impounded
+            hasattr(self, "phone_impounded") and self.phone_impounded
         ):
             return str(self.impounded_phone_output_label)
         elif len(nums) > 1:
@@ -881,8 +880,8 @@ class ALIndividual(Individual):
             )
         elif len(nums):
             return list(nums[0].keys())[0]
-        
-        assert False # We should never get here, no default return is necessary
+
+        assert False  # We should never get here, no default return is necessary
 
     def contact_methods(self) -> str:
         """Generates a formatted string of all provided contact methods.
@@ -1375,7 +1374,12 @@ class ALIndividual(Individual):
         return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1] if hasattr(self.name, 'last') else ''}"
 
     def address_block(
-        self, language=None, international=False, show_country=False, bare=False, show_impounded=False
+        self,
+        language=None,
+        international=False,
+        show_country=False,
+        bare=False,
+        show_impounded=False,
     ) -> str:
         """
         Generate a formatted address block for mailings.
@@ -1411,7 +1415,7 @@ class ALIndividual(Individual):
                 international=international,
                 show_country=show_country,
                 bare=bare,
-                show_impounded=show_impounded,                
+                show_impounded=show_impounded,
             )
         )
 
