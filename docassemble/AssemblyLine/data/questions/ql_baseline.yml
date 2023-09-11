@@ -382,7 +382,7 @@ content: |
   **IMPOUNDED**
 ---
 generic object: ALIndividual
-template: x.impounded_phone_label
+template: x.impounded_phone_output_label
 content: |
   **IMPOUNDED**
 ---

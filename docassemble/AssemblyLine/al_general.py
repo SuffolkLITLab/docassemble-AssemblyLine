@@ -870,7 +870,7 @@ class ALIndividual(Individual):
             hasattr(self, "phone_impounded")
             and self.phone_impounded
         ):
-            return str(self.impounded_phone_label)
+            return str(self.impounded_phone_output_label)
         elif len(nums) > 1:
             return comma_list(
                 [
