@@ -372,6 +372,21 @@ content: |
   Country
 ---
 generic object: ALAddress
+template: x.impounded_label
+content: |
+  This address is impounded
+---
+generic object: ALAddress
+template: x.impounded_output_label
+content: |
+  **IMPOUNDED**
+---
+generic object: ALIndividual
+template: x.impounded_phone_label
+content: |
+  **IMPOUNDED**
+---
+generic object: ALAddress
 template: x.county_label
 content: |
   County
