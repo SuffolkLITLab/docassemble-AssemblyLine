@@ -847,7 +847,9 @@ class ALIndividual(Individual):
         if hasattr(self, "email") and self.email:
             methods.append({self.email: str(self.email_contact_label)})
         if hasattr(self, "other_contact_method") and self.other_contact_method:
-            methods.append({self.other_contact_method: str(self.other_contact_method_label)})
+            methods.append(
+                {self.other_contact_method: str(self.other_contact_method_label)}
+            )
 
         return comma_and_list(
             [
@@ -948,7 +950,7 @@ class ALIndividual(Individual):
                 "Lt.",
                 "Sgt.",
                 "Fr.",
-                "Sr."
+                "Sr.",
             ]
         if person_or_business == "person":
             fields = [
