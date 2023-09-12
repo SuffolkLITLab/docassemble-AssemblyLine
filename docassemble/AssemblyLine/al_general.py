@@ -595,7 +595,7 @@ class ALAddress(Address):
 
         Warning: currently the normalized address will not be redacted if the address is impounded.
 
-        Returns: 
+        Returns:
             Union[Address, "ALAddress"]: Normalized address if geocoding is successful, otherwise
                 the original address.
         """
