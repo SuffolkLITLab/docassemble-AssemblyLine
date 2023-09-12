@@ -12,7 +12,12 @@
   justify-items: start; 
   align-items: center; 
 }
-.al-logo { grid-area: logo; }
+.al-logo { 
+  grid-area: logo; 
+}
+.al-logo img {
+  max-height: 40px;
+}
 .al-title {
   display: grid; 
   grid-template-columns: min-content; 
