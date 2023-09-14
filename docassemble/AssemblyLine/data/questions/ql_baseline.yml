@@ -2325,10 +2325,10 @@ content: >-
 ---
 generic object: ALIndividual
 template: x.email_contact_label
-content: |
+content: >-
   by email at
 ---
 generic object: ALIndividual
 template: x.other_contact_method_label
-content: |
+content: >-
   by
