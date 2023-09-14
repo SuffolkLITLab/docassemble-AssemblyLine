@@ -2320,7 +2320,7 @@ content: |
 ---
 generic object: ALIndividual
 template: x.phone_number_contact_label
-content: |
+content: >-
   by phone at
 ---
 generic object: ALIndividual
