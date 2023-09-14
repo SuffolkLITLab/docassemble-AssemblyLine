@@ -243,6 +243,11 @@ code: |
 # This helps us keep questions consistent and translated just once
 ---
 generic object: ALIndividual
+template: x.name_title_label
+content: |
+  Title (optional)
+---
+generic object: ALIndividual
 template: x.first_name_label
 content: |
   First name
@@ -462,7 +467,7 @@ fields:
     choices:
       - users[0].address if defined("users[0].address.address") else None
     object labeler: |
-      lambda y: y.on_one_line()      
+      lambda y: y.on_one_line()
     none of the above: |
       Somewhere else
     disable others: True      
@@ -2310,3 +2315,20 @@ generic object: ALIndividual
 template: x.pronoun_self_described_label
 content: |
   Self described pronouns
+---
+############# Contact method strings ################
+---
+generic object: ALIndividual
+template: x.phone_number_contact_label
+content: >-
+  by phone at
+---
+generic object: ALIndividual
+template: x.email_contact_label
+content: >-
+  by email at
+---
+generic object: ALIndividual
+template: x.other_contact_method_label
+content: >-
+  by

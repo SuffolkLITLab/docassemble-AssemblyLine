@@ -843,15 +843,17 @@ class ALIndividual(Individual):
         """
         methods = []
         if self.phone_numbers():
-            methods.append({self.phone_numbers(): word("by phone at ")})
+            methods.append({self.phone_numbers(): str(self.phone_number_contact_label)})
         if hasattr(self, "email") and self.email:
-            methods.append({self.email: word("by email at ")})
+            methods.append({self.email: str(self.email_contact_label)})
         if hasattr(self, "other_contact_method") and self.other_contact_method:
-            methods.append({self.other_contact_method: "by "})
+            methods.append(
+                {self.other_contact_method: str(self.other_contact_method_label)}
+            )
 
         return comma_and_list(
             [
-                list(method.values())[0] + list(method.keys())[0]
+                list(method.values())[0] + " " + list(method.keys())[0]
                 for method in methods
                 if len(method)
             ],
@@ -900,6 +902,8 @@ class ALIndividual(Individual):
         self,
         person_or_business: str = "person",
         show_suffix: bool = True,
+        show_title: bool = False,
+        title_options: Optional[List[str]] = None,
         show_if: Union[str, Dict[str, str], None] = None,
     ) -> List[Dict[str, str]]:
         """
@@ -911,6 +915,10 @@ class ALIndividual(Individual):
                 Default is "person".
             show_suffix (bool, optional): Determines if the name's suffix (e.g., Jr., Sr.) should be included in the prompts.
                 Default is True.
+            show_title: (bool, optional): Determines if the name's title (e.g., Mr., Ms.) should be included in the prompts.
+                Default is False.
+            title_options (List[str], optional): A list of title options to use in the prompts. Default is defined as a list
+                of common titles in English-speaking countries.
             show_if (Union[str, Dict[str, str], None], optional): Condition to determine which fields to show.
                 It can be a string, a dictionary with conditions, or None. Default is None.
 
@@ -921,6 +929,29 @@ class ALIndividual(Individual):
             If `person_or_business` is set to None, the method will offer the end user a choice
             and will set appropriate "show ifs" conditions for each type.
         """
+        if not title_options:
+            title_options = [
+                "Mr.",
+                "Mrs.",
+                "Miss",
+                "Ms.",
+                "Mx.",
+                "Dr.",
+                "Prof.",
+                "Hon.",
+                "Rev.",
+                "Sir",
+                "Lord",
+                "Lady",
+                "Dame",
+                "Maj.",
+                "Gen.",
+                "Capt.",
+                "Lt.",
+                "Sgt.",
+                "Fr.",
+                "Sr.",
+            ]
         if person_or_business == "person":
             fields = [
                 {
@@ -945,6 +976,16 @@ class ALIndividual(Individual):
                         "choices": name_suffix(),
                         "required": False,
                     }
+                )
+            if show_title:
+                fields.insert(
+                    0,
+                    {
+                        "label": str(self.name_title_label),
+                        "field": self.attr_name("name.title"),
+                        "choices": title_options,
+                        "required": False,
+                    },
                 )
             if show_if:
                 for field in fields:
