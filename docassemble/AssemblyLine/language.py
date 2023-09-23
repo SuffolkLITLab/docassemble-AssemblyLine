@@ -1,4 +1,5 @@
 # coding=utf-8
+import os
 from typing import List, Optional, Tuple
 from docassemble.base.util import url_action, path_and_mimetype
 import yaml
@@ -11,6 +12,32 @@ __all__ = [
     "get_language_list",
     "get_language_list_item",
 ]
+
+
+def _package_name(package_name: Optional[str] = None):
+    """Get package name without the name of the current module"""
+    if not package_name:
+        package_name = __name__
+    try:
+        return ".".join(package_name.split(".")[:-1])
+    except:
+        return package_name
+
+
+def get_local_languages_yaml():
+    current_package_name = _package_name()
+
+    this_yaml = path_and_mimetype(f"{current_package_name}:data/sources/languages.yml")[
+        0
+    ]
+    try:
+        local_yaml = path_and_mimetype("data/sources/languages.yml")[0]
+    except:
+        local_yaml = None
+
+    if local_yaml and os.path.isfile(local_yaml):
+        return local_yaml
+    return this_yaml
 
 
 def get_tuples(
@@ -31,7 +58,7 @@ def get_tuples(
 
     """
     if not languages_path:
-        languages_path = path_and_mimetype("data/sources/languages.yml")[0]
+        languages_path = get_local_languages_yaml()
 
     if languages_path is not None:
         with open(languages_path, "r", encoding="utf-8") as stream:
@@ -91,7 +118,7 @@ def get_language_list_dropdown(
   </li>
   """
     if not languages_path:
-        languages_path = path_and_mimetype("data/sources/languages.yml")[0]
+        languages_path = get_local_languages_yaml()
     languages = get_tuples(lang_codes, languages_path=languages_path)
 
     for language in languages:
@@ -152,7 +179,7 @@ def get_language_list(
         A string containing the HTML for an unordered inline list of language selection.
     """
     if not languages_path:
-        languages_path = path_and_mimetype("data/sources/languages.yml")[0]
+        languages_path = get_local_languages_yaml()
     if not languages:
         if not lang_codes:
             raise ValueError("Either languages or lang_codes must be provided")
