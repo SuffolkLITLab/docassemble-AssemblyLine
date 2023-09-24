@@ -1738,11 +1738,6 @@ validation code: |
 ---
 generic object: ALExhibitList
 code: |
-  # exhibit_doc_defaults_1.exhibits[0].pages[1].initialized
-  x[i].pages[j].initialized = True
----
-generic object: ALExhibitList
-code: |
   x.there_are_any = x.has_exhibits
 ---
 generic object: ALExhibitList
