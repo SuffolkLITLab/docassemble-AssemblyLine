@@ -32,11 +32,9 @@ def get_local_languages_yaml():
 
     if local_yaml and os.path.isfile(local_yaml):
         return local_yaml
-        
+
     al_package_name = _package_name()
-    this_yaml = path_and_mimetype(f"{al_package_name}:data/sources/languages.yml")[
-        0
-    ]
+    this_yaml = path_and_mimetype(f"{al_package_name}:data/sources/languages.yml")[0]
     return this_yaml
 
 
