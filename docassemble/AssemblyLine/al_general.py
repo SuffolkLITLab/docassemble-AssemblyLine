@@ -101,6 +101,7 @@ class ALAddress(Address):
         state (str): The state where the person lives.
         zip (str): The zip code where the person lives.
         country (str): The country where the person lives.
+        impounded (Optional[bool]): Whether the address is impounded.
     """
 
     def address_fields(
@@ -111,6 +112,7 @@ class ALAddress(Address):
         show_county: bool = False,
         show_if: Union[str, Dict[str, str], None] = None,
         allow_no_address: bool = False,
+        ask_if_impounded: Optional[bool] = False,
     ) -> List[Dict[str, Any]]:
         """
         Return a YAML structure representing the list of fields for the object's address.
@@ -129,6 +131,7 @@ class ALAddress(Address):
             show_county (bool): Whether to display the county field. Defaults to False.
             show_if (Union[str, Dict[str, str], None]): Condition to display each field. Defaults to None.
             allow_no_address (bool): Allow users to specify they don't have an address. Defaults to False.
+            ask_if_impounded (Optional[bool]): Whether to ask if the address is impounded. Defaults to False.
 
         Returns:
             list: A list of YAML structure representing address fields.
@@ -252,6 +255,15 @@ class ALAddress(Address):
                 for field in fields:
                     field["show if"] = show_if
 
+        if ask_if_impounded:
+            fields.append(
+                {
+                    "label": str(self.impounded_label),
+                    "field": self.attr_name("impounded"),
+                    "datatype": "yesno",
+                }
+            )
+
         return fields
 
     def formatted_unit(
@@ -322,6 +334,7 @@ class ALAddress(Address):
         show_country: Optional[bool] = None,
         bare: bool = False,
         long_state: bool = False,
+        show_impounded: bool = False,
     ) -> str:
         """Returns a one-line formatted address, primarily for geocoding.
 
@@ -332,6 +345,7 @@ class ALAddress(Address):
                 If None, decides based on the country attribute.
             bare (bool): If True, excludes certain formatting elements. Defaults to False.
             long_state (bool): If True, uses the full state name. Defaults to False.
+            show_impounded (bool): If True, shows the address even if impounded. Defaults to False.
 
         Returns:
             str: The one-line formatted address.
@@ -341,6 +355,8 @@ class ALAddress(Address):
         else:
             line_breaker = " [NEWLINE] "
 
+        if not show_impounded and (hasattr(self, "impounded") and self.impounded):
+            return str(self.impounded_output_label)
         if (
             hasattr(self, "has_no_address")
             and self.has_no_address
@@ -417,16 +433,24 @@ class ALAddress(Address):
             output += line_breaker + country_name(self._get_country())
         return output
 
-    def line_one(self, language: Optional[str] = None, bare: bool = False) -> str:
+    def line_one(
+        self,
+        language: Optional[str] = None,
+        bare: bool = False,
+        show_impounded: bool = False,
+    ) -> str:
         """Returns the first line of the address, including the unit number if it exists.
 
         Args:
             language (str, optional): Language for the address format.
             bare (bool): If True, excludes certain formatting elements. Defaults to False.
+            show_impounded (bool): If True, shows the address even if impounded. Defaults to False.
 
         Returns:
             str: The first line of the address.
         """
+        if not show_impounded and (hasattr(self, "impounded") and self.impounded):
+            return str(self.impounded_output_label)
         if (
             hasattr(self, "has_no_address")
             and self.has_no_address
@@ -448,16 +472,24 @@ class ALAddress(Address):
             output += ", " + the_unit
         return output
 
-    def line_two(self, language: Optional[str] = None, long_state: bool = False) -> str:
+    def line_two(
+        self,
+        language: Optional[str] = None,
+        long_state: bool = False,
+        show_impounded: bool = False,
+    ) -> str:
         """Returns the second line of the address, including city, state, and postal code.
 
         Args:
             language (str, optional): Language for the address format.
             long_state (bool): If True, uses the full state name. Defaults to False.
+            show_impounded (bool): If True, shows the address even if impounded. Defaults to False.
 
         Returns:
             str: The second line of the address.
         """
+        if not show_impounded and (hasattr(self, "impounded") and self.impounded):
+            return str(self.impounded_output_label)
         output = ""
         # if hasattr(self, 'sublocality') and self.sublocality:
         #    output += str(self.sublocality) + ", "
@@ -483,6 +515,7 @@ class ALAddress(Address):
         show_country: Optional[bool] = None,
         bare: bool = False,
         long_state: bool = False,
+        show_impounded: bool = False,
     ) -> str:
         """Returns a one-line formatted address.
 
@@ -494,10 +527,13 @@ class ALAddress(Address):
                 If None, decides based on the country attribute.
             bare (bool): If True, excludes certain formatting elements. Defaults to False.
             long_state (bool): If True, uses the full state name. Defaults to False.
+            show_impounded (bool): If True, shows the address even if impounded. Defaults to False.
 
         Returns:
             str: The one-line formatted address.
         """
+        if not show_impounded and (hasattr(self, "impounded") and self.impounded):
+            return str(self.impounded_output_label)
         if (
             hasattr(self, "has_no_address")
             and self.has_no_address
@@ -557,9 +593,11 @@ class ALAddress(Address):
         be a standard Address object, not an ALAddress object. If geocoding fails, it returns
         the version of the address as entered by the user.
 
+        Warning: currently the normalized address will not be redacted if the address is impounded.
+
         Returns:
             Union[Address, "ALAddress"]: Normalized address if geocoding is successful, otherwise
-            the original address.
+                the original address.
         """
         try:
             self.geocode()
@@ -791,11 +829,14 @@ class ALIndividual(Individual):
         else:
             return ""
 
-    def phone_numbers(self, country: Optional[str] = None) -> str:
+    def phone_numbers(
+        self, country: Optional[str] = None, show_impounded: bool = False
+    ) -> str:
         """Fetches and formats the phone numbers of the individual.
 
         Args:
             country (str, optional): The country for phone number formatting. Defaults to the country of the docassemble server.
+            show_impounded (bool): If True, shows the phone numbers even if impounded. Defaults to False.
 
         Returns:
             str: Formatted string of phone numbers.
@@ -823,7 +864,14 @@ class ALIndividual(Individual):
                 )
             except:
                 nums.append({self.phone_number: "other"})
-        if len(nums) > 1:
+        if len(nums) < 1:
+            return ""
+        # Check for impounded phone number
+        elif not show_impounded and (
+            hasattr(self, "phone_impounded") and self.phone_impounded
+        ):
+            return str(self.impounded_phone_output_label)
+        elif len(nums) > 1:
             return comma_list(
                 [
                     list(num.keys())[0] + " (" + list(num.values())[0] + ")"
@@ -832,8 +880,8 @@ class ALIndividual(Individual):
             )
         elif len(nums):
             return list(nums[0].keys())[0]
-        else:
-            return ""
+
+        assert False  # We should never get here, no default return is necessary
 
     def contact_methods(self) -> str:
         """Generates a formatted string of all provided contact methods.
@@ -1074,6 +1122,7 @@ class ALIndividual(Individual):
         show_county: bool = False,
         show_if: Union[str, Dict[str, str], None] = None,
         allow_no_address: bool = False,
+        ask_if_impounded: bool = False,
     ) -> List[Dict[str, str]]:
         """
         Generate field prompts for capturing an address.
@@ -1085,6 +1134,7 @@ class ALIndividual(Individual):
             show_county (bool): Whether to display the county field. Defaults to False.
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             allow_no_address (bool): Whether to permit entries with no address. Defaults to False.
+            ask_if_impounded (bool): Whether to ask if the address is impounded. Defaults to False.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for addresses.
@@ -1098,6 +1148,7 @@ class ALIndividual(Individual):
             show_county=show_county,
             show_if=show_if,
             allow_no_address=allow_no_address,
+            ask_if_impounded=ask_if_impounded,
         )
 
     def gender_fields(
@@ -1364,7 +1415,12 @@ class ALIndividual(Individual):
         return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1] if hasattr(self.name, 'last') else ''}"
 
     def address_block(
-        self, language=None, international=False, show_country=False, bare=False
+        self,
+        language=None,
+        international=False,
+        show_country=False,
+        bare=False,
+        show_impounded=False,
     ) -> str:
         """
         Generate a formatted address block for mailings.
@@ -1374,6 +1430,7 @@ class ALIndividual(Individual):
             international (bool): If True, format for international mailing. Defaults to False.
             show_country (bool): If True, include the country in the address. Defaults to False.
             bare (bool): If True, produce the address without additional formatting. Defaults to False.
+            show_impounded (bool): If True, show the address even if it is impounded. Defaults to False.
 
         Returns:
             str: The formatted address block.
@@ -1386,6 +1443,8 @@ class ALIndividual(Individual):
                     language=language,
                     international=international,
                     show_country=show_country,
+                    bare=bare,
+                    show_impounded=show_impounded,
                 )
             )
         return (
@@ -1397,6 +1456,7 @@ class ALIndividual(Individual):
                 international=international,
                 show_country=show_country,
                 bare=bare,
+                show_impounded=show_impounded,
             )
         )
 
