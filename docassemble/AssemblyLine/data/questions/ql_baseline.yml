@@ -1798,6 +1798,10 @@ content: |
   
   ${ x[i].rearrange_pages_table }
 ---
+sets:
+  - x[i].pages[j].initialized
+  - x[i].pages[j].mimetype
+  - x[i].pages[j].ok
 generic object: ALExhibitList
 id: exhibit additional page
 question: |
