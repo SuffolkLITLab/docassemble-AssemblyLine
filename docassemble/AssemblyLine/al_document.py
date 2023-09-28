@@ -3,6 +3,8 @@ import os
 import mimetypes
 from typing import Any, Dict, List, Union, Callable, Optional
 from docassemble.base.util import (
+    Address,
+    LatitudeLongitude,
     log,
     DADict,
     DAList,
@@ -116,14 +118,20 @@ def safeattr(object: Any, key: str) -> str:
 
     Returns:
         str: The retrieved value or an empty string if not found or if an error occurred.
+
+    Note:
+        The `location` attribute of an Address object or any LatitudeLongitude attribute of a DAObject is always skipped.
     """
     try:
         if isinstance(object, dict) or isinstance(object, DADict):
             return str(object.get(key, ""))
         elif isinstance(object, DAObject):
             # `location` is not an attribute people usually want shown in the table of people's attributes
-            if key == "location":
+            if key == "location" and isinstance(object, Address):
                 return ""
+            elif key == "location" and isinstance(object, DAObject):
+                if hasattr(object, "location") and isinstance(object.location, LatitudeLongitude):
+                    return ""
             return str(getattr(object, key))
         else:
             return ""
@@ -512,6 +520,9 @@ class ALAddendumField(DAObject):
 
         Returns:
             Optional[list]: A list of columns or None if no meaningful columns can be determined.
+
+        Note:
+            The "location" attribute of an Address object is always skipped in the column list.
         """
         if not skip_attributes:
             skip_attributes = {"complete"}
