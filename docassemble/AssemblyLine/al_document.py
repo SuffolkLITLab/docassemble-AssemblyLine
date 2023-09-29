@@ -130,7 +130,9 @@ def safeattr(object: Any, key: str) -> str:
             if key == "location" and isinstance(object, Address):
                 return ""
             elif key == "location" and isinstance(object, DAObject):
-                if hasattr(object, "location") and isinstance(object.location, LatitudeLongitude):
+                if hasattr(object, "location") and isinstance(
+                    object.location, LatitudeLongitude
+                ):
                     return ""
             return str(getattr(object, key))
         else:
