@@ -1,0 +1,70 @@
+---
+comment: |
+  File to informally test the addendum class interactively. Does not have full coverage.
+---
+include:
+  - assembly_line.yml
+---
+mandatory: True
+code: |
+  intro_screen
+  ending_screen
+---
+question: |
+  Test addendum class
+continue button field: intro_screen
+---
+objects:
+  - custom_list_item: DAList.using(object_type=DAObject, complete_attribute=["location", "address.address"])
+  - custom_list_item[i].address: ALAddress
+  - al_addendum_test_attachment: ALDocument.using(title="Test", filename="addendum_test", enabled=True, has_addendum=True, default_overflow_message=" [...]")
+---
+objects:  
+  - al_user_bundle: ALDocumentBundle.using(elements=[al_addendum_test_attachment], title="addendum_test", filename="addendum_test", enabled=True)
+---
+code: |
+  al_addendum_test_attachment.overflow_fields["custom_list_item"].overflow_trigger = 3
+  al_addendum_test_attachment.overflow_fields["custom_list_item"].label = "Custom list"
+  al_addendum_test_attachment.overflow_fields.gathered = True
+---
+question: |
+  Are there any custom list items?
+fields:
+  - no label: custom_list_item.there_are_any
+    datatype: yesnoradio
+---
+question: |
+  Are there any more?
+subquestion: |
+  To add trigger addendum, add at least 4.
+fields:
+  - no label: custom_list_item.there_is_another
+    datatype: yesnoradio
+---
+question: |
+  Tell me about the ${ ordinal(i) } list item
+fields:
+  - Location: custom_list_item[i].location
+  - Address: custom_list_item[i].address.address
+    address autocomplete: True
+  - City: custom_list_item[i].address.city
+  - State: custom_list_item[i].address.state
+  - Zip: custom_list_item[i].address.zip
+validation code: |
+  custom_list_item[i].address.geocode()
+---
+attachment:
+  variable name: al_addendum_test_attachment[i]
+  content: |
+    % for item in custom_list_item[:3]:
+    # Location ${ item.location }
+
+    ${ item.address.block() }
+
+    % endfor
+---
+event: ending_screen
+question: |
+  Download
+subquestion: |
+  ${ al_user_bundle.download_list_html() }
