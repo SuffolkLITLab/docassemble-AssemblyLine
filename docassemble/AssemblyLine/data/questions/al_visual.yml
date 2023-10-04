@@ -356,7 +356,7 @@ content: |
   "${all_variables(special='metadata').get('title','').rstrip()}" version 
   `${ package_version_number }`; AssemblyLine version `${ al_version }`.
 
-  % if interview_metadata.get("main_interview_key"):
+  % if interview_metadata.get("main_interview_key") and isinstance(interview_metadata.get("main_interview_key"), str):
     <%
       MAIN_METADATA = interview_metadata[interview_metadata["main_interview_key"]]
     %>
@@ -435,7 +435,7 @@ decoration: bug
 question: |
   Something went wrong
 subquestion: |
-  % if interview_metadata.get("main_interview_key"):
+  % if interview_metadata.get("main_interview_key") and isinstance(interview_metadata.get("main_interview_key"), str):
     <%
       MAIN_METADATA = interview_metadata[interview_metadata["main_interview_key"]]
     %>
