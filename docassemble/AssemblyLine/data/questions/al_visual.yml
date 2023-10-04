@@ -366,10 +366,18 @@ content: |
       MAIN_METADATA = next(iter(interview_metadata.values())) 
     %>
   % else:
-    <% MAIN_METADATA = {} %>
+    <% MAIN_METADATA = all_variables(special='metadata') %>
   % endif
-  % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form", "").strip() == "None" and MAIN_METADATA.get("original_form").startswith("http"):
-  [View the original version of this form](${ MAIN_METADATA.get("original_form") }).
+  <% ORIGINAL_FORMS = MAIN_METADATA.get("original_form", []) if isinstance(MAIN_METADATA.get("original_form"), list) else ([MAIN_METADATA.get("original_form", "")] if MAIN_METADATA.get("original_form") else []) %>
+
+  % if len(ORIGINAL_FORMS) > 1:
+  View the original version of this form at the links below:
+
+  % for url in [url for url in ORIGINAL_FORMS if url.strip() != "None" and url.startswith("http")]:
+  * [${ url }](${ url })
+  % endfor
+  % elif len(ORIGINAL_FORMS) == 1:
+  [View the original version of this form](${ ORIGINAL_FORMS[0] }).
   % endif
   
   % if package_updated_on:
@@ -445,8 +453,9 @@ subquestion: |
       MAIN_METADATA = next(iter(interview_metadata.values())) 
     %>
   % else:
-    <% MAIN_METADATA = {} %>
+    <% MAIN_METADATA = all_variables(special='metadata') %>
   % endif
+  <% ORIGINAL_FORMS = MAIN_METADATA.get("original_form", []) if isinstance(MAIN_METADATA.get("original_form"), list) else ([MAIN_METADATA.get("original_form", "")] if MAIN_METADATA.get("original_form") else []) %>
 
   We ran into an error when we tried to load this screen.
 
@@ -459,8 +468,13 @@ subquestion: |
   % if al_enable_incomplete_downloads:
   * Try to [download your work in progress](${ url_action("al_error_action_download_screen") })
   % endif
-  % if MAIN_METADATA.get("original_form") and not MAIN_METADATA.get("original_form", "").strip() == "None":
-  * [Download a blank "${ all_variables(special='metadata').get("title", "").strip() }"](${ MAIN_METADATA.get("original_form") } )
+  % if len(ORIGINAL_FORMS) > 1:
+  * Download a blank "${ all_variables(special='metadata').get("title", "").strip() }":
+  % for url in ORIGINAL_FORMS:
+      * [${ url }](${ url } )
+  % endfor
+  % elif len(ORIGINAL_FORMS) == 1:
+  * [Download a blank "${ all_variables(special='metadata').get("title", "").strip() }"]( ${ ORIGINAL_FORMS[0] })
   % endif
   * Visit the [${ AL_ORGANIZATION_TITLE } home page](${ AL_ORGANIZATION_HOMEPAGE }) and try another interview
   % if al_show_email_to_user_on_errors and get_config("error notification email"):
