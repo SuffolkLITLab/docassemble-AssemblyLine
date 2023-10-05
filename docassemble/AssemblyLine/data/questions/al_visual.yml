@@ -434,8 +434,10 @@ continue button field: al_exit_logout_confirmation
 metadata:
   error action: al_custom_error_action
 ---
+# Only necessary to ignore playground "undefined names" warning
 objects:
   - MAIN_METADATA: DAEmpty()
+  - ORIGINAL_FORMS: DAEmpty()
 ---
 id: custom error action
 event: al_custom_error_action
