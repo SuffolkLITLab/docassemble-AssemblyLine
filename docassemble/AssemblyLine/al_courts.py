@@ -4,6 +4,7 @@ Package for a very simple / MVP list of courts that is mostly signature compatib
 import os
 from typing import Any, Dict, List, Optional, Union, Set
 import pandas as pd
+import docassemble.base.functions
 from docassemble.base.util import (
     path_and_mimetype,
     Address,
@@ -205,6 +206,7 @@ class ALCourtLoader(DAObject):
 
     def init(self, *pargs, **kwargs):
         super().init(*pargs, **kwargs)
+        self.package = docassemble.base.functions.this_thread.current_question.package
         if not hasattr(self, "filename"):
             self.filename = (
                 self.file_name
@@ -416,11 +418,15 @@ class ALCourtLoader(DAObject):
         """
         if not hasattr(self, "filename") and hasattr(self, "file_name"):
             self.filename = self.file_name
-        if "/" in self.filename:
-            to_load = path_and_mimetype(self.filename)[0]
+        if ":" not in self.filename and hasattr(self, "package"):
+            load_path = self.package + ":"
+            if "/" not in str(self.filename):
+                load_path += "data/sources/"
+            load_path += str(self.filename)
         else:
-            to_load = path_and_mimetype(os.path.join("data/sources", self.filename))[0]
+            load_path = str(self.filename)
 
+        to_load = path_and_mimetype(load_path)[0]
         if self.filename.lower().endswith(".xlsx"):
             df = pd.read_excel(to_load)
         elif self.filename.lower().endswith(".csv"):
