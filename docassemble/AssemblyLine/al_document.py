@@ -2091,7 +2091,8 @@ class ALDocumentBundle(DAList):
             show_editable_checkbox (bool, optional): Flag indicating if the checkbox
                 for deciding the inclusion of an editable (Word) copy should be displayed.
                 Defaults to True.
-            template_name (str, optional): The name of the template to be used. Defaults to an empty string.
+            template_name (str, optional): Name of the template variable that is used to fill
+                the email contents. By default, the `x.send_email_template` template will be used.
 
         Returns:
             str: The generated HTML string for the input box and button.
