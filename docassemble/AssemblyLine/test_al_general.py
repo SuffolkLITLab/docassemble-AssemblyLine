@@ -61,6 +61,32 @@ class TestALIndividual(unittest.TestCase):
         # Assigning this_thread to self.individual
         self.individual.this_thread = self.this_thread
 
+    def test_phone_numbers(self):
+        self.assertEqual(self.individual.phone_numbers(), "")
+        self.individual.phone_number = ""
+        self.individual.mobile_number = None
+        self.assertEqual(self.individual.phone_numbers(), "")
+
+        self.individual.mobile_number = "aoueb"
+        self.assertEqual(self.individual.phone_numbers(), "aoueb")
+        self.individual.phone_number = "409_4567890 ext. 123"
+        self.assertEqual(
+            self.individual.phone_numbers(),
+            "aoueb (cell), 409_4567890 ext. 123 (other)",
+        )
+
+        self.individual.mobile_number = "4094567890"
+        self.individual.phone_number = None
+        self.assertEqual(self.individual.phone_numbers(), "(409) 456-7890")
+        self.individual.phone_number = "987-6543210"
+        self.assertEqual(
+            self.individual.phone_numbers(),
+            "(409) 456-7890 (cell), (987) 654-3210 (other)",
+        )
+
+        # TODO: Not sure how to test international numbers
+        # TODO: test impounding
+
     def test_pronoun(self):
         self.individual.pronouns = None
         self.individual.person_type = "individual"

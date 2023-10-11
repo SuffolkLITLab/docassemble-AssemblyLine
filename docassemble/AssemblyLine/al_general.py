@@ -843,26 +843,24 @@ class ALIndividual(Individual):
         """
         nums = []
         if hasattr(self, "mobile_number") and self.mobile_number:
+            fmt_number = None
             try:
-                nums.append(
-                    {
-                        phone_number_formatted(
-                            self.mobile_number, country=country
-                        ): "cell"
-                    }
-                )
+                fmt_number = phone_number_formatted(self.mobile_number, country=country)
             except:
+                fmt_number = None
+            if fmt_number:
+                nums.append({fmt_number: "cell"})
+            else:
                 nums.append({self.mobile_number: "cell"})
         if hasattr(self, "phone_number") and self.phone_number:
+            fmt_number = None
             try:
-                nums.append(
-                    {
-                        phone_number_formatted(
-                            self.phone_number, country=country
-                        ): "other"
-                    }
-                )
+                fmt_number = phone_number_formatted(self.phone_number, country=country)
             except:
+                fmt_number = None
+            if fmt_number:
+                nums.append({fmt_number: "other"})
+            else:
                 nums.append({self.phone_number: "other"})
         if len(nums) < 1:
             return ""
@@ -873,10 +871,7 @@ class ALIndividual(Individual):
             return str(self.impounded_phone_output_label)
         elif len(nums) > 1:
             return comma_list(
-                [
-                    list(num.keys())[0] + " (" + list(num.values())[0] + ")"
-                    for num in nums
-                ]
+                [f"{list(num.keys())[0]} ({list(num.values())[0]})" for num in nums]
             )
         elif len(nums):
             return list(nums[0].keys())[0]
