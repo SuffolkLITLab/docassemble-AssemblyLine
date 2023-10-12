@@ -816,30 +816,16 @@ validation code: |
 # this is just a very generic way to ask.
 id: children names without birthdate
 sets:
-  - children[0].name.first
-  - children[0].name.last
-  - children[0].name.middle
-  - children[0].name.suffix
-question: |
-  % if hasattr(children, 'ask_number') and children.ask_number and children.target_number == 1:
-  Child's name
-  % else:
-  Name of first child
-  % endif
-fields:
-  - code: |
-      children[0].name_fields()
----
-# Customize this question if you know whose children they are in your interview!
-# this is just a very generic way to ask.
-id: children names without birthdate
-sets:
   - children[i].name.first
   - children[i].name.last
   - children[i].name.middle
   - children[i].name.suffix
 question: |
+  % if hasattr(children, 'ask_number') and children.ask_number and children.target_number == 1:
+  Child's name
+  % else:
   Name of ${ ordinal(i) } child
+  % endif
 fields:
   - code: |
       children[i].name_fields()
