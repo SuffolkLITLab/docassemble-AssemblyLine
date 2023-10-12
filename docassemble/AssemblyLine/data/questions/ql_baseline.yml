@@ -821,7 +821,7 @@ sets:
   - children[i].name.middle
   - children[i].name.suffix
 question: |
-  % if hasattr(children, 'ask_number') and children.ask_number and children.target_number == 1:
+  % if hasattr(children, 'ask_number') and children.ask_number and children.target_number == 1 and i == 0:
   Child's name
   % else:
   Name of ${ ordinal(i) } child
