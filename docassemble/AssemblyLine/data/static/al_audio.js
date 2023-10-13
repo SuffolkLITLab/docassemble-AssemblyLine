@@ -1,7 +1,7 @@
 // Do not overwrite already created al_js object. This may be relevant as our js gets built out.
 if ( !al_js ) { var al_js = {}; }
 
-$(document).on('daPageLoad', function() {
+$(document).on('daPageLoad', function(event) {
   try {
     var $audio_nodes = $('.daaudio-control');
     var id_count = 1;
@@ -10,7 +10,7 @@ $(document).on('daPageLoad', function() {
       al_js.replace_with_audio_minimal_controls( audio_node, 'page_reader_substitute_' + id_count );
       id_count++;
     }
-  } catch ( error ) { console.log( 'AL audio instantiation error:', error ) }
+  } catch ( error ) { console.log( 'AL audio instantiation error:', error, 'event was ', event ) }
 });
 
 // We are not providing a way to rewind or scan through the audio.
@@ -21,6 +21,7 @@ al_js.replace_with_audio_minimal_controls = function( audio_node, id ) {
   /* Create the custom controls for this specific audio element
   * and give the new controls container the requested `id` tag.
   * Return functions to control audio playback for this node. */
+
   var controls = {
     play: function () {}, pause: function () {},
     restart: function () {}, stop_and_reset: function () {},
@@ -30,7 +31,13 @@ al_js.replace_with_audio_minimal_controls = function( audio_node, id ) {
     // Some screens, like the signature screen, don't have screen readers.
     return controls;
   }
-  
+
+  if (audio_node.style.display == "none") {
+    // The audio node isn't visible. We've likely already replaced it
+    // with our own stuff, so ignore it.
+    return;
+  }
+
   // Hide the normal controls and show the new controls
   audio_node.removeAttribute('controls');
   audio_node.style.display = 'none';
@@ -91,7 +98,7 @@ al_js.replace_with_audio_minimal_controls = function( audio_node, id ) {
       if ( audio_parent.length === 0 ) { controls.pause(); }
     } catch ( error ) { console.log( 'AL audio button pause error:', error ) }
   });
-  
+
   // Returns ability to control the playback of these nodes externally
   return controls;
 };  // Ends al_js.audio_minimal_controls()
