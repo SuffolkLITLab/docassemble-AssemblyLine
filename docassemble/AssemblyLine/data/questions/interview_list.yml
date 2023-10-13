@@ -2,19 +2,14 @@
 # Provide a replacement for the /interviews endpoint in Docassemble
 ---
 include: 
-  - docassemble.ALToolbox:display_template.yml
-  - al_settings.yml
+  - assembly_line.yml
 ---
 features:
   small screen navigation: dropdown
   navigation: True
   navigation back button: False
-  javascript:
-    - al_audio.js
   css:
-    - styles.css
-    - al_audio.css
-    - interview_list.css    
+    - interview_list.css
   question help button: True
   question back button: False
 ---
@@ -79,6 +74,9 @@ default screen parts:
         <span class="title-row-2">${ all_variables(special='metadata').get('short title','').rstrip() }</span>
       </span>
     </span>
+  # These two were originally blank before including all of AssemblyLine.
+  pre: ""
+  footer: ""
 ---
 mandatory: True
 code: |
