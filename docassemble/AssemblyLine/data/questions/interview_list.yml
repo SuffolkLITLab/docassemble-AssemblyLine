@@ -1,9 +1,58 @@
 ---
-# Provide a replacement for the /interviews endpoint in Docassemble
+# Provide a replacement for the /interviews endpoint in Docassemble.
+# This version is faster than the native version and supports metadata for each interview (including form progress)
+comment: |
+  Customize by editing or adding options under `assembly line`: `interview list` in the global config.
+
+  Relevant options and defaults:
+
+  app homepage: https://courtformsonline.org
+  assembly line:
+    enable answer sets: True
+    interview list:
+      # Defaults to global `interview page title` if not defined
+      interview page title: In progress forms
+      
+      # Defaults to global `interview page heading` if not defined
+      interview page heading: In progress forms 
+
+      # Defaults to "Tap the title of a form to keep working on it or to download your completed documents."
+      interview page pre: None
+      answer sets title: Answer sets
+      new form url: https://courtformsonline.org
+      logo url: https://app.yourserver.org/packagestatic/docassemble.AssemblyLine/ma_logo.png
+      logo alt: Logo
+      exclude from interview list:
+        - docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml
+        - docassemble.AssemblyLine:data/questions/interview_list.yml
+
+  interview page title, interview page heading, interview page pre, logo url, interview page url, and new form url
+  can also be set to a dictionary of languages, like:
+    interview page title:
+      en: In progress forms
+      es: Formularios en progreso
+
+  These deprecated configuration options will also be respected:
+
+  new form url: https://courtformsonline.org
+  assembly line:
+    exclude from interview list:
+      - docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml
+      - docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml
+
+  You can also include this YAML file and override these individual values without customizing the global configuration:
+    * interview_page_title
+    * interview_page_heading
+    * interview_page_url
+    * interview_page_pre
+    * interview_page_answer_sets_title
+    * new_form_url
+    * logo_url (but better to redefine the DAStatic file `al_logo`)
+    * logo_alt (but better to redefine the DAStatic file `al_logo`)
+    * al_sessions_to_exclude_from_interview_list
 ---
-include: 
+include:
   - docassemble.ALToolbox:display_template.yml
-  - al_settings.yml
 ---
 features:
   small screen navigation: dropdown
@@ -30,53 +79,89 @@ modules:
   - docassemble.ALToolbox.misc
 ---
 objects:
-  - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="Assembly Line Logo")
----
-# Clear some Playground invalid variable reference errors
-objects:
-  - ex: DAEmpty
-  - interview_metadata: DAEmpty
-  - other_parties: DAEmpty
-  - users: DAEmpty
+  - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="Logo")
 ---
 code: |
-  al_logo.alt_text = "Assembly Line Logo"
+  al_logo.alt_text = "Logo"
 ---
+# These override the `metadata` above
 default screen parts:
   title: |
-    % if get_config("interview page title"):
-    ${ get_config("interview page title") }
-    % else:    
+    % if interview_page_title:
+    ${ interview_page_title }
+    % elif showifdef("AL_ORGANIZATION_TITLE"):
     ${ AL_ORGANIZATION_TITLE }
+    % else:
+    CourtFormsOnline
     % endif
   short title: |
-    % if get_config("interview page title"):
-    ${ get_config("interview page title") }
-    % else:    
+    % if interview_page_title:
+    ${ interview_page_title }
+    % elif showifdef("AL_ORGANIZATION_TITLE"):
     ${ AL_ORGANIZATION_TITLE }
-    % endif 
+    % else:
+    CourtFormsOnline
+    % endif
   title url: |
-    ${ all_variables(special='metadata').get('title url', AL_ORGANIZATION_HOMEPAGE) }
+    % if interview_page_url:
+    ${ interview_page_url }
+    % elif showifdef("AL_ORGANIZATION_HOMEPAGE"):
+    ${ AL_ORGANIZATION_HOMEPAGE }
+    % else:
+    % endif:
   exit url: |
-    ${ all_variables(special='metadata').get('exit url', AL_ORGANIZATION_HOMEPAGE) }
+    % if interview_page_url:
+    ${ interview_page_url }
+    % elif showifdef("AL_ORGANIZATION_HOMEPAGE"):
+    ${ AL_ORGANIZATION_HOMEPAGE }
+    % else:
+    % endif:
   logo: |
     <span class="title-container">
       <span class="al-logo">
+    % if logo_url:
+        <img src="${ logo_url }" alt="${ logo_alt }"/>
+    % else:
         <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+    % endif
       </span>
       <span class="al-title">
-        <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>
-        <span class="title-row-2">${all_variables(special='metadata').get('title','').rstrip()}</span>
+    % if interview_page_title:
+        <span class="title-row-1">${ interview_page_title }</span>
+    % elif showifdef("AL_ORGANIZATION_TITLE"):
+        <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>    
+    % else:
+        <span class="title-row-1">CourtFormsOnline</span>    
+    % endif
+    % if interview_page_heading:
+        <span class="title-row-2">${ interview_page_heading }</span>
+    % else:
+        <span class="title-row-2">${ all_variables(special='metadata').get('title','').rstrip() }</span>
+    % endif
       </span>
     </span>
   short logo: |
     <span class="title-container">
       <span class="al-logo">
+    % if logo_url:
+        <img src="${ logo_url }" alt="${ logo_alt }"/>
+    % else:
         <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+    % endif
       </span>
       <span class="al-title">
-        <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>
-        <span class="title-row-2">${ all_variables(special='metadata').get('short title','').rstrip() }</span>
+    % if interview_page_title:
+        <span class="title-row-1">${ interview_page_title }</span>
+    % elif showifdef("AL_ORGANIZATION_TITLE"):
+        <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>    
+    % else:
+        <span class="title-row-1">CourtFormsOnline</span>    
+    % endif
+    % if interview_page_heading:
+        <span class="title-row-2">${ interview_page_heading }</span>
+    % else:
+        <span class="title-row-2">${ all_variables(special='metadata').get('title','').rstrip() }</span>
+    % endif
       </span>
     </span>
 ---
@@ -90,8 +175,19 @@ code: |
     nav.hide()
   section_in_progress_forms
 ---
+# This is set mandatory because it's the only way to show navigation with custom labels (mako isn't allowed in `sections`)
+mandatory: True
 code: |
-  al_sessions_to_exclude_from_interview_list = get_config("assembly line", {}).get("exclude from interview list")
+  nav.set_sections(
+      [
+        {
+          "section_in_progress_forms": interview_page_heading or interview_page_title or word("In progress forms")
+        },
+        {
+          "section_answer_sets": interview_page_answer_sets_title or word("Answer sets")
+        }
+        ]
+  )
 ---
 sections:
   - section_in_progress_forms: In progress forms
@@ -101,12 +197,12 @@ progressive: False
 event: section_in_progress_forms
 id: interview list
 question: |
-  % if get_config("interview page heading"):
-  ${ get_config("interview page heading") }
+  % if interview_page_heading:
+  ${ interview_page_heading }
   % else:
   In progress forms 
   % endif
-  <span style="float: right;">${ action_button_html(get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE), label="Start a new form", icon="plus-circle", color="primary", size="md") }</span>
+  <span style="float: right;">${ action_button_html(new_form_url or showifdef("AL_ORGANIZATION_HOMEPAGE"), label=interview_list_start_new_form_label or word("Start a new form"), icon="plus-circle", color="primary", size="md") }</span>
 subquestion: |
   % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True)) > 0:
   % if get_config("interview page pre"):
@@ -136,7 +232,7 @@ section: section_in_progress_forms
 under: |
   % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, exclude_filenames=al_sessions_to_exclude_from_interview_list)) > 0:
   <div style="float: right;">
-  ${ action_button_html(url_action("interview_list_delete_all"), label="Delete All", size="md", color="danger", icon="trash-can", id_tag="al-delete-all-sessions") }
+  ${ action_button_html(url_action("interview_list_delete_all"), label=word("Delete All"), size="md", color="danger", icon="trash-can", id_tag="al-delete-all-sessions") }
   </div>
   % endif
 script:
@@ -162,7 +258,8 @@ script:
 event: section_answer_sets
 id: answer set list
 question: |
-  Answer sets <span style="float: right;">${ action_button_html(get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE), label="Start a new form", icon="plus-circle", color="primary", size="md") }</span>
+  Answer sets 
+  <span style="float: right;">${ action_button_html(new_form_url or showifdef("AL_ORGANIZATION_HOMEPAGE"), label=interview_list_start_new_form_label or word("Start a new form"), icon="plus-circle", color="primary", size="md") }</span>
 subquestion: |
   View, delete, or rename your answer sets below. To copy an answer set into a
   new form:
@@ -240,3 +337,42 @@ code: |
       log("Problem deleting answers", "danger")
       log(f"Problem deleting answers for a user: {ex}")
   interview_list_delete_all = True
+---
+########### Get customized text values from configuration file ###################################33
+---
+code: |
+  def config_with_language_fallback(config_key):
+    interview_list_config = get_config("assembly line",{}).get("interview list",{})
+    if interview_list_config.get(config_key):
+      if isinstance(interview_list_config.get(config_key), dict):
+        if get_language() in interview_list_config.get(config_key):
+          return interview_list_config.get(config_key)[get_language()]
+        else:
+          return next(iter(interview_list_config.get(config_key).values()), None)
+      else:
+        return interview_list_config.get(config_key)
+    else:
+      return get_config(config_key)
+---
+code: |
+  interview_page_title = config_with_language_fallback("interview page title")
+---
+code: |
+  interview_page_heading = config_with_language_fallback("interview page heading")
+---
+code: interview_page_url = config_with_language_fallback("app homepage")
+---
+code: |
+  interview_page_pre = config_with_language_fallback("interview page pre")
+---
+code: |
+  new_form_url = config_with_language_fallback("new form url")
+---
+code: |
+  interview_page_answer_sets_title = config_with_language_fallback("answer sets title")
+---
+code: |
+  logo_url = config_with_language_fallback("logo url")
+  logo_alt = config_with_language_fallback("logo alt") or "Logo"
+---
+code: al_sessions_to_exclude_from_interview_list = get_config("assembly line",{}).get("interview list",{}).get("exclude from interview list", get_config("assembly line",{}).get("exclude from interview list"))
