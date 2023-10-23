@@ -360,7 +360,8 @@ code: |
 code: |
   interview_page_heading = config_with_language_fallback("interview page heading")
 ---
-code: interview_page_url = config_with_language_fallback("app homepage")
+code: |
+  interview_page_url = config_with_language_fallback("app homepage")
 ---
 code: |
   interview_page_pre = config_with_language_fallback("interview page pre")
