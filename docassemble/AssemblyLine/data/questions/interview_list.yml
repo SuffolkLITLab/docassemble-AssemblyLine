@@ -14,10 +14,10 @@ comment: |
       interview page title: In progress forms
       
       # Defaults to global `interview page heading` if not defined
-      interview page heading: In progress forms 
+      interview page question: In progress forms 
 
       # Defaults to "Tap the title of a form to keep working on it or to download your completed documents."
-      interview page pre: None
+      interview page subquestion: null
       answer sets title: Answer sets
       new form url: https://courtformsonline.org
       logo url: https://app.yourserver.org/packagestatic/docassemble.AssemblyLine/ma_logo.png
@@ -82,7 +82,7 @@ objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="Logo")
 ---
 code: |
-  al_logo.alt_text = "Logo"
+  al_logo.alt_text = "Logo" # Patch for old sessions
 ---
 # These override the `metadata` above
 default screen parts:
