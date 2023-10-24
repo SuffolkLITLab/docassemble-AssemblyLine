@@ -10,18 +10,15 @@ comment: |
   assembly line:
     enable answer sets: True
     interview list:
-      # Defaults to global `interview page title` if not defined
-      interview page title: In progress forms
-      
-      # Defaults to global `interview page heading` if not defined
-      interview page question: In progress forms 
-
-      # Defaults to "Tap the title of a form to keep working on it or to download your completed documents."
-      interview page subquestion: null
-      answer sets title: Answer sets
+      page title: In progress forms # Title of the tab in your browser
+      page question: In progress forms
+      page subquestion: null
+      new form label: Start a new form
       new form url: https://courtformsonline.org
       logo url: https://app.yourserver.org/packagestatic/docassemble.AssemblyLine/ma_logo.png
       logo alt: Logo
+      logo title row 1: null # Defaults to `interview page title`
+      logo title row 2: null # Defaults to `interview page heading`
       exclude from interview list:
         - docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml
         - docassemble.AssemblyLine:data/questions/interview_list.yml
@@ -32,24 +29,62 @@ comment: |
       en: In progress forms
       es: Formularios en progreso
 
-  These deprecated configuration options will also be respected:
+  These deprecated configuration options will also be respected at a lower priority:
 
   new form url: https://courtformsonline.org
   assembly line:
     exclude from interview list:
       - docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml
       - docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml
+  
+  As will the following options from the global config:
+    interview page title
+    interview page heading
+    interview page pre
 
-  You can also include this YAML file and override these individual values without customizing the global configuration:
-    * interview_page_title
-    * interview_page_heading
-    * interview_page_url
-    * interview_page_pre
-    * interview_page_answer_sets_title
-    * new_form_url
-    * logo_url (but better to redefine the DAStatic file `al_logo`)
-    * logo_alt (but better to redefine the DAStatic file `al_logo`)
+  Some authors will prefer to customize this page by importing it and overriding the default values
+  in the YAML file rather than the global configuration. This is slightly more advance than editing
+  the configuration, but may be just as easy to maintain.
+
+  To do this, make a new YAML file and include your custom theme/settings YAML.
+  It's important to include your theme AFTER the interview list page:
+  
+  e.g., my_new_interview_list.yml would only need to contain:
+  ---
+  include:
+    - docassemble.AssemblyLine:data/questions/interview_list.yml
+    - docassemble.MyState:my_custom_theme.yml
+  ---
+  metadata:
+    title: |
+      In progress forms
+    short title: |
+      In progress forms
+  
+
+  Then you would set the following in your global config:
+  interview list: docassemble.MyState:my_new_interview_list.yml
+
+  In some instances, this may be all that is required to use your branding on the
+  interview list page. You can individually override additional variables as follows:
+
+    * PAGE_QUESTION
+    * PAGE_SUBQUESTION
+    * NEW_FORM_LABEL
+    * NEW_FORM_URL
     * al_sessions_to_exclude_from_interview_list
+
+    The following settings are usually best to leave undefined if you want
+    the ordinary behavior of your theme:
+    * PAGE_TITLE
+    * LOGO_URL
+    * LOGO_IMAGE_URL
+    * LOGO_IMAGE_ALT
+    * LOGO_TITLE_ROW_1
+    * LOGO_TITLE_ROW_2 (defaults to value from the metadata block)
+
+    And of course you can also override the YAML block by block if you want to
+    further customize it.
 ---
 include:
   - docassemble.ALToolbox:display_template.yml
@@ -87,31 +122,31 @@ code: |
 # These override the `metadata` above
 default screen parts:
   title: |
-    % if interview_page_title:
-    ${ interview_page_title }
+    % if PAGE_TITLE:
+    ${ PAGE_TITLE }
     % elif showifdef("AL_ORGANIZATION_TITLE"):
     ${ AL_ORGANIZATION_TITLE }
     % else:
     CourtFormsOnline
     % endif
   short title: |
-    % if interview_page_title:
-    ${ interview_page_title }
+    % if PAGE_TITLE:
+    ${ PAGE_TITLE }
     % elif showifdef("AL_ORGANIZATION_TITLE"):
     ${ AL_ORGANIZATION_TITLE }
     % else:
     CourtFormsOnline
     % endif
   title url: |
-    % if interview_page_url:
-    ${ interview_page_url }
+    % if LOGO_URL:
+    ${ LOGO_URL }
     % elif showifdef("AL_ORGANIZATION_HOMEPAGE"):
     ${ AL_ORGANIZATION_HOMEPAGE }
     % else:
     % endif:
   exit url: |
-    % if interview_page_url:
-    ${ interview_page_url }
+    % if LOGO_URL:
+    ${ LOGO_URL }
     % elif showifdef("AL_ORGANIZATION_HOMEPAGE"):
     ${ AL_ORGANIZATION_HOMEPAGE }
     % else:
@@ -119,22 +154,26 @@ default screen parts:
   logo: |
     <span class="title-container">
       <span class="al-logo">
-    % if logo_url:
-        <img src="${ logo_url }" alt="${ logo_alt }"/>
+    % if LOGO_IMAGE_URL:
+        <img src="${ LOGO_IMAGE_URL }" alt="${ LOGO_IMAGE_ALT }"/>
     % else:
         <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
     % endif
       </span>
       <span class="al-title">
-    % if interview_page_title:
-        <span class="title-row-1">${ interview_page_title }</span>
+    % if LOGO_TITLE_ROW_1:
+        <span class="title-row-1">${ LOGO_TITLE_ROW_1 }</span>
+    % elif PAGE_TITLE:
+        <span class="title-row-1">${ PAGE_TITLE }</span>
     % elif showifdef("AL_ORGANIZATION_TITLE"):
         <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>    
     % else:
         <span class="title-row-1">CourtFormsOnline</span>    
     % endif
-    % if interview_page_heading:
-        <span class="title-row-2">${ interview_page_heading }</span>
+    % if LOGO_TITLE_ROW_2:
+        <span class="title-row-2">${ LOGO_TITLE_ROW_2 }</span>
+    % elif PAGE_QUESTION:
+        <span class="title-row-2">${ PAGE_QUESTION }</span>
     % else:
         <span class="title-row-2">${ all_variables(special='metadata').get('title','').rstrip() }</span>
     % endif
@@ -258,7 +297,8 @@ script:
 event: section_answer_sets
 id: answer set list
 question: |
-  Answer sets 
+  % if interview_page_answer_sets_title:
+  Answer sets
   <span style="float: right;">${ action_button_html(new_form_url or showifdef("AL_ORGANIZATION_HOMEPAGE"), label=interview_list_start_new_form_label or word("Start a new form"), icon="plus-circle", color="primary", size="md") }</span>
 subquestion: |
   View, delete, or rename your answer sets below. To copy an answer set into a
@@ -341,7 +381,7 @@ code: |
 ########### Get customized text values from configuration file ###################################33
 ---
 code: |
-  def config_with_language_fallback(config_key):
+  def config_with_language_fallback(config_key, top_level_config_key=None):
     interview_list_config = get_config("assembly line",{}).get("interview list",{})
     if interview_list_config.get(config_key):
       if isinstance(interview_list_config.get(config_key), dict):
@@ -352,19 +392,25 @@ code: |
       else:
         return interview_list_config.get(config_key)
     else:
-      return get_config(config_key)
+      return get_config(top_level_config_key or config_key)
 ---
 code: |
-  interview_page_title = config_with_language_fallback("interview page title")
+  PAGE_TITLE = config_with_language_fallback("page title", "interview page title")
 ---
 code: |
-  interview_page_heading = config_with_language_fallback("interview page heading")
+  PAGE_QUESTION = config_with_language_fallback("page heading", "interview page heading")
 ---
 code: |
-  interview_page_url = config_with_language_fallback("app homepage")
+  PAGE_SUBQUESTION = config_with_language_fallback("interview page pre")
 ---
 code: |
-  interview_page_pre = config_with_language_fallback("interview page pre")
+  LOGO_URL = config_with_language_fallback("app homepage")
+---
+code: |
+  LOGO_ALT = config_with_language_fallback("logo alt")
+---
+code: |
+  NEW_FORM_LABEL = config_with_language_fallback("new form label")
 ---
 code: |
   new_form_url = config_with_language_fallback("new form url")
