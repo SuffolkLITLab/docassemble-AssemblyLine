@@ -2,7 +2,9 @@
 # Provide a replacement for the /interviews endpoint in Docassemble.
 # This version is faster than the native version and supports metadata for each interview (including form progress)
 comment: |
-  Customize by editing or adding options under `assembly line`: `interview list` in the global config.
+  Customize by:
+  1. Editing the global configuration (see below), or
+  2. Including this file and overriding the default values in a replacement YAML file
 
   Relevant options and defaults:
 
@@ -15,8 +17,10 @@ comment: |
       page subquestion: null
       new form label: Start a new form
       new form url: https://courtformsonline.org
-      logo url: https://app.yourserver.org/packagestatic/docassemble.AssemblyLine/ma_logo.png
-      logo alt: Logo
+      logo url: null # Defaults to `app homepage`
+      logo image url: https://app.yourserver.org/packagestatic/docassemble.AssemblyLine/ma_logo.png
+      logo image alt: Logo
+      answer sets title: Answer sets
       logo title row 1: null # Defaults to `interview page title`
       logo title row 2: null # Defaults to `interview page heading`
       exclude from interview list:
@@ -89,6 +93,11 @@ comment: |
 include:
   - docassemble.ALToolbox:display_template.yml
 ---
+# clear playground errors
+objects:
+  - ex: DAEmpty
+  - AL_ORGANIZATION_HOMEPAGE: DAEmpty
+---
 features:
   small screen navigation: dropdown
   navigation: True
@@ -119,6 +128,26 @@ objects:
 code: |
   al_logo.alt_text = "Logo" # Patch for old sessions
 ---
+# This block is a placeholder and will be replaced by the definition below
+sections:
+  - section_in_progress_forms: In progress forms
+  - section_answer_sets: Answer sets
+progressive: False
+---
+# A code block is the only way to show navigation with custom labels (mako isn't allowed in `sections`)
+mandatory: True
+code: |
+  nav.set_sections(
+      [
+        {
+          "section_in_progress_forms": PAGE_QUESTION or PAGE_TITLE or word("In progress forms")
+        },
+        {
+          "section_answer_sets": ANSWER_SETS_TITLE or word("Answer sets")
+        }
+        ]
+  )
+---
 # These override the `metadata` above
 default screen parts:
   title: |
@@ -127,7 +156,7 @@ default screen parts:
     % elif showifdef("AL_ORGANIZATION_TITLE"):
     ${ AL_ORGANIZATION_TITLE }
     % else:
-    CourtFormsOnline
+    ${ get_config("app name", "CourtFormsOnline") }
     % endif
   short title: |
     % if PAGE_TITLE:
@@ -135,7 +164,7 @@ default screen parts:
     % elif showifdef("AL_ORGANIZATION_TITLE"):
     ${ AL_ORGANIZATION_TITLE }
     % else:
-    CourtFormsOnline
+    ${ get_config("app name", "CourtFormsOnline") }
     % endif
   title url: |
     % if LOGO_URL:
@@ -163,12 +192,10 @@ default screen parts:
       <span class="al-title">
     % if LOGO_TITLE_ROW_1:
         <span class="title-row-1">${ LOGO_TITLE_ROW_1 }</span>
-    % elif PAGE_TITLE:
-        <span class="title-row-1">${ PAGE_TITLE }</span>
     % elif showifdef("AL_ORGANIZATION_TITLE"):
         <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>    
     % else:
-        <span class="title-row-1">CourtFormsOnline</span>    
+        <span class="title-row-1">${ get_config("app name", "CourtFormsOnline") }</span>    
     % endif
     % if LOGO_TITLE_ROW_2:
         <span class="title-row-2">${ LOGO_TITLE_ROW_2 }</span>
@@ -182,22 +209,22 @@ default screen parts:
   short logo: |
     <span class="title-container">
       <span class="al-logo">
-    % if logo_url:
-        <img src="${ logo_url }" alt="${ logo_alt }"/>
+    % if LOGO_IMAGE_URL:
+        <img src="${ LOGO_IMAGE_URL }" alt="${ LOGO_IMAGE_ALT }"/>
     % else:
         <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
     % endif
       </span>
       <span class="al-title">
-    % if interview_page_title:
-        <span class="title-row-1">${ interview_page_title }</span>
+    % if PAGE_TITLE:
+        <span class="title-row-1">${ PAGE_TITLE }</span>
     % elif showifdef("AL_ORGANIZATION_TITLE"):
         <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>    
     % else:
-        <span class="title-row-1">CourtFormsOnline</span>    
+        <span class="title-row-1">${ get_config("app name", "CourtFormsOnline") }</span>
     % endif
-    % if interview_page_heading:
-        <span class="title-row-2">${ interview_page_heading }</span>
+    % if PAGE_QUESTION:
+        <span class="title-row-2">${ PAGE_QUESTION }</span>
     % else:
         <span class="title-row-2">${ all_variables(special='metadata').get('title','').rstrip() }</span>
     % endif
@@ -214,38 +241,19 @@ code: |
     nav.hide()
   section_in_progress_forms
 ---
-# This is set mandatory because it's the only way to show navigation with custom labels (mako isn't allowed in `sections`)
-mandatory: True
-code: |
-  nav.set_sections(
-      [
-        {
-          "section_in_progress_forms": interview_page_heading or interview_page_title or word("In progress forms")
-        },
-        {
-          "section_answer_sets": interview_page_answer_sets_title or word("Answer sets")
-        }
-        ]
-  )
----
-sections:
-  - section_in_progress_forms: In progress forms
-  - section_answer_sets: Answer sets
-progressive: False
----
 event: section_in_progress_forms
 id: interview list
 question: |
-  % if interview_page_heading:
-  ${ interview_page_heading }
+  % if PAGE_QUESTION:
+  ${ PAGE_QUESTION }
   % else:
   In progress forms 
   % endif
-  <span style="float: right;">${ action_button_html(new_form_url or showifdef("AL_ORGANIZATION_HOMEPAGE"), label=interview_list_start_new_form_label or word("Start a new form"), icon="plus-circle", color="primary", size="md") }</span>
+  <span style="float: right;">${ action_button_html(NEW_FORM_URL or showifdef("AL_ORGANIZATION_HOMEPAGE"), label=NEW_FORM_LABEL or word("Start a new form"), icon="plus-circle", color="primary", size="md") }</span>
 subquestion: |
   % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True)) > 0:
-  % if get_config("interview page pre"):
-  ${ get_config("interview page pre") }
+  % if PAGE_SUBQUESTION:
+  ${ PAGE_SUBQUESTION }
   % else:
   Tap the title of a form to keep working on it or to download your completed
   documents.
@@ -297,15 +305,17 @@ script:
 event: section_answer_sets
 id: answer set list
 question: |
-  % if interview_page_answer_sets_title:
+  % if ANSWER_SETS_TITLE:
+  ${ ANSWER_SETS_TITLE }
+  % else:
   Answer sets
-  <span style="float: right;">${ action_button_html(new_form_url or showifdef("AL_ORGANIZATION_HOMEPAGE"), label=interview_list_start_new_form_label or word("Start a new form"), icon="plus-circle", color="primary", size="md") }</span>
+  % endif
+  <span style="float: right;">${ action_button_html(NEW_FORM_URL or showifdef("AL_ORGANIZATION_HOMEPAGE"), label=NEW_FORM_LABEL or word("Start a new form"), icon="plus-circle", color="primary", size="md") }</span>
 subquestion: |
   View, delete, or rename your answer sets below. To copy an answer set into a
   new form:
   
-  1. [Start a new 
-  form](${ get_config("assembly line",{}).get("new form url", AL_ORGANIZATION_HOMEPAGE) })
+  1. [${ NEW_FORM_LABEL or "Start a new form"}](${ NEW_FORM_URL or showifdef("AL_ORGANIZATION_HOMEPAGE") })
   1. Then, use the menu to load your answer set.
 
   ${ interview_list_html(view_only=True, delete_action="interview_list_delete_session", exclude_newly_started_sessions=False) }
@@ -398,28 +408,34 @@ code: |
   PAGE_TITLE = config_with_language_fallback("page title", "interview page title")
 ---
 code: |
-  PAGE_QUESTION = config_with_language_fallback("page heading", "interview page heading")
+  PAGE_QUESTION = config_with_language_fallback("page question", "interview page heading")
 ---
 code: |
   PAGE_SUBQUESTION = config_with_language_fallback("interview page pre")
 ---
 code: |
-  LOGO_URL = config_with_language_fallback("app homepage")
+  LOGO_URL = config_with_language_fallback("logo url", "app homepage")
 ---
 code: |
-  LOGO_ALT = config_with_language_fallback("logo alt")
+  LOGO_IMAGE_URL = config_with_language_fallback("logo image url")
+---
+code: |
+  LOGO_IMAGE_ALT = config_with_language_fallback("logo alt")
 ---
 code: |
   NEW_FORM_LABEL = config_with_language_fallback("new form label")
 ---
 code: |
-  new_form_url = config_with_language_fallback("new form url")
+  NEW_FORM_URL = config_with_language_fallback("new form url", "app homepage")
 ---
 code: |
-  interview_page_answer_sets_title = config_with_language_fallback("answer sets title")
+  ANSWER_SETS_TITLE = config_with_language_fallback("answer sets title")
 ---
 code: |
-  logo_url = config_with_language_fallback("logo url")
-  logo_alt = config_with_language_fallback("logo alt") or "Logo"
+  LOGO_TITLE_ROW_1 = config_with_language_fallback("logo title row 1")
+---
+code: |
+  LOGO_TITLE_ROW_2 = config_with_language_fallback("logo title row 2")
+
 ---
 code: al_sessions_to_exclude_from_interview_list = get_config("assembly line",{}).get("interview list",{}).get("exclude from interview list", get_config("assembly line",{}).get("exclude from interview list"))
