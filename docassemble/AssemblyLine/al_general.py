@@ -21,9 +21,11 @@ from docassemble.base.util import (
     Individual,
     IndividualName,
     its,
+    log,
     name_suffix,
     phone_number_formatted,
     phone_number_is_valid,
+    showifdef,
     state_name,
     states_list,
     subdivision_type,
@@ -150,6 +152,10 @@ class ALAddress(Address):
         # differs from the server's country.
         if country_code and country_code != get_country() and not show_country:
             self.country = country_code
+        # Priority order for country: already answered country, passed in country_code, then get_country
+        prev_selected_country = showifdef(self.attr_name("country"), None, prior=True)
+        if prev_selected_country:
+            country_code = prev_selected_country
         if not country_code:
             country_code = get_country()
         if allow_no_address:
@@ -171,6 +177,17 @@ class ALAddress(Address):
             ]
         else:
             fields = []
+        if show_country:
+            fields.append(
+                {
+                    "label": str(self.country_label),
+                    "field": self.attr_name("country"),
+                    "required": False,
+                    "code": "countries_list()",
+                    "default": country_code,
+                }
+            )
+
         fields.extend(
             [
                 {
@@ -210,7 +227,7 @@ class ALAddress(Address):
                     "default": default_state if default_state else "",
                 }
             )
-        if country_code == "US":
+        if country_code == "US" and not show_country:
             fields.append(
                 {
                     "label": str(self.zip_label),
@@ -236,16 +253,6 @@ class ALAddress(Address):
                     "label": str(self.county_label),
                     "field": self.attr_name("county"),
                     "required": False,
-                }
-            )
-        if show_country:
-            fields.append(
-                {
-                    "label": str(self.country_label),
-                    "field": self.attr_name("country"),
-                    "required": False,
-                    "code": "countries_list()",
-                    "default": country_code,
                 }
             )
             # NOTE: using , "datatype": "combobox" might be nice but does not play together well w/ address autocomplete
