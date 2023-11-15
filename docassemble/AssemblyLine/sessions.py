@@ -1273,8 +1273,11 @@ def is_valid_json(json_string: str) -> bool:
         return False
     return True
 
-def config_with_language_fallback(config_key:str, top_level_config_key:Optional[str]=None) -> Optional[str]:
-    """Returns the value of a config key under `assembly line` `interview list` with options to fallback 
+
+def config_with_language_fallback(
+    config_key: str, top_level_config_key: Optional[str] = None
+) -> Optional[str]:
+    """Returns the value of a config key under `assembly line` `interview list` with options to fallback
     to an alternative key at the top level of the global configuration.
 
     Used in interview_list.yml to allow overriding some of the labels in the interview list
@@ -1296,7 +1299,7 @@ def config_with_language_fallback(config_key:str, top_level_config_key:Optional[
     Returns:
         str: The value of the config key, or the alternative key, or None.
     """
-    interview_list_config = get_config("assembly line",{}).get("interview list",{})
+    interview_list_config = get_config("assembly line", {}).get("interview list", {})
     if interview_list_config.get(config_key):
         if isinstance(interview_list_config.get(config_key), dict):
             if get_language() in interview_list_config.get(config_key):
