@@ -116,7 +116,7 @@ metadata:
     In progress forms
   short title: |
     In progress forms
-  temporary session: True    
+  temporary session: True
 ---
 modules:
   - .sessions
@@ -216,14 +216,16 @@ default screen parts:
     % endif
       </span>
       <span class="al-title">
-    % if PAGE_TITLE:
-        <span class="title-row-1">${ PAGE_TITLE }</span>
+    % if LOGO_TITLE_ROW_1:
+        <span class="title-row-1">${ LOGO_TITLE_ROW_1 }</span>
     % elif showifdef("AL_ORGANIZATION_TITLE"):
         <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>    
     % else:
-        <span class="title-row-1">${ get_config("app name", "CourtFormsOnline") }</span>
+        <span class="title-row-1">${ get_config("app name", "CourtFormsOnline") }</span>    
     % endif
-    % if PAGE_QUESTION:
+    % if LOGO_TITLE_ROW_2:
+        <span class="title-row-2">${ LOGO_TITLE_ROW_2 }</span>
+    % elif PAGE_QUESTION:
         <span class="title-row-2">${ PAGE_QUESTION }</span>
     % else:
         <span class="title-row-2">${ all_variables(special='metadata').get('title','').rstrip() }</span>
@@ -391,20 +393,6 @@ code: |
 ########### Get customized text values from configuration file ###################################33
 ---
 code: |
-  def config_with_language_fallback(config_key, top_level_config_key=None):
-    interview_list_config = get_config("assembly line",{}).get("interview list",{})
-    if interview_list_config.get(config_key):
-      if isinstance(interview_list_config.get(config_key), dict):
-        if get_language() in interview_list_config.get(config_key):
-          return interview_list_config.get(config_key)[get_language()]
-        else:
-          return next(iter(interview_list_config.get(config_key).values()), None)
-      else:
-        return interview_list_config.get(config_key)
-    else:
-      return get_config(top_level_config_key or config_key)
----
-code: |
   PAGE_TITLE = config_with_language_fallback("page title", "interview page title")
 ---
 code: |
@@ -436,6 +424,5 @@ code: |
 ---
 code: |
   LOGO_TITLE_ROW_2 = config_with_language_fallback("logo title row 2")
-
 ---
 code: al_sessions_to_exclude_from_interview_list = get_config("assembly line",{}).get("interview list",{}).get("exclude from interview list", get_config("assembly line",{}).get("exclude from interview list"))
