@@ -14,6 +14,7 @@ from docassemble.base.util import (
     DASet,
     format_time,
     get_config,
+    get_language,
     get_default_timezone,
     get_session_variables,
     interview_menu,
@@ -52,6 +53,7 @@ except ImportError:
 
 __all__ = [
     "al_session_store_default_filename",
+    "config_with_language_fallback",
     "delete_interview_sessions",
     "export_interview_variables",
     "get_filtered_session_variables_string",
@@ -1270,3 +1272,38 @@ def is_valid_json(json_string: str) -> bool:
         validation_error("Enter a valid JSON-formatted string")
         return False
     return True
+
+def config_with_language_fallback(config_key:str, top_level_config_key:Optional[str]=None) -> Optional[str]:
+    """Returns the value of a config key under `assembly line` `interview list` with options to fallback 
+    to an alternative key at the top level of the global configuration.
+
+    Used in interview_list.yml to allow overriding some of the labels in the interview list
+    with options specified in the global configuration. top_level_config should be reserved
+    to handle backwards compatibility (e.g., changed location of some configuration keys)
+
+    Example configuration, showing both the single-string and language-specific string options:
+        assembly line:
+            interview list:
+                title:
+                    en: In progress forms
+                    es: Formularios en progreso
+                short title: My forms
+
+    Args:
+        config_key (str): The config key to look up. The config can be a single string or a dictionary with language keys.
+        top_level_config_key (str, optional): Optional, alternative top-level config key to look up. Defaults to None.
+
+    Returns:
+        str: The value of the config key, or the alternative key, or None.
+    """
+    interview_list_config = get_config("assembly line",{}).get("interview list",{})
+    if interview_list_config.get(config_key):
+        if isinstance(interview_list_config.get(config_key), dict):
+            if get_language() in interview_list_config.get(config_key):
+                return interview_list_config.get(config_key)[get_language()]
+            else:
+                return next(iter(interview_list_config.get(config_key).values()), None)
+        else:
+            return interview_list_config.get(config_key)
+    else:
+        return get_config(top_level_config_key or config_key)
