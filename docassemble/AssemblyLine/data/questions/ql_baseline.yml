@@ -362,6 +362,11 @@ content: |
   % endif
 ---
 generic object: ALAddress
+template: x.state_or_province_label
+content: |
+  State / Province
+---
+generic object: ALAddress
 template: x.zip_label
 content: |
   Zip or postal code
@@ -472,7 +477,6 @@ subquestion: |
 fields:
   - code: |
       users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
-check in: update_states_list
 ---
 id: your mailing address
 question: |
@@ -504,7 +508,6 @@ fields:
   - ${ users[0].address.country_label}: users[0].mailing_address.country
     code: countries_list()
     default: ${ AL_DEFAULT_COUNTRY }
-check in: update_states_list
 ---
 id: user i's address
 question: |
@@ -536,7 +539,6 @@ fields:
 #  - ${ users[i].address.country_label}: users[i].address.country
 #    code: countries_list()
 #    default: ${ AL_DEFAULT_COUNTRY }
-check in: update_states_list
 ---
 generic object: ALIndividual
 id: any mailing address
@@ -566,7 +568,6 @@ fields:
   - ${ x.address.country_label }: x.mailing_address.country
     code: countries_list()
     default: ${ AL_DEFAULT_COUNTRY }
-check in: update_states_list
 ---
 generic object: ALIndividual
 id: any service address
@@ -597,20 +598,6 @@ fields:
   - ${ x.service_address.country_label }: x.service_address.country
     code: countries_list()
     default: ${ AL_DEFAULT_COUNTRY }
-check in: update_states_list
----
-event: update_states_list
-code: |
-  log(f"{action_argument('_changed')}")
-  changed_var = action_argument("_changed")
-  if changed_var and changed_var.endswith('.country'):
-    base_var = changed_var[:-len(".country")]
-    background_response({
-      f"{base_var}.state": {
-        "choices": states_list(country_code=action_argument(changed_var)) or ["N/A"]
-      }
-    }, 'fields')
-  background_response()
 ---
 generic object: ALIndividual
 id: service method

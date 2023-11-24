@@ -21,7 +21,6 @@ from docassemble.base.util import (
     Individual,
     IndividualName,
     its,
-    log,
     name_suffix,
     phone_number_formatted,
     phone_number_is_valid,
@@ -210,7 +209,7 @@ class ALAddress(Address):
 
         fields.append({"label": str(self.city_label), "field": self.attr_name("city")})
 
-        if country_code:
+        if country_code and not show_country:
             fields.append(
                 {
                     "label": str(self.state_label),
@@ -219,10 +218,10 @@ class ALAddress(Address):
                     "default": default_state if default_state else "",
                 }
             )
-        else:  # not showing country and not showing country code
+        else:  # when you are allowed to change country
             fields.append(
                 {
-                    "label": str(self.state_label),
+                    "label": str(self.state_or_province_label),
                     "field": self.attr_name("state"),
                     "default": default_state if default_state else "",
                 }
@@ -528,7 +527,7 @@ class ALAddress(Address):
 
         Args:
             include_unit (bool): If True, includes the unit in the formatted address. Defaults to True.
-            omit_default_country (bool): If True, omits the default country from the formatted address. Defaults to True.
+            omit_default_country (bool): If True, doesn't show the Docassemble default country in the formatted address. Defaults to True.
             language (str, optional): Language for the address format.
             show_country (bool, optional): If True, includes the country in the formatted address.
                 If None, decides based on the country attribute.
