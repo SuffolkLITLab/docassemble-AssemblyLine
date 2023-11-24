@@ -362,6 +362,11 @@ content: |
   % endif
 ---
 generic object: ALAddress
+template: x.state_or_province_label
+content: |
+  State / Province
+---
+generic object: ALAddress
 template: x.zip_label
 content: |
   Zip or postal code

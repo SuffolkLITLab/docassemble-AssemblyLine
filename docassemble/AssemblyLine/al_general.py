@@ -24,6 +24,7 @@ from docassemble.base.util import (
     name_suffix,
     phone_number_formatted,
     phone_number_is_valid,
+    showifdef,
     state_name,
     states_list,
     subdivision_type,
@@ -150,6 +151,10 @@ class ALAddress(Address):
         # differs from the server's country.
         if country_code and country_code != get_country() and not show_country:
             self.country = country_code
+        # Priority order for country: already answered country, passed in country_code, then get_country
+        prev_selected_country = showifdef(self.attr_name("country"), None, prior=True)
+        if prev_selected_country:
+            country_code = prev_selected_country
         if not country_code:
             country_code = get_country()
         if allow_no_address:
@@ -193,7 +198,7 @@ class ALAddress(Address):
 
         fields.append({"label": str(self.city_label), "field": self.attr_name("city")})
 
-        if country_code:
+        if country_code and not show_country:
             fields.append(
                 {
                     "label": str(self.state_label),
@@ -202,15 +207,15 @@ class ALAddress(Address):
                     "default": default_state if default_state else "",
                 }
             )
-        else:  # not showing country and not showing country code
+        else:  # when you are allowed to change country
             fields.append(
                 {
-                    "label": str(self.state_label),
+                    "label": str(self.state_or_province_label),
                     "field": self.attr_name("state"),
                     "default": default_state if default_state else "",
                 }
             )
-        if country_code == "US":
+        if country_code == "US" and not show_country:
             fields.append(
                 {
                     "label": str(self.zip_label),
@@ -521,7 +526,7 @@ class ALAddress(Address):
 
         Args:
             include_unit (bool): If True, includes the unit in the formatted address. Defaults to True.
-            omit_default_country (bool): If True, omits the default country from the formatted address. Defaults to True.
+            omit_default_country (bool): If True, doesn't show the Docassemble default country in the formatted address. Defaults to True.
             language (str, optional): Language for the address format.
             show_country (bool, optional): If True, includes the country in the formatted address.
                 If None, decides based on the country attribute.
