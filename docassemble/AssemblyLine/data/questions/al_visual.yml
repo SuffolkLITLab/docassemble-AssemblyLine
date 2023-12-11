@@ -193,13 +193,12 @@ question: |
 fields:
   - What do you want to do?: al_sharing_type
     datatype: radio
-    choices:
-      - Tell a friend about this website: tell_friend
-      - Share my answers and progress with someone: share_answers
+    code: |
+      sharing_choices
   -  How do you want to share the link?: al_how_share_link
      datatype: radio
      choices:
-       - Email or text message: email_or_sms
+       - Email${ " or text message" if is_sms_enabled() else ""}: email_or_sms
        - Just show me the link. I will share it myself.: link_only
        - Export my answers to a file: download_json
      js show if: |
@@ -220,7 +219,7 @@ fields:
       ${ copy_button_html( interview_url(temporary=48), label=al_copy_button_label.show(), tooltip_inert_text=al_copy_button_tooltip_inert_text.show(), tooltip_copied_text = al_copy_button_tooltip_copied_text.show()) }
     js show if: |
       val("al_sharing_type") === "share_answers" && val("al_how_share_link") === "link_only"
-  - Email or phone number you want to send this to: share_interview_contact_method
+  - Email ${ "or phone number " if is_sms_enabled() else ""}you want to send this to: share_interview_contact_method
     validate: is_phone_or_email
     show if:
       variable: al_how_share_link
@@ -252,6 +251,13 @@ fields:
       is: download_json
 back button label: |
   Back to your form
+---
+code: |
+  sharing_choices = [
+      {"tell_friend": word("Tell a friend about this website")},
+  ]
+  if showifdef("multi_user", False):
+      sharing_choices.append({"share_answers": word("Share my answers and progress with someone")})
 ---
 id: Results of sharing
 continue button field: al_share_results
@@ -311,7 +317,7 @@ template: al_share_answers_message_template
 subject: |
   ${ AL_ORGANIZATION_TITLE } form from ${ al_share_form_from_name }
 content: |
-  ${ share_interview_answers_message }
+  ${ share_interview_answers_message.replace("\n", "<br>") }
   Click the link below to view and edit ${ al_share_form_from_name }'s
   progress so far:
   
@@ -321,7 +327,7 @@ template: al_tell_a_friend_message_template
 subject: |
   ${ al_share_form_from_name } wants to tell you about ${ AL_ORGANIZATION_TITLE }
 content: |
-  ${ tell_a_friend_message }
+  ${ tell_a_friend_message.replace("\n", "<br>") }
   ${ interview_url(i=user_info().filename, style="short", new_session=1) }
 ---
 code: |

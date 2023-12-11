@@ -65,14 +65,13 @@ fields:
     datatype: yesnoradio
   - I want to get reminders by: al_user_preferred_reminder_formats
     datatype: checkboxes
-    choices:
-      - SMS (text message): sms
-      - Email: email
+    code: |
+      al_reminder_delivery_options
     minlength: 1
     validation messages:
       minlength: |
         You need to choose to get reminders by either email or SMS, or both.
-    show if: al_user_wants_reminders    
+    show if: al_user_wants_reminders
   - Email: al_user_reminder_email
     datatype: email
     default: |
@@ -92,6 +91,13 @@ fields:
     validate: |
       lambda y: phone_number_is_valid(y) or validation_error("Enter a valid phone number")
     show if: al_user_preferred_reminder_formats["sms"]
+---
+code: |
+  al_reminder_delivery_options = [
+    {"email": word("Email")},
+  ]
+  if is_sms_enabled():
+    al_reminder_delivery_options.append({"sms": word("SMS (text message)")})
 ---
 variable name: al_reminders
 use objects: True
