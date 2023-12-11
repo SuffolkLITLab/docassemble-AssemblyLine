@@ -1812,10 +1812,13 @@ def fa_icon(
         )
 
 
-def is_sms_enabled():
+def is_sms_enabled() -> bool:
     """Checks if SMS (Twilio) is enabled on the server. Does not verify that it works.
 
     See https://docassemble.org/docs/config.html#twilio for more info.
+
+    Returns:
+        bool: True if there is a non-empty Twilio config on the server, False otherwise
     """
     twilio_config = get_config("twilio")
     if isinstance(twilio_config, list):
