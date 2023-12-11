@@ -1385,7 +1385,11 @@ fields:
     choices:
       - On a phone with my finger: phone
         help: |
+          % if is_sms_enabled():
           We can text or share a link with your phone on the next screen
+          % else:
+          We can share a link with your phone on the next screen
+          % endif
       - On a computer with my mouse: this_device
     show if:
       code: |
@@ -1395,7 +1399,11 @@ fields:
     choices:
       - On a phone with my finger: phone
         help: |
+          % if is_sms_enabled():
           We can text or share a link with your phone on the next screen
+          % else:
+          We can share a link with your phone on the next screen
+          % endif
       - On a computer with my mouse: this_device
       - On the paper with a pen after I print the documents: sign_after_printing
     show if:
@@ -1440,7 +1448,7 @@ fields:
       4. Click ${word("next")} on your phone.
       
       <center>
-      ${interview_url_as_qr()}
+      ${interview_url_as_qr(style="short")}
       </center>
 
       ${ collapse_template(help_using_qr_code_template) }
@@ -1451,7 +1459,7 @@ fields:
     datatype: yesnowide
     show if: 
       code: |
-        device() and device().is_pc
+        device() and device().is_pc and is_sms_enabled()
   - label: Cell phone number
     field: link_cell
     show if: text_link
@@ -1460,17 +1468,24 @@ fields:
       Click ${word("next")} to add your signature.
     show if: 
       code: |
-        device() and not device().is_pc
+        device() and not device().is_pc and is_sms_enabled()
 continue button field: saw_signature_qrcode
 ---
 template: help_using_qr_code_template
 subject: |
   How do I use this screen?
-content: |          
+content: |
   Many smartphones will automatically find the link on this screen when you use
   the camera app. The link
   may "float" up from the screen into a small icon you can tap.
-  If your phone does not do this, use the text option instead.
+  % if is_sms_enabled():
+  If your phone does not do this, use the text option instead, or
+  % else:
+  If your phone does not do this
+  % endif
+  you can enter this link manually into your phone's browser:
+
+  [${ interview_url(style="short") }](${ interview_url(style="short") })
 ---
 id: signature phone followup
 question: |

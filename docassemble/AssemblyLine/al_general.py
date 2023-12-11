@@ -66,6 +66,7 @@ __all__ = [
     "Tenant",
     "VCIndividual",
     "will_send_to_real_court",
+    "is_sms_enabled",
 ]
 
 ##########################################################
@@ -1811,9 +1812,31 @@ def fa_icon(
         )
 
 
+def is_sms_enabled():
+    """Checks if SMS (Twilio) is enabled on the server. Does not verify that it works.
+
+    See https://docassemble.org/docs/config.html#twilio for more info.
+    """
+    twilio_config = get_config("twilio")
+    if isinstance(twilio_config, list):
+        to_check = twilio_config[0]
+    elif isinstance(twilio_config, dict):
+        to_check = twilio_config
+    else:
+        return False
+
+    return bool(
+        to_check.get("sms")
+        and to_check.get("account sid")
+        and to_check.get("auth token")
+        and to_check.get("number")
+    )
+
+
 def is_phone_or_email(text: str) -> bool:
     """
     Returns True if the string is either a valid phone number or a valid email address.
+    If SMS is not enabled on the server (through the Twilio config), only accepts emails.
     Email validation is extremely minimal--just checks for an @ sign between two non-zero length
     strings.
 
@@ -1826,10 +1849,14 @@ def is_phone_or_email(text: str) -> bool:
     Raises:
         DAValidationError if the string is neither a valid phone number nor a valid email address.
     """
-    if re.match("\S+@\S+", text) or phone_number_is_valid(text):
+    sms_enabled = is_sms_enabled()
+    if re.match("\S+@\S+", text) or (sms_enabled and phone_number_is_valid(text)):
         return True
     else:
-        validation_error("Enter a valid phone number or email address")
+        if sms_enabled:
+            validation_error("Enter a valid phone number or email address")
+        else:
+            validation_error("Enter a valid email address")
         assert False, "unreachable"
 
 
