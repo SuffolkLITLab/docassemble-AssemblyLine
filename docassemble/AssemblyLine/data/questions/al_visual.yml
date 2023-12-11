@@ -195,14 +195,20 @@ fields:
     datatype: radio
     code: |
       sharing_choices
-  -  How do you want to share the link?: al_how_share_link
-     datatype: radio
-     choices:
-       - Email${ " or text message" if is_sms_enabled() else ""}: email_or_sms
-       - Just show me the link. I will share it myself.: link_only
-       - Export my answers to a file: download_json
-     js show if: |
-       val("al_sharing_type") === "tell_friend" || val("al_sharing_type") === "share_answers" 
+  - How do you want to share the link?: al_how_share_link
+    datatype: radio
+    choices:
+      - label: |
+          % if is_sms_enabled():
+          Email or text message
+          % else:
+          Email
+          % endif
+        value: email_or_sms
+      - Just show me the link. I will share it myself.: link_only
+      - Export my answers to a file: download_json
+    js show if: |
+      val("al_sharing_type") === "tell_friend" || val("al_sharing_type") === "share_answers"
   - note: |
       **Note**: the person you share this link with will be able to see and
       edit your answers on this form.
@@ -219,7 +225,13 @@ fields:
       ${ copy_button_html( interview_url(temporary=48), label=al_copy_button_label.show(), tooltip_inert_text=al_copy_button_tooltip_inert_text.show(), tooltip_copied_text = al_copy_button_tooltip_copied_text.show()) }
     js show if: |
       val("al_sharing_type") === "share_answers" && val("al_how_share_link") === "link_only"
-  - Email ${ "or phone number " if is_sms_enabled() else ""}you want to send this to: share_interview_contact_method
+  - label: |
+      % if is_sms_enabled():
+      Email or phone number you want to send this to
+      % else:
+      Email you want to send this to
+      % endif
+    field: share_interview_contact_method
     validate: is_phone_or_email
     show if:
       variable: al_how_share_link
@@ -317,7 +329,7 @@ template: al_share_answers_message_template
 subject: |
   ${ AL_ORGANIZATION_TITLE } form from ${ al_share_form_from_name }
 content: |
-  ${ share_interview_answers_message.replace("\n", "<br>") }
+  ${ share_interview_answers_message.replace("\n", "<br/>") }
   Click the link below to view and edit ${ al_share_form_from_name }'s
   progress so far:
   
@@ -327,7 +339,7 @@ template: al_tell_a_friend_message_template
 subject: |
   ${ al_share_form_from_name } wants to tell you about ${ AL_ORGANIZATION_TITLE }
 content: |
-  ${ tell_a_friend_message.replace("\n", "<br>") }
+  ${ tell_a_friend_message.replace("\n", "<br/>") }
   ${ interview_url(i=user_info().filename, style="short", new_session=1) }
 ---
 code: |
