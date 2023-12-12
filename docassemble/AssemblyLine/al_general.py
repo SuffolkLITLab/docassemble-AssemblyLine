@@ -1812,9 +1812,6 @@ def fa_icon(
         )
 
 
-
-
-
 def is_sms_enabled() -> bool:
     """Checks if SMS (Twilio) is enabled on the server. Does not verify that it works.
 
@@ -1832,13 +1829,11 @@ def is_sms_enabled() -> bool:
         return False
 
     return bool(
-        to_check.get("sms") and to_check.get("account sid")
+        to_check.get("sms")
+        and to_check.get("account sid")
         and to_check.get("auth token")
         and to_check.get("number")
     )
-
-
-
 
 
 def is_phone_or_email(text: str) -> bool:
