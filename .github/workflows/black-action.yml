@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - new_black
   pull_request:
     branches:
       - main
