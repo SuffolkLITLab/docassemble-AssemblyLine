@@ -13,7 +13,7 @@ jobs:
     name: formatting
     runs-on: ubuntu-latest
     steps:
-      - uses: SuffolkLITLab/ALActions/black-formatting@main
+      - uses: SuffolkLITLab/ALActions/black-formatting@new_black
         with:
           MAKE_PR: "true"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
