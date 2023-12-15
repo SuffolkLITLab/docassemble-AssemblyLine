@@ -902,6 +902,49 @@ fields:
   - code: |
       x[i].name_fields()
 ---
+id: people list revisit
+generic object: ALPeopleList
+question: |
+  Edit your answers about the ${noun_plural(x.object_name())}?
+subquestion: |
+  ${ x.table }
+
+  ${ x.add_action() }
+continue button field: x.revisit
+---
+id: users revisit
+question: |
+  Edit your answers about people on your side of the case
+subquestion: |
+  ${ users.table }
+
+  ${ users.add_action() }
+continue button field: users.revisit
+---
+id: other parties revisit
+question: |
+  Edit your answers about people on the other side of your case
+subquesiton: |
+  ${ other_parties.table }
+
+  ${ other_parties.add_action() }
+continue button field: other_parties.revisit
+---
+generic object: ALPeopleList
+table: x.table
+rows: x
+columns:
+  - Name: |
+      row_item.name if defined('row_item.name.first') else ''
+  - Address: |
+      row_item.address if defined('row_item.address.address') else ''
+  - Phone number: |
+      row_item.phone_number if defined('row_item.phone_number') else ''
+edit:
+  - name.first
+  - address.address
+  - phone_number
+---
 id: any other opposing parties
 question: |
   % if user_started_case:
