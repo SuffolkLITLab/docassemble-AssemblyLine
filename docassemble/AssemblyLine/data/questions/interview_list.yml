@@ -123,10 +123,10 @@ modules:
   - docassemble.ALToolbox.misc
 ---
 objects:
-  - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="Logo")
+  - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="")
 ---
 code: |
-  al_logo.alt_text = "Logo" # Patch for old sessions
+  al_logo.alt_text = "" # Patch for old sessions
 ---
 # This block is a placeholder and will be replaced by the definition below
 sections:
