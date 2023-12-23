@@ -3,7 +3,7 @@ objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="")
 ---
 code: |
-  al_logo.alt_text = ""
+  al_logo.alt_text = "" # Per accessibility recommendations, best to leave alt text off a logo
 ---
 default screen parts:
   title: |
