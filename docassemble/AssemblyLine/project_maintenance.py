@@ -1,21 +1,27 @@
 # before using, pip install PyGithub
 import requests
 import json
-from typing import List
-from github import Github, UnknownObjectException
+from typing import List, Optional
+from github import Github, UnknownObjectException, Organization
+from github.Issue import Issue
+from github.Project import Project
+from github.Repository import Repository
 import argparse
 import urllib.parse
 
 
-def get_package_names(server_name) -> List[str]:
+from typing import List
+
+
+def get_package_names(server_name: str) -> List[str]:
     """
     Fetches the JSON file from the given Docassemble server and extracts package names.
 
     Args:
-        server_name (str): Name or IP address of the Docassemble server
+        server_name (str): Name or IP address of the Docassemble server.
 
     Returns:
-        list: List of package names
+        List[str]: List of package names.
     """
     url = f"https://{server_name}/list?json=1"
     try:
@@ -34,14 +40,16 @@ def get_package_names(server_name) -> List[str]:
         return []
 
 
-def add_tag_to_repos(token, org_name, repo_names, tag):
+def add_tag_to_repos(
+    token: str, org_name: str, repo_names: List[str], tag: str
+) -> None:
     """
     Adds a specific tag to each repository in the given list.
 
     Args:
         token (str): GitHub Personal Access Token (PAT) with appropriate permissions.
         org_name (str): Name of the GitHub organization.
-        repo_names (list of str): List of repository names to which the tag will be added.
+        repo_names (List[str]): List of repository names to which the tag will be added.
         tag (str): The tag to be added to the repositories.
 
     This function iterates through each repository in the provided list, fetching the
@@ -76,8 +84,11 @@ def add_tag_to_repos(token, org_name, repo_names, tag):
             print(f"Error processing {repo_name}: {e}")
 
 
-def process_packages_and_add_tag(server_name, token, org_name, tag):
-    """Fetches package names from a Docassemble server, transforms them into repository names,
+def process_packages_and_add_tag(
+    server_name: str, token: str, org_name: str, tag: str
+) -> None:
+    """
+    Fetches package names from a Docassemble server, transforms them into repository names,
     and adds a specified tag to each repository.
 
     Args:
@@ -92,79 +103,7 @@ def process_packages_and_add_tag(server_name, token, org_name, tag):
     add_tag_to_repos(token, org_name, repo_names, tag)
 
 
-def add_issue_to_repos(token, org_name, repo_names, issue_title, issue_body):
-    """Adds a specified issue to each repository in a list.
-
-    Args:
-        token (str): GitHub Personal Access Token.
-        org_name (str): Name of the GitHub organization.
-        repo_names (list): List of repository names.
-        issue_title (str): Title of the issue to be created.
-        issue_body (str): Body of the issue to be created.
-
-    Returns:
-        dict: A dictionary mapping repository names to created issue objects.
-    """
-    g = Github(token)
-    org = g.get_organization(org_name)
-    issues = {}
-
-    for repo_name in repo_names:
-        try:
-            repo = org.get_repo(repo_name)
-            issue = repo.create_issue(title=issue_title, body=issue_body)
-            issues[repo_name] = issue
-        except Exception as e:
-            print(f"Error adding issue to {repo_name}: {e}")
-
-    return issues
-
-
-def create_card_for_issue(token, project_id, column_id, issue):
-    """Creates a card in a specified project column, linked to a given issue.
-
-    Args:
-        token (str): GitHub Personal Access Token.
-        project_id (int): ID of the GitHub project.
-        column_id (int): ID of the column in the project.
-        issue (github.Issue.Issue): The issue object to link the card to.
-    """
-    g = Github(token)
-    project = g.get_project(project_id)
-    column = project.get_column(column_id)
-
-    try:
-        card = column.create_card(content_id=issue.id, content_type="Issue")
-        return card
-    except Exception as e:
-        print(f"Error creating card for issue {issue.id}: {e}")
-        return None
-
-
-def get_classic_project_by_name(token, org_name, project_name):
-    """Finds a GitHub project by its name within an organization.
-    Args:
-        token (str): GitHub Personal Access Token.
-        org_name (str): Name of the GitHub organization.
-        project_name (str): Name of the GitHub project.
-    Returns:
-        github.Project.Project: The GitHub project object, or None if not found.
-    """
-    g = Github(token)
-    org = g.get_organization(org_name)
-    print(f"Organization: {org.name}")  # Debug: Print organization name
-    projects = org.get_projects()
-    print(
-        f"Found {projects.totalCount} projects"
-    )  # Debug: Print the number of projects found
-    for project in projects:
-        print(f"Checking project: {project.name}")  # Debug: Print each project's name
-        if project.name == project_name:
-            return project
-    return None
-
-
-def get_project_by_name(token, org_name, project_name):
+def get_project_by_name(token: str, org_name: str, project_name: str) -> Optional[dict]:
     """
     Finds a GitHub Next-Generation project by its name within an organization using GraphQL API.
 
@@ -217,8 +156,9 @@ def get_project_by_name(token, org_name, project_name):
         return None
 
 
-def get_repos_by_topic(token, org_name, topic):
-    """Fetches repositories in an organization that have a specific topic.
+def get_repos_by_topic(token: str, org_name: str, topic: str) -> List[Repository]:
+    """
+    Fetches repositories in an organization that have a specific topic.
 
     Args:
         token (str): GitHub Personal Access Token.
@@ -226,7 +166,7 @@ def get_repos_by_topic(token, org_name, topic):
         topic (str): The GitHub topic to filter repositories by.
 
     Returns:
-        list: A list of repository objects that have the specified topic.
+        List[Repository]: A list of repository objects that have the specified topic.
     """
     g = Github(token)
     org = g.get_organization(org_name)
@@ -239,46 +179,14 @@ def get_repos_by_topic(token, org_name, topic):
     return repos_with_topic
 
 
-def add_issues_and_create_classic_cards(
-    token, org_name, project_name, topic, issue_title, issue_body
-):
-    """Adds an issue to each repository with a specific topic and creates a card for each issue in a project.
-
-    Args:
-        token (str): GitHub Personal Access Token.
-        org_name (str): Name of the GitHub organization.
-        project_name (str): Name of the GitHub project.
-        topic (str): The GitHub topic to filter repositories by.
-        issue_title (str): Title of the issue.
-        issue_body (str): Body of the issue.
-    """
-    repos = get_repos_by_topic(token, org_name, topic)
-    issues = {}
-
-    for repo in repos:
-        try:
-            issue = repo.create_issue(title=issue_title, body=issue_body)
-            issues[repo.name] = issue
-        except Exception as e:
-            print(f"Error adding issue to {repo.name}: {e}")
-
-    project = get_project_by_name(token, org_name, project_name)
-
-    if project is not None:
-        columns = project.get_columns()
-        if columns.totalCount > 0:
-            column_id = columns[0].id
-            for _, issue in issues.items():
-                create_card_for_issue(token, project.id, column_id, issue)
-        else:
-            print("No columns found in the project.")
-    else:
-        print(f"Project '{project_name}' not found.")
-
-
 def add_issues_and_create_cards(
-    token, org_name, project_name, topic, issue_title, issue_body
-):
+    token: str,
+    org_name: str,
+    project_name: str,
+    topic: str,
+    issue_title: str,
+    issue_body: str,
+) -> None:
     """
     Adds an issue to each repository with a specific topic and creates a card for each issue in a Next-Generation GitHub project.
 
@@ -343,18 +251,12 @@ def find_issues_by_title(
         search_query = f'repo:{repo_name} type:issue in:title "{issue_title}"'
         encoded_query = urllib.parse.quote_plus(search_query)
         search_url = f"https://api.github.com/search/issues?q={encoded_query}"
-        # print(f"Searching in {repo_name}. URL: {search_url}")
 
         try:
             response = requests.get(search_url, headers=headers)
             if response.status_code == 200:
                 issues = response.json().get("items", [])
-                if issues:
-                    print(f"Found {len(issues)} issues in {repo_name}")
                 for issue in issues:
-                    print(
-                        f"Found issue: {issue['title']}, and node id {issue['node_id']}"
-                    )
                     issue_node_ids.append(issue["node_id"])
             else:
                 print(
@@ -367,7 +269,7 @@ def find_issues_by_title(
     return issue_node_ids
 
 
-def add_issue_to_project(token, project_id, issue_node_id):
+def add_issue_to_project(token: str, project_id: str, issue_node_id: str) -> None:
     """
     Adds an issue to a Next-Generation GitHub project.
 
@@ -404,7 +306,9 @@ def add_issue_to_project(token, project_id, issue_node_id):
         print("Failed to add issue to project: {}".format(response.text))
 
 
-def link_issue_title_to_project(token, org_name, project_name, topic, issue_title):
+def link_issue_title_to_project(
+    token: str, org_name: str, project_name: str, topic: str, issue_title: str
+) -> None:
     """
     Links issues with a specific title in repositories with a certain topic to a Next-Generation project.
 
@@ -421,12 +325,10 @@ def link_issue_title_to_project(token, org_name, project_name, topic, issue_titl
 
     # Step 2: Find issues by title in these repositories
     issue_node_ids = find_issues_by_title(token, org_name, repo_names, issue_title)
-    print(issue_node_ids)
 
     # Step 3: Get the project's node ID
     project = get_project_by_name(token, org_name, project_name)
     if project:
-        print(project)
         project_id = project["id"]
 
         # Step 4: Link the issues to the project
