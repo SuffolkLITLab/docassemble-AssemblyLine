@@ -176,7 +176,7 @@ def get_project_by_name(token, org_name, project_name):
     Returns:
         dict: The GitHub project object, or None if not found.
     """
-    query = '''
+    query = """
     query($orgName: String!) {
       organization(login: $orgName) {
         projectsV2(first: 10) {
@@ -189,20 +189,17 @@ def get_project_by_name(token, org_name, project_name):
         }
       }
     }
-    '''
+    """
 
-    variables = {
-        "orgName": org_name
-    }
+    variables = {"orgName": org_name}
 
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json"
-    }
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
 
-    response = requests.post('https://api.github.com/graphql',
-                             headers=headers,
-                             json={'query': query, 'variables': variables})
+    response = requests.post(
+        "https://api.github.com/graphql",
+        headers=headers,
+        json={"query": query, "variables": variables},
+    )
 
     if response.status_code == 200:
         response_json = response.json()
@@ -211,7 +208,7 @@ def get_project_by_name(token, org_name, project_name):
             return None
         projects = response_json["data"]["organization"]["projectsV2"]["nodes"]
         for project in projects:
-            if project['title'] == project_name:
+            if project["title"] == project_name:
                 return project
         return None
     else:
@@ -313,13 +310,17 @@ def add_issues_and_create_cards(
         project_id = project["id"]
 
         for _, issue in issues.items():
-            node_id = issue.url.split("/")[-1]  # since graphql node_id isn't exposed in PyGithub try to extract from known format of the URL
+            node_id = issue.url.split("/")[
+                -1
+            ]  # since graphql node_id isn't exposed in PyGithub try to extract from known format of the URL
             add_issue_to_project(token, project_id, node_id)
     else:
         print(f"Project '{project_name}' not found.")
 
 
-def find_issues_by_title(token:str, org_name:str, repo_names:List[str], issue_title:str) -> List[str]:
+def find_issues_by_title(
+    token: str, org_name: str, repo_names: List[str], issue_title: str
+) -> List[str]:
     """
     Finds issues in a list of repositories with a specific title.
 
@@ -328,33 +329,37 @@ def find_issues_by_title(token:str, org_name:str, repo_names:List[str], issue_ti
         org_name (str): Name of the GitHub organization.
         repo_names (list): List of repository names.
         issue_title (str): Title of the issue to be found.
-    
+
     Returns:
         list: A list of issue node IDs.
     """
     headers = {
         "Authorization": f"token {token}",
-        "Accept": "application/vnd.github.v3+json"
+        "Accept": "application/vnd.github.v3+json",
     }
     issue_node_ids = []
 
     for repo_name in repo_names:
         search_query = f'repo:{repo_name} type:issue in:title "{issue_title}"'
         encoded_query = urllib.parse.quote_plus(search_query)
-        search_url = f'https://api.github.com/search/issues?q={encoded_query}'
-        #print(f"Searching in {repo_name}. URL: {search_url}")
+        search_url = f"https://api.github.com/search/issues?q={encoded_query}"
+        # print(f"Searching in {repo_name}. URL: {search_url}")
 
         try:
             response = requests.get(search_url, headers=headers)
             if response.status_code == 200:
-                issues = response.json().get('items', [])
+                issues = response.json().get("items", [])
                 if issues:
                     print(f"Found {len(issues)} issues in {repo_name}")
                 for issue in issues:
-                    print(f"Found issue: {issue['title']}, and node id {issue['node_id']}")
-                    issue_node_ids.append(issue['node_id'])
+                    print(
+                        f"Found issue: {issue['title']}, and node id {issue['node_id']}"
+                    )
+                    issue_node_ids.append(issue["node_id"])
             else:
-                print(f"Failed to search in repository '{repo_name}': {response.status_code} {response.text}")
+                print(
+                    f"Failed to search in repository '{repo_name}': {response.status_code} {response.text}"
+                )
 
         except Exception as e:
             print(f"Error processing repository '{repo_name}': {e}")
