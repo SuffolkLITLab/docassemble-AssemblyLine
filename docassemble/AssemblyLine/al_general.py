@@ -1456,7 +1456,6 @@ class ALIndividual(Individual):
                     language=language,
                     international=international,
                     show_country=show_country,
-                    show_impounded=show_impounded,
                 )
         else:
             if isinstance(self.address, ALAddress):
@@ -1481,7 +1480,6 @@ class ALIndividual(Individual):
                         language=language,
                         international=international,
                         show_country=show_country,
-                        show_impounded=show_impounded,
                     )
                 )
 
