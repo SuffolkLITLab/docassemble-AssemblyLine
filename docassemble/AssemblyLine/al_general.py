@@ -713,7 +713,13 @@ class ALPeopleList(DAList):
         """
         return comma_and_list(
             [
-                str(person) + ", " + person.address.on_one_line(bare=bare)
+                str(person)
+                + ", "
+                + (
+                    person.address.on_one_line(bare=bare)
+                    if isinstance(person.address, ALAddress)
+                    else str(person.address.on_one_line())
+                )
                 for person in self
             ],
             comma_string=comma_string,
@@ -1437,29 +1443,46 @@ class ALIndividual(Individual):
             str: The formatted address block.
         """
         if this_thread.evaluation_context == "docx":
-            return (
-                self.name.full()
-                + '</w:t><w:br/><w:t xml:space="preserve">'
-                + self.address.block(
+            if isinstance(self.address, ALAddress):
+                return self.address.block(
                     language=language,
                     international=international,
                     show_country=show_country,
                     bare=bare,
                     show_impounded=show_impounded,
                 )
-            )
-        return (
-            "[FLUSHLEFT] "
-            + self.name.full()
-            + " [NEWLINE] "
-            + self.address.block(
-                language=language,
-                international=international,
-                show_country=show_country,
-                bare=bare,
-                show_impounded=show_impounded,
-            )
-        )
+            else:
+                # bare parameter is ignored for plain Address objects
+                return self.address.block(
+                    language=language,
+                    international=international,
+                    show_country=show_country,
+                )
+        else:
+            if isinstance(self.address, ALAddress):
+                return (
+                    "[FLUSHLEFT] "
+                    + self.name.full()
+                    + " [NEWLINE] "
+                    + self.address.block(
+                        language=language,
+                        international=international,
+                        show_country=show_country,
+                        bare=bare,
+                        show_impounded=show_impounded,
+                    )
+                )
+            else:
+                return (
+                    "[FLUSHLEFT] "
+                    + self.name.full()
+                    + " [NEWLINE] "
+                    + self.address.block(
+                        language=language,
+                        international=international,
+                        show_country=show_country,
+                    )
+                )
 
     def pronoun(self, **kwargs) -> str:
         """Returns an objective pronoun as appropriate, based on attributes.
