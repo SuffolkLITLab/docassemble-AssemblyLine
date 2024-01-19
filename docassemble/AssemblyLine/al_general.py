@@ -712,7 +712,13 @@ class ALPeopleList(DAList):
         """
         return comma_and_list(
             [
-                str(person) + ", " + (person.address.on_one_line(bare=bare) if isinstance(person.address, ALAddress) else str(person.address.on_one_line()))
+                str(person)
+                + ", "
+                + (
+                    person.address.on_one_line(bare=bare)
+                    if isinstance(person.address, ALAddress)
+                    else str(person.address.on_one_line())
+                )
                 for person in self
             ],
             comma_string=comma_string,
