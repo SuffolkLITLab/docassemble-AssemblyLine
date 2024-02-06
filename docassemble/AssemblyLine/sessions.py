@@ -832,7 +832,8 @@ def session_list_html(
                     "arguments": {
                         "session": answer.get("key"),
                         "filename": answer.get("filename"),
-                        "title": nice_interview_subtitle(answer) or nice_interview_title(answer),
+                        "title": nice_interview_subtitle(answer)
+                        or nice_interview_title(answer),
                     },
                 },
             ]
