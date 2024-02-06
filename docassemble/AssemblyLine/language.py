@@ -76,9 +76,11 @@ def get_tuples(
         # Get the english name for the language code from pycountry as a fallback
         return [
             (
-                pycountry.languages.get(alpha_2=lang).name
-                if pycountry.languages.get(alpha_2=lang)
-                else lang,
+                (
+                    pycountry.languages.get(alpha_2=lang).name
+                    if pycountry.languages.get(alpha_2=lang)
+                    else lang
+                ),
                 lang,
             )
             for lang in lang_codes
