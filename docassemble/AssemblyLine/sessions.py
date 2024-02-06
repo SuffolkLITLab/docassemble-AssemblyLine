@@ -510,6 +510,7 @@ def interview_list_html(
     limit: int = 50,
     offset: int = 0,
     display_interview_title: bool = True,
+    show_view_button: bool = True,
 ) -> str:
     """Return a string containing an HTML-formatted table with the list of saved answers
     associated with the specified filename.
@@ -538,6 +539,7 @@ def interview_list_html(
         limit (int, optional): Limit for the number of sessions returned. Defaults to 50.
         offset (int, optional): Offset for the session list. Defaults to 0.
         display_interview_title (bool, optional): If True, displays the title of the interview. Defaults to True.
+        show_view_button (bool, optional): If True, shows the view button. Defaults to True.
 
     Returns:
         str: HTML-formatted table containing the list of saved answers.
@@ -596,10 +598,15 @@ def interview_list_html(
         </td>
         <td>
           <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }"><i class="far fa-trash-alt" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only">{ delete_label }</span></a>
-          <a target="_blank" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">
-              <i class="far fa-eye" aria-hidden="true" title="{ view_label }"></i>
-              <span class="sr-only">{ view_label }</span>
-          </a>
+          """
+        if show_view_button:
+            table += f"""
+                <a target="_blank" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">
+                    <i class="far fa-eye" aria-hidden="true" title="{ view_label }"></i>
+                    <span class="sr-only">{ view_label }</span>
+                </a>
+            """
+        table += """
         </td>
         """
         table += "</tr>"
@@ -746,6 +753,7 @@ def session_list_html(
     copy_action: str = "interview_list_copy_action",
     clone_label: str = word("Copy as answer set"),
     show_title: bool = True,
+    show_copy_button: bool = True,
     limit: int = 50,
     offset: int = 0,
 ) -> str:
@@ -772,6 +780,7 @@ def session_list_html(
         copy_action (str, optional): Name of the copy action. Defaults to "interview_list_copy_action".
         clone_label (str, optional): Label for the action to copy as an answer set. Defaults to translated word "Copy as answer set".
         show_title (bool, optional): If True, shows the title of the session. Defaults to True.
+        show_copy_button (bool, optional): If True, show a copy button for answer sets. Defaults to True.
         limit (int, optional): Limit for the number of sessions returned. Defaults to 50.
         offset (int, optional): Offset for the session list. Defaults to 0.
 
@@ -879,7 +888,10 @@ def session_list_html(
         <td>
           <a class="al-sessions-action-rename" href="{ url_ask_rename }"><i class="fa-solid fa-tag" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
         """
-        if get_config("assembly line", {}).get("enable answer sets"):
+        if (
+            get_config("assembly line", {}).get("enable answer sets")
+            and show_copy_button
+        ):
             table += f"""
           &nbsp;
           <a class="al-sessions-actions-clone" href="{ url_ask_copy }"><i class="fa-regular fa-clone" aria-hidden="true" title="{clone_label}"></i><span class="sr-only">{ clone_label }</span></a>
