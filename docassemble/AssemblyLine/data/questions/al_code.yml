@@ -191,3 +191,6 @@ code: |
 template: alkiln_trigger_html
 content: |
     <div data-variable="${ encode_name(str( user_info().variable )) }" id="trigger" aria-hidden="true" style="display: none;"></div>
+---
+code: |
+  al_sessions_additional_variables_to_filter = []

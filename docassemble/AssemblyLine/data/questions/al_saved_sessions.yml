@@ -180,13 +180,18 @@ code: |
 event: al_sessions_fast_forward_session
 code: |
   # set_save_status('ignore')
-  al_sessions_snapshot_results = load_interview_answers(action_argument("i"), action_argument("session"), new_session=False)
+  al_sessions_snapshot_results = load_interview_answers(
+        action_argument("i"), 
+        action_argument("session"), 
+        new_session=False, 
+        additional_variables_to_filter=al_sessions_additional_variables_to_filter)
   force_ask('al_sessions_load_status')
 ---
 code: |
   if user_logged_in():
     new_session_id = save_interview_answers(
-          metadata = { "title": al_sessions_snapshot_label }
+          metadata = { "title": al_sessions_snapshot_label },
+          additional_variables_to_filter=al_sessions_additional_variables_to_filter,
         )
     log(f"Saved interview {al_sessions_snapshot_label} with id {new_session_id}")
   else:

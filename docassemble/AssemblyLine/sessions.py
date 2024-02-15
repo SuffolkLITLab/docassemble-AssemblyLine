@@ -143,6 +143,7 @@ al_sessions_variables_to_remove: Set = {
     "al_sessions_url_ask_snapshot",
     "al_sessions_variables_to_remove_from_new_interview",
     "al_sessions_variables_to_remove",
+    "al_sessions_additional_variables_to_filter",
     "al_simple_filtered_vars",
     "filtered_vars_tmp",
     "is_file_like",
@@ -994,18 +995,20 @@ def save_interview_answers(
     original_interview_filename=None,
     source_filename=None,
     source_session=None,
+    additional_variables_to_filter=None,
 ) -> str:
     """
     Copies the answers from a given session into a new session with a specified interview filename.
 
     Args:
         filename (str, optional): The desired filename for the new session. Defaults to `al_session_store_default_filename`.
-        variables_to_filter (Union[Set[str], List[str], None], optional): List or set of variables to filter out. Defaults to `al_sessions_variables_to_remove`.
+        variables_to_filter (Union[Set[str], List[str], None], optional): The "base" list or set of variables to filter out. Defaults to `al_sessions_variables_to_remove`. There's usually no reason to change this and changing it might break sessions.
         metadata (Optional[Dict], optional): Dictionary containing metadata. Defaults to an empty dictionary.
         metadata_key_name (str, optional): Key name for metadata storage. Defaults to "metadata".
         original_interview_filename (str, optional): Original filename of the interview. Defaults to None.
         source_filename (str, optional): Source filename to get session variables from. Defaults to None.
         source_session (str, optional): Session ID of the source file. Defaults to None.
+        additional_variables_to_filter (Union[Set[str], List[str], None], optional): List or set of variables to filter out. Defaults to None.
 
     Returns:
         str: ID of the new session.
@@ -1013,6 +1016,8 @@ def save_interview_answers(
     # Avoid using mutable default parameter
     if not variables_to_filter:
         variables_to_filter = al_sessions_variables_to_remove
+    if not additional_variables_to_filter:
+        additional_variables_to_filter = []
     if not metadata:
         metadata = {}
 
@@ -1021,6 +1026,7 @@ def save_interview_answers(
         filename=source_filename,
         session_id=source_session,
         variables_to_filter=variables_to_filter,
+        additional_variables_to_filter=additional_variables_to_filter,
     )
 
     try:
@@ -1069,7 +1075,8 @@ def save_interview_answers(
 def get_filtered_session_variables(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
-    variables_to_filter: Union[Set[str], List[str], None] = None,
+    variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
+    additional_variables_to_filter: Optional[Union[Set[str], List[str]]]=None,
 ) -> Dict[str, Any]:
     """
     Retrieves a filtered subset of variables from a specified interview and session.
@@ -1080,12 +1087,18 @@ def get_filtered_session_variables(
         filename (Optional[str], optional): Filename of the session. Defaults to None.
         session_id (Optional[int], optional): Session ID to retrieve variables from. Defaults to None.
         variables_to_filter (Union[Set[str], List[str], None], optional): List or set of variables to exclude. Defaults to `al_sessions_variables_to_remove`.
+        additional_variables_to_filter (Union[Set[str], List[str], None], optional): List or set of additional variables to exclude. Defaults to None.
 
     Returns:
         Dict[str, Any]: A dictionary of filtered session variables.
     """
     if not variables_to_filter:
         variables_to_filter = al_sessions_variables_to_remove
+    if not additional_variables_to_filter:
+        additional_variables_to_filter = []
+    variables_to_filter = set(variables_to_filter).union(
+        set(additional_variables_to_filter)
+    )        
 
     if filename and session_id:
         all_vars = get_session_variables(filename, session_id, simplify=False)
@@ -1137,6 +1150,7 @@ def get_filtered_session_variables_string(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
     variables_to_filter: Union[Set[str], List[str], None] = None,
+    additional_variables_to_filter: Optional[Union[Set[str], List[str]]]=None,
 ) -> str:
     """
     Returns a JSON string that represents the filtered contents of a specified filename and session ID.
@@ -1151,7 +1165,7 @@ def get_filtered_session_variables_string(
         str: A JSON-formatted string of filtered session variables.
     """
     simple_vars = serializable_dict(
-        get_filtered_session_variables(filename, session_id, variables_to_filter)
+        get_filtered_session_variables(filename=filename, session_id=session_id, variables_to_filter=variables_to_filter, additional_variables_to_filter=additional_variables_to_filter)
     )
     return json.dumps(simple_vars)
 
@@ -1162,6 +1176,7 @@ def load_interview_answers(
     new_session: bool = False,
     new_interview_filename: Optional[str] = None,
     variables_to_filter: Optional[List[str]] = None,
+    additional_variables_to_filter: Optional[List[str]] = None,
 ) -> Optional[Union[int, bool]]:
     """
     Loads answers from a specified session. If the parameter `new_session` is set to True, it will create
@@ -1174,13 +1189,14 @@ def load_interview_answers(
         new_session (bool, optional): Determines whether to create a new session. Defaults to False.
         new_interview_filename (Optional[str], optional): Filename for the new session. Defaults to None.
         variables_to_filter (Optional[List[str]], optional): List of variables to exclude. Defaults to None.
+        additional_variables_to_filter (Optional[List[str]], optional): List of additional variables to exclude. Defaults to None.
 
     Returns:
         Optional[Union[int, bool]]: ID of the newly created session if `new_session` is True, otherwise True or False based on success.
     """
 
     old_variables = get_filtered_session_variables(
-        old_interview_filename, old_session_id, variables_to_filter
+        filename=old_interview_filename, session_id=old_session_id, variables_to_filter=variables_to_filter, additional_variables_to_filter=additional_variables_to_filter
     )
 
     if new_session:
@@ -1240,6 +1256,7 @@ def export_interview_variables(
     session_id: Optional[int] = None,
     variables_to_filter: Union[Set, List[str], None] = None,
     output: DAFile = None,
+    additional_variables_to_filter: Union[Set, List[str], None] = None,
 ) -> DAFile:
     """
     Generates a DAFile containing a JSON representation of a specified session's interview answers.
@@ -1251,6 +1268,7 @@ def export_interview_variables(
         session_id (Optional[int], optional): Session ID to retrieve variables from. Defaults to None.
         variables_to_filter (Union[Set, List[str], None], optional): List or set of variables to exclude. Defaults to None.
         output (DAFile, optional): DAFile to write the JSON output to. If None, a new DAFile is created.
+        additional_variables_to_filter (Union[Set, List[str], None], optional): List or set of additional variables to exclude. Defaults to None.
 
     Returns:
         DAFile: DAFile with a JSON representation of the answers
@@ -1259,9 +1277,10 @@ def export_interview_variables(
         output = DAFile()
     output.initialize(filename="variables.json")
     variables_string = get_filtered_session_variables_string(
-        filename,
-        session_id,
-        variables_to_filter,
+        filename=filename,
+        session_id=session_id,
+        variables_to_filter=variables_to_filter,
+        additional_variables_to_filter=additional_variables_to_filter,
     )
 
     output.write(variables_string)
