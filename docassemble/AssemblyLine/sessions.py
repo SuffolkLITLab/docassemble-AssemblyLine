@@ -1076,7 +1076,7 @@ def get_filtered_session_variables(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
     variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
-    additional_variables_to_filter: Optional[Union[Set[str], List[str]]]=None,
+    additional_variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
 ) -> Dict[str, Any]:
     """
     Retrieves a filtered subset of variables from a specified interview and session.
@@ -1098,7 +1098,7 @@ def get_filtered_session_variables(
         additional_variables_to_filter = []
     variables_to_filter = set(variables_to_filter).union(
         set(additional_variables_to_filter)
-    )        
+    )
 
     if filename and session_id:
         all_vars = get_session_variables(filename, session_id, simplify=False)
@@ -1150,7 +1150,7 @@ def get_filtered_session_variables_string(
     filename: Optional[str] = None,
     session_id: Optional[int] = None,
     variables_to_filter: Union[Set[str], List[str], None] = None,
-    additional_variables_to_filter: Optional[Union[Set[str], List[str]]]=None,
+    additional_variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
 ) -> str:
     """
     Returns a JSON string that represents the filtered contents of a specified filename and session ID.
@@ -1165,7 +1165,12 @@ def get_filtered_session_variables_string(
         str: A JSON-formatted string of filtered session variables.
     """
     simple_vars = serializable_dict(
-        get_filtered_session_variables(filename=filename, session_id=session_id, variables_to_filter=variables_to_filter, additional_variables_to_filter=additional_variables_to_filter)
+        get_filtered_session_variables(
+            filename=filename,
+            session_id=session_id,
+            variables_to_filter=variables_to_filter,
+            additional_variables_to_filter=additional_variables_to_filter,
+        )
     )
     return json.dumps(simple_vars)
 
@@ -1196,7 +1201,10 @@ def load_interview_answers(
     """
 
     old_variables = get_filtered_session_variables(
-        filename=old_interview_filename, session_id=old_session_id, variables_to_filter=variables_to_filter, additional_variables_to_filter=additional_variables_to_filter
+        filename=old_interview_filename,
+        session_id=old_session_id,
+        variables_to_filter=variables_to_filter,
+        additional_variables_to_filter=additional_variables_to_filter,
     )
 
     if new_session:
