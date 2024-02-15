@@ -1160,6 +1160,7 @@ def get_filtered_session_variables_string(
         filename (Optional[str], optional): Filename of the session. Defaults to None.
         session_id (Optional[int], optional): Session ID to retrieve variables from. Defaults to None.
         variables_to_filter (Union[Set[str], List[str], None], optional): List or set of variables to exclude. Defaults to `al_sessions_variables_to_remove`.
+        additional_variables_to_filter (Union[Set[str], List[str], None], optional): List or set of additional variables to exclude. Defaults to None.
 
     Returns:
         str: A JSON-formatted string of filtered session variables.
