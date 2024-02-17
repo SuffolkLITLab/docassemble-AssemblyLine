@@ -201,3 +201,6 @@ content: |
   data-index_var_${ letter }="${ encode_name(str( value( letter ) if defined( letter ) else '' )) }"
   % endfor
   aria-hidden="true" style="display: none;"></div>
+---
+code: |
+  al_sessions_additional_variables_to_filter = []
