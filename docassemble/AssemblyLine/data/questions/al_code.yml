@@ -186,11 +186,21 @@ code: |
     # If the user role was set to "unknown" at the time wizard run
     user_role = user_ask_role
 ---
-# A bit of HTML required for ALKiln to be used in interviews.
-# To add to your unstyled alkiln interviews, include it in your `default screen parts: post`
+# Old HTML for ALKiln deprecated 3-column Story Tables.
 template: alkiln_trigger_html
 content: |
-    <div data-variable="${ encode_name(str( user_info().variable )) }" id="trigger" aria-hidden="true" style="display: none;"></div>
+  <div data-variable="${ encode_name(str( user_info().variable )) }" id="trigger" aria-hidden="true" style="display: none;"></div>
+---
+# HTML for interviews using ALKiln tests at ALKiln versions 5.9.0 and above.
+# If you are using al_package_unstyled.yml, include it in your `default screen parts: post`
+template: alkiln_proxy_html
+content: |
+  <div id="alkiln_proxy_var_values"
+  data-generic_object="${ encode_name(str( x.instanceName if defined('x') else '' )) }"
+  % for letter in [ 'i', 'j', 'k', 'l', 'm', 'n' ]:
+  data-index_var_${ letter }="${ encode_name(str( value( letter ) if defined( letter ) else '' )) }"
+  % endfor
+  aria-hidden="true" style="display: none;"></div>
 ---
 code: |
   al_sessions_additional_variables_to_filter = []

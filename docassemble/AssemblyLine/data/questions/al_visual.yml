@@ -51,6 +51,7 @@ default screen parts:
   # Uses `alkiln_trigger_html` template in al_code.yml
   post: |
     ${ alkiln_trigger_html }
+    ${ alkiln_proxy_html }
 ---
 features:
   small screen navigation: dropdown
