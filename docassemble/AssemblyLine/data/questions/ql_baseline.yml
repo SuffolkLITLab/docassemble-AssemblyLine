@@ -924,7 +924,7 @@ continue button field: users.revisit
 id: other parties revisit
 question: |
   Edit your answers about people on the other side of your case
-subquesiton: |
+subquestion: |
   ${ other_parties.table }
 
   ${ other_parties.add_action() }
