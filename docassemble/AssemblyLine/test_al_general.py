@@ -427,6 +427,15 @@ class TestALIndividual(unittest.TestCase):
         with self.assertRaises(DAAttributeError):
             self.individual.pronoun_objective()
 
+    def test_name_methods(self):
+        self.individual.name.first = "John"
+        self.individual.name.middle = "Jacob"
+        self.individual.name.last = "Jingleheimer"
+
+        self.assertEqual(self.individual.name_full(), "John Jacob Jingleheimer")
+        self.assertEqual(self.individual.name_initials(), "John J. Jingleheimer")
+        self.assertEqual(self.individual.name_short(), "John Jingleheimer")
+
 
 class test_get_visible_al_nav_items(unittest.TestCase):
     def test_case_1(self):
