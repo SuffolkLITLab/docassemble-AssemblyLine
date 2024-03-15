@@ -1683,7 +1683,8 @@ class ALIndividual(Individual):
     def name_initials(self) -> str:
         """
         Returns the individual's name with the middle name as an initial.
-        Equivalent to `name.full(middle="initial")`.
+        Equivalent to `name.full(middle="initial")`, which is also the default.
+        Defined only to make it possible to be explicit about the name form.
 
         Returns:
             str: The individual's name with the middle name as an initial.
@@ -1700,6 +1701,7 @@ class ALIndividual(Individual):
             str: The individual'
         """
         return self.name.firstlast()
+
 
 # (DANav isn't in public DA API, but currently in functions.py)
 def section_links(nav) -> List[str]:  # type: ignore

@@ -426,7 +426,7 @@ class TestALIndividual(unittest.TestCase):
         # Should raise an exception
         with self.assertRaises(DAAttributeError):
             self.individual.pronoun_objective()
-    
+
     def test_name_methods(self):
         self.individual.name.first = "John"
         self.individual.name.middle = "Jacob"
