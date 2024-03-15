@@ -110,7 +110,9 @@ class ALCourt(Court):
             all_info = f"{ all_info }[BR]{ self.address.on_one_line() }"
         return f"{ all_info }[BR]{ self.description }"
 
-    def from_row(self, df_row: Union[pd.Series, pd.DataFrame], ensure_lat_long: bool = True) -> None:
+    def from_row(
+        self, df_row: Union[pd.Series, pd.DataFrame], ensure_lat_long: bool = True
+    ) -> None:
         """
         Loads data from a single Pandas Dataframe into the current court object.
         Note: It will try to convert column names that don't make valid
