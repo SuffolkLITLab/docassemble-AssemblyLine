@@ -47,9 +47,6 @@ code: |
     log(word('E-mail failed to ') + action_argument('email'))
 
   json_response({'success': email_success})
-  
-
-
 ---
 generic object: ALDocumentBundle
 code: |
@@ -94,3 +91,45 @@ code: |
   to_pdf = action_argument('to_pdf')
   from_file = action_argument('from_file')
   background_response(ocrmypdf_task(from_file, to_pdf))
+
+---
+############
+# Background generation
+############
+generic object: ALDocumentBundle
+code: |
+  x.generation_task_status = background_action("al_document_create_docs", my_x=x)
+---
+event: al_document_create_docs
+code: |
+  my_x = action_argument("my_x")
+  docs_response = {}
+  for idx, doc in enumerate(my_x.enabled_documents()):
+    docs_response[idx] = doc.as_pdf()
+  background_response_action("al_document_save_docs", docs_response=docs_response, my_x=my_x)
+---
+event: al_document_save_docs
+code: |
+  ans = action_argument("docs_response")
+  my_x = action_argument("my_x")
+  for idx, doc in enumerate(my_x.enabled_documents()):
+    log(f"Setting cached_pdf {idx}")
+    doc.cached_pdf = ans[idx]
+    cached_pdf = ans[idx]
+  background_response()
+---
+generic object: ALDocumentBundle
+code: |
+  x.generation_task_status
+  if not x.generation_task_status.ready():
+    x.waiting_screen
+  x.document_generated = True
+---
+generic object: ALDocumentBundle
+id: waiting screen
+question: |
+  <i class="fas fa-cog fa-spin"></i> Please wait while we generate your documents <i class="fas fa-cog fa-spin"></i>
+subquestion: |
+  This can take a few minutes.
+event: x.waiting_screen
+reload: True

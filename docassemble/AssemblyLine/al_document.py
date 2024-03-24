@@ -1756,6 +1756,7 @@ class ALDocumentBundle(DAList):
     def download_list_html(
         self,
         key: str = "final",
+        already_generated: bool = False,
         format: str = "pdf",
         view: bool = True,
         refresh: bool = True,
@@ -1797,25 +1798,29 @@ class ALDocumentBundle(DAList):
 
         # Trigger some variables up top to avoid idempotency issues
         enabled_docs = self.enabled_documents(refresh=refresh)
-        for doc in enabled_docs:
-            doc.title
-            if format == "pdf":
-                doc.as_pdf(
-                    key=key,
-                    refresh=refresh,
-                    pdfa=pdfa,
-                    append_matching_suffix=append_matching_suffix,
-                )  # Generate cached file for this session
+        if not already_generated:
+            for doc in enabled_docs:
+                doc.title
+                if format == "pdf":
+                    doc.as_pdf(
+                        key=key,
+                        refresh=refresh,
+                        pdfa=pdfa,
+                        append_matching_suffix=append_matching_suffix,
+                    )  # Generate cached file for this session
 
         html = f'<div class="container al_table al_doc_table" id="{ html_safe_str(self.instanceName) }">'
 
         for doc in enabled_docs:
             filename_root = os.path.splitext(str(doc.filename))[0]
             # Do our best to use the provided filename + the extension from requested filetype
-            if format == "original":
+            if already_generated:
+                download_doc = doc.cached_pdf
+                download_filename = doc.filename
+            elif format == "original":
                 download_doc = doc[key]
                 download_filename = doc.filename
-            if format == "docx" and doc._is_docx(key=key):
+            elif format == "docx" and doc._is_docx(key=key):
                 download_doc = doc.as_docx(
                     key=key, append_matching_suffix=append_matching_suffix
                 )
@@ -1914,7 +1919,7 @@ class ALDocumentBundle(DAList):
 
         Args:
             key (str): Identifier for the document version, default is "final".
-            format (str): Specifies the format of the files in the list. Can be "pdf", "docx", or "original". Default is "pdf".
+            format (str): Specifies the format of the files in the list. Can be "pdf", or "docx". Default is "pdf".
             pdfa (bool): Flag to return the documents in PDF/A format, default is False.
             view (bool): Flag to include a 'view' button, default is True.
             refresh (bool): Flag to reconsider the 'enabled' attribute, default is True.
@@ -1943,7 +1948,7 @@ class ALDocumentBundle(DAList):
             classname="al_download",
         )
         if view:
-            pdf = self.as_pdf(key=key)
+            pdf = self.as_pdf(key=key, pdfa=pdfa)
             if not pdf:
                 buttons = [doc_download_button]
             else:

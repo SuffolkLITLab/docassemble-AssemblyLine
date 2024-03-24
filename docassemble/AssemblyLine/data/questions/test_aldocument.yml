@@ -13,6 +13,8 @@ question: |
 mandatory: True
 code: |
   intro_screen
+  multi_bundle_1.document_generated
+  
   as_foo_defaults
   download_list_html_defaults
   #download_html_defaults
@@ -58,47 +60,9 @@ question: |
   Get condensed bundle functions defaults
 subquestion: |
   
-  multi_bundle_1.as_pdf()
+  Test:
   
-  ${ multi_bundle_1.as_pdf() }
-  
-  multi_bundle_1.preview()
-  
-  ${ multi_bundle_1.preview() }
-  
-  multi_bundle_1.as_zip()
-  
-  ${ multi_bundle_1.as_zip() }
-  
-  ---
-  
-  single_pdf_bundle_1.as_pdf()
-  
-  ${ single_pdf_bundle_1.as_pdf() }
-  
-  single_pdf_bundle_1.preview()
-  
-  ${ single_pdf_bundle_1.preview() }
-  
-  single_pdf_bundle_1.as_zip()
-  
-  ${ single_pdf_bundle_1.as_zip() }
-  
-  ---
-  
-  single_docx_bundle_1.as_pdf()
-  
-  ${ single_docx_bundle_1.as_pdf() }
-  
-  single_docx_bundle_1.preview()
-  
-  ${ single_docx_bundle_1.preview() }
-  
-  single_docx_bundle_1.as_zip()
-  
-  ${ single_docx_bundle_1.as_zip() }
-  
-  ---
+  ${ multi_bundle_1.download_list_html(already_generated=True) }
 ---
 id: download_list_html_defaults
 continue button field: download_list_html_defaults
