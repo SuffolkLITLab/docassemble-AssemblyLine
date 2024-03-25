@@ -1479,6 +1479,7 @@ class ALDocumentBundle(DAList):
         enabled (bool, optional): Determines if the bundle is active. Defaults to True.
         auto_gather (bool, optional): Automatically gathers attributes. Defaults to False.
         gathered (bool, optional): Specifies if attributes have been gathered. Defaults to True.
+        default_parity (Optional[Literal["even", "odd"]]): Default parity to enforce on the PDF. Defaults to None.
 
     Examples:
         Given three documents: `Cover page`, `Main motion form`, and `Notice of Interpreter Request`,
@@ -1575,7 +1576,13 @@ class ALDocumentBundle(DAList):
         pdf.title = self.title
         setattr(self.cache, safe_key, pdf)
         
-        if ensure_parity:
+        if hasattr(self, "default_parity") and not ensure_parity:
+            ensure_parity = self.default_parity
+
+        if ensure_parity not in [None, "even", "odd"]:
+            raise ValueError("ensure_parity must be either 'even', 'odd' or None")
+        
+        if ensure_parity: # Check for odd/even requirement
             if pdf_page_parity(pdf.path()) == ensure_parity:
                 return pdf
             else:
