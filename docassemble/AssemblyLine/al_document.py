@@ -1,7 +1,7 @@
 import re
 import os
 import mimetypes
-from typing import Any, Dict, List, Union, Callable, Optional
+from typing import Any, Dict, List, Literal, Union, Callable, Optional
 from docassemble.base.util import (
     Address,
     LatitudeLongitude,
@@ -34,6 +34,7 @@ from textwrap import wrap
 from math import floor
 import subprocess
 from collections import ChainMap
+import pikepdf
 
 __all__ = [
     "ALAddendumField",
@@ -179,6 +180,43 @@ def table_row(title: str, button_htmls: List[str] = []) -> str:
 
     return html
 
+
+def pdf_page_parity(pdf_path:str) -> Literal["even", "odd"]:
+    """
+    Count the number of pages in the PDF and
+    return "even" if it is divisible by 2 and "odd"
+    if it is even.
+
+    Args:
+        pdf_path (str): Path to the PDF in the filesystem
+    """
+    with pikepdf.open(pdf_path) as pdf:
+        num_pages = len(pdf.pages)
+        if num_pages % 2 == 0:
+            return "even"
+        return "odd"
+    
+
+def add_blank_page(pdf_path:str):
+    # Load the PDF
+    with pikepdf.open(pdf_path, allow_overwriting_input=True) as pdf:
+        # Retrieve the last page
+        last_page = pdf.pages[-1]
+        
+        # Extract the size of the last page
+        media_box = last_page.MediaBox
+        
+        # Create a new blank page with the same dimensions as the last page
+        blank_page = pikepdf.Page(pikepdf.Dictionary(
+            MediaBox=media_box
+        ))
+        
+        # Add the blank page to the end of the PDF
+        pdf.pages.append(blank_page)
+        
+        # Overwrite the original PDF with the modified version
+        pdf.save(pdf_path)
+ 
 
 class ALAddendumField(DAObject):
     """
@@ -1481,6 +1519,7 @@ class ALDocumentBundle(DAList):
         refresh: bool = True,
         pdfa: bool = False,
         append_matching_suffix: bool = True,
+        ensure_parity: Optional[Literal["even", "odd"]] = None,
     ) -> Optional[DAFile]:
         """
         Returns a consolidated PDF of all enabled documents in the bundle.
@@ -1491,6 +1530,8 @@ class ALDocumentBundle(DAList):
             pdfa (bool): If True, generates a PDF/A compliant document, defaults to False.
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
                                             Used primarily to enhance automated tests.
+            ensure_parity (Optional[Literal["even", "odd"]]): Ensures the number of pages in the PDF is even or odd. If omitted,
+                no parity is enforced. Defaults to None.
 
         Returns:
             Optional[DAFile]: Combined PDF file or None if no documents are enabled.
@@ -1533,6 +1574,13 @@ class ALDocumentBundle(DAList):
             )
         pdf.title = self.title
         setattr(self.cache, safe_key, pdf)
+        
+        if ensure_parity:
+            if pdf_page_parity(pdf.path()) == ensure_parity:
+                return pdf
+            else:
+                add_blank_page(pdf.path())
+
         return pdf
 
     def __str__(self) -> str:

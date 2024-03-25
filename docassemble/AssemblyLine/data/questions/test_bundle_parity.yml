@@ -1,0 +1,47 @@
+---
+include:
+  - assembly_line.yml
+---
+objects:
+  - the_doc: ALDocument.using(
+        title="The document", 
+        filename="the_document", 
+        enabled=True, 
+        has_addendum=False
+      )
+---
+objects:
+  - even_bundle: ALDocumentBundle.using(
+          title="Even bundle",
+          filename="the_bundle",
+          elements=[
+            the_doc
+          ]
+      )
+  - odd_bundle: ALDocumentBundle.using(
+          title="Even bundle",
+          filename="the_bundle",
+          elements=[
+            the_doc,
+            the_doc
+          ]
+      )
+
+---
+attachment:
+  variable name: the_doc[i]
+  content: |
+    Test content
+---
+mandatory: True
+question: |
+  About to make a PDF
+continue button field: the_field
+---
+mandatory: True
+question: |
+  Download
+subquestion: |
+  ${ even_bundle.as_pdf(ensure_parity="even") }
+
+  ${ odd_bundle.as_pdf(ensure_parity="odd") }
