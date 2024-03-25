@@ -181,7 +181,7 @@ def table_row(title: str, button_htmls: List[str] = []) -> str:
     return html
 
 
-def pdf_page_parity(pdf_path:str) -> Literal["even", "odd"]:
+def pdf_page_parity(pdf_path: str) -> Literal["even", "odd"]:
     """
     Count the number of pages in the PDF and
     return "even" if it is divisible by 2 and "odd"
@@ -189,34 +189,41 @@ def pdf_page_parity(pdf_path:str) -> Literal["even", "odd"]:
 
     Args:
         pdf_path (str): Path to the PDF in the filesystem
+
+    Returns:
+        Literal["even", "odd"]: The parity of the number of pages in the PDF
     """
     with pikepdf.open(pdf_path) as pdf:
         num_pages = len(pdf.pages)
         if num_pages % 2 == 0:
             return "even"
         return "odd"
-    
 
-def add_blank_page(pdf_path:str):
+
+def add_blank_page(pdf_path: str) -> None:
+    """
+    Add a blank page to the end of a PDF.
+
+    Args:
+        pdf_path (str): Path to the PDF in the filesystem
+    """
     # Load the PDF
     with pikepdf.open(pdf_path, allow_overwriting_input=True) as pdf:
         # Retrieve the last page
         last_page = pdf.pages[-1]
-        
+
         # Extract the size of the last page
         media_box = last_page.MediaBox
-        
+
         # Create a new blank page with the same dimensions as the last page
-        blank_page = pikepdf.Page(pikepdf.Dictionary(
-            MediaBox=media_box
-        ))
-        
+        blank_page = pikepdf.Page(pikepdf.Dictionary(MediaBox=media_box))
+
         # Add the blank page to the end of the PDF
         pdf.pages.append(blank_page)
-        
+
         # Overwrite the original PDF with the modified version
         pdf.save(pdf_path)
- 
+
 
 class ALAddendumField(DAObject):
     """
@@ -1575,14 +1582,14 @@ class ALDocumentBundle(DAList):
             )
         pdf.title = self.title
         setattr(self.cache, safe_key, pdf)
-        
+
         if hasattr(self, "default_parity") and not ensure_parity:
             ensure_parity = self.default_parity
 
         if ensure_parity not in [None, "even", "odd"]:
             raise ValueError("ensure_parity must be either 'even', 'odd' or None")
-        
-        if ensure_parity: # Check for odd/even requirement
+
+        if ensure_parity:  # Check for odd/even requirement
             if pdf_page_parity(pdf.path()) == ensure_parity:
                 return pdf
             else:
