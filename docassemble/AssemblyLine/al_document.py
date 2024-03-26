@@ -185,7 +185,7 @@ def pdf_page_parity(pdf_path: str) -> Literal["even", "odd"]:
     """
     Count the number of pages in the PDF and
     return "even" if it is divisible by 2 and "odd"
-    if it is even.
+    if it is not divisible by 2.
 
     Args:
         pdf_path (str): Path to the PDF in the filesystem
