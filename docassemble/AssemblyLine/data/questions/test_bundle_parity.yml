@@ -1,0 +1,79 @@
+---
+include:
+  - assembly_line.yml
+---
+objects:
+  - the_doc: ALDocument.using(
+        title="The document", 
+        filename="the_document", 
+        enabled=True, 
+        has_addendum=False
+      )
+---
+objects:
+  - even_bundle: ALDocumentBundle.using(
+          title="Even bundle",
+          filename="the_bundle",
+          elements=[
+            the_doc
+          ],
+          default_parity="even",
+          enabled=True
+      )
+  - odd_bundle: ALDocumentBundle.using(
+          title="Even bundle",
+          filename="the_bundle",
+          elements=[
+            the_doc,
+            the_doc
+          ],
+          enabled=True
+      )
+  - bundle_with_default: ALDocumentBundle.using(
+          title="Even bundle",
+          filename="the_bundle",
+          elements=[
+            the_doc
+          ],
+          default_parity="even",
+          enabled=True 
+      )
+
+---
+objects:
+  - bundle_of_bundles: ALDocumentBundle.using(
+          title="Bundle of bundles",
+          filename="the_bundle",
+          elements=[
+            even_bundle,
+            bundle_with_default
+          ],
+          enabled=True
+      )
+
+---
+attachment:
+  variable name: the_doc[i]
+  content: |
+    Test content
+---
+mandatory: True
+question: |
+  About to make a PDF
+continue button field: the_field
+---
+mandatory: True
+question: |
+  Download
+subquestion: |
+  # Should be even
+  ${ even_bundle.as_pdf(ensure_parity="even") }
+
+  # should be odd
+  ${ odd_bundle.as_pdf(ensure_parity="odd") }
+
+  # should be even
+  ${ bundle_with_default.as_pdf() }
+
+  # Should be even
+  ${ bundle_of_bundles.as_pdf() }
