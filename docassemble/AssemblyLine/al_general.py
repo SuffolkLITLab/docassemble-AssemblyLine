@@ -425,7 +425,7 @@ class ALAddress(Address):
             else:
                 output += ", " + str(self.state)
         if hasattr(self, "zip") and self.zip:
-            output += " " + str(self.zip)
+            output += " " + str(self.zip).zfill(5)
         elif hasattr(self, "postal_code") and self.postal_code:
             output += " " + str(self.postal_code)
         if (
@@ -508,7 +508,7 @@ class ALAddress(Address):
             else:
                 output += ", " + str(self.state)
         if hasattr(self, "zip") and self.zip:
-            output += " " + str(self.zip)
+            output += " " + str(self.zip).zfill(5)
         elif hasattr(self, "postal_code") and self.postal_code:
             output += " " + str(self.postal_code)
         return output
@@ -576,7 +576,7 @@ class ALAddress(Address):
             else:
                 output += ", " + str(self.state)
         if hasattr(self, "zip") and self.zip:
-            output += " " + str(self.zip)
+            output += " " + str(self.zip).zfill(5)
         elif hasattr(self, "postal_code") and self.postal_code:
             output += " " + str(self.postal_code)
         if (
