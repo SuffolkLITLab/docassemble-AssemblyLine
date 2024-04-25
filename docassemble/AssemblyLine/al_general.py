@@ -1239,7 +1239,7 @@ class ALIndividual(Individual):
             final_choices.append({str(self.pronoun_unknown_label): "unknown"})
         self_described_input = {
             "label": str(self.pronoun_self_described_label),
-            "field": self.attr_name("self.pronouns_self_described"),
+            "field": self.attr_name("pronouns_self_described"),
             "show if": self.attr_name("pronouns['self-described']"),
         }
         fields = [
