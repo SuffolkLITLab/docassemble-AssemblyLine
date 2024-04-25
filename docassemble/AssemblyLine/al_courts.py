@@ -3,7 +3,7 @@ Package for a very simple / MVP list of courts that is mostly signature compatib
 """
 
 import os
-from typing import Any, Dict, List, Optional, Union, Set
+from typing import Any, Callable, Dict, List, Mapping, Optional, Union, Set
 import pandas as pd
 import docassemble.base.functions
 from docassemble.base.util import (
@@ -205,6 +205,7 @@ class ALCourtLoader(DAObject):
 
     Attributes:
         filename (str): Path to the file containing court information.
+        converters (Dict[str, Callable]): A dictionary of functions to apply to columns in the dataframe.
     """
 
     def init(self, *pargs, **kwargs):
@@ -413,6 +414,8 @@ class ALCourtLoader(DAObject):
 
         The method determines the file type (.csv, .xlsx, or .json) based on its extension and reads it accordingly.
 
+        If the "callable" attribute is defined on the instance, it will be used to convert the data in the dataframe.
+
         Returns:
             pd.DataFrame: A dataframe containing the list of courts.
 
@@ -429,11 +432,20 @@ class ALCourtLoader(DAObject):
         else:
             load_path = str(self.filename)
 
+        def convert_zip(z: Any) -> str:
+            return str(z).zfill(5)
+
+        merged_converters: Dict[str, Callable[[object], object]] = {
+            "address_zip": convert_zip
+        }
+        if hasattr(self, "converters") and self.converters:
+            assert isinstance(self.converters, dict)
+            merged_converters.update(self.converters)
         to_load = path_and_mimetype(load_path)[0]
         if self.filename.lower().endswith(".xlsx"):
-            df = pd.read_excel(to_load)
+            df = pd.read_excel(to_load, converters=merged_converters)  # type: ignore
         elif self.filename.lower().endswith(".csv"):
-            df = pd.read_csv(to_load)
+            df = pd.read_csv(to_load, converters=merged_converters)  # type: ignore
         elif self.filename.lower().endswith(".json"):
             # TODO: we may need to normalize a JSON file
             df = pd.read_json(to_load)
