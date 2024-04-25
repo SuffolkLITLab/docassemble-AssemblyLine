@@ -2078,7 +2078,7 @@ def get_visible_al_nav_items(
 
         # For dictionaries at top level
         item_copy = deepcopy(item)
-        if not item_copy.pop("hidden", False):  # if not hidden
+        if not str(item_copy.pop("hidden", "False")).lower() == "true":  # if not hidden
             for key, val in item_copy.items():
                 if isinstance(val, list):  # if value of a key is a list
                     new_sublist: List[Union[str, dict]] = []
@@ -2087,8 +2087,10 @@ def get_visible_al_nav_items(
                         if isinstance(subitem, str):
                             new_sublist.append(subitem)
                         # Add dictionaries if not hidden
-                        elif isinstance(subitem, dict) and not subitem.pop(
-                            "hidden", False
+                        elif (
+                            isinstance(subitem, dict)
+                            and not str(subitem.pop("hidden", "False")).lower()
+                            == "true"
                         ):
                             new_sublist.append(subitem)
                     item_copy[key] = new_sublist
