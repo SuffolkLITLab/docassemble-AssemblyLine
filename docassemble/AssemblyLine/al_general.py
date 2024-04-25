@@ -1239,7 +1239,7 @@ class ALIndividual(Individual):
             final_choices.append({str(self.pronoun_unknown_label): "unknown"})
         self_described_input = {
             "label": str(self.pronoun_self_described_label),
-            "field": self.attr_name("pronouns_self_described"),
+            "field": self.attr_name("self.pronouns_self_described"),
             "show if": self.attr_name("pronouns['self-described']"),
         }
         fields = [
@@ -1280,7 +1280,7 @@ class ALIndividual(Individual):
         if self.pronouns.get("self-described"):
             pronouns = pronouns.union(self.pronouns_self_described.splitlines())
         return pronouns
-    
+
     def list_pronouns(self) -> str:
         """
         Retrieve a formatted string of the individual's pronouns, arranged with
@@ -1533,7 +1533,7 @@ class ALIndividual(Individual):
                 )
                 or (
                     pronouns.get("self-described")
-                    and has_parsable_pronouns(pronouns_self_described)
+                    and has_parsable_pronouns(self.pronouns_self_described)
                 )
             )
         ):
@@ -1546,7 +1546,7 @@ class ALIndividual(Individual):
             elif pronouns["ze/zir/zirs"]:
                 output = word("zir", **kwargs)
             elif pronouns.get("self-described"):
-                output = parse_custom_pronouns(pronouns_self_described)["o"]
+                output = parse_custom_pronouns(self.pronouns_self_described)["o"]
         elif hasattr(self, "person_type") and self.person_type in [
             "business",
             "organization",
@@ -1607,7 +1607,7 @@ class ALIndividual(Individual):
                 )
                 or (
                     pronouns.get("self-described")
-                    and has_parsable_pronouns(pronouns_self_described)
+                    and has_parsable_pronouns(self.pronouns_self_described)
                 )
             )
         ):
@@ -1621,7 +1621,7 @@ class ALIndividual(Individual):
                 output = word("zir", **kwargs) + " " + target
             elif pronouns.get("self-described"):
                 output = (
-                    parse_custom_pronouns(pronouns_self_described)["p"]
+                    parse_custom_pronouns(self.pronouns_self_described)["p"]
                     + " "
                     + target
                 )
@@ -1673,7 +1673,7 @@ class ALIndividual(Individual):
                 )
                 or (
                     pronouns.get("self-described")
-                    and has_parsable_pronouns(pronouns_self_described)
+                    and has_parsable_pronouns(self.pronouns_self_described)
                 )
             )
         ):
@@ -1686,7 +1686,7 @@ class ALIndividual(Individual):
             elif pronouns["ze/zir/zirs"]:
                 output = word("ze", **kwargs)
             elif pronouns.get("self-described"):
-                output = parse_custom_pronouns(pronouns_self_described)["s"]
+                output = parse_custom_pronouns(self.pronouns_self_described)["s"]
         elif hasattr(self, "person_type") and self.person_type in [
             "business",
             "organization",
