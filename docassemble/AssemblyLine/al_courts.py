@@ -435,15 +435,17 @@ class ALCourtLoader(DAObject):
         def convert_zip(z: Any) -> str:
             return str(z).zfill(5)
 
-        merged_converters: Dict[str, Callable[[object], object]] = {"address_zip": convert_zip}
+        merged_converters: Dict[str, Callable[[object], object]] = {
+            "address_zip": convert_zip
+        }
         if hasattr(self, "converters") and self.converters:
-            assert(isinstance(self.converters, dict))
+            assert isinstance(self.converters, dict)
             merged_converters.update(self.converters)
         to_load = path_and_mimetype(load_path)[0]
         if self.filename.lower().endswith(".xlsx"):
-            df = pd.read_excel(to_load, converters=merged_converters) # type: ignore
+            df = pd.read_excel(to_load, converters=merged_converters)  # type: ignore
         elif self.filename.lower().endswith(".csv"):
-            df = pd.read_csv(to_load, converters=merged_converters) # type: ignore
+            df = pd.read_csv(to_load, converters=merged_converters)  # type: ignore
         elif self.filename.lower().endswith(".json"):
             # TODO: we may need to normalize a JSON file
             df = pd.read_json(to_load)
