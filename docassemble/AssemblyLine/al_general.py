@@ -425,7 +425,9 @@ class ALAddress(Address):
             else:
                 output += ", " + str(self.state)
         if hasattr(self, "zip") and self.zip:
-            current_country = self.country if hasattr(self, "country") else get_country()
+            current_country = (
+                self.country if hasattr(self, "country") else get_country()
+            )
             if current_country == "US":
                 output += " " + str(self.zip).zfill(5)
             else:
@@ -512,7 +514,9 @@ class ALAddress(Address):
             else:
                 output += ", " + str(self.state)
         if hasattr(self, "zip") and self.zip:
-            current_country = self.country if hasattr(self, "country") else get_country()
+            current_country = (
+                self.country if hasattr(self, "country") else get_country()
+            )
             if current_country == "US":
                 output += " " + str(self.zip).zfill(5)
             else:
@@ -584,7 +588,9 @@ class ALAddress(Address):
             else:
                 output += ", " + str(self.state)
         if hasattr(self, "zip") and self.zip:
-            current_country = self.country if hasattr(self, "country") else get_country()
+            current_country = (
+                self.country if hasattr(self, "country") else get_country()
+            )
             if current_country == "US":
                 output += " " + str(self.zip).zfill(5)
             else:
