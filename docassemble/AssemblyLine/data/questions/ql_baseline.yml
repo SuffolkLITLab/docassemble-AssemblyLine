@@ -71,19 +71,17 @@ subquestion: |
 fields:
   - note: |
       ${ display_template(al_terms_of_use, scrollable=True) }
-  - To continue, you must accept our terms of use: acknowledged_information_use
-    datatype: checkboxes
-    none of the above: False
-    minlength: 1
-    choices:
-      - I accept the terms of use.
-    validation messages:
-      minlength: |
-        You cannot continue unless you agree to the terms of use.
+      To continue, you must accept our terms of use
+  - I accept the terms of use: acknowledged_information_use
+    datatype: yesnowide
+    grid: 8
 continue button field: al_intro_screen
 terms:
   green words: |
     Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words. 
+validation code: |
+  if not acknowledged_information_use:
+    validation_error("You must accept the terms of use to continue.", field="acknowledged_information_use")
 ---
 ##### Backwards compatibility #####
 code: |

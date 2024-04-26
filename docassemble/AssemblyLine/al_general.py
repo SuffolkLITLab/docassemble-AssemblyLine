@@ -1555,13 +1555,13 @@ class ALIndividual(Individual):
                 )
             )
         ):
-            if pronouns["she/her/hers"]:
+            if pronouns.get("she/her/hers"):
                 output = word("her", **kwargs)
-            elif pronouns["he/him/his"]:
+            elif pronouns.get("he/him/his"):
                 output = word("him", **kwargs)
-            elif pronouns["they/them/theirs"]:
+            elif pronouns.get("they/them/theirs"):
                 output = word("them", **kwargs)
-            elif pronouns["ze/zir/zirs"]:
+            elif pronouns.get("ze/zir/zirs"):
                 output = word("zir", **kwargs)
             elif pronouns.get("self-described"):
                 output = parse_custom_pronouns(self.pronouns_self_described)["o"]
@@ -1629,13 +1629,13 @@ class ALIndividual(Individual):
                 )
             )
         ):
-            if pronouns["she/her/hers"]:
+            if pronouns.get("she/her/hers"):
                 output = her(target, **kwargs)
-            elif pronouns["he/him/his"]:
+            elif pronouns.get("he/him/his"):
                 output = his(target, **kwargs)
-            elif pronouns["they/them/theirs"]:
+            elif pronouns.get("they/them/theirs"):
                 output = their(target, **kwargs)
-            elif pronouns["ze/zir/zirs"]:
+            elif pronouns.get("ze/zir/zirs"):
                 output = word("zir", **kwargs) + " " + target
             elif pronouns.get("self-described"):
                 output = (
@@ -1695,13 +1695,13 @@ class ALIndividual(Individual):
                 )
             )
         ):
-            if pronouns["she/her/hers"]:
+            if pronouns.get("she/her/hers"):
                 output = word("she", **kwargs)
-            elif pronouns["he/him/his"]:
+            elif pronouns.get("he/him/his"):
                 output = word("he", **kwargs)
-            elif pronouns["they/them/theirs"]:
+            elif pronouns.get("they/them/theirs"):
                 output = word("they", **kwargs)
-            elif pronouns["ze/zir/zirs"]:
+            elif pronouns.get("ze/zir/zirs"):
                 output = word("ze", **kwargs)
             elif pronouns.get("self-described"):
                 output = parse_custom_pronouns(self.pronouns_self_described)["s"]
