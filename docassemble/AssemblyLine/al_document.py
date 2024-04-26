@@ -2244,8 +2244,12 @@ class ALDocumentBundle(DAList):
             return send_email(
                 to=to,
                 template=template,
-                attachments=set(
-                    self.as_editable_list(key=key) + self.as_pdf_list(key=key)
+                # Add both DOCX and PDF versions, but if it's not possible to be a DOCX don't add the PDF
+                # twice
+                attachments=list(
+                    dict.fromkeys(
+                        self.as_editable_list(key=key) + self.as_pdf_list(key=key)
+                    )
                 ),
                 **kwargs,
             )
