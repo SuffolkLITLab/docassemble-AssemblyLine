@@ -282,8 +282,10 @@ class ALAddendumField(DAObject):
             Any: The portion of the variable exceeding the content safe for display, considered as overflow.
         """
         # Handle a Boolean overflow first
-        if isinstance(self.overflow_trigger, bool) and self.overflow_trigger:
-            return self.value()
+        if isinstance(self.overflow_trigger, bool):
+            if self.overflow_trigger:
+                return self.value()
+            return ""
 
         # If trigger is not a boolean value, overflow value is the value that starts at the end of the safe value.
         original_value = self.value_if_defined()
