@@ -11,6 +11,7 @@ from docassemble.base.util import (
     DALazyTemplate,
     DAList,
     DAObject,
+    DAGlobal,
     DASet,
     format_time,
     get_config,
@@ -23,6 +24,7 @@ from docassemble.base.util import (
     set_parts,
     set_session_variables,
     set_variables,
+    SQLObject,
     url_action,
     url_ask,
     user_has_privilege,
@@ -62,6 +64,7 @@ __all__ = [
     "get_saved_interview_list",
     "interview_list_html",
     "is_file_like",
+    "is_unsafe_to_store",
     "is_valid_json",
     "load_interview_answers",
     "load_interview_json",
@@ -244,12 +247,31 @@ def is_file_like(obj: Any) -> bool:
             ALStaticDocument,
             ALExhibit,
             ALExhibitList,
-            DALazyTemplate,
         ),
     ):
         return True
 
     return False
+
+
+def is_unsafe_to_store(obj: Any) -> bool:
+    """
+    Return True if the object is unsafe to store and retreive from a session.
+
+    Most objects are safe to store and retrieve from a session, but we currently screen out:
+
+    - File-like objects, e.g., DAFile and Assembly Line variants for attachments
+    - DALazyTemplate
+    - SQLObject objects
+    - DAGlobal objects
+
+    Args:
+        obj (Any): The object to test
+
+    Returns:
+        bool: True if the object is unsafe to store in a session.
+    """
+    return is_file_like(obj) or isinstance(obj, (DAGlobal, SQLObject, DALazyTemplate))
 
 
 def set_interview_metadata(
@@ -1113,7 +1135,7 @@ def get_filtered_session_variables(
         key, value = items_to_check.pop()
 
         # This condition only will apply to "top level" variables
-        if is_file_like(value):
+        if is_unsafe_to_store(value):
             del all_vars[key]
             continue
 
@@ -1125,7 +1147,7 @@ def get_filtered_session_variables(
             )  # skip over properties etc. vs using object.dir()
             for attr in attr_list:
                 attr_val = object.__getattribute__(value, attr)
-                if is_file_like(attr_val):
+                if is_unsafe_to_store(attr_val):
                     delattr(value, attr)
                 elif isinstance(attr_val, (DAList, DASet, DAObject)):
                     items_to_check.append(
@@ -1135,7 +1157,7 @@ def get_filtered_session_variables(
         if isinstance(value, (DAList, DASet)):
             new_elements = []
             for subitem in value.elements:
-                if not is_file_like(subitem):
+                if not is_unsafe_to_store(subitem):
                     new_elements.append(subitem)
                     if isinstance(subitem, (DAList, DASet, DAObject)):
                         items_to_check.append((None, subitem))
