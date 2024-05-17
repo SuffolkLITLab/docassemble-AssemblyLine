@@ -24,7 +24,6 @@ from docassemble.base.util import (
     set_parts,
     set_session_variables,
     set_variables,
-    SQLObject,
     url_action,
     url_ask,
     user_has_privilege,
@@ -34,6 +33,7 @@ from docassemble.base.util import (
     variables_snapshot_connection,
     word,
 )
+from docassemble.base.sql import SQLObject
 from docassemble.webapp.db_object import init_sqlalchemy
 from sqlalchemy.sql import text
 from docassemble.base.functions import server, safe_json, serializable_dict
