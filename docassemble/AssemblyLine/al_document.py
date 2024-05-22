@@ -776,13 +776,13 @@ class ALAddendumFieldDict(DAOrderedDict):
         self[the_key].field_name = the_key
         return newobj
 
-    def from_list(self, data) -> None:
+    def from_list(self, data: List[Dict]) -> None:
         """
         Populate the dictionary using a list of field data.
 
         Args:
             data (list): List of dictionaries containing field data with keys "field_name"
-                         and "overflow_trigger".
+                and "overflow_trigger".
         """
         for entry in data:
             new_field = self.initializeObject(entry["field_name"], ALAddendumField)
@@ -790,13 +790,13 @@ class ALAddendumFieldDict(DAOrderedDict):
             new_field.overflow_trigger = entry["overflow_trigger"]
         return
 
-    def defined_fields(self, style="overflow_only") -> list:
+    def defined_fields(self, style: str = "overflow_only") -> list:
         """
         Fetch a list of fields that are defined.
 
         Args:
             style (str, optional): If set to "overflow_only", only the fields with overflow values
-                                   will be returned. Defaults to "overflow_only".
+                will be returned. Defaults to "overflow_only".
 
         Returns:
             list: List of defined fields based on the specified style.
