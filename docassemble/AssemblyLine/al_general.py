@@ -276,7 +276,7 @@ class ALAddress(Address):
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
-                    
+
         return fields
 
     def formatted_unit(
@@ -1194,7 +1194,10 @@ class ALIndividual(Individual):
         )
 
     def gender_fields(
-        self, show_help=False, show_if: Union[str, Dict[str, str], None] = None, maxlengths: Optional[Dict[str, int]] = None
+        self,
+        show_help=False,
+        show_if: Union[str, Dict[str, str], None] = None,
+        maxlengths: Optional[Dict[str, int]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing gender information, including a
@@ -1380,7 +1383,7 @@ class ALIndividual(Individual):
             fields[0]["input type"] = "radio"
         if show_if:
             fields[0]["show if"] = show_if
-        
+
         if maxlengths:
             for field in fields:
                 if field["field"] in maxlengths:
