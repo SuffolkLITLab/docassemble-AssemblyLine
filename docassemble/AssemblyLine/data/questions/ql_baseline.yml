@@ -1125,6 +1125,7 @@ question: |
   Do you have any other address where you used to live to tell us about?
   % else:
   Does ${ users[i] } have any other address where they used to live to tell us about?
+  % endif
 subquestion: |
   You already told us about ${ users[i].address.on_one_line() }
   % if len(users[i].previous_addresses.complete_elements()):
