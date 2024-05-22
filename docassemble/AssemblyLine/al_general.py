@@ -135,10 +135,10 @@ class ALAddress(Address):
             show_if (Union[str, Dict[str, str], None]): Condition to display each field. Defaults to None.
             allow_no_address (bool): Allow users to specify they don't have an address. Defaults to False.
             ask_if_impounded (Optional[bool]): Whether to ask if the address is impounded. Defaults to False.
-            maxlengths Optional[Dict[str, int]]: A dictionary of field names and their maximum lengths.
+            maxlengths (Optional[Dict[str, int]]): A dictionary of field names and their maximum lengths. Defaults to None.
 
         Returns:
-            list: A list of YAML structure representing address fields.
+            List[Dict[str, Any]]: A list of dictionaries representing address fields.
 
         Notes:
             - The function will set the `country` attribute of the Address to `country_code` under these
@@ -1356,6 +1356,7 @@ class ALIndividual(Individual):
             choices (Optional[List[Dict[str, str]]]): A list of language choices. Defaults to None.
             style (str): The display style of choices. Defaults to "radio".
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
+            maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for language preferences.
