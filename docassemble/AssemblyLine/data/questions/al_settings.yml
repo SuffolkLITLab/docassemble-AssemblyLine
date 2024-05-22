@@ -104,3 +104,6 @@ code: |
 ---
 code: |
   al_form_requires_digital_signature = True
+---
+code: |
+  al_person_answering = "user"

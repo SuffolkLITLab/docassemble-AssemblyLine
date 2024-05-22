@@ -399,18 +399,6 @@ template: x.county_label
 content: |
   County
 # Note: Louisiana uses Parish while Alaska uses Borough. Handle by overriding this template
----
-id: your name
-sets:
-    - users[0].name.first
-    - users[0].name.last
-    - users[0].name.middle
-    - users[0].name.suffix
-question:  |
-  What is your name?
-fields:
-  - code: |
-      users[0].name_fields()
 ---    
 id: any other users
 question: |
@@ -434,11 +422,15 @@ sets:
   - users[i].name.suffix    
 id: other users names
 question: |
+  % if i == 0 and al_person_answering == "user":
+  What is your name?
+  % else:
   % if al_form_type in ['starts_case','existing_case','appeal']:
   Who is the ${ ordinal(i) } person on your side of the case?
   % else:
   What is the name of the ${ ordinal_number(i) } person who is adding their name to
   this form with you?
+  % endif
   % endif
 fields:
   - code: |
@@ -452,66 +444,21 @@ fields:
   - Birthdate: x.birthdate
     datatype: BirthDate
 ---
-id: you birthdate question
-question: |
-  When were you born?
-fields:
-  - Birthdate: users[0].birthdate
-    datatype: BirthDate
----
-# TODO: consider removing default state
-id: your address
-sets:
-  - users[0].address.address
-  - users[0].address.city
-  - users[0].address.zip
-  - users[0].address.unit
-  - users[0].address.state
-  - users[0].address.country
-question: |
-  What is your address?
-subquestion: |
-  Use an address where you can be contacted.
-fields:
-  - code: |
-      users[0].address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
----
-id: your mailing address
-question: |
-  What is your mailing address?
-fields:
-  - My mailing address is: users[0].mailing_address
-    datatype: object_radio
-    choices:
-      - users[0].address if defined("users[0].address.address") else None
-    object labeler: |
-      lambda y: y.on_one_line()
-    none of the above: |
-      Somewhere else
-    disable others: True      
-    show if:
-      code: |
-        defined("users[0].address.address")
-  - ${ users[0].address.address_label}: users[0].mailing_address.address
-    address autocomplete: True
-  - ${ users[0].address.unit_label}: users[0].mailing_address.unit
-    required: False
-  - ${ users[0].address.city_label}: users[0].mailing_address.city
-  - ${ users[0].address.state_label}: users[0].mailing_address.state
-    code: |
-      states_list(country_code=AL_DEFAULT_COUNTRY)
-    default: ${ AL_DEFAULT_STATE }
-  - ${ users[0].address.zip_label}: users[0].mailing_address.zip
-    required: False      
-  - ${ users[0].address.country_label}: users[0].mailing_address.country
-    code: countries_list()
-    default: ${ AL_DEFAULT_COUNTRY }
----
 id: user i's address
 question: |
+  % if i == 0 and al_person_answering == "user":
+  What is your address?
+  % else:
   What is ${ users[i] }'s address?
+  % endif
 fields:
-  - Same as your address: users[i].address
+  - label: |
+      % if i > 0 and al_person_answering == "user":
+      Same as your address
+      % else:
+      Same as ${ users[0] }'s address
+      % endif
+    field: users[i].address
     datatype: object_radio
     choices:
       - users[0].address if defined("users[0].address.address") else None
@@ -522,7 +469,7 @@ fields:
     disable others: True
     show if:
       code: |
-        defined("users[0].address.address")
+        i > 0 and defined("users[0].address.address")
   - ${ users[i].address.address_label}: users[i].address.address
     address autocomplete: True
   - ${ users[i].address.unit_label}: users[i].address.unit
@@ -869,23 +816,7 @@ question: |
 fields:
   - no label: x.there_is_another
     datatype: yesnoradio
----
-id: name of the first person
-sets:
-  - x[0].name.first
-  - x[0].name.last
-  - x[0].name.middle
-  - x[0].name.suffix
-generic object: ALPeopleList
-question: |
-  % if hasattr(x, 'ask_number') and x.ask_number and x.target_number == 1:
-  Name of ${ noun_plural(x.object_name(),1) }
-  % else:
-  Name of your first ${ noun_plural(x.object_name(),1) }
-  % endif
-fields:
-  - code: |
-      x[0].name_fields()
+
 ---
 id: names of people
 sets:
@@ -895,7 +826,11 @@ sets:
   - x[i].name.suffix
 generic object: ALPeopleList
 question: |
+  % if hasattr(x, 'ask_number') and x.ask_number and x.target_number == 1:
+  Name of ${ noun_plural(x.object_name(),1) }
+  % else:
   Name of the ${ ordinal(i) } ${ noun_plural(x.object_name(), 1) }
+  % endif
 fields:
   - code: |
       x[i].name_fields()
@@ -912,7 +847,11 @@ continue button field: x.revisit
 ---
 id: users revisit
 question: |
+  % if al_person_answering == "user":
   Edit your answers about people on your side of the case
+  % else:
+  Edit your answers about people on ${ users }'s side of the case
+  % endif
 subquestion: |
   ${ users.table }
 
@@ -1088,71 +1027,117 @@ fields:
 ---
 id: user has other addresses
 question: |
+  % if i == 0 and al_person_answering == "user":
   Do you live at more than one address?
+  % else:
+  Does ${ users[i] } live at more than one address?
+  % endif
 fields:  
-  - I live at more than one address: users[0].other_addresses.there_are_any
+  - label: |
+      % if i == 0 and al_person_answering == "user":
+      I live at more than one address
+      % else:
+      ${ users[i] } lives at more than one address
+      % endif
+    field: users[i].other_addresses.there_are_any
     datatype: yesnoradio
 ---
 sets:
-  - users[0].other_addresses[i].address
-  - users[0].other_addresses[i].city
+  - users[i].other_addresses[j].address
+  - users[i].other_addresses[j].city
 id: other address where user lives
 question: |
-  Tell us about the ${ordinal(i)} other address where you live
+  % if i == 0 and al_person_answering == "user":
+  Tell us about the ${ordinal(j)} other address where you live
+  % else:
+  Tell us about the ${ordinal(j)} other address where ${ users[i] } lives
+  % endif
 subquestion: |
-  You already told us about ${users[0].address.on_one_line()}
-  % if len(users[0].other_addresses.complete_elements()):
-  as well as ${users[0].other_addresses.complete_elements()}
+  You already told us about ${users[i].address.on_one_line()}
+  % if len(users[i].other_addresses.complete_elements()):
+  as well as ${users[i].other_addresses.complete_elements()}
   % endif
 fields:
   - code: |
-      users[0].other_addresses[i].address_fields(default_state=AL_DEFAULT_STATE)
+      users[i].other_addresses[j].address_fields(default_state=AL_DEFAULT_STATE)
 ---
 id: user has another other address
 question: |
+  % if i == 0 and al_person_answering == "user":
   Do you have any other address where you currently live to tell us about?
+  % else:
+  Does ${ users[i] } have any other address where they currently live to tell us about?
+  % endif
 subquestion: |
-  You already told us about ${ users[0].address.on_one_line() }
-  % if len(users[0].other_addresses.complete_elements()):
-  as well as ${users[0].other_addresses.complete_elements()}
+  You already told us about ${ users[i].address.on_one_line() }
+  % if len(users[i].other_addresses.complete_elements()):
+  as well as ${users[i].other_addresses.complete_elements()}
   % endif
 fields:
-  - Do you have another address?: users[0].other_addresses.there_is_another  
+  - label: |
+      % if i == 0 and al_person_answering == "user":
+      I have another address where I currently live
+      % else:
+      ${ users[i] } has another address where they currently live
+      % endif
+    field: users[i].other_addresses.there_is_another  
     datatype: yesnoradio
 ---
 id: user has previous addresses
 question: |
+  % if i == 0 and al_person_answering == "user":
   Do you have any addresses where you used to live?
+  % else:
+  Does ${ users[i] } have any addresses where they used to live?
+  % endif
 fields:  
-  - I have a previous address to list: users[0].previous_addresses.there_are_any
+  - label: |
+      % if i == 0 and al_person_answering == "user":
+      I have a previous address to list
+      % else:
+      ${ users[i] } has a previous address to list
+      % endif
+    field: users[i].previous_addresses.there_are_any
     datatype: yesnoradio
 ---
 sets:
-  - users[0].previous_addresses[i].address
-  - users[0].previous_addresses[i].city
+  - users[i].previous_addresses[j].address
+  - users[i].previous_addresses[j].city
 id: other previous address where user lives
 question: |
-  Tell us about the ${ordinal(i)} address where you used to live
+  % if i == 0 and al_person_answering == "user":
+  Tell us about the ${ordinal(j)} address where you used to live
+  % else:
+  Tell us about the ${ordinal(j)} address where ${ users[i] } used to live
+  % endif
 subquestion: |
-  You already told us about ${users[0].address.on_one_line()}
-  % if len(users[0].previous_addresses.complete_elements()):
-  as well as ${users[0].previous_addresses.complete_elements()}
+  You already told us about ${users[i].address.on_one_line()}
+  % if len(users[i].previous_addresses.complete_elements()):
+  as well as ${users[i].previous_addresses.complete_elements()}
   % endif
 fields:
   - code: |
-      users[0].previous_addresses[i].address_fields(default_state=AL_DEFAULT_STATE)
+      users[i].previous_addresses[j].address_fields(default_state=AL_DEFAULT_STATE)
 ---
-generic object: ALIndividual
 id: has another previous address
 question: |
+  % if i == 0 and al_person_answering == "user":
   Do you have any other address where you used to live to tell us about?
+  % else:
+  Does ${ users[i] } have any other address where they used to live to tell us about?
 subquestion: |
-  You already told us about ${ users[0].address.on_one_line() }
-  % if len(users[0].previous_addresses.complete_elements()):
-  as well as ${users[0].previous_addresses.complete_elements()}
+  You already told us about ${ users[i].address.on_one_line() }
+  % if len(users[i].previous_addresses.complete_elements()):
+  as well as ${users[i].previous_addresses.complete_elements()}
   % endif
 fields:
-  - Do you have another address where you used to live?: users[0].previous_addresses.there_is_another  
+  - label: |
+      % if i == 0 and al_person_answering == "user":
+      I have another address where I used to live
+      % else:
+      ${ users[i] } has another address where they used to live
+      % endif
+    field: users[i].previous_addresses.there_is_another  
     datatype: yesnoradio
 ---
 id: persons contact information
@@ -1207,7 +1192,8 @@ id: signature date
 question: |
   When do you plan to file these forms that we are working on?
 subquestion: |
-  We automatically answer "today" for you, below. You can change the date.
+  The default filing date is today's date (${ today().format("yyyy-MM-dd") }).
+  Change it if you will file on a different date.
 fields: 
   - Date: signature_date
     datatype: date
@@ -1269,9 +1255,13 @@ fields:
 ---
 id: user marital status
 question: |
+  % if i == 0 and al_person_answering == "user":
   What is your current marital status?
+  % else:
+  What is ${ users[i] }'s current marital status?
+  % endif
 fields:
-  - I am: users[0].marital_status
+  - I am: users[i].marital_status
     choices:
       - Married: married
       - Widowed: widowed
@@ -1294,9 +1284,19 @@ fields:
 ---
 id: user is married
 question: |
+  % if i == 0 and al_person_answering == "user":
   Are you currently married?
+  % else:
+  Is ${ users[i] } currently married?
+  % endif
 fields:
-  - I am married: users[0].has_spouse
+  - label: |
+      % if i == 0 and al_person_answering == "user":
+      I am married
+      % else:
+      ${ users[i] } is married
+      % endif
+    field: users[i].has_spouse
     datatype: yesnoradio
 ---
 generic object: ALIndividual
@@ -2048,13 +2048,17 @@ content: |
   Language
 ---
 sets:
-  - users[0].language
+  - users[i].language
 id: language of user
 question: |
+  % if i == 0 and al_person_answering == "user":
   What language do you speak?
+  % else:
+  What language does ${ users[i] } speak?
+  % endif
 fields:
   - code: |
-      users[0].language_fields(choices=al_language_user_choices)
+      users[i].language_fields(choices=al_language_user_choices)
 ---
 generic object: ALIndividual
 sets:
@@ -2071,14 +2075,22 @@ template: x.address.has_no_address_label
 content: |
   ${ x } does not have an address
 ---
-template: users[0].address.has_no_address_label
+template: users[i].address.has_no_address_label
 content: |
+  % if i == 0 and al_person_answering == "user":
   I do not have an address
+  % else:
+  ${ users[i] } does not have an address
+  % endif
 ---
 generic object: ALAddress
 template: x.has_no_address_explanation_label
 content: |
+  % if i == 0 and al_person_answering == "user":
   Anything else you want to add about your living situation?
+  % else:
+  Anything else you want to add about ${ x }'s living situation?
+  % endif
 ---
 generic object: ALAddress
 template: x.has_no_address_explanation_help
@@ -2089,13 +2101,17 @@ content: |
 ---
 id: What is your new name?
 question: |
+  % if i == 0 and al_person_answering == "user":
   What name do you want to be called?
+  % else:
+  What name does ${ users[i] } want to be called?
+  % endif
 fields:
-  - First name: users[0].preferred_name.first
-  - Middle name: users[0].preferred_name.middle
+  - First name: users[i].preferred_name.first
+  - Middle name: users[i].preferred_name.middle
     required: False
-  - Last name: users[0].preferred_name.last
-  - Suffix: users[0].preferred_name.suffix
+  - Last name: users[i].preferred_name.last
+  - Suffix: users[i].preferred_name.suffix
     required: False
     code: name_suffix()
 ---
@@ -2126,9 +2142,13 @@ fields:
 ---
 id: Have you changed your name before?
 question: |
+  % if i == 0 and al_person_answering == "user":
   Have you changed your name before?
+  % else:
+  Has ${ users[i] } changed their name before?
+  % endif
 fields:
-  - no label: users[0].previous_names.there_are_any
+  - no label: users[i].previous_names.there_are_any
     datatype: yesnoradio
 ---
 id: Has minor changed name before?
@@ -2148,9 +2168,13 @@ fields:
 ---
 id: have you changed your name again
 question: |
+  % if i == 0 and al_person_answering == "user":
   Is there another time that you changed your name?
+  % else:
+  Is there another time that ${ users[i] } changed their name?
+  % endif
 fields:
-  - no label: users[0].previous_names.there_is_another
+  - no label: users[i].previous_names.there_is_another
     datatype: yesnoradio
 ---
 id: has minor changed name again
@@ -2170,15 +2194,23 @@ fields:
 ---
 id: birth name
 question: |
+  % if i == 0 and al_person_answering == "user":
   What was your first legal name?
+  % else:
+  What was ${ users[i] }'s first legal name?
+  % endif
 subquestion: |
+  % if i == 0 and al_person_answering == "user":
   Write the name as it appeared on your first birth certificate.
+  % else:
+  Write the name as it appeared on their first birth certificate.
+  % endif
 fields:
-  - First name: users[0].previous_names[0].first
-  - Middle name: users[0].previous_names[0].middle
+  - First name: users[i].previous_names[0].first
+  - Middle name: users[i].previous_names[0].middle
     required: False
-  - Last name: users[0].previous_names[0].last
-  - Suffix: users[0].previous_names[0].suffix
+  - Last name: users[i].previous_names[0].last
+  - Suffix: users[i].previous_names[0].suffix
     required: False
     code: name_suffix()
 ---
@@ -2213,13 +2245,17 @@ fields:
 ---
 id: name i
 question: |
+  % if i == 0 and al_person_answering == "user":
   What was your ${ ordinal(i) } legal name?
+  % else:
+  What was ${ users[i] }'s ${ ordinal(i) } legal name?
+  % endif
 fields:
-  - First name: users[0].previous_names[i].first
-  - Middle name: users[0].previous_names[i].middle
+  - First name: users[i].previous_names[j].first
+  - Middle name: users[i].previous_names[j].middle
     required: False
-  - Last name: users[0].previous_names[i].last
-  - Suffix: users[0].previous_names[i].suffix
+  - Last name: users[i].previous_names[j].last
+  - Suffix: users[i].previous_names[j].suffix
     required: False
     code: name_suffix()
 ---
@@ -2253,9 +2289,19 @@ fields:
 ---
 id: Have you been known by a different name before?
 question: |
+  % if i == 0 and al_person_answering == "user":
   Have you ever been known by a different name or alias?  
+  % else:
+  Has ${ users[i] } ever been known by a different name or alias?
+  % endif
 fields:
-  - no label: users[0].aliases.there_are_any
+  - label: |
+      % if i == 0 and al_person_answering == "user":
+      I have been known by a different name or alias
+      % else:
+      ${ users[i] } has been known by a different name or alias
+      % endif
+    field: users[i].aliases.there_are_any
     datatype: yesnoradio
 ---
 generic object: ALIndividual
@@ -2268,9 +2314,21 @@ fields:
 ---
 id: have you been known by a different name again
 question: |
+  % if i == 0 and al_person_answering == "user":
   Have you been known by any other names?
+  % else:
+  Has ${ users[i] } been known by any other names?
+  % endif
+subquestion: |
+  You have already told us about ${ users[i].aliases.complete_elements() }.
 fields:
-  - no label: users[0].aliases.there_is_another
+  - label: |
+      % if i == 0 and al_person_answering == "user":
+      I have been known by another name
+      % else:
+      ${ users[i] } has been known by another name
+      % endif
+    field: users[i].aliases.there_is_another
     datatype: yesnoradio
 ---
 generic object: ALIndividual
@@ -2283,13 +2341,17 @@ fields:
 ---
 id: name i
 question: |
-  What was your ${ ordinal(i) } name?
+  % if i == 0 and al_person_answering == "user":
+  What was your ${ ordinal(j) } name?
+  % else:
+  What was ${ users[i] }'s ${ ordinal(j) } name?
+  % endif
 fields:
-  - First name: users[0].aliases[i].first
-  - Middle name: users[0].aliases[i].middle
+  - First name: users[i].aliases[j].first
+  - Middle name: users[i].aliases[j].middle
     required: False
-  - Last name: users[0].aliases[i].last
-  - Suffix: users[0].aliases[i].suffix
+  - Last name: users[i].aliases[j].last
+  - Suffix: users[i].aliases[j].suffix
     required: False
     code: name_suffix()
 ---
@@ -2309,13 +2371,17 @@ fields:
 ################## Pronouns ######################
 ---
 sets:
-  - users[0].pronouns
+  - users[i].pronouns
 id: your pronouns
 question: |
+  % if i == 0 and al_person_answering == "user":
   What are your pronouns?
+  % else:
+  What are ${ users[i] }'s pronouns?
+  % endif
 fields:
   - code: |
-      users[0].pronoun_fields(show_help=True, required=False)
+      users[i].pronoun_fields(show_help=True, required=False)
 ---
 generic object: ALIndividual
 sets:
