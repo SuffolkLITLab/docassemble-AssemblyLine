@@ -765,7 +765,7 @@ class ALPeopleList(DAList):
 
         Args:
             **kwargs: Keyword arguments to pass to the familiar method.
-        
+
         Returns:
             str: Formatted string of familiar names separated by 'or'.
         """
