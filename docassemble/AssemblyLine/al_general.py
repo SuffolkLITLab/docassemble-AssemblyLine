@@ -753,6 +753,8 @@ class ALPeopleList(DAList):
     def familiar(self, **kwargs) -> str:
         """Provide a list of familiar forms of names of individuals.
 
+        Args:
+            **kwargs: Keyword arguments to pass to the familiar method.
         Returns:
             str: Formatted string of familiar names.
         """
@@ -761,11 +763,14 @@ class ALPeopleList(DAList):
     def familiar_or(self, **kwargs) -> str:
         """Provide a list of familiar forms of names of individuals separated by 'or'.
 
+        Args:
+            **kwargs: Keyword arguments to pass to the familiar method.
+        
         Returns:
             str: Formatted string of familiar names separated by 'or'.
         """
         return comma_and_list(
-            [person.name.familiar(**kwargs) for person in self], and_string=word("or")
+            [person.familiar(**kwargs) for person in self], and_string=word("or")
         )
 
     def short_list(self, limit: int, truncate_string: str = ", et. al.") -> str:
@@ -1789,8 +1794,10 @@ class ALIndividual(Individual):
             str: The individual'
         """
         return self.name.firstlast()
-    
-    def familiar(self, unique_names:Optional[List[Any]]=None, default:Optional[str]=None):
+
+    def familiar(
+        self, unique_names: Optional[List[Any]] = None, default: Optional[str] = None
+    ):
         """
         Returns the individual's name in the most familiar form possible.
 
@@ -1823,11 +1830,23 @@ class ALIndividual(Individual):
         first_name_candidates = [person.familiar() for person in unique_names]
         if self.name.first not in first_name_candidates:
             return self.name.first
-        first_name_and_suffix_candidates = [f"{person.familiar()} {person.name.suffix if hasattr(person.name, 'suffix') else ''}" for person in unique_names]
-        if f"{self.name.first} {self.name.suffix if hasattr(self.name, 'suffix') else ''}" not in first_name_and_suffix_candidates:
+        first_name_and_suffix_candidates = [
+            f"{person.familiar()} {person.name.suffix if hasattr(person.name, 'suffix') else ''}"
+            for person in unique_names
+        ]
+        if (
+            f"{self.name.first} {self.name.suffix if hasattr(self.name, 'suffix') else ''}"
+            not in first_name_and_suffix_candidates
+        ):
             return f"{self.name.first} {self.name.suffix if hasattr(self.name, 'suffix') else ''}"
-        first_and_middle_candidates = [f"{person.name.first} {person.name.middle if hasattr(person.name, 'middle') and person.name.middle else ''}" for person in unique_names]
-        if f"{self.name.first} {self.name.middle if hasattr(self.name, 'middle') and self.name.middle else ''}" not in first_and_middle_candidates:
+        first_and_middle_candidates = [
+            f"{person.name.first} {person.name.middle if hasattr(person.name, 'middle') and person.name.middle else ''}"
+            for person in unique_names
+        ]
+        if (
+            f"{self.name.first} {self.name.middle if hasattr(self.name, 'middle') and self.name.middle else ''}"
+            not in first_and_middle_candidates
+        ):
             return f"{self.name.first} {self.name.middle if hasattr(self.name, 'middle') and self.name.middle else ''}"
         first_and_last_candidates = [person.name.firstlast() for person in unique_names]
         if self.name_short() not in first_and_last_candidates:
