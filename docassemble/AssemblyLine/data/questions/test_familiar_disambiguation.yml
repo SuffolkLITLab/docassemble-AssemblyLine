@@ -1,0 +1,13 @@
+---
+include:
+  - assembly_line.yml
+---
+mandatory: True
+code: |
+  users.gather()
+  children.gather(number=1)
+  show_familiar_child
+---
+event: show_familiar_child
+question: |
+  We'll call the child "${ children.familiar(unique_names=users) }"
