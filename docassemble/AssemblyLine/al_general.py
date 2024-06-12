@@ -1797,7 +1797,7 @@ class ALIndividual(Individual):
 
     def familiar(
         self, unique_names: Optional[List[Any]] = None, default: Optional[str] = None
-    ):
+    ) -> str:
         """
         Returns the individual's name in the most familiar form possible.
 
@@ -1819,6 +1819,9 @@ class ALIndividual(Individual):
         Args:
             unique_names (Optional[List[Any]]): A list of unique names to compare against. Defaults to None.
             default (Optional[str]): The default name to return if no unique name is found. Defaults to None.
+
+        Returns:
+            str: The individual's name in the most familiar form possible.
 
         Example:
             ```mako
