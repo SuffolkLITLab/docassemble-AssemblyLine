@@ -1830,9 +1830,11 @@ class ALIndividual(Individual):
         """
         if unique_names is None:
             unique_names = []
+
         first_name_candidates = [person.familiar() for person in unique_names]
         if self.name.first not in first_name_candidates:
             return self.name.first
+
         first_name_and_suffix_candidates = [
             f"{person.familiar()} {person.name.suffix if hasattr(person.name, 'suffix') else ''}"
             for person in unique_names
@@ -1841,7 +1843,10 @@ class ALIndividual(Individual):
             f"{self.name.first} {self.name.suffix if hasattr(self.name, 'suffix') else ''}"
             not in first_name_and_suffix_candidates
         ):
-            return f"{self.name.first} {self.name.suffix if hasattr(self.name, 'suffix') else ''}"
+            if hasattr(self.name, "suffix") and self.name.suffix:
+                return f"{self.name.first} {self.name.suffix if hasattr(self.name, 'suffix') else ''}"
+            return self.name.first
+
         first_and_middle_candidates = [
             f"{person.name.first} {person.name.middle if hasattr(person.name, 'middle') and person.name.middle else ''}"
             for person in unique_names
@@ -1850,16 +1855,21 @@ class ALIndividual(Individual):
             f"{self.name.first} {self.name.middle if hasattr(self.name, 'middle') and self.name.middle else ''}"
             not in first_and_middle_candidates
         ):
-            return f"{self.name.first} {self.name.middle if hasattr(self.name, 'middle') and self.name.middle else ''}"
+            if hasattr(self.name, "middle") and self.name.middle:
+                return f"{self.name.first} {self.name.middle}"
+            return self.name.first
+
         first_and_last_candidates = [person.name.firstlast() for person in unique_names]
         if self.name_short() not in first_and_last_candidates:
             return self.name_short()
+
         full_name_candidates = [person.name.full() for person in unique_names]
         if self.name_full() not in full_name_candidates:
             return self.name_full()
+
         if default:
             return default
-        return self.name_full()
+        return self.name_full()  # We tried but couldn't disambiguate
 
 
 # (DANav isn't in public DA API, but currently in functions.py)
