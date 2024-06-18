@@ -344,7 +344,7 @@ def get_saved_interview_list(
     # while it appears to be performant enough for real-world usage.
     # Up to ~ 1,000 sessions performs well and is higher than expected for an end-user
     get_sessions_query = text(
-    """
+        """
     SELECT userdict.indexno
         ,userdict.filename as filename
         ,num_keys
@@ -438,8 +438,8 @@ def get_saved_interview_list(
 
 def find_matching_sessions(
     keyword: str,
-    metadata_column_names: Optional[List[str]] = None,
-    filenames: Optional[List[str]] = None,
+    metadata_column_names: Optional[Union[Set[str], List[str]]] = None,
+    filenames: Optional[Union[Set[str], List[str]]] = None,
     user_id: Union[int, str, None] = None,
     metadata_key_name: str = "metadata",
     limit: int = 50,
@@ -448,7 +448,7 @@ def find_matching_sessions(
     exclude_current_filename: bool = True,
     exclude_filenames: Optional[List[str]] = None,
     exclude_newly_started_sessions: bool = False,
-    global_search_allowed_roles:Optional[Union[Set[str],List[str]]]=None,
+    global_search_allowed_roles: Optional[Union[Set[str], List[str]]] = None,
 ) -> List[Dict[str, Any]]:
     """Get a list of sessions where the metadata for the session matches the provided keyword search terms.
     This function is designed to be used in a search interface where the user can search for sessions by keyword.
@@ -474,20 +474,27 @@ def find_matching_sessions(
     if not metadata_column_names:
         metadata_column_names = {"title", "auto_title", "description"}
     if not global_search_allowed_roles:
-        global_search_allowed_roles = {'admin','developer', 'advocate'}
-    global_search_allowed_roles = set(global_search_allowed_roles).union({'admin','developer'})
+        global_search_allowed_roles = {"admin", "developer", "advocate"}
+    global_search_allowed_roles = set(global_search_allowed_roles).union(
+        {"admin", "developer"}
+    )
 
     # Construct the dynamic part of the SQL query for metadata column selection and keyword search
     metadata_search_conditions = " OR ".join(
-        f"COALESCE(jsonstorage.data->>{repr(column)}, '') ILIKE '%' || :keyword || '%'" for column in metadata_column_names
+        f"COALESCE(jsonstorage.data->>{repr(column)}, '') ILIKE '%' || :keyword || '%'"
+        for column in metadata_column_names
     )
 
     # we retrieve the default metadata columns even if we don't search them
-    metadata_column_names = set(metadata_column_names).union({"title", "auto_title", "description"})
+    metadata_column_names = set(metadata_column_names).union(
+        {"title", "auto_title", "description"}
+    )
 
     if filenames:
         # Create a parameterized string with placeholders for filenames
-        filenames_placeholder = ", ".join([":filename{}".format(i) for i in range(len(filenames))])
+        filenames_placeholder = ", ".join(
+            [":filename{}".format(i) for i in range(len(filenames))]
+        )
         filename_condition = f"userdict.filename IN ({filenames_placeholder})"
     else:
         filename_condition = "TRUE"  # If no filenames are provided, this condition does not filter anything.
@@ -1211,7 +1218,7 @@ def save_interview_answers(
 
 def get_filtered_session_variables(
     filename: Optional[str] = None,
-    session_id: Optional[int] = None,
+    session_id: Optional[str] = None,
     variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
     additional_variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
 ) -> Dict[str, Any]:
@@ -1285,10 +1292,10 @@ def get_filtered_session_variables(
 
 def get_filtered_session_variables_string(
     filename: Optional[str] = None,
-    session_id: Optional[int] = None,
+    session_id: Optional[str] = None,
     variables_to_filter: Union[Set[str], List[str], None] = None,
     additional_variables_to_filter: Optional[Union[Set[str], List[str]]] = None,
-    indent:int=4,
+    indent: int = 4,
 ) -> str:
     """
     Returns a JSON string that represents the filtered contents of a specified filename and session ID.
@@ -1401,7 +1408,7 @@ def load_interview_json(
 
 def export_interview_variables(
     filename: Optional[str] = None,
-    session_id: Optional[int] = None,
+    session_id: Optional[str] = None,
     variables_to_filter: Union[Set, List[str], None] = None,
     output: DAFile = None,
     additional_variables_to_filter: Union[Set, List[str], None] = None,
