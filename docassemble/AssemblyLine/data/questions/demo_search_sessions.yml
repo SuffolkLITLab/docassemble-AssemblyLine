@@ -2,6 +2,14 @@
 include:
   - assembly_line.yml
 ---
+metadata:
+  title: |
+    Search sessions demo
+  required privileges:
+    - admin
+    - developer
+    - advocate
+---
 mandatory: True
 code: |
   search_keyword

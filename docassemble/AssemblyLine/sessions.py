@@ -470,6 +470,12 @@ def find_matching_sessions(
 
     Returns:
         List[Dict[str, Any]]: A list of saved sessions for the specified filename that match the search keyword
+
+    Example:
+
+        ```python
+        matching_sessions=find_matching_sessions("smith", user_id="all", filenames=[f"{user_info().package}:intake.yml", "docassemble.MyPackage:intake.yml"])
+        ```
     """
     if not metadata_column_names:
         metadata_column_names = {"title", "auto_title", "description"}
@@ -656,6 +662,7 @@ def interview_list_html(
     offset: int = 0,
     display_interview_title: bool = True,
     show_view_button: bool = True,
+    answers: Optional[List[Dict[str, Any]]] = None,
 ) -> str:
     """Return a string containing an HTML-formatted table with the list of saved answers
     associated with the specified filename.
@@ -685,21 +692,23 @@ def interview_list_html(
         offset (int, optional): Offset for the session list. Defaults to 0.
         display_interview_title (bool, optional): If True, displays the title of the interview. Defaults to True.
         show_view_button (bool, optional): If True, shows the view button. Defaults to True.
+        answers (Optional[List[Dict[str, Any]]], optional): A list of answers to format and display. Defaults to showing all sessions for the current user. 
 
     Returns:
         str: HTML-formatted table containing the list of saved answers.
     """
     # TODO: Currently, using the `word()` function for translation, but templates
     # might be more flexible
-    answers = get_saved_interview_list(
-        filename=filename,
-        user_id=user_id,
-        metadata_key_name=metadata_key_name,
-        limit=limit,
-        offset=offset,
-        exclude_current_filename=False,
-        exclude_newly_started_sessions=exclude_newly_started_sessions,
-    )
+    if not answers:
+        answers = get_saved_interview_list(
+            filename=filename,
+            user_id=user_id,
+            metadata_key_name=metadata_key_name,
+            limit=limit,
+            offset=offset,
+            exclude_current_filename=False,
+            exclude_newly_started_sessions=exclude_newly_started_sessions,
+        )
 
     if not answers:
         return ""
