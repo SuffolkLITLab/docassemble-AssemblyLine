@@ -56,7 +56,7 @@ __all__ = [
     "config_with_language_fallback",
     "delete_interview_sessions",
     "export_interview_variables",
-    "find_saved_interview",
+    "find_matching_sessions",
     "get_filtered_session_variables_string",
     "get_filtered_session_variables",
     "get_interview_metadata",
@@ -436,7 +436,7 @@ def get_saved_interview_list(
     return sessions
 
 
-def find_saved_interview(
+def find_matching_sessions(
     keyword: str,
     metadata_column_names: Optional[List[str]] = None,
     filenames: Optional[List[str]] = None,

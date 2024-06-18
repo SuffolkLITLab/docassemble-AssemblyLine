@@ -19,7 +19,7 @@ fields:
   - Keyword: search_keyword
 ---
 code: |
-  matching_results = find_saved_interview(search_keyword, user_id="all")
+  matching_results = find_matching_sessions(search_keyword, user_id="all")
 ---
 event: no_matches
 question: |
