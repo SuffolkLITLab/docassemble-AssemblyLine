@@ -692,7 +692,7 @@ def interview_list_html(
         offset (int, optional): Offset for the session list. Defaults to 0.
         display_interview_title (bool, optional): If True, displays the title of the interview. Defaults to True.
         show_view_button (bool, optional): If True, shows the view button. Defaults to True.
-        answers (Optional[List[Dict[str, Any]]], optional): A list of answers to format and display. Defaults to showing all sessions for the current user. 
+        answers (Optional[List[Dict[str, Any]]], optional): A list of answers to format and display. Defaults to showing all sessions for the current user.
 
     Returns:
         str: HTML-formatted table containing the list of saved answers.
