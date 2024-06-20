@@ -1,0 +1,67 @@
+---
+include:
+  - assembly_line.yml
+---
+metadata:
+  title: |
+    Search sessions demo
+  required privileges:
+    - admin
+    - developer
+    - advocate
+---
+mandatory: True
+code: |
+  search_keyword
+  if not matching_results:
+    no_matches
+  show_results
+  show_selected_interview
+---
+id: search_keyword
+question: |
+  What would you like to search for?
+subquestion: |
+  Searching is not case sensitive.
+fields:
+  - Keyword: search_keyword
+---
+code: |
+  matching_results = find_matching_sessions(search_keyword, user_id="all")
+---
+event: no_matches
+question: |
+  We didn't find any matches
+subquestion: |
+  Check your spelling and try again.
+---
+continue button field: show_results
+question: |
+  We found ${ len(matching_results) } results that match your keyword
+subquestion: |
+  % for result in matching_results:
+  * ${ nice_interview_subtitle(result, exclude_identical=False)}
+  ${ result["modtime"]}
+  % endfor
+
+  Raw results:
+  <div class="overflow-scroll" style="height: 200px;">
+  ${ matching_results }
+  </div>
+fields:
+  - Which session do you want to load: interview_to_load
+    datatype: integer
+    code: |
+      [{idx: f"<b>{nice_interview_subtitle(answer, exclude_identical=False)}</b>" + f' ({answer.get("modtime", DAEmpty()).strftime("%B %d, %Y")})'} for idx, answer in enumerate(matching_results)]
+---
+event: show_selected_interview
+id: show the selected interview
+question: |
+  Here is some information from the session you chose
+subquestion: |
+  Filename: ${ matching_results[interview_to_load]["filename"] } [BR]
+  Session ID: ${ matching_results[interview_to_load]["key"] }
+
+  <div class="overflow-scroll" style="height: 200px;">
+  <pre>${ get_filtered_session_variables_string(filename=matching_results[interview_to_load]["filename"], session_id=matching_results[interview_to_load]["key"]) }</pre>
+  </div
