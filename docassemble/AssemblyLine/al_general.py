@@ -750,22 +750,27 @@ class ALPeopleList(DAList):
             comma_string=comma_string,
         )
 
-    def familiar(self) -> str:
+    def familiar(self, **kwargs) -> str:
         """Provide a list of familiar forms of names of individuals.
 
+        Args:
+            **kwargs: Keyword arguments to pass to the familiar method.
         Returns:
             str: Formatted string of familiar names.
         """
-        return comma_and_list([person.name.familiar() for person in self])
+        return comma_and_list([person.familiar(**kwargs) for person in self])
 
-    def familiar_or(self) -> str:
+    def familiar_or(self, **kwargs) -> str:
         """Provide a list of familiar forms of names of individuals separated by 'or'.
+
+        Args:
+            **kwargs: Keyword arguments to pass to the familiar method.
 
         Returns:
             str: Formatted string of familiar names separated by 'or'.
         """
         return comma_and_list(
-            [person.name.familiar() for person in self], and_string=word("or")
+            [person.familiar(**kwargs) for person in self], and_string=word("or")
         )
 
     def short_list(self, limit: int, truncate_string: str = ", et. al.") -> str:
@@ -1789,6 +1794,82 @@ class ALIndividual(Individual):
             str: The individual'
         """
         return self.name.firstlast()
+
+    def familiar(
+        self, unique_names: Optional[List[Any]] = None, default: Optional[str] = None
+    ) -> str:
+        """
+        Returns the individual's name in the most familiar form possible.
+
+        The purpose is to allow using a short version of the individual's name in an unambiguous
+        way in the interview. For example: referring to the child in a guardianship petition
+        by first name instead of "the minor". But there may be a problem if context doesn't make
+        it clear if you are talking about the child or their parent when they share a name.
+
+        In order, it will try to use:
+
+        * just the first name
+        * the first name and suffix
+        * the first and middle name
+        * the first and last name
+        * the full name
+        * the default value, e.g., "the minor", if provided
+        * the full name
+
+        Args:
+            unique_names (Optional[List[Any]]): A list of unique names to compare against. Defaults to None.
+            default (Optional[str]): The default name to return if no unique name is found. Defaults to None.
+
+        Returns:
+            str: The individual's name in the most familiar form possible.
+
+        Example:
+            ```mako
+            Who do you want to take care of ${ children.familiar(unique_names=parents + petitioners, default="the minor") }
+            ```
+        """
+        if unique_names is None:
+            unique_names = []
+
+        first_name_candidates = [person.familiar() for person in unique_names]
+        if self.name.first not in first_name_candidates:
+            return self.name.first
+
+        first_name_and_suffix_candidates = [
+            f"{person.familiar()} {person.name.suffix if hasattr(person.name, 'suffix') else ''}"
+            for person in unique_names
+        ]
+        if (
+            f"{self.name.first} {self.name.suffix if hasattr(self.name, 'suffix') else ''}"
+            not in first_name_and_suffix_candidates
+        ):
+            if hasattr(self.name, "suffix") and self.name.suffix:
+                return f"{self.name.first} {self.name.suffix if hasattr(self.name, 'suffix') else ''}"
+            return self.name.first
+
+        first_and_middle_candidates = [
+            f"{person.name.first} {person.name.middle if hasattr(person.name, 'middle') and person.name.middle else ''}"
+            for person in unique_names
+        ]
+        if (
+            f"{self.name.first} {self.name.middle if hasattr(self.name, 'middle') and self.name.middle else ''}"
+            not in first_and_middle_candidates
+        ):
+            if hasattr(self.name, "middle") and self.name.middle:
+                return f"{self.name.first} {self.name.middle}"
+            return self.name.first
+
+        first_and_last_candidates = [person.name.firstlast() for person in unique_names]
+        if self.name_short() not in first_and_last_candidates:
+            return self.name_short()
+
+        full_name_candidates = [person.name.full() for person in unique_names]
+        if self.name_full() not in full_name_candidates:
+            return self.name_full()
+
+        if default:
+            return default
+        return self.name_full()  # We tried but couldn't disambiguate
 
 
 # (DANav isn't in public DA API, but currently in functions.py)
