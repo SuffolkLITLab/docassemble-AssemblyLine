@@ -322,7 +322,11 @@ class ALAddendumField(DAObject):
             return value_to_process[overflow_start:].lstrip()
 
         # Do not subtract length of overflow message if this is a list of objects instead of a string
-        return original_value[self.overflow_trigger :]
+        elif isinstance(safe_text, (list, DAList)):
+            return original_value[self.overflow_trigger :]
+        raise ValueError(
+            f"Attempted ALAddendum overflow for {self.field_name } which is of type {type(safe_text)}. Overflow is for lists and strings only."
+        )
 
     def max_lines(self, input_width: int = 80) -> int:
         """
@@ -526,10 +530,11 @@ class ALAddendumField(DAObject):
                 return value.rstrip()
 
         # If the overflow item is a list or DAList
-        if isinstance(value, list) or isinstance(value, DAList):
+        if isinstance(value, (list, DAList)):
             return value[: self.overflow_trigger]
         else:
             # We can't slice objects that are not lists or strings
+            # TODO: is it correct to return the whole object here?
             return value
 
     def value_if_defined(self) -> Any:
@@ -781,7 +786,7 @@ class ALAddendumFieldDict(DAOrderedDict):
         Populate the dictionary using a list of field data.
 
         Args:
-            data (list): List of dictionaries containing field data with keys "field_name"
+            data (list): List of dictionaries containing ield data with keys "field_name"
                 and "overflow_trigger".
         """
         for entry in data:
