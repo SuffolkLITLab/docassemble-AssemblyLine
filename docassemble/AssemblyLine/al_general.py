@@ -1577,7 +1577,12 @@ class ALIndividual(Individual):
         Returns:
             str: The appropriate pronoun.
         """
-        # Developers can do funky things; be a little flexible
+        person = str(kwargs.get("person", self.get_point_of_view()))
+
+        if person in ("1", "1p", "2", "2p"):
+            # Use the parent version of pronoun
+            return super().pronoun(**kwargs)
+
         if hasattr(self, "pronouns") and isinstance(self.pronouns, str):
             pronouns = DADict(elements={self.pronouns.lower(): True})
         else:
@@ -1650,6 +1655,12 @@ class ALIndividual(Individual):
         Returns:
             str: The appropriate possessive phrase.
         """
+        person = str(kwargs.get("person", self.get_point_of_view()))
+
+        if person in ("1", "1p", "2", "2p"):
+            # Use the parent version of pronoun
+            return super().pronoun_possessive(target, **kwargs)
+
         if hasattr(self, "pronouns") and isinstance(self.pronouns, str):
             pronouns = DADict(elements={self.pronouns.lower(): True})
         else:
@@ -1716,6 +1727,12 @@ class ALIndividual(Individual):
         Returns:
             str: The appropriate subjective pronoun.
         """
+        person = str(kwargs.get("person", self.get_point_of_view()))
+
+        if person in ("1", "1p", "2", "2p"):
+            # Use the parent version of pronoun
+            return super().pronoun_subjective(**kwargs)
+
         if hasattr(self, "pronouns") and isinstance(self.pronouns, str):
             pronouns = DADict(elements={self.pronouns.lower(): True})
         else:
