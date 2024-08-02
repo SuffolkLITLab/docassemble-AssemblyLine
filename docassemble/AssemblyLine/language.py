@@ -93,7 +93,7 @@ def get_language_list_dropdown(
     languages_path: Optional[str] = None,
     event_name="al_change_language",
     icon="fa-solid fa-language",
-    extra_class:str="text-light",
+    extra_class: str = "text-light",
 ) -> str:
     """
     Get a Bootstrap 5 dropdown menu for language selection that can be added to navigation bar.
