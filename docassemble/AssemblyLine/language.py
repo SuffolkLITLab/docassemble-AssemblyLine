@@ -92,7 +92,8 @@ def get_language_list_dropdown(
     current: str = "",
     languages_path: Optional[str] = None,
     event_name="al_change_language",
-    icon="fa-solid fa-language",
+    icon="fa-solid fa-language fa-xl",
+    extra_class: str = "text-light",
 ) -> str:
     """
     Get a Bootstrap 5 dropdown menu for language selection that can be added to navigation bar.
@@ -102,14 +103,14 @@ def get_language_list_dropdown(
         current: the current language code
         languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
         event_name: the name of the event to trigger when the language is changed
-        icon: the name of the icon to use for the dropdown menu (defaults to fa-solid fa-language)
-
+        icon: the name of the icon to use for the dropdown menu (defaults to fa-solid fa-language fa-xl)
+        extra_class: additional classes to add to the link
     Returns:
       A string containing the HTML for a dropdown menu for language selection.
     """
     list_start = f"""<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle text-light" href="#" id="languageSelector" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Language selection">
-      <i class="{icon}"></i>
+    <a class="nav-link dropdown-toggle { extra_class }" href="#" id="languageSelector" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Language selection">
+      <i class="{ icon }"></i>
     </a>
     <div class="dropdown-menu" aria-labelledby="languageSelector">
   """
