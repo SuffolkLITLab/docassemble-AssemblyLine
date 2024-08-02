@@ -92,7 +92,7 @@ def get_language_list_dropdown(
     current: str = "",
     languages_path: Optional[str] = None,
     event_name="al_change_language",
-    icon="fa-solid fa-language",
+    icon="fa-solid fa-language fa-xl",
     extra_class: str = "text-light",
 ) -> str:
     """
@@ -103,7 +103,7 @@ def get_language_list_dropdown(
         current: the current language code
         languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
         event_name: the name of the event to trigger when the language is changed
-        icon: the name of the icon to use for the dropdown menu (defaults to fa-solid fa-language)
+        icon: the name of the icon to use for the dropdown menu (defaults to fa-solid fa-language fa-xl)
         extra_class: additional classes to add to the link
     Returns:
       A string containing the HTML for a dropdown menu for language selection.
