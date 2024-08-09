@@ -1572,8 +1572,8 @@ class ALIndividual(Individual):
 
         Args:
             **kwargs: Additional keyword arguments that are defined [upstream](https://docassemble.org/docs/objects.html#language%20methods).
-            person (Optional[[Union[str,int]]): Whether to use a first, second, or third person pronoun. Can be one of 1/"1p", 2/"2p", or 3/"3p" (default is 3). See [upstream](https://docassemble.org/docs/objects.html#language%20methods) documentation for more information.
-            default (Optional[str]): The default word to use if the pronoun is not defined, e.g. "the agent". If not defined, the default term is the user's name.
+                    - person (Optional[[Union[str,int]]): Whether to use a first, second, or third person pronoun. Can be one of 1/"1p", 2/"2p", or 3/"3p" (default is 3). See [upstream](https://docassemble.org/docs/objects.html#language%20methods) documentation for more information.
+                    - default (Optional[str]): The default word to use if the pronoun is not defined, e.g. "the agent". If not defined, the default term is the user's name.
         Returns:
             str: The appropriate pronoun.
         """
@@ -1657,7 +1657,8 @@ class ALIndividual(Individual):
         return self.pronoun(**kwargs)
 
     def pronoun_possessive(self, target, **kwargs) -> str:
-        """Returns a possessive pronoun and a target word, based on attributes.
+        """
+        Returns a possessive pronoun and a target word, based on attributes.
 
         This method will not trigger the definition of `gender` or `pronouns`, but it will use them if they are defined,
         with `pronouns` taking precedence. As a default, it will either use the value of `default` or the individual's full name.
@@ -1668,11 +1669,12 @@ class ALIndividual(Individual):
 
         Args:
             target (str): The target word to follow the pronoun.
-            person (Optional[[Union[str,int]]): Whether to use a first, second, or third person pronoun. Can be one of 1/"1p", 2/"2p", or 3/"3p" (default is 3). See [upstream](https://docassemble.org/docs/objects.html#language%20methods) documentation for more information.
-            default (Optional[str]): The default word to use if the pronoun is not defined, e.g. "the agent". If not defined, the default term is the user's name.
-            **kwargs: Additional keyword arguments that are defined [upstream](https://docassemble.org/docs/objects.html#language%20methods).
+            **kwargs: Additional keyword arguments that can be passed to modify the behavior. These might include:
+                - `default` (Optional[str]): The default word to use if the pronoun is not defined, e.g., "the agent". If not defined, the default term is the user's name.
+                - `person` (Optional[Union[str, int]]): Whether to use a first, second, or third person pronoun. Can be one of 1/"1p", 2/"2p", or 3/"3p" (default is 3). See [upstream documentation](https://docassemble.org/docs/objects.html#language%20methods) for more information.
+
         Returns:
-            str: The appropriate possessive phrase.
+            str: The appropriate possessive phrase, e.g., "her book", "their document".
         """
         person = str(kwargs.get("person", self.get_point_of_view()))
 
@@ -1756,8 +1758,8 @@ class ALIndividual(Individual):
 
         Args:
             **kwargs: Additional keyword arguments that are defined [upstream](https://docassemble.org/docs/objects.html#language%20methods).
-            person (Optional[[Union[str,int]]): Whether to use a first, second, or third person pronoun. Can be one of 1/"1p", 2/"2p", or 3/"3p" (default is 3). See [upstream](https://docassemble.org/docs/objects.html#language%20methods) documentation for more information.
-            default (Optional[str]): The default word to use if the pronoun is not defined, e.g. "the agent". If not defined, the default term is the user's name.
+                    - person (Optional[[Union[str,int]]): Whether to use a first, second, or third person pronoun. Can be one of 1/"1p", 2/"2p", or 3/"3p" (default is 3). See [upstream](https://docassemble.org/docs/objects.html#language%20methods) documentation for more information.
+                    - default (Optional[str]): The default word to use if the pronoun is not defined, e.g. "the agent". If not defined, the default term is the user's name.
         Returns:
             str: The appropriate subjective pronoun.
         """
