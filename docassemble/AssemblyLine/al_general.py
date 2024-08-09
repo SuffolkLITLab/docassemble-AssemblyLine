@@ -1562,18 +1562,18 @@ class ALIndividual(Individual):
                 )
 
     def pronoun(self, **kwargs) -> str:
-        """Returns an objective pronoun as appropriate, based on attributes.
+        """Returns an objective pronoun as appropriate, based on the user's `pronouns` attribute or `gender` attribute.
 
-        The pronoun could be "you," "her," "him," "it," or "them". It depends
-        on the `gender` and `person_type` attributes and whether the individual
-        is the current user.
+        The pronoun could be "I", "you," "her," "him," "it," or "them", or a user-provided pronoun.
+        If the user has selected multiple pronouns, each will appear, separated by a "/".
 
-        If the user selected specific pronouns, they take priority over
-        gender (only if they chose a pronoun from the list)
+        This method will not trigger the definition of `gender` or `pronouns`, but it will use them if they are defined,
+        with `pronouns` taking precedence. As a default, it will either use the value of `default` or the individual's full name.
 
         Args:
-            **kwargs: Additional keyword arguments.
-
+            **kwargs: Additional keyword arguments that are defined [upstream](https://docassemble.org/docs/objects.html#language%20methods).
+            person (Optional[[Union[str,int]]): Whether to use a first, second, or third person pronoun. Can be one of 1/"1p", 2/"2p", or 3/"3p" (default is 3). See [upstream](https://docassemble.org/docs/objects.html#language%20methods) documentation for more information.
+            default (Optional[str]): The default word to use if the pronoun is not defined, e.g. "the agent". If not defined, the default term is the user's name.
         Returns:
             str: The appropriate pronoun.
         """
@@ -1583,49 +1583,66 @@ class ALIndividual(Individual):
             # Use the parent version of pronoun
             return super().pronoun(**kwargs)
 
-        if hasattr(self, "pronouns") and isinstance(self.pronouns, str):
-            pronouns = DADict(elements={self.pronouns.lower(): True})
+        if "default" in kwargs:
+            default = kwargs.pop("default")
         else:
-            pronouns = self.pronouns
+            default = self.name_full()
+
+        if hasattr(self, "pronouns"):
+            if isinstance(self.pronouns, str):
+                pronouns = DADict(elements={self.pronouns.lower(): True})
+            else:
+                pronouns = self.pronouns
 
         if self == this_thread.global_vars.user:
             output = word("you", **kwargs)
-        elif (
-            hasattr(self, "pronouns")
-            and isinstance(pronouns, DADict)
-            and len(pronouns.true_values()) == 1
-            and (
-                (
-                    pronouns.true_values()[0]
-                    in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
-                )
-                or (
-                    pronouns.get("self-described")
-                    and has_parsable_pronouns(self.pronouns_self_described)
-                )
-            )
-        ):
-            if pronouns.get("she/her/hers"):
-                output = word("her", **kwargs)
-            elif pronouns.get("he/him/his"):
-                output = word("him", **kwargs)
-            elif pronouns.get("they/them/theirs"):
-                output = word("them", **kwargs)
-            elif pronouns.get("ze/zir/zirs"):
-                output = word("zir", **kwargs)
-            elif pronouns.get("self-described"):
-                output = parse_custom_pronouns(self.pronouns_self_described)["o"]
+        elif hasattr(self, "pronouns"):
+            if isinstance(pronouns, DADict):
+                pronouns_to_use = []
+                for pronoun in pronouns.true_values():
+                    if pronoun in [
+                        "she/her/hers",
+                        "he/him/his",
+                        "they/them/theirs",
+                        "ze/zir/zirs",
+                    ]:
+                        if pronoun == "she/her/hers":
+                            pronouns_to_use.append(word("her", **kwargs))
+                        elif pronoun == "he/him/his":
+                            pronouns_to_use.append(word("him", **kwargs))
+                        elif pronoun == "they/them/theirs":
+                            pronouns_to_use.append(word("them", **kwargs))
+                        elif pronoun == "ze/zir/zirs":
+                            pronouns_to_use.append(word("zir", **kwargs))
+                    elif pronoun == "self-described" and has_parsable_pronouns(
+                        self.pronouns_self_described
+                    ):
+                        pronouns_to_use.append(
+                            parse_custom_pronouns(self.pronouns_self_described)["o"]
+                        )
+                    elif has_parsable_pronouns(pronoun):
+                        pronouns_to_use.append(
+                            parse_custom_pronouns(pronoun)["o"]
+                        )
+            if len(pronouns_to_use) > 0:
+                output = "/".join(pronouns_to_use)
+            else:
+                output = default
         elif hasattr(self, "person_type") and self.person_type in [
             "business",
             "organization",
         ]:
             output = word("it", **kwargs)
-        elif self.gender.lower() == "female":
-            output = word("her", **kwargs)
-        elif self.gender.lower() == "male":
-            output = word("him", **kwargs)
+        elif hasattr(self, "gender"):
+            if self.gender.lower() == "female":
+                output = word("her", **kwargs)
+            elif self.gender.lower() == "male":
+                output = word("him", **kwargs)
+            else:
+                output = word("them", **kwargs)
         else:
-            output = word("them", **kwargs)
+            output = default
+
         if "capitalize" in kwargs and kwargs["capitalize"]:
             return capitalize(output)
         return output
@@ -1644,14 +1661,18 @@ class ALIndividual(Individual):
     def pronoun_possessive(self, target, **kwargs) -> str:
         """Returns a possessive pronoun and a target word, based on attributes.
 
+        This method will not trigger the definition of `gender` or `pronouns`, but it will use them if they are defined,
+        with `pronouns` taking precedence. As a default, it will either use the value of `default` or the individual's full name.
+
         Given a target word, the function returns "{pronoun} {target}". The pronoun could be
-        "her," "his," "its," or "their". It depends on the `gender` and `person_type` attributes
+        "my", "her," "his," "its," or "their". It depends on the `gender` and `person_type` attributes
         and whether the individual is the current user.
 
         Args:
             target (str): The target word to follow the pronoun.
-            **kwargs: Additional keyword arguments.
-
+            person (Optional[[Union[str,int]]): Whether to use a first, second, or third person pronoun. Can be one of 1/"1p", 2/"2p", or 3/"3p" (default is 3). See [upstream](https://docassemble.org/docs/objects.html#language%20methods) documentation for more information.
+            default (Optional[str]): The default word to use if the pronoun is not defined, e.g. "the agent". If not defined, the default term is the user's name.
+            **kwargs: Additional keyword arguments that are defined [upstream](https://docassemble.org/docs/objects.html#language%20methods).
         Returns:
             str: The appropriate possessive phrase.
         """
@@ -1666,50 +1687,64 @@ class ALIndividual(Individual):
         else:
             pronouns = self.pronouns
 
+        if "default" in kwargs:
+            default = kwargs.pop("default")
+        else:
+            default = self.name_full()
+
         if self == this_thread.global_vars.user and (
             "thirdperson" not in kwargs or not kwargs["thirdperson"]
         ):
             output = your(target, **kwargs)
-        elif (
-            hasattr(self, "pronouns")
-            and isinstance(pronouns, DADict)
-            and len(pronouns.true_values()) == 1
-            and (
-                (
-                    pronouns.true_values()[0]
-                    in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
-                )
-                or (
-                    pronouns.get("self-described")
-                    and has_parsable_pronouns(self.pronouns_self_described)
-                )
-            )
-        ):
-            if pronouns.get("she/her/hers"):
-                output = her(target, **kwargs)
-            elif pronouns.get("he/him/his"):
-                output = his(target, **kwargs)
-            elif pronouns.get("they/them/theirs"):
-                output = their(target, **kwargs)
-            elif pronouns.get("ze/zir/zirs"):
-                output = word("zir", **kwargs) + " " + target
-            elif pronouns.get("self-described"):
-                output = (
-                    parse_custom_pronouns(self.pronouns_self_described)["p"]
-                    + " "
-                    + target
-                )
+        elif hasattr(self, "pronouns"):
+            if isinstance(pronouns, DADict):
+                pronouns_to_use = []
+                for pronoun in pronouns.true_values():
+                    if pronoun in [
+                        "she/her/hers",
+                        "he/him/his",
+                        "they/them/theirs",
+                        "ze/zir/zirs",
+                    ]:
+                        if pronoun == "she/her/hers":
+                            pronouns_to_use.append(her(target, **kwargs))
+                        elif pronoun == "he/him/his":
+                            pronouns_to_use.append(his(target, **kwargs))
+                        elif pronoun == "they/them/theirs":
+                            pronouns_to_use.append(their(target, **kwargs))
+                        elif pronoun == "ze/zir/zirs":
+                            pronouns_to_use.append(word("zir", **kwargs) + " " + target)
+                    elif pronoun == "self-described" and has_parsable_pronouns(
+                        self.pronouns_self_described
+                    ):
+                        pronouns_to_use.append(
+                            parse_custom_pronouns(self.pronouns_self_described)["p"]
+                            + " "
+                            + target
+                        )
+                    elif has_parsable_pronouns(pronoun):
+                        pronouns_to_use.append(
+                            parse_custom_pronouns(pronoun)["p"] + " " + target
+                        )
+            if len(pronouns_to_use) > 0:
+                output = "/".join(pronouns_to_use)
+            else:
+                output = default
         elif hasattr(self, "person_type") and self.person_type in [
             "business",
             "organization",
         ]:
             output = its(target, **kwargs)
-        elif self.gender.lower() == "female":
-            output = her(target, **kwargs)
-        elif self.gender.lower() == "male":
-            output = his(target, **kwargs)
+        elif hasattr(self, "gender"):
+            if self.gender.lower() == "female":
+                output = her(target, **kwargs)
+            elif self.gender.lower() == "male":
+                output = his(target, **kwargs)
+            else:
+                output = their(target, **kwargs)
         else:
-            output = their(target, **kwargs)
+            output = default
+
         if "capitalize" in kwargs and kwargs["capitalize"]:
             return capitalize(output)
         return output
@@ -1717,13 +1752,14 @@ class ALIndividual(Individual):
     def pronoun_subjective(self, **kwargs) -> str:
         """Returns a subjective pronoun, based on attributes.
 
-        The pronoun could be "you," "she," "he," "it," or "they". It depends
+        The pronoun could be "you," "we", "she," "he," "it," or "they". It depends
         on the `gender` and `person_type` attributes and whether the individual
         is the current user.
 
         Args:
-            **kwargs: Additional keyword arguments.
-
+            **kwargs: Additional keyword arguments that are defined [upstream](https://docassemble.org/docs/objects.html#language%20methods).
+            person (Optional[[Union[str,int]]): Whether to use a first, second, or third person pronoun. Can be one of 1/"1p", 2/"2p", or 3/"3p" (default is 3). See [upstream](https://docassemble.org/docs/objects.html#language%20methods) documentation for more information.
+            default (Optional[str]): The default word to use if the pronoun is not defined, e.g. "the agent". If not defined, the default term is the user's name.
         Returns:
             str: The appropriate subjective pronoun.
         """
@@ -1732,52 +1768,66 @@ class ALIndividual(Individual):
         if person in ("1", "1p", "2", "2p"):
             # Use the parent version of pronoun
             return super().pronoun_subjective(**kwargs)
-
-        if hasattr(self, "pronouns") and isinstance(self.pronouns, str):
-            pronouns = DADict(elements={self.pronouns.lower(): True})
+        if "default" in kwargs:
+            default = kwargs.pop("default")
         else:
-            pronouns = self.pronouns
+            default = self.name_full()
 
-        if self == this_thread.global_vars.user and (
-            "thirdperson" not in kwargs or not kwargs["thirdperson"]
-        ):
+        if hasattr(self, "pronouns"):
+            if isinstance(self.pronouns, str):
+                pronouns = DADict(elements={self.pronouns.lower(): True})
+            else:
+                pronouns = self.pronouns
+
+        if self == this_thread.global_vars.user:
             output = word("you", **kwargs)
-        elif (
-            hasattr(self, "pronouns")
-            and isinstance(pronouns, DADict)
-            and len(pronouns.true_values()) == 1
-            and (
-                (
-                    pronouns.true_values()[0]
-                    in ["she/her/hers", "he/him/his", "they/them/theirs", "ze/zir/zirs"]
-                )
-                or (
-                    pronouns.get("self-described")
-                    and has_parsable_pronouns(self.pronouns_self_described)
-                )
-            )
-        ):
-            if pronouns.get("she/her/hers"):
-                output = word("she", **kwargs)
-            elif pronouns.get("he/him/his"):
-                output = word("he", **kwargs)
-            elif pronouns.get("they/them/theirs"):
-                output = word("they", **kwargs)
-            elif pronouns.get("ze/zir/zirs"):
-                output = word("ze", **kwargs)
-            elif pronouns.get("self-described"):
-                output = parse_custom_pronouns(self.pronouns_self_described)["s"]
+        elif hasattr(self, "pronouns"):
+            if isinstance(pronouns, DADict):
+                pronouns_to_use = []
+                for pronoun in pronouns.true_values():
+                    if pronoun in [
+                        "she/her/hers",
+                        "he/him/his",
+                        "they/them/theirs",
+                        "ze/zir/zirs",
+                    ]:
+                        if pronoun == "she/her/hers":
+                            pronouns_to_use.append(word("she", **kwargs))
+                        elif pronoun == "he/him/his":
+                            pronouns_to_use.append(word("he", **kwargs))
+                        elif pronoun == "they/them/theirs":
+                            pronouns_to_use.append(word("they", **kwargs))
+                        elif pronoun == "ze/zir/zirs":
+                            pronouns_to_use.append(word("ze", **kwargs))
+                    elif pronoun == "self-described" and has_parsable_pronouns(
+                        self.pronouns_self_described
+                    ):
+                        pronouns_to_use.append(
+                            parse_custom_pronouns(self.pronouns_self_described)["s"]
+                        )
+                    elif has_parsable_pronouns(pronoun):
+                        pronouns_to_use.append(
+                            parse_custom_pronouns(pronoun)["s"]
+                        )
+            if len(pronouns_to_use) > 0:
+                output = "/".join(pronouns_to_use)
+            else:
+                output = default
         elif hasattr(self, "person_type") and self.person_type in [
             "business",
             "organization",
         ]:
             output = word("it", **kwargs)
-        elif self.gender.lower() == "female":
-            output = word("she", **kwargs)
-        elif self.gender.lower() == "male":
-            output = word("he", **kwargs)
+        elif hasattr(self, "gender"):
+            if self.gender.lower() == "female":
+                output = word("she", **kwargs)
+            elif self.gender.lower() == "male":
+                output = word("he", **kwargs)
+            else:
+                output = word("they", **kwargs)
         else:
-            output = word("they", **kwargs)
+            output = default
+
         if "capitalize" in kwargs and kwargs["capitalize"]:
             return capitalize(output)
         return output
