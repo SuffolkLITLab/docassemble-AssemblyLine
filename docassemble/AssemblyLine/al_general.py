@@ -1621,9 +1621,7 @@ class ALIndividual(Individual):
                             parse_custom_pronouns(self.pronouns_self_described)["o"]
                         )
                     elif has_parsable_pronouns(pronoun):
-                        pronouns_to_use.append(
-                            parse_custom_pronouns(pronoun)["o"]
-                        )
+                        pronouns_to_use.append(parse_custom_pronouns(pronoun)["o"])
             if len(pronouns_to_use) > 0:
                 output = "/".join(pronouns_to_use)
             else:
@@ -1698,7 +1696,7 @@ class ALIndividual(Individual):
             output = your(target, **kwargs)
         elif hasattr(self, "pronouns") and self.pronouns:
             pronouns_to_use = []
-            if isinstance(pronouns, DADict):                
+            if isinstance(pronouns, DADict):
                 for pronoun in pronouns.true_values():
                     if pronoun in [
                         "she/her/hers",
@@ -1806,9 +1804,7 @@ class ALIndividual(Individual):
                             parse_custom_pronouns(self.pronouns_self_described)["s"]
                         )
                     elif has_parsable_pronouns(pronoun):
-                        pronouns_to_use.append(
-                            parse_custom_pronouns(pronoun)["s"]
-                        )
+                        pronouns_to_use.append(parse_custom_pronouns(pronoun)["s"])
             if len(pronouns_to_use) > 0:
                 output = "/".join(pronouns_to_use)
             else:
