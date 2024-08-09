@@ -1588,7 +1588,7 @@ class ALIndividual(Individual):
         else:
             default = self.name_full()
 
-        if hasattr(self, "pronouns"):
+        if hasattr(self, "pronouns") and self.pronouns:
             if isinstance(self.pronouns, str):
                 pronouns = DADict(elements={self.pronouns.lower(): True})
             else:
@@ -1596,9 +1596,9 @@ class ALIndividual(Individual):
 
         if self == this_thread.global_vars.user:
             output = word("you", **kwargs)
-        elif hasattr(self, "pronouns"):
+        elif hasattr(self, "pronouns") and self.pronouns:
+            pronouns_to_use = []
             if isinstance(pronouns, DADict):
-                pronouns_to_use = []
                 for pronoun in pronouns.true_values():
                     if pronoun in [
                         "she/her/hers",
@@ -1696,9 +1696,9 @@ class ALIndividual(Individual):
             "thirdperson" not in kwargs or not kwargs["thirdperson"]
         ):
             output = your(target, **kwargs)
-        elif hasattr(self, "pronouns"):
-            if isinstance(pronouns, DADict):
-                pronouns_to_use = []
+        elif hasattr(self, "pronouns") and self.pronouns:
+            pronouns_to_use = []
+            if isinstance(pronouns, DADict):                
                 for pronoun in pronouns.true_values():
                     if pronoun in [
                         "she/her/hers",
@@ -1773,7 +1773,7 @@ class ALIndividual(Individual):
         else:
             default = self.name_full()
 
-        if hasattr(self, "pronouns"):
+        if hasattr(self, "pronouns") and self.pronouns:
             if isinstance(self.pronouns, str):
                 pronouns = DADict(elements={self.pronouns.lower(): True})
             else:
@@ -1781,9 +1781,9 @@ class ALIndividual(Individual):
 
         if self == this_thread.global_vars.user:
             output = word("you", **kwargs)
-        elif hasattr(self, "pronouns"):
+        elif hasattr(self, "pronouns") and self.pronouns:
+            pronouns_to_use = []
             if isinstance(pronouns, DADict):
-                pronouns_to_use = []
                 for pronoun in pronouns.true_values():
                     if pronoun in [
                         "she/her/hers",

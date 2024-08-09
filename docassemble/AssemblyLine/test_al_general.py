@@ -61,6 +61,8 @@ class TestALIndividual(unittest.TestCase):
         # Assigning this_thread to self.individual
         self.individual.this_thread = self.this_thread
 
+        self.individual.name.first = "John"
+
     def test_phone_numbers(self):
         self.assertEqual(self.individual.phone_numbers(), "")
         self.individual.phone_number = ""
@@ -423,9 +425,7 @@ class TestALIndividual(unittest.TestCase):
         self.assertEqual(self.individual.pronoun_possessive("fish"), "xem fish")
 
         self.individual.pronouns_self_described = "Xe/Xir/Xirs/xem/xirself"
-        # Should raise an exception
-        with self.assertRaises(DAAttributeError):
-            self.individual.pronoun_objective()
+        self.assertEqual(self.individual.pronoun_objective(), "John")
 
     def test_name_methods(self):
         self.individual.name.first = "John"
