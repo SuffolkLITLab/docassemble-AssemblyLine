@@ -506,10 +506,13 @@ def find_matching_sessions(
     )
 
     # Construct the dynamic part of the SQL query for metadata column selection and keyword search
-    metadata_search_conditions = " OR ".join(
-        f"COALESCE(jsonstorage.data->>{repr(column)}, '') ILIKE '%' || :keyword || '%'"
-        for column in metadata_column_names
-    )
+    if keyword:
+        metadata_search_conditions = " OR ".join(
+            f"COALESCE(jsonstorage.data->>{repr(column)}, '') ILIKE '%' || :keyword || '%'"
+            for column in metadata_column_names
+        )
+    else:
+        metadata_search_conditions = "TRUE"
 
     # we retrieve the default metadata columns even if we don't search them
     metadata_column_names = set(metadata_column_names).union(
