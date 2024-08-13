@@ -334,54 +334,12 @@ def get_saved_interview_list(
         offset (int, optional): The offset to start returning results from. Defaults to 0.
         filename_to_exclude (str, optional): The filename to exclude from the results. Defaults to "".
         exclude_current_filename (bool, optional): Whether to exclude the current filename from the results. Defaults to True.
-        exclude_filenames (Optional[List[str]], optional): A list of filenames to exclude from the results. Defaults to None.
+        exclude_filenames (Optional[List[str]], optional): List of filenames to exclude. Defaults to None. If the `filename` does not contain a `:` it will be treated as a prefix, allowing you to filter out whole packages (e.g., any path starting with docassemble.ALDashboard or docassemble.playground)
         exclude_newly_started_sessions (bool, optional): Whether to exclude sessions that are still on "step 1". Defaults to False.
 
     Returns:
         List[Dict[str, Any]]: A list of saved sessions for the specified filename.
     """
-    # We use an `offset` instead of a cursor because it is simpler and clearer
-    # while it appears to be performant enough for real-world usage.
-    # Up to ~ 1,000 sessions performs well and is higher than expected for an end-user
-    get_sessions_query = text(
-        """
-    SELECT userdict.indexno
-        ,userdict.filename as filename
-        ,num_keys
-        ,userdictkeys.user_id as user_id
-        ,userdict.modtime as modtime
-        ,userdict.key as key
-        ,jsonstorage.data->'auto_title' as auto_title
-        ,jsonstorage.data->'title' as title
-        ,jsonstorage.data->'description' as description
-        ,jsonstorage.data->'steps' as steps
-        ,jsonstorage.data->'progress' as progress
-        ,jsonstorage.data->'original_interview_filename' as original_interview_filename
-        ,jsonstorage.data->'answer_count' as answer_count
-        ,jsonstorage.data as data
-    FROM userdict 
-    NATURAL JOIN 
-    (
-      SELECT  key
-             ,MAX(modtime) AS modtime
-             ,COUNT(key)   AS num_keys
-      FROM userdict
-      GROUP BY  key
-    ) mostrecent
-    LEFT JOIN userdictkeys
-    ON userdictkeys.key = userdict.key
-    LEFT JOIN jsonstorage
-    ON userdict.key = jsonstorage.key AND (jsonstorage.tags = :metadata)
-    WHERE (userdictkeys.user_id = :user_id or :user_id is null)
-    AND (userdict.filename = :filename OR :filename is null)
-    AND (userdict.filename NOT IN :filenames_to_exclude)
-    AND (NOT :exclude_newly_started_sessions OR num_keys > 1)
-    ORDER BY modtime desc 
-    LIMIT :limit
-    OFFSET :offset;
-    """
-    )
-
     if offset < 0:
         offset = 0
 
@@ -393,10 +351,69 @@ def get_saved_interview_list(
         current_filename = ""
     if not filename_to_exclude:
         filename_to_exclude = ""
-    filenames_to_exclude = []
+    filenames_to_exclude: List[str] = []
+    packages_to_exclude: List[str] = []
     if exclude_filenames:
-        filenames_to_exclude.extend(exclude_filenames)
+        for f in filenames_to_exclude:
+            if f and (":" not in f):
+                packages_to_exclude.append(f)
+            else:
+                filenames_to_exclude.append(f)
     filenames_to_exclude.extend([current_filename, filename_to_exclude])
+
+    query_draft = """
+        SELECT userdict.indexno
+            ,userdict.filename as filename
+            ,num_keys
+            ,userdictkeys.user_id as user_id
+            ,userdict.modtime as modtime
+            ,userdict.key as key
+            ,jsonstorage.data->'auto_title' as auto_title
+            ,jsonstorage.data->'title' as title
+            ,jsonstorage.data->'description' as description
+            ,jsonstorage.data->'steps' as steps
+            ,jsonstorage.data->'progress' as progress
+            ,jsonstorage.data->'original_interview_filename' as original_interview_filename
+            ,jsonstorage.data->'answer_count' as answer_count
+            ,jsonstorage.data as data
+        FROM userdict 
+        NATURAL JOIN 
+        (
+        SELECT  key
+                ,MAX(modtime) AS modtime
+                ,COUNT(key)   AS num_keys
+        FROM userdict
+        GROUP BY  key
+        ) mostrecent
+        LEFT JOIN userdictkeys
+        ON userdictkeys.key = userdict.key
+        LEFT JOIN jsonstorage
+        ON userdict.key = jsonstorage.key AND (jsonstorage.tags = :metadata)
+        WHERE (userdictkeys.user_id = :user_id or :user_id is null)
+        AND (userdict.filename = :filename OR :filename is null)
+        AND (userdict.filename NOT IN :filenames_to_exclude)
+        AND (NOT :exclude_newly_started_sessions OR num_keys > 1)
+        """
+    if packages_to_exclude:
+        query_draft += (
+            """
+            AND (:packages_to_exclude IS NULL OR NOT (
+            """
+            + " OR ".join(
+                [f"userdict.filename LIKE '{name}%'" for name in packages_to_exclude]
+            )
+            + """
+            ))
+        """
+        )
+    query_draft += """
+        ORDER BY modtime desc 
+        LIMIT :limit
+        OFFSET :offset;
+    """
+
+    get_sessions_query = text(query_draft)
+
     if user_id is None:
         if user_logged_in():
             user_id = user_info().id
@@ -427,6 +444,9 @@ def get_saved_interview_list(
                 "offset": offset,
                 "filenames_to_exclude": tuple(filenames_to_exclude),
                 "exclude_newly_started_sessions": exclude_newly_started_sessions,
+                "packages_to_exclude": (
+                    None if not packages_to_exclude else "present"
+                ),  # We need to pass a value to the query, but it's treated as a flag
             },
         )
     sessions = []
@@ -486,10 +506,13 @@ def find_matching_sessions(
     )
 
     # Construct the dynamic part of the SQL query for metadata column selection and keyword search
-    metadata_search_conditions = " OR ".join(
-        f"COALESCE(jsonstorage.data->>{repr(column)}, '') ILIKE '%' || :keyword || '%'"
-        for column in metadata_column_names
-    )
+    if keyword:
+        metadata_search_conditions = " OR ".join(
+            f"COALESCE(jsonstorage.data->>{repr(column)}, '') ILIKE '%' || :keyword || '%'"
+            for column in metadata_column_names
+        )
+    else:
+        metadata_search_conditions = "TRUE"
 
     # we retrieve the default metadata columns even if we don't search them
     metadata_column_names = set(metadata_column_names).union(
@@ -565,19 +588,23 @@ def find_matching_sessions(
             log("Asked to get interview list for user that is not logged in")
             return []
 
+    parameters = {
+        "metadata": metadata_key_name,
+        "keyword": keyword,
+        "user_id": user_id,
+        "limit": limit,
+        "offset": offset,
+        "filenames_to_exclude": tuple(filenames_to_exclude),
+        "exclude_newly_started_sessions": exclude_newly_started_sessions,
+    }
+
+    # Add filename parameters
+    if filenames:
+        for i, filename in enumerate(filenames):
+            parameters[f"filename{i}"] = filename
+
     with db.connect() as con:
-        rs = con.execute(
-            get_sessions_query,
-            {
-                "metadata": metadata_key_name,
-                "keyword": keyword,
-                "user_id": user_id,
-                "limit": limit,
-                "offset": offset,
-                "filenames_to_exclude": tuple(filenames_to_exclude),
-                "exclude_newly_started_sessions": exclude_newly_started_sessions,
-            },
-        )
+        rs = con.execute(get_sessions_query, parameters)
 
     sessions = []
     for session in rs:
@@ -921,7 +948,7 @@ def session_list_html(
         metadata_key_name (str, optional): Name of the metadata key. Defaults to "metadata".
         filename_to_exclude (str, optional): Name of the file to exclude. Defaults to `al_session_store_default_filename`.
         exclude_current_filename (bool, optional): If True, excludes the current filename. Defaults to True.
-        exclude_filenames (Optional[List[str]], optional): List of filenames to exclude. Defaults to None.
+        exclude_filenames (Optional[List[str]], optional): List of filenames to exclude. Defaults to None. If the `filename` does not contain a `:` it will be treated as a prefix, allowing you to filter out whole packages (e.g., any path starting with docassemble.ALDashboard or docassemble.playground)
         exclude_newly_started_sessions (bool, optional): If True, excludes newly started sessions. Defaults to False.
         name_label (str, optional): Label for the session name/title. Defaults to translated word "Title".
         date_label (str, optional): Label for the date column. Defaults to translated word "Date modified".
@@ -937,6 +964,7 @@ def session_list_html(
         show_copy_button (bool, optional): If True, show a copy button for answer sets. Defaults to True.
         limit (int, optional): Limit for the number of sessions returned. Defaults to 50.
         offset (int, optional): Offset for the session list. Defaults to 0.
+
 
     Returns:
         str: HTML-formatted table containing the list of user sessions.

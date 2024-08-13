@@ -425,4 +425,19 @@ code: |
 code: |
   LOGO_TITLE_ROW_2 = config_with_language_fallback("logo title row 2")
 ---
-code: al_sessions_to_exclude_from_interview_list = get_config("assembly line",{}).get("interview list",{}).get("exclude from interview list", get_config("assembly line",{}).get("exclude from interview list"))
+code: |
+  al_sessions_to_exclude_from_interview_list = (
+      get_config("assembly line", {})
+      .get("interview list", {})
+      .get(
+          "exclude from interview list",
+          get_config("assembly line", {}).get(
+              "exclude from interview list",
+              [
+                  "docassemble.ALDashboard",
+                  "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml",
+                  "docassemble.AssemblyLine:data/questions/interview_list.yml",
+              ],
+          ),
+      )
+  )
