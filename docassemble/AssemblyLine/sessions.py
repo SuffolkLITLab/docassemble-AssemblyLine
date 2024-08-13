@@ -351,15 +351,15 @@ def get_saved_interview_list(
         current_filename = ""
     if not filename_to_exclude:
         filename_to_exclude = ""
-    filenames_to_exclude:List[str] = []
-    packages_to_exclude:List[str]  = []
+    filenames_to_exclude: List[str] = []
+    packages_to_exclude: List[str] = []
     if exclude_filenames:
         for f in filenames_to_exclude:
             if f and (":" not in f):
                 packages_to_exclude.append(f)
             else:
                 filenames_to_exclude.append(f)
-    filenames_to_exclude.extend([current_filename, filename_to_exclude])    
+    filenames_to_exclude.extend([current_filename, filename_to_exclude])
 
     query_draft = """
         SELECT userdict.indexno
@@ -395,20 +395,24 @@ def get_saved_interview_list(
         AND (NOT :exclude_newly_started_sessions OR num_keys > 1)
         """
     if packages_to_exclude:
-        query_draft += """
+        query_draft += (
+            """
             AND (:packages_to_exclude IS NULL OR NOT (
-            """ + " OR ".join([f"userdict.filename LIKE '{name}%'" for name in packages_to_exclude]) + """
+            """
+            + " OR ".join(
+                [f"userdict.filename LIKE '{name}%'" for name in packages_to_exclude]
+            )
+            + """
             ))
         """
+        )
     query_draft += """
         ORDER BY modtime desc 
         LIMIT :limit
         OFFSET :offset;
     """
 
-    get_sessions_query = text(
-        query_draft
-    )
+    get_sessions_query = text(query_draft)
 
     if user_id is None:
         if user_logged_in():
@@ -440,7 +444,9 @@ def get_saved_interview_list(
                 "offset": offset,
                 "filenames_to_exclude": tuple(filenames_to_exclude),
                 "exclude_newly_started_sessions": exclude_newly_started_sessions,
-                "packages_to_exclude": None if not packages_to_exclude else "present", # We need to pass a value to the query, but it's treated as a flag
+                "packages_to_exclude": (
+                    None if not packages_to_exclude else "present"
+                ),  # We need to pass a value to the query, but it's treated as a flag
             },
         )
     sessions = []
@@ -955,7 +961,7 @@ def session_list_html(
         show_copy_button (bool, optional): If True, show a copy button for answer sets. Defaults to True.
         limit (int, optional): Limit for the number of sessions returned. Defaults to 50.
         offset (int, optional): Offset for the session list. Defaults to 0.
-        
+
 
     Returns:
         str: HTML-formatted table containing the list of user sessions.
