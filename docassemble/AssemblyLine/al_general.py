@@ -815,7 +815,7 @@ class ALPeopleList(DAList):
             **kwargs: Additional keyword arguments that are defined [upstream](https://docassemble.org/docs/objects.html#language%20methods).
                     - person (Optional[[Union[str,int]]): Whether to use a first, second, or third person pronoun. Can be one of 1/"1p", 2/"2p", or 3/"3p" (default is 3). See [upstream](https://docassemble.org/docs/objects.html#language%20methods) documentation for more information.
                     - default (Optional[str]): The default word to use if the pronoun is not defined, e.g. "the agent". If not defined, the default term is the user's name.
-        
+
         Returns:
             str: The reflexive pronoun for the list.
         """
@@ -829,15 +829,17 @@ class ALPeopleList(DAList):
                     output = word("yourselves")
             else:
                 output = word("themselves")
-            
+
         elif self.number_gathered() == 1:
-            if isinstance(self[0], ALIndividual) and hasattr(self[0], "pronoun_reflexive"):
+            if isinstance(self[0], ALIndividual) and hasattr(
+                self[0], "pronoun_reflexive"
+            ):
                 output = self[0].pronoun_reflexive(**kwargs)
             else:
                 output = word("itself")
         else:
             output = word("themselves")
-        
+
         if kwargs.get("capitalize"):
             return output.capitalize()
         return output
@@ -1895,7 +1897,7 @@ class ALIndividual(Individual):
                 return word("yourself")
             if person == "2p":
                 return word("yourselves")
-            
+
         if self == this_thread.global_vars.user:
             output = word("yourself", **kwargs)
 
@@ -1920,27 +1922,30 @@ class ALIndividual(Individual):
             if isinstance(pronouns, DADict):
                 for pronoun in pronouns.true_values():
                     if pronoun in [
-                            "she/her/hers",
-                            "he/him/his",
-                            "they/them/theirs",
-                            "ze/zir/zirs",
-                        ]:
-                            if pronoun == "she/her/hers":
-                                pronouns_to_use.append(word("herself", **kwargs))
-                            elif pronoun == "he/him/his":
-                                pronouns_to_use.append(word("himself", **kwargs))
-                            elif pronoun == "they/them/theirs":
-                                pronouns_to_use.append(word("themself", **kwargs))
-                            elif pronoun == "ze/zir/zirs":
-                                pronouns_to_use.append(word("zirself", **kwargs))
+                        "she/her/hers",
+                        "he/him/his",
+                        "they/them/theirs",
+                        "ze/zir/zirs",
+                    ]:
+                        if pronoun == "she/her/hers":
+                            pronouns_to_use.append(word("herself", **kwargs))
+                        elif pronoun == "he/him/his":
+                            pronouns_to_use.append(word("himself", **kwargs))
+                        elif pronoun == "they/them/theirs":
+                            pronouns_to_use.append(word("themself", **kwargs))
+                        elif pronoun == "ze/zir/zirs":
+                            pronouns_to_use.append(word("zirself", **kwargs))
                     elif pronoun == "self-described" and has_parsable_pronouns(
                         self.pronouns_self_described
                     ):
                         pronouns_to_use.append(
-                            parse_custom_pronouns(self.pronouns_self_described)["o"] + word("self")
+                            parse_custom_pronouns(self.pronouns_self_described)["o"]
+                            + word("self")
                         )
                     elif has_parsable_pronouns(pronoun):
-                        pronouns_to_use.append(parse_custom_pronouns(pronoun)["o"] + word("self"))
+                        pronouns_to_use.append(
+                            parse_custom_pronouns(pronoun)["o"] + word("self")
+                        )
                 if len(pronouns_to_use) > 0:
                     output = "/".join(pronouns_to_use)
                 else:
@@ -1961,12 +1966,13 @@ class ALIndividual(Individual):
             if default:
                 output = default
             else:
-                output = word("themself") # reflexive pronoun shouldn't be the person's name
+                output = word(
+                    "themself"
+                )  # reflexive pronoun shouldn't be the person's name
 
         if kwargs.get("capitalize"):
             return capitalize(output)
         return output
-
 
     def name_full(self) -> str:
         """Returns the individual's full name.
