@@ -163,16 +163,33 @@ code: |
   package_name = str(user_info().package)
 ---
 code: |
+  # github_repo_name is used to direct issue feedback to the right repository
+  # Normally you will customize this in your package
   if package_name and not "playground" in package_name:
     github_repo_name = package_name.replace('.','-')
   else:    
     github_repo_name = "docassemble-AssemblyLine"
 ---
 code: |
-  # Username or organization name for Github repositories
-  # Used to direct feedback to the right place and to check for
-  # the last commit date.
+  # github_about_repo_name is used to lookup the last commit date on the default about page
+  # defaults to the same value as github_repo_name
+  github_about_repo_name = github_repo_name
+---
+code: |
+  # github_user is the `username` or `organization name` part of the URL
+  # on github where you want the feedback form to create issues. I.e., the owner of that repository.
+
+  # Example: if you want issues to appear on a repository at https://github.com/suffolklitlab/docassemble-AssemblyLine,
+  # then `github_user` should be `suffolklitlab`
+
+  # defaults to the "default repository owner" value in the global configuration, under the "github issues" section
+  
   github_user = get_config("github issues",{}).get("default repository owner","").strip() or "suffolklitlab"
+---
+code: |
+  # github_about_user is used to lookup the last commit date on the default about page
+  # defaults to the same value as github_user
+  github_about_user = github_user
 ---
 code: |
   feedback_form = "docassemble.AssemblyLine:feedback.yml"
@@ -347,7 +364,7 @@ code: |
   github_url = "https://github.com/" + github_user + "/" + github_repo_name
 ---
 code: |
-  res = github_modified_date(github_user, github_repo_name)
+  res = github_modified_date(github_about_user, github_about_repo_name)
   if res:
     package_updated_on = res.format('yyyy-MM-dd')
   else:
