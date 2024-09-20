@@ -25,9 +25,20 @@ subquestion: |
   Searching is not case sensitive.
 fields:
   - Keyword: search_keyword
+  - Limit metadata column: limit_column_name
+    required: False
+  - To value: limit_column_value
+    required: False  
 ---
 code: |
-  matching_results = find_matching_sessions(search_keyword, user_id="all")
+  if limit_column_name:
+    matching_results = find_matching_sessions(
+      search_keyword, user_id="all", metadata_filters = {
+        limit_column_name: (limit_column_value, "ILIKE")
+      }
+      )
+  else:
+    matching_results = find_matching_sessions(search_keyword, user_id="all")
 ---
 event: no_matches
 question: |

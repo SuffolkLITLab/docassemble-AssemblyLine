@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import List, Dict, Any, Optional, Set, Union, Optional
+from typing import List, Dict, Any, Optional, Set, Union, Optional, Tuple
 from docassemble.base.util import (
     all_variables,
     as_datetime,
@@ -471,9 +471,10 @@ def find_matching_sessions(
     exclude_filenames: Optional[List[str]] = None,
     exclude_newly_started_sessions: bool = False,
     global_search_allowed_roles: Optional[Union[Set[str], List[str]]] = None,
+    metadata_filters: Optional[Dict[str, Tuple[Any, str, Optional[str]]]] = None,
 ) -> List[Dict[str, Any]]:
-    """Get a list of sessions where the metadata for the session matches the provided keyword search terms.
-    This function is designed to be used in a search interface where the user can search for sessions by keyword.
+    """Get a list of sessions where the metadata for the session matches the provided keyword search terms and metadata filters.
+    This function is designed to be used in a search interface where the user can search for sessions by keyword and specific metadata values.
     The keyword search is case-insensitive and will match any part of the metadata column values.
 
     Args:
@@ -489,15 +490,30 @@ def find_matching_sessions(
         exclude_filenames (Optional[List[str]], optional): A list of filenames to exclude from the results. Defaults to None.
         exclude_newly_started_sessions (bool, optional): Whether to exclude sessions that are still on "step 1". Defaults to False.
         global_search_allowed_roles (Union[Set[str],List[str]], optional): A list or set of roles that are allowed to search all sessions. Defaults to {'admin','developer', 'advocate'}. 'admin' and 'developer' are always allowed to search all sessions.
+        metadata_filters (Optional[Dict[str, Tuple[Any, str, Optional[str]]]], optional): A dictionary of metadata column names and their corresponding filter tuples.
+            Each tuple should contain (value, operator, cast_type).
+            - value: The value to compare against
+            - operator: One of '=', '!=', '<', '<=', '>', '>=', 'LIKE', 'ILIKE'
+            - cast_type: Optional. One of 'int', 'float', or None for string (default)
 
     Returns:
-        List[Dict[str, Any]]: A list of saved sessions for the specified filename that match the search keyword
+        List[Dict[str, Any]]: A list of saved sessions for the specified filename that match the search keyword and metadata filters
 
     Example:
+        matching_sessions = find_matching_sessions(
+            "smith",
+            user_id="all",
+            filenames=[f"{user_info().package}:intake.yml", "docassemble.MyPackage:intake.yml"],
+            metadata_filters={
+                "owner": ("samantha", "ILIKE", None),
+                "age": (30, ">=", "int"),
+                "status": ("%complete%", "LIKE", None)
+            }
+        )
 
-        ```python
-        matching_sessions=find_matching_sessions("smith", user_id="all", filenames=[f"{user_info().package}:intake.yml", "docassemble.MyPackage:intake.yml"])
-        ```
+    Example:
+        {"owner": ("samantha", "ILIKE", None), "age": (30, ">=", "int"), "status": ("%complete%", "LIKE", None)}
+
     """
     if not metadata_column_names:
         metadata_column_names = {"title", "auto_title", "description"}
@@ -515,6 +531,32 @@ def find_matching_sessions(
         )
     else:
         metadata_search_conditions = "TRUE"
+
+    # Add metadata filters
+    if metadata_filters:
+        metadata_filter_conditions = []
+        for column, val_tuple in metadata_filters.items():
+            if len(val_tuple) == 2:
+                value, operator = val_tuple
+                cast_type = None
+            else:
+                value, operator, cast_type = val_tuple
+            if cast_type:
+                column_expr = f"CAST(jsonstorage.data->>{repr(column)} AS {cast_type})"
+            else:
+                column_expr = f"jsonstorage.data->>{repr(column)}"
+
+            if operator.upper() in ("LIKE", "ILIKE"):
+                condition = f"COALESCE({column_expr}, '') {operator} :{column}_filter"
+            else:
+                condition = f"{column_expr} {operator} :{column}_filter"
+
+            metadata_filter_conditions.append(condition)
+
+        metadata_filter_sql = " AND ".join(metadata_filter_conditions)
+        metadata_search_conditions = (
+            f"({metadata_search_conditions}) AND ({metadata_filter_sql})"
+        )
 
     # we retrieve the default metadata columns even if we don't search them
     metadata_column_names = set(metadata_column_names).union(
@@ -604,6 +646,11 @@ def find_matching_sessions(
     if filenames:
         for i, filename in enumerate(filenames):
             parameters[f"filename{i}"] = filename
+
+    # Add metadata filter parameters
+    if metadata_filters:
+        for column, val_tuple in metadata_filters.items():
+            parameters[f"{column}_filter"] = val_tuple[0]
 
     with db.connect() as con:
         rs = con.execute(get_sessions_query, parameters)
@@ -1536,3 +1583,54 @@ def config_with_language_fallback(
             return interview_list_config.get(config_key)
     else:
         return get_config(top_level_config_key or config_key)
+
+
+def get_filenames_having_sessions(user_id: Optional[Union[int, str]] = None):
+    conn = variables_snapshot_connection()
+    if user_id is None:
+        if user_logged_in():
+            user_id = user_info().id
+        else:
+            log("Asked to get interview list for user that is not logged in")
+            return []
+
+    if user_id == "all":
+        if user_has_privilege(global_search_allowed_roles):
+            user_id = None
+        elif user_logged_in():
+            user_id = user_info().id
+            log(
+                f"User {user_info().email} does not have permission to list interview sessions belonging to other users"
+            )
+        else:
+            log("Asked to get interview list for user that is not logged in")
+            return []
+
+    with conn.cursor() as cur:
+        query = "SELECT DISTINCT(filename) AS filename FROM userdict"
+        cur.execute(query)
+        results = [record for record in cur]
+    conn.close()
+    return results
+
+
+def get_combined_filename_list():
+    json_filenames = get_filenames()
+    interview_filenames = interview_menu()
+    combined_interviews = []
+    for json_interview in json_filenames:
+        found_match = False
+        for interview in interview_filenames:
+            if interview["filename"] == json_interview[0]:
+                combined_interviews.append(
+                    {
+                        interview["filename"]: interview.get(
+                            "title", interview["filename"]
+                        )
+                    }
+                )
+                found_match = True
+                continue
+        if not found_match:
+            combined_interviews.append({json_interview[0]: json_interview[0]})
+    return combined_interviews
