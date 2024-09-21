@@ -317,12 +317,13 @@ script:
   </script>
 ---
 continue button field: section_search
+section: section_search
 question: |
   Search
   % if PAGE_QUESTION:
-  ${ PAGE_QUESTION }
+  ${ str(PAGE_QUESTION).lower() }
   % else:
-  In progress forms 
+  in progress forms 
   % endif
 subquestion: |
   Use a keyword to find results that match the title or description of the session.
