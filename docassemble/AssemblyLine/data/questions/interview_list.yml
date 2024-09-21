@@ -132,6 +132,7 @@ code: |
 sections:
   - section_in_progress_forms: In progress forms
   - section_answer_sets: Answer sets
+  - section_search: Search
 progressive: False
 ---
 # A code block is the only way to show navigation with custom labels (mako isn't allowed in `sections`)
@@ -144,7 +145,10 @@ code: |
         },
         {
           "section_answer_sets": ANSWER_SETS_TITLE or word("Answer sets")
-        }
+        },
+        {
+          "section_search": word("Search")
+        },
         ]
   )
 ---
@@ -261,6 +265,10 @@ subquestion: |
   documents.
   % endif
 
+  % if showifdef("limit_filename") or showifdef("search_keyword"):
+  ${ session_list_html(results_to_format = find_matching_sessions(filenames={limit_filename} if limit_filename else None, keyword=search_keyword), filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }
+
+  % else:
   ${ session_list_html(filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }
 
   <nav aria-label="Page navigation">
@@ -273,8 +281,12 @@ subquestion: |
   % endif
     </ul>
   </nav>  
-  % else:
-  You do not have any current forms in progress
+  % endif
+
+  % endif
+
+  % if showifdef("limit_filename") or showifdef("search_keyword"):
+  ${ action_button_html(url_action("delete_results_action"), label=word("Clear search results"), size="md", color="secondary", icon="times-circle", id_tag="al-clear-search-results") }
   % endif
 # TODO: might be able to save some DB queries here but performance is good
 section: section_in_progress_forms
@@ -303,6 +315,24 @@ script:
         return false;
       });
   </script>
+---
+continue button field: section_search
+question: |
+  Search
+  % if PAGE_QUESTION:
+  ${ PAGE_QUESTION }
+  % else:
+  In progress forms 
+  % endif
+subquestion: |
+  Use a keyword to find results that match the title or description of the session.
+fields:
+  - Limit by form title (optional): limit_filename
+    required: False
+    code: |
+      get_combined_filename_list()
+  - Search term (optional): search_keyword
+    required: False
 ---
 event: section_answer_sets
 id: answer set list
@@ -441,3 +471,8 @@ code: |
           ),
       )
   )
+---
+event: delete_results_action
+code: |
+  undefine("limit_filename")
+  undefine("search_keyword")

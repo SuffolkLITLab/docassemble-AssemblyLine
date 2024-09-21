@@ -1,3 +1,6 @@
+import psycopg2
+from psycopg2.extras import DictCursor
+
 from collections.abc import Iterable
 from typing import List, Dict, Any, Optional, Set, Union, Optional, Tuple
 from docassemble.base.util import (
@@ -73,6 +76,8 @@ __all__ = [
     "session_list_html",
     "set_current_session_metadata",
     "set_interview_metadata",
+    "get_filenames_having_sessions",
+    "get_combined_filename_list",
 ]
 
 db = init_sqlalchemy()
@@ -986,6 +991,7 @@ def session_list_html(
     show_copy_button: bool = True,
     limit: int = 50,
     offset: int = 0,
+    results_to_format: Optional[List[Dict[str, Any]]] = None,
 ) -> str:
     """Return a string containing an HTML-formatted table with the list of user sessions.
     While interview_list_html() is for answer sets, this feature is for standard
@@ -1018,20 +1024,20 @@ def session_list_html(
     Returns:
         str: HTML-formatted table containing the list of user sessions.
     """
-
-    # TODO: think through how to translate this function. Templates probably work best but aren't
-    # convenient to pass around
-    answers = get_saved_interview_list(
-        filename=filename,
-        user_id=user_id,
-        metadata_key_name=metadata_key_name,
-        limit=limit,
-        offset=offset,
-        filename_to_exclude=filename_to_exclude,
-        exclude_current_filename=exclude_current_filename,
-        exclude_filenames=exclude_filenames,
-        exclude_newly_started_sessions=exclude_newly_started_sessions,
-    )
+    if not results_to_format:
+        answers = get_saved_interview_list(
+            filename=filename,
+            user_id=user_id,
+            metadata_key_name=metadata_key_name,
+            limit=limit,
+            offset=offset,
+            filename_to_exclude=filename_to_exclude,
+            exclude_current_filename=exclude_current_filename,
+            exclude_filenames=exclude_filenames,
+            exclude_newly_started_sessions=exclude_newly_started_sessions,
+        )
+    else:
+        answers = results_to_format
 
     if not answers:
         return ""
@@ -1585,7 +1591,24 @@ def config_with_language_fallback(
         return get_config(top_level_config_key or config_key)
 
 
-def get_filenames_having_sessions(user_id: Optional[Union[int, str]] = None):
+
+def get_filenames_having_sessions(user_id: Optional[Union[int, str]] = None, global_search_allowed_roles: Optional[Union[Set[str], List[str]]] = None):
+    """Get a list of all filenames that have sessions saved for a given user, in order
+    to help show the user a good list of interviews to filter search results.
+
+    Args:
+        user_id (Optional[Union[int, str]], optional): User ID to get the list of filenames for. Defaults to current logged-in user. Use "all" to get all filenames.
+        global_search_allowed_roles (Optional[Union[Set[str], List[str]]], optional): Roles that are allowed to search for all sessions. Defaults to admin, developer, and advocate.
+    
+    Returns:
+        List[str]: List of filenames that have sessions saved for the user.
+    """
+    if not global_search_allowed_roles:
+        global_search_allowed_roles = {"admin", "developer", "advocate"}
+    global_search_allowed_roles = set(global_search_allowed_roles).union(
+        {"admin", "developer"}
+    )
+
     conn = variables_snapshot_connection()
     if user_id is None:
         if user_logged_in():
@@ -1606,31 +1629,59 @@ def get_filenames_having_sessions(user_id: Optional[Union[int, str]] = None):
             log("Asked to get interview list for user that is not logged in")
             return []
 
-    with conn.cursor() as cur:
-        query = "SELECT DISTINCT(filename) AS filename FROM userdict"
-        cur.execute(query)
-        results = [record for record in cur]
-    conn.close()
+    try:
+        with conn.cursor(cursor_factory=DictCursor) as cur:
+            if user_id is None:
+                query = """
+                    SELECT DISTINCT(filename) AS filename 
+                    FROM userdict
+                """
+                cur.execute(query)
+            else:
+                query = """
+                    SELECT DISTINCT(filename) AS filename 
+                    FROM userdict 
+                    WHERE (%(user_id)s is null OR user_id = %(user_id)s)
+                """
+                cur.execute(query, {"user_id": user_id})
+            
+            results = [record['filename'] for record in cur]
+    finally:
+        conn.close()
+
     return results
+def get_combined_filename_list(user_id: Optional[Union[int, str]] = None, global_search_allowed_roles: Optional[Union[Set[str], List[str]]] = None) -> List[Dict[str, str]]:
+    """
+    Get a list of all filenames that have sessions saved for a given user. If it is possible
+    to show a descriptive name for the filename (from the main dispatch area of the configuration),
+    it will show that instead of the filename.
 
+    The results will be in the form of [{filename: Descriptive name}], which is what the Docassemble
+    radio button and dropdown list expect.
 
-def get_combined_filename_list():
-    json_filenames = get_filenames()
+    Args:
+        user_id (Optional[Union[int, str]], optional): User ID to get the list of filenames for. Defaults to current logged in user. Use "all" to get all filenames.
+        global_search_allowed_roles (Optional[Union[Set[str], List[str]]], optional): Roles that are allowed to search for all sessions. Defaults to admin, developer, and advocate.
+
+    Returns:
+        List[Dict[str, str]]: List of filenames that have sessions saved for the user.
+    """
+    if not global_search_allowed_roles:
+        global_search_allowed_roles = {"admin", "developer", "advocate"}
+    global_search_allowed_roles = set(global_search_allowed_roles).union(
+        {"admin", "developer"}
+    )
+
+    users_filenames = get_filenames_having_sessions(user_id=user_id)
     interview_filenames = interview_menu()
     combined_interviews = []
-    for json_interview in json_filenames:
+    for user_interview in users_filenames:
         found_match = False
         for interview in interview_filenames:
-            if interview["filename"] == json_interview[0]:
-                combined_interviews.append(
-                    {
-                        interview["filename"]: interview.get(
-                            "title", interview["filename"]
-                        )
-                    }
-                )
+            if interview["filename"] == user_interview:
+                combined_interviews.append({interview["filename"]: interview.get("title", interview["filename"]) })
                 found_match = True
                 continue
         if not found_match:
-            combined_interviews.append({json_interview[0]: json_interview[0]})
+            combined_interviews.append({user_interview: user_interview})
     return combined_interviews
