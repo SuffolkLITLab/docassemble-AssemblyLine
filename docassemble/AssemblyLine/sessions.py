@@ -1593,11 +1593,7 @@ def config_with_language_fallback(
 def get_filenames_having_sessions(
     user_id: Optional[Union[int, str]] = None,
     global_search_allowed_roles: Optional[Union[Set[str], List[str]]] = None,
-<<<<<<< Updated upstream
-):
-=======
 ) -> List[str]:
->>>>>>> Stashed changes
     """Get a list of all filenames that have sessions saved for a given user, in order
     to help show the user a good list of interviews to filter search results.
 
