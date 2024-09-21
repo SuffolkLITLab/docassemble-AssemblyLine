@@ -6,3 +6,4 @@ sqlalchemy[mypy]
 types-PyYAML
 PyGithub
 types-requests
+types-psycopg2
