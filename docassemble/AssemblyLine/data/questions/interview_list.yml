@@ -266,7 +266,7 @@ subquestion: |
   % endif
 
   % if showifdef("limit_filename") or showifdef("search_keyword"):
-  ${ session_list_html(results_to_format = find_matching_sessions(filenames={limit_filename} if limit_filename else None, keyword=search_keyword), filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }
+  ${ session_list_html(answers = find_matching_sessions(filenames={limit_filename} if limit_filename else None, keyword=search_keyword), filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }
 
   % else:
   ${ session_list_html(filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }

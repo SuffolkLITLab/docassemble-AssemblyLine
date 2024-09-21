@@ -991,7 +991,7 @@ def session_list_html(
     show_copy_button: bool = True,
     limit: int = 50,
     offset: int = 0,
-    results_to_format: Optional[List[Dict[str, Any]]] = None,
+    answers: Optional[List[Dict[str, Any]]] = None,
 ) -> str:
     """Return a string containing an HTML-formatted table with the list of user sessions.
     While interview_list_html() is for answer sets, this feature is for standard
@@ -1019,12 +1019,13 @@ def session_list_html(
         show_copy_button (bool, optional): If True, show a copy button for answer sets. Defaults to True.
         limit (int, optional): Limit for the number of sessions returned. Defaults to 50.
         offset (int, optional): Offset for the session list. Defaults to 0.
+        answers (Optional[List[Dict[str, Any]], optional): A list of answers to format and display. Defaults to showing all sessions for the current user.
 
 
     Returns:
         str: HTML-formatted table containing the list of user sessions.
     """
-    if not results_to_format:
+    if not answers:
         answers = get_saved_interview_list(
             filename=filename,
             user_id=user_id,
@@ -1036,8 +1037,6 @@ def session_list_html(
             exclude_filenames=exclude_filenames,
             exclude_newly_started_sessions=exclude_newly_started_sessions,
         )
-    else:
-        answers = results_to_format
 
     if not answers:
         return ""
@@ -1594,7 +1593,11 @@ def config_with_language_fallback(
 def get_filenames_having_sessions(
     user_id: Optional[Union[int, str]] = None,
     global_search_allowed_roles: Optional[Union[Set[str], List[str]]] = None,
+<<<<<<< Updated upstream
 ):
+=======
+) -> List[str]:
+>>>>>>> Stashed changes
     """Get a list of all filenames that have sessions saved for a given user, in order
     to help show the user a good list of interviews to filter search results.
 
