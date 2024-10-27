@@ -1822,6 +1822,94 @@ class ALDocumentBundle(DAList):
                 editable.append(doc)
         return editable
 
+    def get_cacheable_documents(
+            self,
+            key: str = "final",
+            pdf: bool = True,
+            docx: bool=False,
+            original: bool = False,
+            refresh: bool = True,  
+            pdfa: bool = False,
+            include_zip: bool = True,
+            include_pdf: bool = False,
+            append_matching_suffix: bool = True,
+        ) -> Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]:
+        """
+        Generates a cache of all enabled documents in the bundle, and returns it in a structure that can be cached
+        and returned for use in a background process.
+
+        The result looks like this:
+
+        [
+            {"title": "Document 1", "pdf": DAFile, "docx": DAFile, download_filename: str},
+        ],
+        DAFile, # Zip of whole bundle
+        DAFile # PDF of whole bundle
+
+        Args:
+            key (str): Identifier for the document version, default is "final".
+            pdf (bool): Flag to include a PDF version of each file, default is True.
+            docx (bool): Flag to include a DOCX version of each file, default is False.
+            original (bool): Flag to include the original version of each file, default is False.
+            refresh (bool): Flag to reconsider the 'enabled' attribute, default is True.
+            pdfa (bool): Flag to return documents in PDF/A format, default is False.
+            include_zip (bool): Flag to include a zip option, default is True.
+            include_pdf (bool): Flag to include a PDF version of the whole bundle, default is False.
+            append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
+        """
+        # reduce idempotency delays
+        enabled_docs = self.enabled_documents(refresh=refresh)
+        for doc in enabled_docs:
+            doc.title
+        
+        results = []
+        
+        for doc in enabled_docs:
+            result = {"title": doc.title}
+            filename_root = os.path.splitext(str(doc.filename))[0]
+            if pdf:
+                result["pdf"] = doc.as_pdf(key=key, refresh=refresh, pdfa=pdfa, append_matching_suffix=append_matching_suffix)
+                result["download_filename"] = filename_root + ".pdf"
+            if docx and doc._is_docx(key=key):
+                result["docx"] = doc.as_docx(key=key, refresh=refresh, append_matching_suffix=append_matching_suffix)
+                result["download_filename"] = filename_root + ".docx"
+            if original:
+                result["original"] = doc[key]
+                result["download_filename"] = doc.filename
+            
+            try:
+                # If it's possible, set the file extension to the actual filetype
+                # This is mostly necessary if people omit the file extension in attachment block
+                # for filetype="original"
+                if original:
+                    download_doc = result["original"]
+                else:
+                    download_doc = result["docx"]
+                ext = next(
+                    iter(
+                        mimetypes.guess_all_extensions(
+                            download_doc.mimetype, strict=True
+                        )
+                    )
+                )
+                result["download_filename"] = filename_root + ext
+            except:
+                pass
+            results.append(result)
+        
+        if len(enabled_docs) > 1 and include_zip:
+            bundled_zip = self.as_zip(key=key, format="original" if original else "docx" if docx else "pdf")
+        else:
+            bundled_zip = None
+        
+        if len(enabled_docs) > 1 and include_pdf:
+            bundled_pdf = self.as_pdf(key=key, pdfa=pdfa)
+        else:
+            bundled_pdf = None
+
+        return results, bundled_zip, bundled_pdf
+
+
     def download_list_html(
         self,
         key: str = "final",
@@ -1838,6 +1926,7 @@ class ALDocumentBundle(DAList):
         zip_icon: str = "file-archive",
         append_matching_suffix: bool = True,
         include_email: bool = False,
+        use_previously_cached_files: bool = False,
     ) -> str:
         """
         Constructs an HTML table displaying a list of documents with 'view' and 'download' buttons.
@@ -1864,52 +1953,37 @@ class ALDocumentBundle(DAList):
         if not hasattr(self, "_cached_zip_label"):
             self._cached_zip_label = str(self.zip_label)
 
-        # Trigger some variables up top to avoid idempotency issues
-        enabled_docs = self.enabled_documents(refresh=refresh)
-        for doc in enabled_docs:
-            doc.title
-            if format == "pdf":
-                doc.as_pdf(
-                    key=key,
-                    refresh=refresh,
-                    pdfa=pdfa,
-                    append_matching_suffix=append_matching_suffix,
-                )  # Generate cached file for this session
+        if use_previously_cached_files and hasattr(self, "_downloadable_files"):
+            downloadable_files, bundled_zip, bundled_pdf = self._downloadable_files
+        else:
+            downloadable_files, bundled_zip, bundled_pdf = self.get_cacheable_documents(
+                key=key,
+                pdf=format == "pdf",
+                docx=format == "docx",
+                original=format == "original",
+                refresh=refresh,
+                pdfa=pdfa,
+                include_zip=include_zip,
+                include_pdf=view,
+                append_matching_suffix=append_matching_suffix,
+            )
 
         html = f'<div class="container al_table al_doc_table" id="{ html_safe_str(self.instanceName) }">'
 
-        for doc in enabled_docs:
-            filename_root = os.path.splitext(str(doc.filename))[0]
-            # Do our best to use the provided filename + the extension from requested filetype
-            if format == "original":
-                download_doc = doc[key]
-                download_filename = doc.filename
-            if format == "docx" and doc._is_docx(key=key):
-                download_doc = doc.as_docx(
-                    key=key, append_matching_suffix=append_matching_suffix
-                )
-                download_filename = filename_root + ".docx"
+        for result in downloadable_files:
+            title = result['title']
+            download_filename = result.get('download_filename', 'document')
+
+            if format == 'original' and 'original' in result:
+                download_doc = result['original']
+            elif format == 'docx' and 'docx' in result:
+                download_doc = result['docx']
+            elif 'pdf' in result:
+                download_doc = result['pdf']
             else:
-                download_doc = doc.as_pdf(
-                    key=key, append_matching_suffix=append_matching_suffix
-                )
-                download_filename = filename_root + ".pdf"
+                continue  # Skip if the desired format is not available
 
-            try:
-                # If it's possible, set the file extension to the actual filetype
-                # This is mostly necessary if people omit the file extension in attachment block
-                # for filetype="original"
-                ext = next(
-                    iter(
-                        mimetypes.guess_all_extensions(
-                            download_doc.mimetype, strict=True
-                        )
-                    )
-                )
-                download_filename = filename_root + ext
-            except:
-                pass
-
+            # Construct the download button
             doc_download_button = action_button_html(
                 download_doc.url_for(
                     attachment=True, display_filename=download_filename
@@ -1920,12 +1994,13 @@ class ALDocumentBundle(DAList):
                 size="md",
                 classname="al_download al_button",
             )
-            if view and doc.as_pdf().url_for().endswith(".pdf"):
+
+            # Construct the view button if needed
+            if view and 'pdf' in result and result['pdf'].url_for().endswith(".pdf"):
                 doc_view_button = action_button_html(
-                    doc.as_pdf(key=key).url_for(
+                    result['pdf'].url_for(
                         attachment=False,
-                        display_filename=filename_root + ".pdf",
-                        append_matching_suffix=append_matching_suffix,
+                        display_filename=download_filename
                     ),
                     label=view_label,
                     icon=view_icon,
@@ -1936,31 +2011,29 @@ class ALDocumentBundle(DAList):
                 buttons = [doc_view_button, doc_download_button]
             else:
                 buttons = [doc_download_button]
-            html += table_row(doc.title, buttons)
 
-        # Add a zip file row if there's more than one doc
-        filename_root = os.path.splitext(str(self.filename))[0]
-        if len(enabled_docs) > 1 and include_zip:
+            html += table_row(title, buttons)
+
+        # Add a zip file row if included
+        if include_zip and bundled_zip:
             if not zip_label:
                 zip_label = self._cached_zip_label
-            # Zip file will match the format of the download table
-            zip = self.as_zip(key=key, format=format, include_pdf=view)
+            filename_root = os.path.splitext(str(self.filename))[0]
             zip_button = action_button_html(
-                zip.url_for(attachment=False, display_filename=filename_root + ".zip"),
+                bundled_zip.url_for(attachment=False, display_filename=filename_root + ".zip"),
                 label=zip_label,
                 icon=zip_icon,
                 color="primary",
                 size="md",
                 classname="al_zip al_button",
             )
-            html += table_row(zip.title, zip_button)
+            html += table_row(zip_label, zip_button)
 
         if include_email:
             html += self.send_email_table_row(key=key)
 
         html += "\n</div>"
 
-        # Discuss: Do we want a table with the ability to have a merged pdf row?
         return html
 
     def download_html(
