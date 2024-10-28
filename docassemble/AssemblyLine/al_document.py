@@ -35,6 +35,7 @@ from math import floor
 import subprocess
 from collections import ChainMap
 import pikepdf
+from typing import Tuple
 
 __all__ = [
     "ALAddendumField",
@@ -1823,17 +1824,17 @@ class ALDocumentBundle(DAList):
         return editable
 
     def get_cacheable_documents(
-            self,
-            key: str = "final",
-            pdf: bool = True,
-            docx: bool=False,
-            original: bool = False,
-            refresh: bool = True,  
-            pdfa: bool = False,
-            include_zip: bool = True,
-            include_pdf: bool = False,
-            append_matching_suffix: bool = True,
-        ) -> Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]:
+        self,
+        key: str = "final",
+        pdf: bool = True,
+        docx: bool = False,
+        original: bool = False,
+        refresh: bool = True,
+        pdfa: bool = False,
+        include_zip: bool = True,
+        include_full_pdf: bool = False,
+        append_matching_suffix: bool = True,
+    ) -> Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]:
         """
         Generates a cache of all enabled documents in the bundle, and returns it in a structure that can be cached
         and returned for use in a background process.
@@ -1854,29 +1855,38 @@ class ALDocumentBundle(DAList):
             refresh (bool): Flag to reconsider the 'enabled' attribute, default is True.
             pdfa (bool): Flag to return documents in PDF/A format, default is False.
             include_zip (bool): Flag to include a zip option, default is True.
-            include_pdf (bool): Flag to include a PDF version of the whole bundle, default is False.
+            include_full_pdf (bool): Flag to include a PDF version of the whole bundle, default is False.
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
         """
         # reduce idempotency delays
         enabled_docs = self.enabled_documents(refresh=refresh)
         for doc in enabled_docs:
             doc.title
-        
+
         results = []
-        
+
         for doc in enabled_docs:
             result = {"title": doc.title}
             filename_root = os.path.splitext(str(doc.filename))[0]
             if pdf:
-                result["pdf"] = doc.as_pdf(key=key, refresh=refresh, pdfa=pdfa, append_matching_suffix=append_matching_suffix)
+                result["pdf"] = doc.as_pdf(
+                    key=key,
+                    refresh=refresh,
+                    pdfa=pdfa,
+                    append_matching_suffix=append_matching_suffix,
+                )
                 result["download_filename"] = filename_root + ".pdf"
             if docx and doc._is_docx(key=key):
-                result["docx"] = doc.as_docx(key=key, refresh=refresh, append_matching_suffix=append_matching_suffix)
+                result["docx"] = doc.as_docx(
+                    key=key,
+                    refresh=refresh,
+                    append_matching_suffix=append_matching_suffix,
+                )
                 result["download_filename"] = filename_root + ".docx"
             if original:
                 result["original"] = doc[key]
                 result["download_filename"] = doc.filename
-            
+
             try:
                 # If it's possible, set the file extension to the actual filetype
                 # This is mostly necessary if people omit the file extension in attachment block
@@ -1896,19 +1906,20 @@ class ALDocumentBundle(DAList):
             except:
                 pass
             results.append(result)
-        
+
         if len(enabled_docs) > 1 and include_zip:
-            bundled_zip = self.as_zip(key=key, format="original" if original else "docx" if docx else "pdf")
+            bundled_zip = self.as_zip(
+                key=key, format="original" if original else "docx" if docx else "pdf"
+            )
         else:
             bundled_zip = None
-        
-        if len(enabled_docs) > 1 and include_pdf:
+
+        if len(enabled_docs) > 1 and include_full_pdf:
             bundled_pdf = self.as_pdf(key=key, pdfa=pdfa)
         else:
             bundled_pdf = None
 
         return results, bundled_zip, bundled_pdf
-
 
     def download_list_html(
         self,
@@ -1927,6 +1938,8 @@ class ALDocumentBundle(DAList):
         append_matching_suffix: bool = True,
         include_email: bool = False,
         use_previously_cached_files: bool = False,
+        include_full_pdf: bool = False,
+        full_pdf_label: Optional[str] = None,
     ) -> str:
         """
         Constructs an HTML table displaying a list of documents with 'view' and 'download' buttons.
@@ -1946,6 +1959,9 @@ class ALDocumentBundle(DAList):
             zip_icon (str): Icon for the zip option, default is "file-archive".
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
             include_email (bool): Flag to include an email option, default is False.
+            use_previously_cached_files (bool): Flag to use previously cached files (e.g., made in background) if defined. default is False.
+            include_full_pdf (bool): Flag to include a full PDF option, default is False.
+            full_pdf_label (Optional[str]): Label for the full PDF option. If not provided, uses the generic template for `self.full_pdf_label` ("Download all").
 
         Returns:
             str: HTML representation of a table with documents and their associated actions.
@@ -1953,33 +1969,36 @@ class ALDocumentBundle(DAList):
         if not hasattr(self, "_cached_zip_label"):
             self._cached_zip_label = str(self.zip_label)
 
+        if not hasattr(self, "_cached_full_pdf_label"):
+            self._cached_full_pdf_label = str(self.full_pdf_label)
+
         if use_previously_cached_files and hasattr(self, "_downloadable_files"):
             downloadable_files, bundled_zip, bundled_pdf = self._downloadable_files
         else:
             downloadable_files, bundled_zip, bundled_pdf = self.get_cacheable_documents(
                 key=key,
-                pdf=format == "pdf",
+                pdf=(format == "pdf" or view == True),
                 docx=format == "docx",
                 original=format == "original",
                 refresh=refresh,
                 pdfa=pdfa,
                 include_zip=include_zip,
-                include_pdf=view,
+                include_full_pdf=include_full_pdf,
                 append_matching_suffix=append_matching_suffix,
             )
 
         html = f'<div class="container al_table al_doc_table" id="{ html_safe_str(self.instanceName) }">'
 
         for result in downloadable_files:
-            title = result['title']
-            download_filename = result.get('download_filename', 'document')
+            title = result["title"]
+            download_filename = result.get("download_filename", "document")
 
-            if format == 'original' and 'original' in result:
-                download_doc = result['original']
-            elif format == 'docx' and 'docx' in result:
-                download_doc = result['docx']
-            elif 'pdf' in result:
-                download_doc = result['pdf']
+            if format == "original" and "original" in result:
+                download_doc = result["original"]
+            elif format == "docx" and "docx" in result:
+                download_doc = result["docx"]
+            elif "pdf" in result:
+                download_doc = result["pdf"]
             else:
                 continue  # Skip if the desired format is not available
 
@@ -1996,11 +2015,12 @@ class ALDocumentBundle(DAList):
             )
 
             # Construct the view button if needed
-            if view and 'pdf' in result and result['pdf'].url_for().endswith(".pdf"):
+            if view and "pdf" in result and result["pdf"].url_for().endswith(".pdf"):
+                # Use .pdf as the filename extension
+                view_filename = os.path.splitext(download_filename)[0] + ".pdf"
                 doc_view_button = action_button_html(
-                    result['pdf'].url_for(
-                        attachment=False,
-                        display_filename=download_filename
+                    result["pdf"].url_for(
+                        attachment=False, display_filename=view_filename
                     ),
                     label=view_label,
                     icon=view_icon,
@@ -2020,7 +2040,9 @@ class ALDocumentBundle(DAList):
                 zip_label = self._cached_zip_label
             filename_root = os.path.splitext(str(self.filename))[0]
             zip_button = action_button_html(
-                bundled_zip.url_for(attachment=False, display_filename=filename_root + ".zip"),
+                bundled_zip.url_for(
+                    attachment=False, display_filename=filename_root + ".zip"
+                ),
                 label=zip_label,
                 icon=zip_icon,
                 color="primary",
@@ -2028,6 +2050,22 @@ class ALDocumentBundle(DAList):
                 classname="al_zip al_button",
             )
             html += table_row(zip_label, zip_button)
+
+        if include_full_pdf and bundled_pdf:
+            if not full_pdf_label:
+                full_pdf_label = self._cached_full_pdf_label
+            filename_root = os.path.splitext(str(self.filename))[0]
+            full_pdf_button = action_button_html(
+                bundled_pdf.url_for(
+                    attachment=False, display_filename=filename_root + ".pdf"
+                ),
+                label=full_pdf_label,
+                icon="file-pdf",
+                color="primary",
+                size="md",
+                classname="al_full_pdf al_button",
+            )
+            html += table_row(full_pdf_label, full_pdf_button)
 
         if include_email:
             html += self.send_email_table_row(key=key)

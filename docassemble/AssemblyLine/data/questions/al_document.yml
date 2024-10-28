@@ -88,9 +88,53 @@ template: x.zip_label
 content: |
   Download all
 ---
+generic object: ALDocumentBundle
+template: x.full_pdf_label
+content: |
+  Download as one PDF
+---
 id: al exhibit ocr pages bg
 event: al_exhibit_ocr_pages
 code: |
   to_pdf = action_argument('to_pdf')
   from_file = action_argument('from_file')
   background_response(ocrmypdf_task(from_file, to_pdf))
+---
+generic object: ALDocumentBundle
+code: |
+  x.generate_downloads_task = background_action(x.attr_name('create_downloads'))
+---
+generic object: ALDocumentBundle
+event: x.create_downloads
+code: |
+  download_response = x.get_cacheable_documents(key="final", pdf=True, include_full_pdf=True)
+  background_response_action(x.attr_name('save_downloads'), download_response=download_response)
+---
+generic object: ALDocumentBundle
+code: |
+  x.generate_downloads_with_docx_task = background_action(x.attr_name('create_downloads_with_docx'))
+---
+generic object: ALDocumentBundle
+event: x.create_downloads_with_docx
+code: |
+  download_response = x.get_cacheable_documents(key="final", pdf=True, docx=True, include_full_pdf=True)
+  background_response_action(x.attr_name('save_downloads'), download_response=download_response)
+---
+generic object: ALDocumentBundle
+event: x.save_downloads
+code: |
+  x._downloadable_files = action_argument('download_response')
+
+  background_response()
+---
+id: waiting screen
+question: |
+  Please wait while we make your documents
+subquestion: |
+  This can take a few minutes.
+
+  <div class="spinner-border text-primary d-flex justify-content-center" role="status">
+      <span class="sr-only">Making documents...</span>
+  </div>
+event: al_download_waiting_screen
+reload: True
