@@ -1857,7 +1857,7 @@ class ALDocumentBundle(DAList):
             include_zip (bool): Flag to include a zip option, default is True.
             include_full_pdf (bool): Flag to include a PDF version of the whole bundle, default is False.
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
-        
+
         Returns:
             Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]: A list of dictionaries containing the enabled documents, a zip file of the whole bundle, and a PDF of the whole
         """
