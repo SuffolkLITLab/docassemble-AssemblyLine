@@ -1,0 +1,65 @@
+---
+include:
+  - assembly_line.yml
+---
+metadata:
+  title: ALDocument Background Processing
+---
+mandatory: True
+code: |
+  intro_screen
+  if not al_user_bundle.generate_preview_task.ready():
+    al_preview_waiting_screen
+  preview_screen
+  # if not al_user_bundle.generate_downloads_task.ready(): # Without DOCX
+  if not al_user_bundle.generate_downloads_with_docx_task.ready(): # With DOCX
+    al_download_waiting_screen
+  download_screen
+---
+continue button field: intro_screen
+question: |
+  Intro screen
+---
+id: preview_screen
+continue button field: preview_screen
+question: |
+  Preview the documents
+subquestion: |
+  Your documents are ready for preview.
+
+  Click the thumbnail below to view the preview of your documents. It will open in a new tab.
+
+  ${ al_user_bundle._preview_file }
+---
+id: download
+event: download_screen
+question: |
+  Download the documents
+subquestion: |
+  Your documents are ready for download.
+
+  ${ al_user_bundle.download_list_html(use_previously_cached_files=True, include_full_pdf=True) }
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(
+          elements = [pdf_1, docx_1],
+          title = "Background processed bundle",
+          enabled = True,
+          filename = "background_processed_bundle",
+        )
+---
+objects:
+  - pdf_1: ALDocument.using( title="PDF 1 with a lot of text for the title of this document", filename="pdf_doc_1", enabled=True, has_addendum=False )
+  - docx_1: ALDocument.using( title="Docx 1 also with a lot of text for the title of this document", filename="docx_doc_1", enabled=True, has_addendum=False )
+---
+attachment: 
+  variable name: pdf_1[i]
+  pdf template file: test_aldocument_pdf_1.pdf
+  filename: pdf_1
+  fields:
+    - "sample_field": "Sample input"
+---
+attachment: 
+  variable name: docx_1[i]
+  docx template file: test_aldocument_docx_1.docx
+  filename: docx_1
