@@ -1936,6 +1936,8 @@ class ALDocumentBundle(DAList):
         view_icon: str = "eye",
         download_label: str = "Download",
         download_icon: str = "download",
+        send_label: str = "Send",
+        send_icon: str = "envelope",
         zip_label: Optional[str] = None,
         zip_icon: str = "file-archive",
         append_matching_suffix: bool = True,
@@ -1958,10 +1960,12 @@ class ALDocumentBundle(DAList):
             view_icon (str): Icon for the 'view' button, default is "eye".
             download_label (str): Label for the 'download' button, default is "Download".
             download_icon (str): Icon for the 'download' button, default is "download".
+            send_label (str): Label for the 'send' button. Default is "Send".
+            send_icon (str): Fontawesome icon for the 'send' button. Default is "envelope".
             zip_label (Optional[str]): Label for the zip option. If not provided, uses the generic template for `self.zip_label` ("Download all").
             zip_icon (str): Icon for the zip option, default is "file-archive".
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
-            include_email (bool): Flag to include an email option, default is False.
+            include_email (bool): Flag to include an option, default is False.
             use_previously_cached_files (bool): Flag to use previously cached files (e.g., made in background) if defined. default is False.
             include_full_pdf (bool): Flag to include a full PDF option, default is False.
             full_pdf_label (Optional[str]): Label for the full PDF option. If not provided, uses the generic template for `self.full_pdf_label` ("Download all").
@@ -2071,7 +2075,9 @@ class ALDocumentBundle(DAList):
             html += table_row(full_pdf_label, full_pdf_button)
 
         if include_email:
-            html += self.send_email_table_row(key=key)
+            html += self.send_email_table_row(
+                key=key, send_label=send_label, send_icon=send_icon
+            )
 
         html += "\n</div>"
 
@@ -2150,13 +2156,17 @@ class ALDocumentBundle(DAList):
 
         return html
 
-    def send_email_table_row(self, key: str = "final") -> str:
+    def send_email_table_row(
+        self, key: str = "final", send_label: str = "Send", send_icon: str = "envelope"
+    ) -> str:
         """
         Generate HTML doc table row for an input box and button that allows
         someone to send the bundle to the specified email address.
 
         Args:
             key (str): A key used to identify which version of the ALDocument to send. Defaults to "final".
+            send_label (str): Label for the 'send' button. Default is "Send".
+            send_icon (str): Icon for the 'send' button. Default is "envelope".
 
         Returns:
             str: The generated HTML string for the table row.
@@ -2189,7 +2199,7 @@ class ALDocumentBundle(DAList):
         """
 
         # "Send" button for the 2nd column of the table row
-        send_button = f'{action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button al_button", id_tag=al_send_button_id)}'
+        send_button = f'{action_button_html(javascript_string, label=send_label, icon=send_icon, color="primary", size="md", classname="al_send_email_button al_button", id_tag=al_send_button_id)}'
 
         # Whole row put together
         html = f"""
@@ -2261,6 +2271,8 @@ class ALDocumentBundle(DAList):
         key: str = "final",
         show_editable_checkbox: bool = True,
         template_name: str = "",
+        label: str = "Send",
+        icon: str = "envelope",
     ) -> str:
         """
         Generate HTML for an input box and button that allows someone to send the bundle
@@ -2276,6 +2288,9 @@ class ALDocumentBundle(DAList):
                 Defaults to True.
             template_name (str, optional): Name of the template variable that is used to fill
                 the email contents. By default, the `x.send_email_template` template will be used.
+            label (str, optional): The label for the button. Defaults to "Send".
+            icon (str, optional): The Fontawesome icon for the button. Defaults
+                to "envelope".
 
         Returns:
             str: The generated HTML string for the input box and button.
@@ -2327,7 +2342,7 @@ class ALDocumentBundle(DAList):
       <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
     </span>
     
-    {action_button_html(javascript_string, label="Send", icon="envelope", color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}
+    {action_button_html(javascript_string, label=label, icon=icon, color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}
 
   </div>
   """
