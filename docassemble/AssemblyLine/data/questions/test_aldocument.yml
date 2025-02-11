@@ -214,11 +214,14 @@ comment: |
     format:str='pdf',
     view:bool=True,
     refresh:bool=True,
-    include_zip:bool = True,
-    view_label="View",
+    include_zip:bool=True,
+    view_label:str="View",
     view_icon:str="eye",
     download_label:str="Download",
     download_icon:str="download",
+    include_email:bool=False,
+    send_label:str="Send",
+    send_icon:str="envelope",
     zip_label:str="Download zip",
     zip_icon:str="file-archive"
 id: download_list_html_custom_1
@@ -231,21 +234,21 @@ subquestion: |
   - Keep "view" as True
   - Keep "include_zip" as True
   
-  multi_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", zip_label="Custom zip label", zip_icon="clock" )
+  multi_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", include_email=True, send_label="Custom send label", send_icon="search", zip_label="Custom zip label", zip_icon="clock" )
   
-  ${ multi_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", zip_label="Custom zip label", zip_icon="clock" ) }
-  
-  ---
-  
-  single_pdf_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", zip_label="Custom zip label", zip_icon="clock" )
-  
-  ${ single_pdf_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", zip_label="Custom zip label", zip_icon="clock" ) }
+  ${ multi_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", include_email=True, send_label="Custom send label", send_icon="search", zip_label="Custom zip label", zip_icon="clock" ) }
   
   ---
   
-  single_docx_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", zip_label="Custom zip label", zip_icon="clock" )
+  single_pdf_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", include_email=True, send_label="Custom send label", send_icon="search", zip_label="Custom zip label", zip_icon="clock" )
   
-  ${ single_docx_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", zip_label="Custom zip label", zip_icon="clock" ) }
+  ${ single_pdf_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", include_email=True, send_label="Custom send label", send_icon="search", zip_label="Custom zip label", zip_icon="clock" ) }
+  
+  ---
+  
+  single_docx_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", include_email=True, send_label="Custom send label", send_icon="search", zip_label="Custom zip label", zip_icon="clock" )
+  
+  ${ single_docx_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", include_email=True, send_label="Custom send label", send_icon="search", zip_label="Custom zip label", zip_icon="clock" ) }
   
   ---
 ---
@@ -329,21 +332,45 @@ subquestion: |
 id: email_custom
 continue button field: email_custom
 question: |
-  send_button_html() with custom args
+  send_button_html() and send_button_to_html() with custom args
 subquestion: |
-  multi_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False )
+  ##### send_button_html()
+
+  Send button which allows the user to edit the email address.
   
-  ${ multi_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False ) }
+  multi_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False, label="Custom send label", icon="search" )
+  
+  ${ multi_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False, label="Custom send label", icon="search" ) }
   
   ---
-  single_pdf_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False )
+  single_pdf_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False, label="Custom send label", icon="search" )
   
-  ${ single_pdf_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False ) }
+  ${ single_pdf_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False, label="Custom send label", icon="search" ) }
   
   ---
-  single_docx_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False )
+  single_docx_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False, label="Custom send label", icon="search" )
   
-  ${ single_docx_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False ) }
+  ${ single_docx_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False, label="Custom send label", icon="search" ) }
+  
+  ---
+
+  ##### send_button_to_html()
+
+  Send button that hides the recipient's email address.
+  
+  multi_bundle_1.send_button_to_html( "happy_feet@example.com", key="test_key", label="Custom send label", icon="search" )
+  
+  ${ multi_bundle_1.send_button_to_html( "happy_feet@example.com", key="test_key", label="Custom send label", icon="search" ) }
+  
+  ---
+  single_pdf_bundle_1.send_button_to_html( "happy_feet@example.com", key="test_key", label="Custom send label", icon="search" )
+  
+  ${ single_pdf_bundle_1.send_button_to_html( "happy_feet@example.com", key="test_key", label="Custom send label", icon="search" ) }
+  
+  ---
+  single_docx_bundle_1.send_button_to_html( "happy_feet@example.com", key="test_key", label="Custom send label", icon="search" )
+  
+  ${ single_docx_bundle_1.send_button_to_html( "happy_feet@example.com", key="test_key", label="Custom send label", icon="search" ) }
   
   ---
 ---
