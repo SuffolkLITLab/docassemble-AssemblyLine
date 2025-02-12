@@ -29,7 +29,13 @@ class ALCourt(Court):
     A list of cities? A list of counties? Instead, we use a function on the CourtList object that filters courts by
     address and can use any of those three features of the court to do the filtering."""
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Create a new court object.
+        
+        Args:
+            *pargs: Standard DAObject positional arguments
+            **kwargs: Standard DAObject keyword arguments
+        """
         super().init(*pargs, **kwargs)
         if "address" not in kwargs:
             self.initializeAttribute("address", ALAddress)
@@ -208,7 +214,13 @@ class ALCourtLoader(DAObject):
         converters (Dict[str, Callable]): A dictionary of functions to apply to columns in the dataframe.
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Create a new courtloader object.
+        
+        Args:
+            *pargs: Standard DAObject positional arguments
+            **kwargs: Standard DAObject keyword arguments
+        """        
         super().init(*pargs, **kwargs)
         self.package = docassemble.base.functions.this_thread.current_question.package
         if not hasattr(self, "filename"):
@@ -240,8 +252,9 @@ class ALCourtLoader(DAObject):
             column_name (str): The name of the column in the dataframe.
 
         Returns:
-            Set[str]: A set containing unique values from the specified column.
-                      Returns an empty set if an error occurs.
+            Set[str]: 
+                - A set containing unique values from the specified column.
+                - Returns an empty set if the column does not exist or an error occurs.
         """
         df = self._load_courts()
         try:

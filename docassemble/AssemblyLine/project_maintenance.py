@@ -338,7 +338,10 @@ def link_issue_title_to_project(
         print(f"Project '{project_name}' not found.")
 
 
-def main():
+def main() -> None:
+    """
+    Main function to run the specified project maintenance command.
+    """
     parser = argparse.ArgumentParser(
         description="Run specified function with arguments."
     )

@@ -248,7 +248,13 @@ class ALAddendumField(DAObject):
         The attributes `headers` and `field_style` are planned for future releases and are not currently implemented.
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super().init(*pargs, **kwargs)
 
     def overflow_value(
@@ -752,7 +758,13 @@ class ALAddendumFieldDict(DAOrderedDict):
                      only the overflow text will be displayed.
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super(ALAddendumFieldDict, self).init(*pargs, **kwargs)
         self.object_type = ALAddendumField
         self.auto_gather = False
@@ -990,7 +1002,13 @@ class ALDocument(DADict):
         ```
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super(ALDocument, self).init(*pargs, **kwargs)
         self.initializeAttribute("overflow_fields", ALAddendumFieldDict)
         if not hasattr(self, "default_overflow_message"):
@@ -1345,7 +1363,13 @@ class ALStaticDocument(DAStaticFile):
         Consider handling files in `/data/templates` if deemed useful, potentially by copying into a DAFile using `pdf_concatenate()`.
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super().init(*pargs, **kwargs)
         self.has_addendum = False
         self.auto_gather = False
@@ -1515,7 +1539,13 @@ class ALDocumentBundle(DAList):
         ```
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super().init(*pargs, **kwargs)
         if "auto_gather" not in kwargs:
             self.auto_gather = False
@@ -2511,7 +2541,13 @@ class ALExhibit(DAObject):
         starting_page (int): first page number to use in table of contents
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super().init(*pargs, **kwargs)
         self.initializeAttribute("_cache", DALazyAttribute)
         self.object_type = DAFileList
@@ -2731,7 +2767,13 @@ class ALExhibitList(DAList):
         auto_ocr (bool): If True, automatically starts OCR processing for uploaded exhibits. Defaults to True.
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super().init(*pargs, **kwargs)
         if not hasattr(self, "auto_label"):
             self.auto_label = True
@@ -2909,7 +2951,13 @@ class ALExhibitDocument(ALDocument):
     ```
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super().init(*pargs, **kwargs)
         self.initializeAttribute("exhibits", ALExhibitList)
         if hasattr(self, "auto_labeler"):
@@ -3060,7 +3108,13 @@ class ALTableDocument(ALDocument):
         table (???): Represents the actual table data. Type and attributes need more context to document.
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super().init(*pargs, **kwargs)
         self.has_addendum = False
         if not hasattr(self, "suffix_to_append"):
@@ -3171,7 +3225,13 @@ class ALUntransformedDocument(ALDocument):
         suffix_to_append (str): Suffix that can be appended to file names, defaulting to "preview".
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super().init(*pargs, **kwargs)
         self.has_addendum = False
         if not hasattr(self, "suffix_to_append"):

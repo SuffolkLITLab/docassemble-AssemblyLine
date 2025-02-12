@@ -293,7 +293,8 @@ class ALAddress(Address):
                                 True, the function will not add 'Unit' regardless of other conditions. Defaults to False.
 
         Returns:
-            str: The formatted unit. If the unit attribute does not exist and require is set to False, this will be an
+            str:
+                The formatted unit. If the unit attribute does not exist and require is set to False, this will be an
                 empty string. If the unit attribute exists and is not None or an empty string, the function will return
                 the unit number, possibly prefixed with 'Unit'. If the unit attribute exists and is None or an empty
                 string, the function will return an empty string.
@@ -627,7 +628,8 @@ class ALAddress(Address):
         Warning: currently the normalized address will not be redacted if the address is impounded.
 
         Returns:
-            Union[Address, "ALAddress"]: Normalized address if geocoding is successful, otherwise
+            Union[Address, "ALAddress"]: 
+                Normalized address if geocoding is successful, otherwise
                 the original address.
         """
         try:
@@ -680,7 +682,13 @@ class ALAddressList(DAList):
     of the list in a formatted manner.
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super(ALAddressList, self).init(*pargs, **kwargs)
         self.object_type = ALAddress
 
@@ -702,7 +710,13 @@ class ALNameList(DAList):
     Extends the DAList class and is tailored for IndividualName objects.
     """
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super().init(*pargs, **kwargs)
         self.object_type = IndividualName
 
@@ -720,7 +734,13 @@ class ALPeopleList(DAList):
 
     For example, defendants, plaintiffs, or children."""
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super(ALPeopleList, self).init(*pargs, **kwargs)
         self.object_type = ALIndividual
 
@@ -874,7 +894,13 @@ class ALIndividual(Individual):
     aliases: ALNameList
     preferred_name: IndividualName
 
-    def init(self, *pargs, **kwargs):
+    def init(self, *pargs, **kwargs) -> None:
+        """Standard DAObject init method.
+        
+        Args:
+            *pargs: Positional arguments
+            **kwargs: Keyword arguments
+        """
         super(ALIndividual, self).init(*pargs, **kwargs)
         # Initialize the attributes that are themselves objects. Requirement to work with Docassemble
         # See: https://docassemble.org/docs/objects.html#ownclassattributes
