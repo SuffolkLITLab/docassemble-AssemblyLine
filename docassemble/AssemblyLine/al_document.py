@@ -2951,6 +2951,18 @@ class ALExhibitDocument(ALDocument):
     ```
     """
 
+    include_exhibit_cover_pages: bool
+    include_table_of_contents: bool
+    add_page_numbers: bool
+    has_addendum: bool
+    auto_labeler: Callable
+    auto_ocr: bool
+    bates_prefix: str
+    maximum_size: int
+    suffix_to_append: str
+    exhibits: ALExhibitList
+    table_of_contents: DAFile
+
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
 

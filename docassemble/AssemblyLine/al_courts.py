@@ -42,7 +42,7 @@ class ALCourt(Court):
         if (
             "jurisdiction" not in kwargs
         ):  # This attribute isn't used. Could be a better way to handle court locating
-            self.jurisdiction = []
+            self.jurisdiction: list = []
         if "location" not in kwargs:
             self.initializeAttribute("location", LatitudeLongitude)
 
