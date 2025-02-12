@@ -5,9 +5,6 @@ extend-exclude = '(__init__.py|setup.py)'
 check-property-returns = false
 check-overridden = false
 check-class = true
-disable = [
-  "E113"
-]
 
 [tool.mypy]
 # global options
