@@ -14,8 +14,15 @@ __all__ = [
 ]
 
 
-def _package_name(package_name: Optional[str] = None):
-    """Get package name without the name of the given module. By default this is `docassemble.AssemblyLine.language`"""
+def _package_name(package_name: Optional[str] = None) -> str:
+    """Get package name without the name of the given module. By default this is `docassemble.AssemblyLine.language`
+
+    Args:
+        package_name: the name of the package to get the package name from (defaults to `docassemble.AssemblyLine.language`)
+
+    Returns:
+        str: the package name without the name of the given module
+    """
     if not package_name:
         package_name = __name__
     try:
@@ -24,7 +31,13 @@ def _package_name(package_name: Optional[str] = None):
         return package_name
 
 
-def get_local_languages_yaml():
+def get_local_languages_yaml() -> str:
+    """
+    Get the path to the local languages.yml file. If it does not exist, it will return the path to the languages.yml
+
+    Returns:
+        str: the path to the local languages.yml file if it exists, otherwise the path to the languages.yml file
+    """
     try:
         local_yaml = path_and_mimetype("data/sources/languages.yml")[0]
     except:
