@@ -250,7 +250,7 @@ class ALAddendumField(DAObject):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -760,7 +760,7 @@ class ALAddendumFieldDict(DAOrderedDict):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -1004,7 +1004,7 @@ class ALDocument(DADict):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -1365,7 +1365,7 @@ class ALStaticDocument(DAStaticFile):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -1541,7 +1541,7 @@ class ALDocumentBundle(DAList):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -2543,7 +2543,7 @@ class ALExhibit(DAObject):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -2769,7 +2769,7 @@ class ALExhibitList(DAList):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -2953,7 +2953,7 @@ class ALExhibitDocument(ALDocument):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -3110,7 +3110,7 @@ class ALTableDocument(ALDocument):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -3227,7 +3227,7 @@ class ALUntransformedDocument(ALDocument):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments

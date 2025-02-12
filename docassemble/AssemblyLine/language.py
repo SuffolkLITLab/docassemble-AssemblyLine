@@ -16,7 +16,7 @@ __all__ = [
 
 def _package_name(package_name: Optional[str] = None) -> str:
     """Get package name without the name of the given module. By default this is `docassemble.AssemblyLine.language`
-    
+
     Args:
         package_name: the name of the package to get the package name from (defaults to `docassemble.AssemblyLine.language`)
 

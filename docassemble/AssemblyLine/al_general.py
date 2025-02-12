@@ -628,7 +628,7 @@ class ALAddress(Address):
         Warning: currently the normalized address will not be redacted if the address is impounded.
 
         Returns:
-            Union[Address, "ALAddress"]: 
+            Union[Address, "ALAddress"]:
                 Normalized address if geocoding is successful, otherwise
                 the original address.
         """
@@ -684,7 +684,7 @@ class ALAddressList(DAList):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -712,7 +712,7 @@ class ALNameList(DAList):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -736,7 +736,7 @@ class ALPeopleList(DAList):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
@@ -896,7 +896,7 @@ class ALIndividual(Individual):
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
-        
+
         Args:
             *pargs: Positional arguments
             **kwargs: Keyword arguments
