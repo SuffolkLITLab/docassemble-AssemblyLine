@@ -2425,7 +2425,7 @@ def parse_custom_pronouns(pronouns: str) -> Dict[str, str]:
 
 
 def get_visible_al_nav_items(
-    nav_items: List[Union[str, dict]]
+    nav_items: List[Union[str, dict]],
 ) -> List[Union[str, dict]]:
     """
     Processes a list of nav items and returns only the ones that are not hidden.
