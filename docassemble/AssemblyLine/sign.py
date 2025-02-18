@@ -1,7 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont
 import os
-from typing import Optional, List
+from typing import Optional, List, Union
 from docassemble.base.util import log
+
 
 def find_font_file_by_name(font_name: str, search_dirs: List[str]) -> Optional[str]:
     """
@@ -19,7 +20,7 @@ def find_font_file_by_name(font_name: str, search_dirs: List[str]) -> Optional[s
         Optional[str]: The full path to the font file if found; otherwise, None.
     """
     # Append '.ttf' if necessary.
-    if not font_name.lower().endswith('.ttf'):
+    if not font_name.lower().endswith(".ttf"):
         target_font = font_name + ".ttf"
     else:
         target_font = font_name
@@ -32,7 +33,10 @@ def find_font_file_by_name(font_name: str, search_dirs: List[str]) -> Optional[s
                         return os.path.join(root, file)
     return None
 
-def get_font(font_name: Optional[str] = None, font_size: int = 48) -> ImageFont.ImageFont:
+
+def get_font(
+    font_name: Optional[str] = None, font_size: int = 48
+) -> Union[ImageFont.ImageFont, ImageFont.FreeTypeFont]:
     """
     Loads a font by name from candidate directories and returns an ImageFont instance.
 
@@ -69,7 +73,12 @@ def get_font(font_name: Optional[str] = None, font_size: int = 48) -> ImageFont.
                 log(f"Font '{font_name}' not found in candidate directories.")
     else:
         # No font specified; try default candidate font names.
-        candidate_font_names: List[str] = ["BadScript-Regular", "arial", "times", "DejaVuSans"]
+        candidate_font_names: List[str] = [
+            "BadScript-Regular",
+            "arial",
+            "times",
+            "DejaVuSans",
+        ]
         for candidate in candidate_font_names:
             found_font = find_font_file_by_name(candidate, search_dirs)
             if found_font:
@@ -82,11 +91,14 @@ def get_font(font_name: Optional[str] = None, font_size: int = 48) -> ImageFont.
     log("Falling back to the default Pillow font.")
     return ImageFont.load_default()
 
-def create_signature(name: str,
-                     output_file: str,
-                     signature_prefix: str = "/s/",
-                     font_name: Optional[str] = None,
-                     font_size: int = 48) -> None:
+
+def create_signature(
+    name: str,
+    output_file: str,
+    signature_prefix: str = "/s/",
+    font_name: Optional[str] = None,
+    font_size: int = 48,
+) -> None:
     """
     Creates an image file that simulates a signature.
 
@@ -101,9 +113,6 @@ def create_signature(name: str,
         signature_prefix (str): The signature prefix to use (e.g., "/s/" or "s/"). Defaults to "/s/".
         font_name (Optional[str]): The font's full path or name (without path). Defaults to None.
         font_size (int): The size of the font to be used. Defaults to 48.
-
-    Returns:
-        None
     """
     # Construct the signature text.
     signature_text = f"{signature_prefix} {name}" if signature_prefix.strip() else name
@@ -114,13 +123,10 @@ def create_signature(name: str,
     # Create a temporary image to measure text size.
     dummy_img = Image.new("RGB", (1, 1))
     dummy_draw = ImageDraw.Draw(dummy_img)
-    try:
-        text_width, text_height = dummy_draw.textsize(signature_text, font=font)
-    except AttributeError:
-        # Fallback: use textbbox if textsize is not available.
-        bbox = dummy_draw.textbbox((0, 0), signature_text, font=font)
-        text_width = bbox[2] - bbox[0]
-        text_height = bbox[3] - bbox[1]
+
+    bbox = dummy_draw.textbbox((0, 0), signature_text, font=font)
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
 
     # Define margins around the text.
     margin = 20
