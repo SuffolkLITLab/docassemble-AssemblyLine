@@ -140,7 +140,7 @@ code: |
   elif signature_choice == 'phone':
     saw_signature_qrcode
     # User will click next. link_cell will only be defined if they chose the texting option
-    if defined('link_cell') and link_cell and task_not_yet_performed('send signature link'): 
+    if showifdef("link_cell") and task_not_yet_performed('send signature link'): 
       # They used the text option
       send_sms(task='send signature link', to=link_cell,template=interview_link)
       signature_wait_screen
@@ -149,12 +149,8 @@ code: |
     else: # Branch 3: They used the QR Code. No special screen, just continue
       for signature in signature_fields:
         value(signature)
-    # Show the follow-up either way
+    # Show the follow-up if they sent the link to their phone by QR or by SMS
     if device() and (device().is_mobile or device().is_touch_capable):
-      #signed = False
-      #while not signed:
-      #  for signature in signature_fields:
-      #    signed = defined(signature) & signed
       signature_phone_followup
   basic_questions_signature_flow = True
 ---
