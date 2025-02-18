@@ -1187,7 +1187,6 @@ question: |
 signature: x.signature
 under: |
   ${x}
-progress: 99
 ---
 id: signature date
 question: |
@@ -1432,10 +1431,21 @@ fields:
           % else:
           We can share a link with your phone on the next screen
           % endif
-      - On a computer with my mouse: this_device
+      - On this device: this_device
+      - With a typed signature, like "${ al_typed_signature_prefix }${ users[0] }": typed_signature
     show if:
       code: |
-        al_form_requires_digital_signature
+        al_form_requires_digital_signature and not (device() and (device().is_mobile or device().is_touch_capable))
+
+  - I will sign: signature_choice
+    input type: radio
+    choices:
+      - On this device: this_device
+      - With a typed signature, like "${ al_typed_signature_prefix }${ users[0] }": typed_signature
+    show if:
+      code: |
+        al_form_requires_digital_signature and (device() and (device().is_mobile or device().is_touch_capable))
+
   - I will sign: signature_choice
     input type: radio
     choices:
@@ -1446,12 +1456,31 @@ fields:
           % else:
           We can share a link with your phone on the next screen
           % endif
-      - On a computer with my mouse: this_device
+      - On this device: this_device
+      - With a typed signature, like "${ al_typed_signature_prefix }${ users[0] }": typed_signature
       - On the paper with a pen after I print the documents: sign_after_printing
     show if:
       code: |
-        not al_form_requires_digital_signature
-continue button field: saw_signature_choice        
+        not al_form_requires_digital_signature and not (device() and (device().is_mobile or device().is_touch_capable))
+
+  - I will sign: signature_choice
+    input type: radio
+    choices:
+      - On this device: this_device
+      - With a typed signature, like "${ al_typed_signature_prefix }${ users[0] }": typed_signature
+      - On the paper with a pen after I print the documents: sign_after_printing
+    show if:
+      code: |
+        not al_form_requires_digital_signature and (device() and (device().is_mobile or device().is_touch_capable))
+continue button field: saw_signature_choice
+---
+generic object: ALIndividual
+id: typed signature question
+question: |
+  ${x}, sign by typing your name below
+fields:
+  - ${al_typed_signature_prefix}: x.typed_signature
+    default: ${ x }
 ---
 comment: |
   This block is shown when the user texts a link to sign a form
@@ -1482,21 +1511,22 @@ decoration: file-signature
 id: signature-phone
 question: |
   Sign your forms  
-fields:
-  - note: |
-      1. Open the camera app or barcode reader app on your phone.
-      2. Point it at the screen.
-      3. Click the link icon that appears on the camera screen.
-      4. Click ${word("next")} on your phone.
-      
-      <center>
-      ${interview_url_as_qr(style="short")}
-      </center>
+subquestion: |
+  % if device() and device().is_pc:
+  1. Open the camera app or barcode reader app on your phone.
+  2. Point it at the screen.
+  3. Click the link icon that appears on the camera screen.
+  4. Click ${word("next")} on your phone.
+  
+  <center>
+  ${interview_url_as_qr(style="short")}
+  </center>
 
-      ${ collapse_template(help_using_qr_code_template) }
-    show if: 
-      code: |
-        device() and device().is_pc
+  ${ collapse_template(help_using_qr_code_template) }
+  % else:
+  Click ${word("next")} to add your signature.
+  % endif
+fields:
   - Text me a link instead: text_link
     datatype: yesnowide
     show if: 
@@ -1504,13 +1534,12 @@ fields:
         device() and device().is_pc and is_sms_enabled()
   - label: Cell phone number
     field: link_cell
-    show if: text_link
     default: ${showifdef('users[0].phone_number')}
-  - note: |
-      Click ${word("next")} to add your signature.
     show if: 
+      variable: text_link
+      is: True
       code: |
-        device() and not device().is_pc and is_sms_enabled()
+        device() and device().is_pc and is_sms_enabled()
 continue button field: saw_signature_qrcode
 ---
 template: help_using_qr_code_template

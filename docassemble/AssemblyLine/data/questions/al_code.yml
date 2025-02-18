@@ -6,6 +6,9 @@
 ##########################################################
 # Code to handle emailing court
 ---
+modules:
+  - .sign
+---
 # Placeholder
 objects:
   - court_emails: DADict.using(auto_gather=False, gathered=True)
@@ -107,51 +110,52 @@ attachment:
 #################################################################
 # Signature code  
 ---
-code: |
-  started_on_phone = device() and (device().is_mobile or device().is_touch_capable)
----
 # Triggers some questions to ask for signatures on either desktop or mobile
 # Allows sending via text/email
 id: basic questions signature flow control
 code: |
-  if started_on_phone:
-    saw_signature_choice = True
+  # Three branches:
+  # 1. Decided to sign on the PC
+  # 2. Sent someone a link to sign the form
+  # 3. Used the QR code
+  saw_signature_choice
+  # Branch 1: PC
+  if signature_choice == "sign_after_printing":
     for signature in signature_fields:
-      value(signature)
-    # Add in logic for when we need additional signatures
-  else: 
-    # Three branches:
-    # 1. Decided to sign on the PC
-    # 2. Sent someone a link to sign the form
-    # 3. Used the QR code
-    saw_signature_choice
-    # Branch 1: PC
-    if signature_choice == "sign_after_printing":
+      define(signature, DAEmpty())
+  elif signature_choice == "typed_signature":
+    for signature in signature_fields:
+      # Signature fields are strings like "users[0].signature". If the string ends in .signature, remove that and replace with .typed_signature, only at the end of the string
+      if signature.endswith('signature'):
+        typed_signature = signature[:-9] + 'typed_signature'
+        define(signature, DAFile(signature, filename="signature.png"))
+        value(signature).initialize()
+        create_signature(value(typed_signature), value(signature).path(), signature_prefix = al_typed_signature_prefix, font_name = al_typed_signature_font)
+      else:
+        log("Signature field " + signature + " does not end with .signature, not creating typed signature")
+  elif signature_choice in ['this device', 'this_device']:
+    for signature in signature_fields:
+      value(signature)    
+  # Check for Branch 2 or 3
+  elif signature_choice == 'phone':
+    saw_signature_qrcode
+    # User will click next. link_cell will only be defined if they chose the texting option
+    if defined('link_cell') and link_cell and task_not_yet_performed('send signature link'): 
+      # They used the text option
+      send_sms(task='send signature link', to=link_cell,template=interview_link)
+      signature_wait_screen
       for signature in signature_fields:
-        define(signature, DAEmpty())
-    elif signature_choice in ['this device', 'this_device']:
+        value(signature)
+    else: # Branch 3: They used the QR Code. No special screen, just continue
       for signature in signature_fields:
-        value(signature)    
-    # Check for Branch 2 or 3
-    elif signature_choice == 'phone':
-      saw_signature_qrcode
-      # User will click next. link_cell will only be defined if they chose the texting option
-      if defined('link_cell') and link_cell and task_not_yet_performed('send signature link'): 
-        # They used the text option
-        send_sms(task='send signature link', to=link_cell,template=interview_link)
-        signature_wait_screen
-        for signature in signature_fields:
-          value(signature)
-      else: # Branch 3: They used the QR Code. No special screen, just continue
-        for signature in signature_fields:
-          value(signature)
-      # Show the follow-up either way
-      if device().is_mobile:
-        #signed = False
-        #while not signed:
-        #  for signature in signature_fields:
-        #    signed = defined(signature) & signed
-        signature_phone_followup
+        value(signature)
+    # Show the follow-up either way
+    if device() and (device().is_mobile or device().is_touch_capable):
+      #signed = False
+      #while not signed:
+      #  for signature in signature_fields:
+      #    signed = defined(signature) & signed
+      signature_phone_followup
   basic_questions_signature_flow = True
 ---
 code: |

@@ -107,3 +107,10 @@ code: |
 ---
 code: |
   al_person_answering = "user"
+---
+code: |
+  al_typed_signature_prefix = "/s/"
+---
+code: |
+  # Can be an exact path or just a name, in which case we will search /usr/share/fonts and /var/www/.fonts for a matching file ending in .ttf
+  al_typed_signature_font = "/usr/share/fonts/truetype/google-fonts/BadScript-Regular.ttf"

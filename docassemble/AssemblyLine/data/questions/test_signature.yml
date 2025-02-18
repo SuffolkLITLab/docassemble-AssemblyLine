@@ -1,0 +1,28 @@
+---
+include:
+  - assembly_line.yml
+---
+code: |
+  signature_fields = ["users[0].signature"]
+---
+mandatory: True
+code: |
+  users.gather()
+  basic_questions_signature_flow
+  show_signatures
+---
+event: show_signatures
+question: |
+  Your signature
+subquestion: |
+  % if signature_choice == 'sign_after_printing':
+  You chose to sign after printing.
+  % else:
+  Here is your signature:
+  
+  ${ users[0].signature }
+  
+  % endif
+---
+code: |
+  al_form_requires_digital_signature = False
