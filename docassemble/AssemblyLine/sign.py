@@ -134,7 +134,7 @@ def create_signature(
     img_height = text_height + 2 * margin
 
     # Create the final image with a white background.
-    img = Image.new("RGB", (img_width, img_height), "white")
+    img = Image.new("RGB", (int(img_width), int(img_height)), "white")
     draw = ImageDraw.Draw(img)
 
     # Draw the signature text onto the image.
