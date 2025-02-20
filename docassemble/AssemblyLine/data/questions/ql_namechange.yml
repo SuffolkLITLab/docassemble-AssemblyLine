@@ -1,0 +1,40 @@
+---
+id: consent of parent 1
+question: |
+  Do you consent to ${ children[0].preferred_name }'s name change?
+fields:
+  - I consent: users[0].consented_to_name_change
+    datatype: yesnoradio
+---
+id: consent of parent 1
+question: |
+  Does ${ users[1] } consent to ${ children[0].preferred_name }'s name change?
+fields:
+  - ${ users[1] } consents: users[0].consented_to_name_change
+    datatype: yesnoradio
+---
+id: consent of parent 1 attached
+question: |
+  Is your consent attached?
+fields:
+  - My consent is attached: users[0].parent_consent_attached
+    datatype: yesnoradio
+  - Why not?: users[0].no_consent_attached_explanation
+    datatype: area
+    rows: 2
+    show if:
+      variable: users[0].parent_consent_attached
+      is: False
+---
+id: consent of parent 2 attached
+question: |
+  Is ${ users[1] }'s consent attached?
+fields:
+  - ${ users[1] }'s consent is attached: users[0].parent_consent_attached
+    datatype: yesnoradio
+  - Why not?: users[1].no_consent_attached_explanation
+    datatype: area
+    rows: 2
+    show if:
+      variable: users[1].parent_consent_attached
+      is: False
