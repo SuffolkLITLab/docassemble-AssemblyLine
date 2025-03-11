@@ -1968,8 +1968,9 @@ class ALDocumentBundle(DAList):
         download_icon: str = "download",
         send_label: str = "Send",
         send_icon: str = "envelope",
-        zip_label: Optional[str] = None,
+        zip_label: Optional[str] = "",
         zip_icon: str = "file-archive",
+        zip_row_label: Optional[str] = None,
         append_matching_suffix: bool = True,
         include_email: bool = False,
         use_previously_cached_files: bool = False,
@@ -1994,6 +1995,8 @@ class ALDocumentBundle(DAList):
             send_icon (str): Fontawesome icon for the 'send' button. Default is "envelope".
             zip_label (Optional[str]): Label for the zip option. If not provided, uses the generic template for `self.zip_label` ("Download all").
             zip_icon (str): Icon for the zip option, default is "file-archive".
+            zip_row_label (str, optional): Text to go in the left-most column
+                of the table's zip row. Will default to the value of `self.title`.
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
             include_email (bool): Flag to include an option, default is False.
             use_previously_cached_files (bool): Flag to use previously cached files (e.g., made in background) if defined. default is False.
@@ -2086,7 +2089,10 @@ class ALDocumentBundle(DAList):
                 size="md",
                 classname="al_zip al_button",
             )
-            html += table_row(zip_label, zip_button)
+            safe_zip_row_label: str = (
+                zip_row_label or (hasattr(self, "title") and self.title) or zip_label
+            )
+            html += table_row(safe_zip_row_label, zip_button)
 
         if include_full_pdf and bundled_pdf:
             if not full_pdf_label:

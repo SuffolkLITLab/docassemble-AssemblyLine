@@ -234,9 +234,9 @@ subquestion: |
   - Keep "view" as True
   - Keep "include_zip" as True
   
-  multi_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", include_email=True, zip_label="Custom zip label", zip_icon="clock", send_label="Custom send label", send_icon="search" )
+  multi_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", include_email=True, zip_label="Custom zip label", zip_icon="clock", zip_row_label="Custom zip row label", send_label="Custom send label", send_icon="search" )
   
-  ${ multi_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", include_email=True, zip_label="Custom zip label", zip_icon="clock", send_label="Custom send label", send_icon="search" ) }
+  ${ multi_bundle_1.download_list_html( key="test_key", format="docx", refresh=False, view_label="Custom view label", view_icon="circle", download_label="Custom download label", download_icon="square", include_email=True, zip_label="Custom zip label", zip_icon="clock", zip_row_label="Custom zip row label", send_label="Custom send label", send_icon="search" ) }
   
   ---
   
