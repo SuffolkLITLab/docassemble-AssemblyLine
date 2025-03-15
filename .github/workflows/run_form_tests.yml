@@ -39,7 +39,7 @@ jobs:
         uses: suffolkLITLab/ALKiln/action_for_github_server@v5
         with:
           SHOW_DOCKER_OUTPUT: "${{ github.event.inputs.show_docker_output }}"
-      - run: echo "▶️ ALKiln finished starting the isolated GitHub docassemble server"
+      - run: echo "ALKiln finished starting the isolated GitHub docassemble server"
         shell: bash
       - name: Use ALKiln to run tests
         uses: SuffolkLITLab/ALKiln@v5
@@ -51,7 +51,7 @@ jobs:
           INSTALL_METHOD: "server"
           # To learn more, see https://assemblyline.suffolklitlab.org/docs/alkiln/writing/#optional-inputs
           ALKILN_TAG_EXPRESSION: "${{ env.ALKILN_TAG_EXPRESSION }}"
-      - run: echo "⏹️ Finished running ALKiln tests"
+      - run: echo "Finished running ALKiln tests"
       
       ## To make a new issue in your repository when a test fails,
       ## simply delete the first "#" symbol in each line below
