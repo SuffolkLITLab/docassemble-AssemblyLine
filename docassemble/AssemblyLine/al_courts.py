@@ -26,10 +26,11 @@ __all__ = [
 class ALCourt(Court):
     """Object representing a court in Massachusetts. We use a function on the CourtList object that filters courts by
     address and can use any of those three features of the court to do the filtering.
-    
+
     <!-- TODO: it could be interesting to store a jurisdiction on a court. But this is non-trivial. Should it be geo boundaries?
     A list of cities? A list of counties? Instead, we use a function on the CourtList object that filters courts by
-    address and can use any of those three features of the court to do the filtering.-->"""
+    address and can use any of those three features of the court to do the filtering.-->
+    """
 
     def init(self, *pargs, **kwargs) -> None:
         """Create a new court object.
