@@ -16,6 +16,11 @@ on:
       tags:
         description: 'Optional. Use a "tag expression" specify which tagged tests to run. See https://cucumber.io/docs/cucumber/api/#tag-expressions for syntax.'
         default: ''
+      show_docker_output:
+        required: false
+        default: false
+        type: boolean
+        description: 'Show the docker logs while building the GitHub server container. It will also save the docker log artifact. This might show sensitive config information.'
   # To run your tests on a schedule, delete the first "#" symbol at the beginning of each line below.
   ## Also see https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
   ## Also see https://crontab.guru/examples.html
@@ -24,16 +29,28 @@ on:
 
 jobs:
 
-  interview-testing:
+  alkiln-tests:
     runs-on: ubuntu-latest
-    name: Run interview tests
+    name: Run ALKiln tests
     steps:
       - uses: actions/checkout@v3
+      - name: "ALKiln - Start the isolated temporary docassemble server on GitHub"
+        id: github_server
+        uses: suffolkLITLab/ALKiln/action_for_github_server@v5
+        with:
+          SHOW_DOCKER_OUTPUT: "${{ github.event.inputs.show_docker_output }}"
+      - run: echo "ALKiln finished starting the isolated GitHub docassemble server"
+        shell: bash
       - name: Use ALKiln to run tests
         uses: SuffolkLITLab/ALKiln@v5
+        env:
+          ALKILN_TAG_EXPRESSION: "${{ (github.event.inputs.tags && format('{0}', github.event.inputs.tags)) }}"
         with:
-          SERVER_URL: "${{ secrets.SERVER_URL }}"
-          DOCASSEMBLE_DEVELOPER_API_KEY: "${{ secrets.DOCASSEMBLE_DEVELOPER_API_KEY }}"
+          SERVER_URL: "${{ steps.github_server.outputs.SERVER_URL }}"
+          DOCASSEMBLE_DEVELOPER_API_KEY: "${{ steps.github_server.outputs.DOCASSEMBLE_DEVELOPER_API_KEY }}"
+          INSTALL_METHOD: "server"
+          # To learn more, see https://assemblyline.suffolklitlab.org/docs/alkiln/writing/#optional-inputs
+          ALKILN_TAG_EXPRESSION: "${{ env.ALKILN_TAG_EXPRESSION }}"
       - run: echo "Finished running ALKiln tests"
       
       ## To make a new issue in your repository when a test fails,
