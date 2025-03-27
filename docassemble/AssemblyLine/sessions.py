@@ -7,6 +7,7 @@ from docassemble.base.util import (
     all_variables,
     as_datetime,
     create_session,
+    current_context,
     DADateTime,
     DAFile,
     DAFileCollection,
