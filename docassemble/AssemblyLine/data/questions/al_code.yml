@@ -191,7 +191,7 @@ code: |
 # If you are using al_package_unstyled.yml, copy it into your `default screen parts: post`
 template: alkiln_trigger_html
 content: |
-  <div data-variable="${ encode_name(str( user_info().variable )) }" id="trigger" aria-hidden="true" style="display: none;"></div>
+  <div data-variable="${ encode_name(str( current_context().variable )) }" id="trigger" aria-hidden="true" style="display: none;"></div>
 ---
 # HTML for interviews using ALKiln tests at ALKiln versions 5.9.0 and above.
 # Necessary for interviews that use docassemble generic objects or index variables

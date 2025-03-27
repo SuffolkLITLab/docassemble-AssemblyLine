@@ -7,6 +7,7 @@ from docassemble.base.util import (
     all_variables,
     as_datetime,
     create_session,
+    current_context,
     DADateTime,
     DAFile,
     DAFileCollection,
@@ -353,7 +354,7 @@ def get_saved_interview_list(
     if not filename:
         filename = None  # Explicitly treat empty string as equivalent to None
     if exclude_current_filename:
-        current_filename = user_info().filename
+        current_filename = current_context().filename
     else:
         current_filename = ""
     if not filename_to_exclude:
@@ -508,7 +509,7 @@ def find_matching_sessions(
         matching_sessions = find_matching_sessions(
             "smith",
             user_id="all",
-            filenames=[f"{user_info().package}:intake.yml", "docassemble.MyPackage:intake.yml"],
+            filenames=[f"{current_context().package}:intake.yml", "docassemble.MyPackage:intake.yml"],
             metadata_filters={
                 "owner": ("samantha", "ILIKE", None),
                 "age": (30, ">=", "int"),
@@ -609,7 +610,7 @@ def find_matching_sessions(
         offset = 0
 
     if exclude_current_filename:
-        current_filename = user_info().filename
+        current_filename = current_context().filename
     else:
         current_filename = ""
     if not filename_to_exclude:
@@ -706,7 +707,7 @@ def delete_interview_sessions(
             f"User {user_info().id} does not have permission to delete sessions that do not belong to them."
         )
     if exclude_current_filename:
-        current_filename = user_info().filename or ""
+        current_filename = current_context().filename or ""
     else:
         current_filename = ""
     if not filename_to_exclude:
@@ -811,7 +812,7 @@ def interview_list_html(
     for answer in answers:
         answer = dict(answer)
         # Never display the current interview session
-        if answer.get("key") == user_info().session:
+        if answer.get("key") == current_context().session:
             continue
         table += """<tr class="al-saved-answer-table-row">"""
         if view_only:
@@ -1058,7 +1059,7 @@ def session_list_html(
     for answer in answers:
         answer = dict(answer)
         # Never display the current interview session
-        if answer.get("key") == user_info().session:
+        if answer.get("key") == current_context().session:
             continue
         url_ask_rename = url_ask(
             [
@@ -1168,7 +1169,7 @@ def rename_interview_answers(
     set_interview_metadata(
         filename, session_id, existing_metadata, metadata_key_name=metadata_key_name
     )
-    if session_id == user_info().session:
+    if session_id == current_context().session:
         set_parts(subtitle=new_name)
     else:
         try:
@@ -1196,8 +1197,8 @@ def set_current_session_metadata(
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
     """
     return set_interview_metadata(
-        user_info().filename,
-        user_info().session,
+        current_context().filename,
+        current_context().session,
         data,
         metadata_key_name=metadata_key_name,
     )
@@ -1215,8 +1216,8 @@ def rename_current_session(
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
     """
     return rename_interview_answers(
-        user_info().filename,
-        user_info().session,
+        current_context().filename,
+        current_context().session,
         new_name,
         metadata_key_name=metadata_key_name,
     )
@@ -1276,7 +1277,7 @@ def save_interview_answers(
         metadata["original_interview_filename"] = original_interview_filename
     else:
         metadata["original_interview_filename"] = all_variables(special="metadata").get(
-            "title", user_info().filename.replace(":", " ").replace(".", " ")
+            "title", current_context().filename.replace(":", " ").replace(".", " ")
         )
     metadata["answer_count"] = len(all_vars)
 
@@ -1447,7 +1448,7 @@ def load_interview_answers(
 
     if new_session:
         if not new_interview_filename:
-            new_interview_filename = user_info().filename
+            new_interview_filename = current_context().filename
         new_session_id = create_session(new_interview_filename)
         set_session_variables(new_interview_filename, new_session_id, old_variables)
         return new_session_id
@@ -1483,7 +1484,7 @@ def load_interview_json(
 
     if new_session:
         if not new_interview_filename:
-            new_interview_filename = user_info().filename
+            new_interview_filename = current_context().filename
         new_session_id = create_session(new_interview_filename)
         set_session_variables(
             new_interview_filename, new_session_id, json_processed, process_objects=True
@@ -1613,7 +1614,7 @@ def get_filenames_having_sessions(
     conn = variables_snapshot_connection()
     if user_id is None:
         if user_logged_in():
-            user_id = user_info().id
+            user_id = current_context().id
         else:
             log("Asked to get interview list for user that is not logged in")
             return []
@@ -1622,7 +1623,7 @@ def get_filenames_having_sessions(
         if user_has_privilege(global_search_allowed_roles):
             user_id = None
         elif user_logged_in():
-            user_id = user_info().id
+            user_id = current_context().id
             log(
                 f"User {user_info().email} does not have permission to list interview sessions belonging to other users"
             )
