@@ -42,11 +42,11 @@ default screen parts:
     Undo
   pre: |
     % if get_config('debug') and not url_args.get("hide_hud", "").lower() in ["1", "on", "true", "yes"]:
-    `id: ${ user_info().question_id }`[BR]
-    `Variable: ${ user_info().variable }`[BR]
-    `Version: ${ user_info().package.replace("docassemble.", "") + " " if not user_info().package.startswith("docassemble.playground") else "" }${ package_version_number }; ${ al_version }`
+    `id: ${ current_context().question_id }`[BR]
+    `Variable: ${ current_context().variable }`[BR]
+    `Version: ${ current_context().package.replace("docassemble.", "") + " " if not current_context().package.startswith("docassemble.playground") else "" }${ package_version_number }; ${ al_version }`
     `Session ID`: ${ current_context().session }
-    <div data-variable="${ encode_name(str( user_info().variable )) }" id="sought_variable" aria-hidden="true" style="display: none;"></div>
+    <div data-variable="${ encode_name(str( current_context().variable )) }" id="sought_variable" aria-hidden="true" style="display: none;"></div>
     % endif
   # We need both pre and post until old interviews are updated to v2 of the testing framework or v1 of the testing framework is updated. In future, we will need this in `post` so that it will work on signature pages.
   # Uses `alkiln_trigger_html` template in al_code.yml
@@ -161,7 +161,7 @@ code: |
   # Override this in your package where possible, so that 
   # features that depend on the package name will work
   # from the playground
-  package_name = str(user_info().package)
+  package_name = str(current_context().package)
 ---
 code: |
   # github_repo_name is used to direct issue feedback to the right repository
@@ -203,7 +203,7 @@ default screen parts:
   footer: |
     [:share-alt-square: Share](${ url_ask([{'undefine': ['al_sharing_type','al_how_share_link']}, 'al_share_form_screen', {'recompute': ['al_did_share_form']}, 'al_share_results']) })
     [:info-circle: About](${ url_action('about_this_interview') })
-    [:comment-dots: Feedback](${ feedback_link(user_info(), i=feedback_form, github_repo=github_repo_name, github_user=github_user, package_version=package_version_number) } ){:target="_blank"}
+    [:comment-dots: Feedback](${ feedback_link(current_context(), i=feedback_form, github_repo=github_repo_name, github_user=github_user, package_version=package_version_number) } ){:target="_blank"}
 ---
 continue button field: al_share_form_screen
 id: al share form screen
@@ -236,7 +236,7 @@ fields:
   - note: |
       You can copy and share this link
       
-      ${ copy_button_html(  interview_url(i=user_info().filename, style="short", new_session=1), label=al_copy_button_label.show(), tooltip_inert_text=al_copy_button_tooltip_inert_text.show(), tooltip_copied_text = al_copy_button_tooltip_copied_text.show() ) }
+      ${ copy_button_html(  interview_url(i=current_context().filename, style="short", new_session=1), label=al_copy_button_label.show(), tooltip_inert_text=al_copy_button_tooltip_inert_text.show(), tooltip_copied_text = al_copy_button_tooltip_copied_text.show() ) }
     js show if: |
       val("al_sharing_type") === "tell_friend" && val("al_how_share_link") === "link_only"      
   - note: |
@@ -359,7 +359,7 @@ subject: |
   ${ al_share_form_from_name } wants to tell you about ${ AL_ORGANIZATION_TITLE }
 content: |
   ${ tell_a_friend_message.replace("\n", "<br/>") }
-  ${ interview_url(i=user_info().filename, style="short", new_session=1) }
+  ${ interview_url(i=current_context().filename, style="short", new_session=1) }
 ---
 code: |
   github_url = "https://github.com/" + github_user + "/" + github_repo_name
@@ -421,7 +421,7 @@ content: |
   Last updated on ${ package_updated_on }. [:fab-fa-github: View code on GitHub](${ github_url }).  
   % endif
 
-  [Submit feedback](${ interview_url(i=feedback_form, github_repo=github_repo_name, github_user=github_user, variable=user_info().variable, question_id=user_info().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}.
+  [Submit feedback](${ interview_url(i=feedback_form, github_repo=github_repo_name, github_user=github_user, variable=current_context().variable, question_id=current_context().question_id, package_version=package_version_number, local=False,reset=1) } ){:target="_blank"}.
 
   % if all_variables(special='metadata').get('authors'):
   This form was authored by ${ comma_and_list(all_variables(special='metadata').get('authors')) }.
@@ -502,7 +502,7 @@ subquestion: |
 
   * Click "Back" and try again.
   % if al_enable_error_action_feedback_link:
-  * [:comment-dots: Tell us what happened](${ feedback_link(user_info(), i=feedback_form, github_repo=github_repo_name, github_user=github_user, package_version=package_version_number) } ){:target="_blank"}
+  * [:comment-dots: Tell us what happened](${ feedback_link(current_context(), i=feedback_form, github_repo=github_repo_name, github_user=github_user, package_version=package_version_number) } ){:target="_blank"}
   % endif
   % if al_enable_incomplete_downloads:
   * Try to [download your work in progress](${ url_action("al_error_action_download_screen") })
@@ -517,7 +517,7 @@ subquestion: |
   % endif
   * Visit the [${ AL_ORGANIZATION_TITLE } home page](${ AL_ORGANIZATION_HOMEPAGE }) and try another interview
   % if al_show_email_to_user_on_errors and get_config("error notification email"):
-  * [Send us an email](mailto:${ get_config("error notification email") }?subject=User%20error%20report%3A%20${ all_variables(special='metadata').get("title") }%20${ user_info().filename }) (Note: you may not get a reply)
+  * [Send us an email](mailto:${ get_config("error notification email") }?subject=User%20error%20report%3A%20${ all_variables(special='metadata').get("title") }%20${ current_context().filename }) (Note: you may not get a reply)
   % endif
   % for al_opt in al_custom_error_options:
   * ${ al_opt }

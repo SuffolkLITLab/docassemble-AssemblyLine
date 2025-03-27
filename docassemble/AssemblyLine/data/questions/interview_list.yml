@@ -414,7 +414,7 @@ code: |
 ---
 code: |
   try:
-      interview_list(action="delete_all", query=(~DA.Or(DA.Sessions.filename == f"{user_info().current_package}:al_saved_sessions_store.yml", DA.Sessions.filename == "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml")))
+      interview_list(action="delete_all", query=(~DA.Or(DA.Sessions.filename == f"{current_context().current_package}:al_saved_sessions_store.yml", DA.Sessions.filename == "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml")))
       log("Deleted answers", "success")
   except Exception as ex:
       log("Problem deleting answers", "danger")
