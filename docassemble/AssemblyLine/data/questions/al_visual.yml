@@ -41,11 +41,14 @@ default screen parts:
   corner back button label: |
     Undo
   pre: |
-    % if get_config('debug') and not url_args.get("hide_hud", "").lower() in ["1", "on", "true", "yes"]:
+    % if (get_config('debug') and not url_args.get("hide_hud", "").lower() in ["1", "on", "true", "yes"]) or (url_args.get("debug") in ["1", "on", "true", "yes"]):
     `id: ${ current_context().question_id }`[BR]
     `Variable: ${ current_context().variable }`[BR]
     `Version: ${ current_context().package.replace("docassemble.", "") + " " if not current_context().package.startswith("docassemble.playground") else "" }${ package_version_number }; ${ al_version }`[BR]
     `Session: ${ current_context().session }`
+    % if (url_args.get("debug") in ["1", "on", "true", "yes"]) and user_has_privilege(["admin", "developer", "advocate"]):
+    ${ action_button_html(interview_url(session=current_context().session).replace("/interview?", "/vars?"), label="Vars", icon="code", size="sm", color="secondary") }
+    % endif
     <div data-variable="${ encode_name(str( current_context().variable )) }" id="sought_variable" aria-hidden="true" style="display: none;"></div>
     % endif
   # We need both pre and post until old interviews are updated to v2 of the testing framework or v1 of the testing framework is updated. In future, we will need this in `post` so that it will work on signature pages.
