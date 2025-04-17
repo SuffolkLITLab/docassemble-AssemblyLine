@@ -86,7 +86,7 @@ def catchall_options(value: Any, *raw_items: Any) -> DACatchAll:
     return value
 
 
-def catchall_label(value: Any, label:str) -> DACatchAll:
+def catchall_label(value: Any, label: str) -> DACatchAll:
     """Jinja2 filter to allow you to define a label for a DACatchAll field inside a DOCX template.
 
     This filter takes a label string and assigns it to the `label` attribute of the
@@ -110,10 +110,14 @@ def catchall_label(value: Any, label:str) -> DACatchAll:
         value (DACatchAll): The DACatchAll object to which the label will be assigned.
         label (str): The label string to assign to the DACatchAll object.
 
+    Returns:
+        DACatchAll: The modified DACatchAll object with the assigned label.
+
     """
     if isinstance(value, DACatchAll):
         value.label = label
     return value
+
 
 register_jinja_filter("catchall_options", catchall_options)
 register_jinja_filter("catchall_label", catchall_label)
