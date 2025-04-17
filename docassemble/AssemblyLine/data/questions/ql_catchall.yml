@@ -4,13 +4,17 @@ features:
 ---
 ###################### Catchall questions ###########################################
 ---
+code: |
+  # If you intentionally want to use catchall questions, you can set this value to False
+  al_warn_catchall_questions = True
+---
 generic object: DACatchAll
 question: |
-  ${ x.object_name() }?
+  ${ x.label if hasattr(x, "label") else x.object_name() }?
 fields:
-  - ${ x.object_name() }: x.value
+  - ${ x.label if hasattr(x, "label") else x.object_name() }: x.value
 subquestion: |
-  % if get_config("debug"):
+  % if get_config("debug") and al_warn_catchall_questions:
   ${ collapse_template(x.catchall_question_explanation) }
   % endif
 validation code: |
@@ -22,9 +26,9 @@ if: |
   x.context == 'float' or (x.data_type_guess() == 'float')
 generic object: DACatchAll
 question: |
-  How much is ${ x.object_name() }?
+  How much is ${ x.label if hasattr(x, "label") else x.object_name() }?
 subquestion: |
-  % if get_config("debug"):
+  % if get_config("debug") and al_warn_catchall_questions:
   ${ collapse_template(x.catchall_question_explanation) }
   % endif
 fields:
@@ -39,9 +43,9 @@ if: |
   x.data_type_guess() == 'int'
 generic object: DACatchAll
 question: |
-  ${ x.object_name() }?
+  ${ x.label if hasattr(x, "label") else x.object_name() }?
 subquestion: |
-  % if get_config("debug"):
+  % if get_config("debug") and al_warn_catchall_questions:
   ${ collapse_template(x.catchall_question_explanation) }
   % endif
 fields:
@@ -56,13 +60,13 @@ if: |
   x.data_type_guess() == 'bool'
 generic object: DACatchAll
 question: |
-  ${x.object_name()}?
+  ${ x.label if hasattr(x, "label") else x.object_name() }
 subquestion: |
-  % if get_config("debug"):
+  % if get_config("debug") and al_warn_catchall_questions:
   ${ collapse_template(x.catchall_question_explanation) }
   % endif
 fields:
-  - ${x.object_name()}?: x.value
+  - ${ x.label if hasattr(x, "label") else x.object_name() }: x.value
     datatype: yesnoradio
 validation code: |
   define(x.instanceName, x.value)
@@ -73,9 +77,9 @@ if: |
   x.object_name().endswith('date')
 generic object: DACatchAll
 question: |
-  ${x.object_name()}?
+  ${ x.label if hasattr(x, "label") else x.object_name() }
 subquestion: |
-  % if get_config("debug"):
+  % if get_config("debug") and al_warn_catchall_questions:
   ${ collapse_template(x.catchall_question_explanation) }
   % endif
 fields:
@@ -102,9 +106,9 @@ content: |
   ---
   id: amount of ${ x.instanceName }
   question: |
-    How much is ${ x.object_name() }?
+    How much is ${ x.label if hasattr(x, "label") else x.object_name() }?
   fields:
-    - ${ x.object_name() }: ${ x.instanceName }
+    - ${ x.label if hasattr(x, "label") else x.object_name() }: ${ x.instanceName }
       datatype: currency
   </pre>
   % else:
@@ -112,9 +116,9 @@ content: |
   ---
   id: ${ x.instanceName }
   question: |
-    What is ${ x.object_name() }?
+    What is ${ x.label if hasattr(x, "label") else x.object_name() }?
   fields:
-    - ${ x.object_name() }: ${ x.instanceName }
+    - ${ x.label if hasattr(x, "label") else x.object_name() }: ${ x.instanceName }
   </pre>
   % endif
 
@@ -128,19 +132,21 @@ if: |
   hasattr(x, "_catchall_options")
 generic object: DACatchAll
 question: |
-  ${ x.object_name() }?
+  ${ x.label if hasattr(x, "label") else x.object_name() }?
 subquestion: |
-  % if get_config("debug"):
+  % if get_config("debug") and al_warn_catchall_questions:
   ${ collapse_template(x.catchall_question_explanation) }
   % endif
 fields:
-  - ${ x.object_name() }: x.value
+  - ${ x.label if hasattr(x, "label") else x.object_name() }: x.value
     code: |
       x._catchall_options
+validation code: |
+  define(x.instanceName, x.value)
 ---
 template: dacatchall_css_template
 content: |
-  % if get_config("debug"):
+  % if get_config("debug") and al_warn_catchall_questions:
   <style>
   #daquestion {
     border-style: solid;

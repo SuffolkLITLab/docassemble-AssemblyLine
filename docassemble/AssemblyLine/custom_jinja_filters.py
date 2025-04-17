@@ -86,4 +86,34 @@ def catchall_options(value: Any, *raw_items: Any) -> DACatchAll:
     return value
 
 
+def catchall_label(value: Any, label:str) -> DACatchAll:
+    """Jinja2 filter to allow you to define a label for a DACatchAll field inside a DOCX template.
+
+    This filter takes a label string and assigns it to the `label` attribute of the
+    DACatchAll object. This label can be used to provide a more descriptive name for the
+    catchall field in the user interface.
+
+    Example usage in a DOCX template:
+    ```
+    {{ my_catchall_field | catchall_label("My Custom Label") }}
+    ```
+    Example in an interview with `features: use catchall: True` turned on:
+    ```
+    ---
+    generic object: DACatchAll
+    question: |
+        ${ x.label if hasattr(x, "label") else x.object_name() }?
+    fields:
+        - ${ x.label if hasattr(x, "label") else x.object_name() }: x.value
+    ```
+    Args:
+        value (DACatchAll): The DACatchAll object to which the label will be assigned.
+        label (str): The label string to assign to the DACatchAll object.
+
+    """
+    if isinstance(value, DACatchAll):
+        value.label = label
+    return value
+
 register_jinja_filter("catchall_options", catchall_options)
+register_jinja_filter("catchall_label", catchall_label)
