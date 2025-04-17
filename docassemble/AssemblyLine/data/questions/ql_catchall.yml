@@ -124,6 +124,20 @@ content: |
   This warning message will not appear when this interview is installed on a production
   server.
 ---
+if: |
+  hasattr(x, "_catchall_options")
+generic object: DACatchAll
+question: |
+  ${ x.object_name() }?
+subquestion: |
+  % if get_config("debug"):
+  ${ collapse_template(x.catchall_question_explanation) }
+  % endif
+fields:
+  - ${ x.object_name() }: x.value
+    code: |
+      x._catchall_options
+---
 template: dacatchall_css_template
 content: |
   % if get_config("debug"):
