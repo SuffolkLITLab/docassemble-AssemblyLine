@@ -2094,7 +2094,7 @@ class ALIndividual(Individual):
                 return f"{self.name.first} {self.name.middle}"
             return self.name.first
 
-        first_and_last_candidates = [person.name.firstlast() for person in unique_names]
+        first_and_last_candidates = [person.name.firstlast() if hasattr(person.name, "last") else person.name.first for person in unique_names]
         if self.name_short() not in first_and_last_candidates:
             return self.name_short()
 
