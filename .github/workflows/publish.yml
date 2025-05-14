@@ -4,7 +4,7 @@ on: push
 
 jobs:
   build-n-publish:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     name: Build and publish Python 🐍 distributions 📦 to PyPI
     steps:
     - uses: SuffolkLITLab/ALActions/publish@main
