@@ -819,7 +819,7 @@ class ALPeopleList(DAList):
             str: Formatted string of full names.
         """
         return comma_and_list(
-            [person.name.full(middle="full") for person in self],
+            [person.name_full() if isinstance(person, ALIndividual) else person.name.full(middle="full") for person in self],
             comma_string=comma_string,
             and_string=and_string,
         )
@@ -1605,7 +1605,7 @@ class ALIndividual(Individual):
             if isinstance(self.address, ALAddress):
                 return (
                     "[FLUSHLEFT] "
-                    + self.name.full()
+                    + self.name_full() if isinstance(self, ALIndividual) else self.name.full(middle="full")
                     + " [NEWLINE] "
                     + self.address.block(
                         language=language,
@@ -1618,7 +1618,7 @@ class ALIndividual(Individual):
             else:
                 return (
                     "[FLUSHLEFT] "
-                    + self.name.full()
+                    + self.name_full() if isinstance(self, ALIndividual) else self.name.full(middle="full")
                     + " [NEWLINE] "
                     + self.address.block(
                         language=language,
@@ -2003,9 +2003,18 @@ class ALIndividual(Individual):
     def name_full(self) -> str:
         """Returns the individual's full name.
 
+        If the person has the attribute person_type and it is defined
+        as either `business` or `organization`, it will only return
+        the first name, even if middle, last, or suffix are defined.
+
         Returns:
-            str: The individual's full name.
+            str: The individual or business's full name.
         """
+        if hasattr(self, "person_type") and self.person_type in [
+            "business",
+            "organization",
+        ]:
+            return self.name.first
         return self.name.full(middle="full")
 
     def name_initials(self) -> str:
@@ -2014,9 +2023,19 @@ class ALIndividual(Individual):
         Equivalent to `name.full(middle="initial")`, which is also the default.
         Defined only to make it possible to be explicit about the name form.
 
+        If the person has the attribute person_type and it is defined
+        as either `business` or `organization`, it will only return
+        the "initials" of the first name, even if middle, last, or suffix are defined.
+
         Returns:
             str: The individual's name with the middle name as an initial.
         """
+        if hasattr(self, "person_type") and self.person_type in [
+            "business",
+            "organization",
+        ]:
+            # tokenize the business name and return the first letter of each word
+            return "".join(word[0].upper() for word in self.name.first.split())
         return self.name.full(middle="initial")
 
     def name_short(self) -> str:
@@ -2025,9 +2044,18 @@ class ALIndividual(Individual):
 
         Equivalent to self.name.firstlast()
 
+        If the person has the attribute person_type and it is defined
+        as either `business` or `organization`, it will only return
+        the first name, even if middle, last, or suffix are defined.
+
         Returns:
             str: The individual'
         """
+        if hasattr(self, "person_type") and self.person_type in [
+            "business",
+            "organization",
+        ]:
+            return self.name.first
         return self.name.firstlast()
 
     def familiar(
@@ -2051,6 +2079,10 @@ class ALIndividual(Individual):
         * the default value, e.g., "the minor", if provided
         * the full name
 
+        If the person has the attribute `person_type` and it is defined
+        as either `business` or `organization`, it will only return
+        the first name, even if middle, last, or suffix are defined.
+
         Args:
             unique_names (Optional[List[Any]]): A list of unique names to compare against. Defaults to None.
             default (Optional[str]): The default name to return if no unique name is found. Defaults to None.
@@ -2063,6 +2095,12 @@ class ALIndividual(Individual):
             Who do you want to take care of ${ children.familiar(unique_names=parents + petitioners, default="the minor") }
             ```
         """
+        if hasattr(self, "person_type") and self.person_type in [
+            "business",
+            "organization",
+        ]:
+            return self.name.first
+
         if unique_names is None:
             unique_names = []
 
@@ -2112,6 +2150,27 @@ class ALIndividual(Individual):
         if default:
             return default
         return self.name_full()  # We tried but couldn't disambiguate
+
+    def __str__(self) -> str:
+        """
+        Returns a string representation of the individual, which is their full name with the
+        middle name shortened to one letter.
+
+        If the individual has the attribute `person_type` and it is defined
+        as either `business` or `organization`, it will only return
+        the first name, even if middle, last, or suffix are defined.
+
+        Returns:
+            str: The individual's name.
+        """
+        if hasattr(self, "person_type") and self.person_type in [
+            "business",
+            "organization",
+        ]:
+            return self.name.first
+        
+        return super().__str__()  # This will call the parent's __str__ method, which returns the full name with middle initial
+    
 
 
 # (DANav isn't in public DA API, but currently in functions.py)
