@@ -1614,7 +1614,7 @@ def get_filenames_having_sessions(
     conn = variables_snapshot_connection()
     if user_id is None:
         if user_logged_in():
-            user_id = current_context().id
+            user_id = user_info().id
         else:
             log("Asked to get interview list for user that is not logged in")
             return []
@@ -1623,7 +1623,7 @@ def get_filenames_having_sessions(
         if user_has_privilege(global_search_allowed_roles):
             user_id = None
         elif user_logged_in():
-            user_id = current_context().id
+            user_id = user_info().id
             log(
                 f"User {user_info().email} does not have permission to list interview sessions belonging to other users"
             )
