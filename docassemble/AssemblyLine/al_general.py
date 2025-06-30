@@ -819,7 +819,14 @@ class ALPeopleList(DAList):
             str: Formatted string of full names.
         """
         return comma_and_list(
-            [person.name_full() if isinstance(person, ALIndividual) else person.name.full(middle="full") for person in self],
+            [
+                (
+                    person.name_full()
+                    if isinstance(person, ALIndividual)
+                    else person.name.full(middle="full")
+                )
+                for person in self
+            ],
             comma_string=comma_string,
             and_string=and_string,
         )
@@ -1604,8 +1611,9 @@ class ALIndividual(Individual):
         else:
             if isinstance(self.address, ALAddress):
                 return (
-                    "[FLUSHLEFT] "
-                    + self.name_full() if isinstance(self, ALIndividual) else self.name.full(middle="full")
+                    "[FLUSHLEFT] " + self.name_full()
+                    if isinstance(self, ALIndividual)
+                    else self.name.full(middle="full")
                     + " [NEWLINE] "
                     + self.address.block(
                         language=language,
@@ -1617,8 +1625,9 @@ class ALIndividual(Individual):
                 )
             else:
                 return (
-                    "[FLUSHLEFT] "
-                    + self.name_full() if isinstance(self, ALIndividual) else self.name.full(middle="full")
+                    "[FLUSHLEFT] " + self.name_full()
+                    if isinstance(self, ALIndividual)
+                    else self.name.full(middle="full")
                     + " [NEWLINE] "
                     + self.address.block(
                         language=language,
@@ -2168,9 +2177,10 @@ class ALIndividual(Individual):
             "organization",
         ]:
             return self.name.first
-        
-        return super().__str__()  # This will call the parent's __str__ method, which returns the full name with middle initial
-    
+
+        return (
+            super().__str__()
+        )  # This will call the parent's __str__ method, which returns the full name with middle initial
 
 
 # (DANav isn't in public DA API, but currently in functions.py)
