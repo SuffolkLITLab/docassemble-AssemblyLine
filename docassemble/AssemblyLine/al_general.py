@@ -2043,8 +2043,7 @@ class ALIndividual(Individual):
             "business",
             "organization",
         ]:
-            # tokenize the business name and return the first letter of each word
-            return "".join(word[0].upper() for word in self.name.first.split())
+            return self.name.first
         return self.name.full(middle="initial")
 
     def name_short(self) -> str:
