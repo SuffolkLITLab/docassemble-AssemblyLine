@@ -436,7 +436,7 @@ class TestALIndividual(unittest.TestCase):
         self.assertEqual(self.individual.name_initials(), "John J. Jingleheimer")
         self.assertEqual(self.individual.name_short(), "John Jingleheimer")
 
-        self.individual.person_type = 'business'
+        self.individual.person_type = "business"
         self.individual.name.first = "Johnny's Sandwiches"
 
         self.assertEqual(self.individual.name_full(), "Johnny's Sandwiches")
