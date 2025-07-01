@@ -436,6 +436,14 @@ class TestALIndividual(unittest.TestCase):
         self.assertEqual(self.individual.name_initials(), "John J. Jingleheimer")
         self.assertEqual(self.individual.name_short(), "John Jingleheimer")
 
+        self.individual.person_type = 'business'
+        self.individual.name.first = "Johnny's Sandwiches"
+
+        self.assertEqual(self.individual.name_full(), "Johnny's Sandwiches")
+        self.assertEqual(self.individual.name_initials(), "Johnny's Sandwiches")
+        self.assertEqual(self.individual.name_short(), "Johnny's Sandwiches")
+        self.assertEqual(str(self.individual), "Johnny's Sandwiches")
+
 
 class test_get_visible_al_nav_items(unittest.TestCase):
     def test_case_1(self):
