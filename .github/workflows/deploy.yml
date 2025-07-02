@@ -1,0 +1,23 @@
+name: Deploy package to the Dev server
+
+on:
+  push:
+    branches: ["main"]
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "dev-server"
+  cancel-in-progress: false
+
+jobs:
+  deploy-to-dev:
+    name: Deploy to the Development server
+    runs-on: ubuntu-latest
+    steps:
+    - uses: SuffolkLITLab/ALActions/da_package@main
+      with:
+        SERVER_URL: ${{ vars.DEV_SERVER_URL }}
+        DOCASSEMBLE_DEVELOPER_API_KEY: ${{ secrets.DOCASSEMBLE_DEV_SERVER_API_KEY }}
+        GITHUB_URL: ${{ github.server_url }}/${{ github.repository }}
+        GITHUB_BRANCH: main
