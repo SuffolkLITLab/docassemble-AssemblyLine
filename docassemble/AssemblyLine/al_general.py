@@ -137,7 +137,7 @@ class ALAddress(Address):
             allow_no_address (bool): Allow users to specify they don't have an address. Defaults to False.
             ask_if_impounded (Optional[bool]): Whether to ask if the address is impounded. Defaults to False.
             maxlengths (Optional[Dict[str, int]]): A dictionary of field names and their maximum lengths. Defaults to None.
-            required_zip (bool): Whether the zip code is required
+            require_zip (bool): Whether the zip code is required
 
         Returns:
             List[Dict[str, Any]]: A list of dictionaries representing address fields.
