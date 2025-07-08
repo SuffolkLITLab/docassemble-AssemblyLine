@@ -116,6 +116,7 @@ class ALAddress(Address):
         allow_no_address: bool = False,
         ask_if_impounded: Optional[bool] = False,
         maxlengths: Optional[Dict[str, int]] = None,
+        require_zip: bool = False,
     ) -> List[Dict[str, Any]]:
         """
         Return a YAML structure representing the list of fields for the object's address.
@@ -136,6 +137,7 @@ class ALAddress(Address):
             allow_no_address (bool): Allow users to specify they don't have an address. Defaults to False.
             ask_if_impounded (Optional[bool]): Whether to ask if the address is impounded. Defaults to False.
             maxlengths (Optional[Dict[str, int]]): A dictionary of field names and their maximum lengths. Defaults to None.
+            required_zip (bool): Whether the zip code is required
 
         Returns:
             List[Dict[str, Any]]: A list of dictionaries representing address fields.
@@ -223,7 +225,7 @@ class ALAddress(Address):
                 {
                     "label": str(self.zip_label),
                     "field": self.attr_name("zip"),
-                    "required": False,
+                    "required": require_zip,
                 }
             )
         else:
@@ -232,7 +234,7 @@ class ALAddress(Address):
                 {
                     "label": str(self.postal_code_label),
                     "field": self.attr_name("zip"),
-                    "required": False,
+                    "required": require_zip,
                 }
             )
         if allow_no_address:
@@ -1241,6 +1243,7 @@ class ALIndividual(Individual):
         allow_no_address: bool = False,
         ask_if_impounded: bool = False,
         maxlengths: Optional[Dict[str, int]] = None,
+        require_zip: bool = False,
     ) -> List[Dict[str, str]]:
         """
         Generate field prompts for capturing an address.
@@ -1254,6 +1257,7 @@ class ALIndividual(Individual):
             allow_no_address (bool): Whether to permit entries with no address. Defaults to False.
             ask_if_impounded (bool): Whether to ask if the address is impounded. Defaults to False.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            require_zip (bool): Whether to make the zip code of the address required
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for addresses.
@@ -1269,6 +1273,7 @@ class ALIndividual(Individual):
             allow_no_address=allow_no_address,
             ask_if_impounded=ask_if_impounded,
             maxlengths=maxlengths,
+            require_zip=require_zip,
         )
 
     def gender_fields(
