@@ -13,7 +13,13 @@ class test_aladdress(unittest.TestCase):
         self.assertEqual(addr.on_one_line(), "")
 
     def test_address_required(self):
-        addr = ALAddress(address_label="address", unit_label="unit", city_label="city", state_label="state", zip_label="zip")
+        addr = ALAddress(
+            address_label="address",
+            unit_label="unit",
+            city_label="city",
+            state_label="state",
+            zip_label="zip",
+        )
         fields = addr.address_fields(required={"zip": True})
         for field in fields:
             if field["field"] == "zip":
