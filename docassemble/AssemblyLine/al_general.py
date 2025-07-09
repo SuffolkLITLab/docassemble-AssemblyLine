@@ -116,6 +116,7 @@ class ALAddress(Address):
         allow_no_address: bool = False,
         ask_if_impounded: Optional[bool] = False,
         maxlengths: Optional[Dict[str, int]] = None,
+        required: Optional[Dict[str, bool]] = None,
     ) -> List[Dict[str, Any]]:
         """
         Return a YAML structure representing the list of fields for the object's address.
@@ -136,6 +137,7 @@ class ALAddress(Address):
             allow_no_address (bool): Allow users to specify they don't have an address. Defaults to False.
             ask_if_impounded (Optional[bool]): Whether to ask if the address is impounded. Defaults to False.
             maxlengths (Optional[Dict[str, int]]): A dictionary of field names and their maximum lengths. Defaults to None.
+            required (Dict[str, bool], optional): A dictionary of field names and if they should be required. Default is None (everything but unit and zip is required)
 
         Returns:
             List[Dict[str, Any]]: A list of dictionaries representing address fields.
@@ -276,6 +278,11 @@ class ALAddress(Address):
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
+
+        if required:
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
 
         return fields
 
@@ -1241,6 +1248,7 @@ class ALIndividual(Individual):
         allow_no_address: bool = False,
         ask_if_impounded: bool = False,
         maxlengths: Optional[Dict[str, int]] = None,
+        required: Optional[Dict[str, bool]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate field prompts for capturing an address.
@@ -1254,6 +1262,7 @@ class ALIndividual(Individual):
             allow_no_address (bool): Whether to permit entries with no address. Defaults to False.
             ask_if_impounded (bool): Whether to ask if the address is impounded. Defaults to False.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            required (Dict[str, bool], optional): A dictionary of field names and if they should be required. Default is None (everything but unit and zip is required)
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for addresses.
@@ -1269,6 +1278,7 @@ class ALIndividual(Individual):
             allow_no_address=allow_no_address,
             ask_if_impounded=ask_if_impounded,
             maxlengths=maxlengths,
+            required=required,
         )
 
     def gender_fields(

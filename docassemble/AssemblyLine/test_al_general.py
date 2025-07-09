@@ -12,6 +12,23 @@ class test_aladdress(unittest.TestCase):
         addr = ALAddress(address="", city="")
         self.assertEqual(addr.on_one_line(), "")
 
+    def test_address_required(self):
+        addr = ALAddress(
+            address_label="address",
+            unit_label="unit",
+            city_label="city",
+            state_label="state",
+            zip_label="zip",
+        )
+        fields = addr.address_fields(required={"zip": True})
+        for field in fields:
+            if field["field"] == "zip":
+                self.assertTrue(field["required"])
+        fields = addr.address_fields()
+        for field in fields:
+            if field["field"] == "zip":
+                self.assertFalse(field["required"])
+
     def test_no_unit_floor_room(self):
         self.assertFalse(hasattr(self.addr, "unit"))
         self.assertFalse(hasattr(self.addr, "floor"))
