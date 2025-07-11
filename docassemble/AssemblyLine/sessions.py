@@ -79,7 +79,7 @@ __all__ = [
     "session_list_html",
     "set_current_session_metadata",
     "set_interview_metadata",
-    "update_current_session_metadata", 
+    "update_current_session_metadata",
     "update_session_metadata",
 ]
 
@@ -1710,8 +1710,12 @@ def update_session_metadata(
 ) -> None:
     """
     Performs a reasonably safe "upsert" by first attempting an UPDATE.
-    If no row is updated, it then performs an INSERT. This is done
-    within a single transaction to ensure atomicity.
+    If no row is updated, it then performs an INSERT.
+
+    This is optimized for speed and has a small chance of losing updates
+    because Docassemble does not have a unique constraint on the jsonstorage
+    table. Workarounds for this are too slow as this can run multiple times per page
+    load.
 
     Args:
         filename (str): The filename of the interview session to update.
@@ -1722,60 +1726,48 @@ def update_session_metadata(
     """
     json_data_string = json.dumps(safe_json(data))
 
-    # A transaction ensures that the UPDATE and potential INSERT happen atomically.
     with db.connect() as con:
-        with con.begin():
-            # 1. Attempt to update the existing row.
-            update_query = text(
+        # 1. Attempt to update the existing row.
+        update_query = text(
+            """
+            UPDATE jsonstorage
+            SET data = jsonstorage.data || :data ::jsonb
+            WHERE key = :session_id AND filename = :filename AND tags = :tags;
+            """
+        )
+        result = con.execute(
+            update_query,
+            {
+                "data": json_data_string,
+                "session_id": session_id,
+                "filename": filename,
+                "tags": metadata_key_name,
+            },
+        )
+
+        # 2. Check if any rows were affected by the update.
+        # result.rowcount tells us how many rows were updated.
+        if result.rowcount == 0:
+            # 3. If no rows were updated, the row doesn't exist. Insert it.
+
+            # This has a small chance of a race condition, but we do these
+            # updates on an `initial: True` block so it's not high impact
+
+            insert_query = text(
                 """
-                UPDATE jsonstorage
-                SET data = jsonstorage.data || :data ::jsonb
-                WHERE key = :session_id AND filename = :filename AND tags = :tags;
+                INSERT INTO jsonstorage (key, filename, tags, data)
+                VALUES (:session_id, :filename, :tags, :data ::jsonb);
                 """
             )
-            result = con.execute(
-                update_query,
+            con.execute(
+                insert_query,
                 {
-                    "data": json_data_string,
                     "session_id": session_id,
                     "filename": filename,
                     "tags": metadata_key_name,
+                    "data": json_data_string,
                 },
             )
-
-            # 2. Check if any rows were affected by the update.
-            # result.rowcount tells us how many rows were updated.
-            if result.rowcount == 0:
-                # 3. If no rows were updated, the row doesn't exist. Insert it.
-                # This part is still vulnerable to a race condition if two processes
-                # reach here at the same time. One will insert, the other might fail
-                # or insert a duplicate if there's truly no constraint.
-                # To mitigate, we can re-check before inserting.
-                
-                check_query = text(
-                    "SELECT 1 FROM jsonstorage WHERE key = :session_id AND filename = :filename AND tags = :tags"
-                )
-                exists = con.execute(
-                    check_query,
-                    {"session_id": session_id, "filename": filename, "tags": metadata_key_name}
-                ).first()
-
-                if not exists:
-                    insert_query = text(
-                        """
-                        INSERT INTO jsonstorage (key, filename, tags, data)
-                        VALUES (:session_id, :filename, :tags, :data ::jsonb);
-                        """
-                    )
-                    con.execute(
-                        insert_query,
-                        {
-                            "session_id": session_id,
-                            "filename": filename,
-                            "tags": metadata_key_name,
-                            "data": json_data_string,
-                        },
-                    )
 
 
 def update_current_session_metadata(
