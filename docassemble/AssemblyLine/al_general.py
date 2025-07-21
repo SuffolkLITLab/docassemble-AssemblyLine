@@ -1361,7 +1361,9 @@ class ALIndividual(Individual):
             List[Dict[str, str]]: A list of dictionaries with field prompts for pronouns.
         """
         if exclude_ze is None:
-            include_ze = get_config("assembly line", {}).get("include ze pronouns", True)
+            include_ze = get_config("assembly line", {}).get(
+                "include ze pronouns", True
+            )
         else:
             include_ze = not exclude_ze
 
