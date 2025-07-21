@@ -527,13 +527,13 @@ subquestion: |
   % endfor
 
   % if not get_config("verbose error messages") == False:
-  ${ collapse_template(al_formatted_error_message) }
+  ${ collapse_template(al_formatted_error_message, collapsed=(not get_config("debug"))) }
   % endif
 back button label: Back
 buttons:
   - Exit: leave
     url: ${ AL_ORGANIZATION_HOMEPAGE }
-  - Start over: restart
+  - Start over: new_session
 ---
 code: |
   al_show_email_to_user_on_errors = get_config("assembly line", {}).get("show email to user on errors")
@@ -564,7 +564,7 @@ subquestion: |
   ${ al_user_bundle.download_list_html(key="emergency_download") }
 buttons:
   - Leave: leave
-  - Start over: restart
+  - Start over: new_session
 ---
 template: al_formatted_error_message
 subject: |
@@ -588,9 +588,7 @@ content: |
 
   % if get_config("debug") and action_argument("error_trace"):
   <h2 class="h4">${ word("Log") }</h2>
-  <pre>
-  ${ action_argument("error_trace")}
-  </pre>
+  ${ indent(action_argument("error_trace")) }
   % endif
 ---
 # This image reference is deprecated and may be removed by the end of 2023
