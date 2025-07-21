@@ -8,13 +8,10 @@ initial: True
 code: |
   ########### Save title and progress to session list ##################
   if get_config("assembly line",{}).get("update session metadata", True):
-    al_temp_metadata = get_interview_metadata(
-      current_context().filename, current_context().session
-    )
-    al_temp_metadata["auto_title"] = str(al_sessions_interview_title)
-    al_temp_metadata["progress"] = get_progress()
-    set_current_session_metadata(al_temp_metadata)
-    del(al_temp_metadata)
+    update_current_session_metadata({
+      "auto_title": str(al_sessions_interview_title),
+      "progress": get_progress(),
+    })
 ---
 template: al_sessions_interview_title
 content: |
