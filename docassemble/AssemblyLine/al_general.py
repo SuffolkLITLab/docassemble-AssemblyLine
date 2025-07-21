@@ -1341,6 +1341,8 @@ class ALIndividual(Individual):
         shuffle: bool = False,
         show_unknown: Optional[Union[Literal["guess"], bool]] = "guess",
         maxlengths: Optional[Dict[str, int]] = None,
+        exclude_ze: Optional[bool] = None,
+        choices: Optional[List[Dict[str, str]]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing pronoun information.
@@ -1352,16 +1354,27 @@ class ALIndividual(Individual):
             shuffle (bool): Whether to shuffle the order of pronouns. Defaults to False.
             show_unknown (Union[Literal["guess"], bool]): Whether to show an "unknown" option. Can be "guess", True, or False. Defaults to "guess".
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            exclude_ze (bool): Whether to include the "ze/zir/zirs" pronoun option. Respects a custom value. if omitted defaults to global configuration option "assembly line: include ze pronouns", and defaults to True for backwards compatibility.
+            choices (Optional[List[Dict[str, str]]]): A list of custom pronoun choices. Defaults to None. Overrides `include_ze`
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for pronouns.
         """
-        shuffled_choices = [
-            {str(self.pronoun_she_label): "she/her/hers"},
-            {str(self.pronoun_he_label): "he/him/his"},
-            {str(self.pronoun_they_label): "they/them/theirs"},
-            {str(self.pronoun_zir_label): "ze/zir/zirs"},
-        ]
+        if exclude_ze is None:
+            include_ze = get_config("assembly line", {}).get("include ze pronouns", True)
+        else:
+            include_ze = not exclude_ze
+
+        if choices:
+            shuffled_choices = choices
+        else:
+            shuffled_choices = [
+                {str(self.pronoun_she_label): "she/her/hers"},
+                {str(self.pronoun_he_label): "he/him/his"},
+                {str(self.pronoun_they_label): "they/them/theirs"},
+            ]
+            if include_ze:
+                shuffled_choices.append({str(self.pronoun_zir_label): "ze/zir/zirs"})
         if shuffle:
             random.shuffle(shuffled_choices)
         final_choices = [
