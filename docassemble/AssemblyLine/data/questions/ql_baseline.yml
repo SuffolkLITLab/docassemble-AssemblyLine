@@ -591,9 +591,17 @@ data:
 ---
 id: your contact information
 question: |
+  % if al_person_answering == "user":
   What is your contact information?
+  % else:
+  What is ${ users[0] }'s contact information?
+  % endif
 subquestion: |
+  % if al_person_answering == "user":
   Include at least **one** way to reach you other than by mail.
+  % else:
+  Include at least **one** way to reach ${ users[0] } other than by mail.
+  % endif
 
   ${ collapse_template(why_contact_info_needed_template) }
 fields:  
@@ -604,7 +612,13 @@ fields:
   - Email address: users[0].email    
     datatype: email
     required: False
-  - Other ways to reach you: users[0].other_contact_method
+  - label: |
+      % if al_person_answering == "user":
+      Other ways to reach you
+      % else:
+      Other ways to reach ${ users[0] }
+      % endif
+    field: users[0].other_contact_method
     input type: area
     required: False
     help: |
