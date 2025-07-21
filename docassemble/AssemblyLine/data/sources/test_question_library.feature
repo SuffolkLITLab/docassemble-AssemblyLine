@@ -38,6 +38,6 @@ Scenario: Can enter all parts of contact info
   And I tap to continue
   And I tap to continue
   Then I should see the phrase "You need to provide at least one contact method"
-  And I set the variable "users[0].mobile_number" to "123-456-7890"
+  And I set the variable "users[0].mobile_number" to "617-555-5555"
   And I tap to continue
   Then I should see the phrase "All done!"
