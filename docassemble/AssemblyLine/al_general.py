@@ -34,6 +34,7 @@ from docassemble.base.util import (
     value,
     word,
     your,
+    log,
 )
 import random
 import re
@@ -1068,10 +1069,11 @@ class ALIndividual(Individual):
         person_or_business: str = "person",
         show_suffix: bool = True,
         show_title: bool = False,
-        title_options: Optional[Union[List[str], Callable]] = None,
+        title_choices: Optional[Union[List[str], Callable]] = None,
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
-        suffix_options: Optional[Union[List[str], Callable]] = None,
+        suffix_choices: Optional[Union[List[str], Callable]] = None,
+        title_options: Optional[Union[List[str], Callable]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generates suitable field prompts for a name based on the type of entity (person or business)
@@ -1084,12 +1086,13 @@ class ALIndividual(Individual):
                 Default is True.
             show_title: (bool, optional): Determines if the name's title (e.g., Mr., Ms.) should be included in the prompts.
                 Default is False.
-            title_options (Union[List[str], Callable], optional): A list or callable of title options to use in the prompts. Default is defined as a list
+            title_choices (Union[List[str], Callable], optional): A list or callable of title options to use in the prompts. Default is defined as a list
                 of common titles in English-speaking countries, or overridden by value of global `al_name_suffixes`.
             show_if (Union[str, Dict[str, str], None], optional): Condition to determine which fields to show.
                 It can be a string, a dictionary with conditions, or None. Default is None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
-            suffix_options (Union[List[str], Callable], optional): A list of suffix options or a callable to generate suffix options, or overridden by value of global `al_name_suffixes`.
+            suffix_choices (Union[List[str], Callable], optional): A list of suffix options or a callable to generate suffix options, or overridden by value of global `al_name_suffixes`.
+            title_options: (Union[List[str], Callable], optional): Deprecated parameter, use `title_choices` instead. If provided, it will be used to set the title choices.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries where each dictionary contains field prompt details.
@@ -1098,16 +1101,20 @@ class ALIndividual(Individual):
             If `person_or_business` is set to None, the method will offer the end user a choice
             and will set appropriate "show ifs" conditions for each type.
         """
-        if not suffix_options:
-            suffix_options = value("al_name_suffixes")
-        if callable(suffix_options):
-            suffix_options = suffix_options()
+        if title_options:
+            log("title_options parameter to name_fields() is deprecated: use title_choices instead")
+            title_choices = title_options
 
-        if not title_options:
-            title_options = value("al_name_titles")
+        if not suffix_choices:
+            suffix_choices = value("al_name_suffixes")
+        if callable(suffix_choices):
+            suffix_choices = suffix_choices()
 
-        if callable(title_options):
-            title_options = title_options()
+        if not title_choices:
+            title_choices = value("al_name_titles")
+
+        if callable(title_choices):
+            title_choices = title_choices()
 
         if person_or_business == "person":
             fields = [
@@ -1130,7 +1137,7 @@ class ALIndividual(Individual):
                     {
                         "label": str(self.suffix_label),
                         "field": self.attr_name("name.suffix"),
-                        "choices": suffix_options,
+                        "choices": suffix_choices,
                         "required": False,
                     }
                 )
@@ -1140,7 +1147,7 @@ class ALIndividual(Individual):
                     {
                         "label": str(self.name_title_label),
                         "field": self.attr_name("name.title"),
-                        "choices": title_options,
+                        "choices": title_choices,
                         "required": False,
                     },
                 )
@@ -1206,7 +1213,7 @@ class ALIndividual(Individual):
                     {
                         "label": str(self.suffix_label),
                         "field": self.attr_name("name.suffix"),
-                        "choices": suffix_options,
+                        "choices": suffix_choices,
                         "required": False,
                         "show if": show_if_indiv,
                     }
