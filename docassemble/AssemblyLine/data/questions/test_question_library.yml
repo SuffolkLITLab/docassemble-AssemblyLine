@@ -40,7 +40,7 @@ subquestion: |
   % elif item == "pronouns":
   Your pronouns are: ${ users[0].list_pronouns() }.
 
-  In the past, ${users[0].pronoun_subjective(person="2") } called ${ users[0].pronoun_reflexive(person="2") } ${ users[0].pronoun_objective(person="1") }.
+  In the past, ${users[0].pronoun_subjective(person="3") } called ${ users[0].pronoun_reflexive(person="3") } ${ users[0].pronoun_possessive('', person="3") }.
   % else:
   ${ getattr(users[0], item) }
   % endif
