@@ -1284,9 +1284,13 @@ class ALIndividual(Individual):
             show_help (bool): Whether to show additional help text. Defaults to False.
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of choices of genders to use in the prompts, or a callable that returns such a list. Default set of choices includes male, female, nonbinary, prefer-not-to-say, self-described, and unknown.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for gender.
+
+        Note:
+            self-described will provide an input that overrides the value of `gender` and is not persisted.
         """
         if not choices:
             choices = [
