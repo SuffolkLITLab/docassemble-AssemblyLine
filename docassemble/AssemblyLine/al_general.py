@@ -1342,7 +1342,7 @@ class ALIndividual(Individual):
         shuffle: bool = False,
         show_unknown: Optional[Union[Literal["guess"], bool]] = "guess",
         maxlengths: Optional[Dict[str, int]] = None,
-        choices: Optional[List[Dict[str, str]]] = None,
+        options: Optional[List[Dict[str, str]]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing pronoun information.
@@ -1354,13 +1354,13 @@ class ALIndividual(Individual):
             shuffle (bool): Whether to shuffle the order of pronouns. Defaults to False.
             show_unknown (Union[Literal["guess"], bool]): Whether to show an "unknown" option. Can be "guess", True, or False. Defaults to "guess".
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
-            choices (Optional[List[Dict[str, str]]]): A list of custom pronoun choices. Defaults to None. If not provided, global magic variable `al_pronoun_choices` will be used.
+            options (Optional[List[Dict[str, str]]]): A list of custom pronoun choices. Defaults to None. If not provided, global magic variable `al_pronoun_choices` will be used.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for pronouns.
         """
-        if choices:
-            shuffled_choices = choices
+        if options:
+            shuffled_choices = options
         else:
             shuffled_choices = value("al_pronoun_choices")
         if shuffle:
