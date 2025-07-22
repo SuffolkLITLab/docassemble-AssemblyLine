@@ -17,18 +17,41 @@ code: |
 
   if which_to_test == 'address':
     users[0].address.address
-  if which_to_test == 'address_no_address':
+  elif which_to_test == 'address_no_address':
     users[0].address.has_no_address
-  if which_to_test == 'contact':
+  elif which_to_test == 'contact':
     users[0].phone_number
+  elif which_to_test == 'pronouns':
+    users[0].pronouns
   all_done
 ---
 event: all_done
 question: All done!
+subquestion: |
+  % for item in ["name", "pronouns", "address", "address_no_address", "contact"]:
+  % if which_to_test == item:
+  % if item == "contact":
+  Your contact information is:
+  ${ users[0].email }[BR]
+  ${ users[0].phone_numbers() }[BR]
+  ${ users[0].other_contact_method}[BR]
+  % elif item == "address_no_address":
+  ${ users[0].address_block() }
+  % elif item == "pronouns":
+  Your pronouns are: ${ users[0].list_pronouns() }.
+
+  In the past, ${users[0].pronoun_subjective(person="3") } called ${ users[0].pronoun_reflexive(person="3") } ${ users[0].pronoun_possessive('', person="3") }.
+  % else:
+  ${ getattr(users[0], item) }
+  % endif
+  % endif
+  % endfor
 ---
 question: Which question do you want to test?
 field: which_to_test
 choices:
+  - Name: name
+  - Pronouns: pronouns
   - Address: address
   - Address (with the option to not have one): address_no_address
   - Contact Information: contact

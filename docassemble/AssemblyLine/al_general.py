@@ -34,6 +34,7 @@ from docassemble.base.util import (
     validation_error,
     word,
     your,
+    value,
 )
 import random
 import re
@@ -1341,6 +1342,7 @@ class ALIndividual(Individual):
         shuffle: bool = False,
         show_unknown: Optional[Union[Literal["guess"], bool]] = "guess",
         maxlengths: Optional[Dict[str, int]] = None,
+        choices: Optional[List[Dict[str, str]]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing pronoun information.
@@ -1352,16 +1354,15 @@ class ALIndividual(Individual):
             shuffle (bool): Whether to shuffle the order of pronouns. Defaults to False.
             show_unknown (Union[Literal["guess"], bool]): Whether to show an "unknown" option. Can be "guess", True, or False. Defaults to "guess".
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            choices (Optional[List[Dict[str, str]]]): A list of custom pronoun choices. Defaults to None. If not provided, global magic variable `al_pronoun_choices` will be used.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for pronouns.
         """
-        shuffled_choices = [
-            {str(self.pronoun_she_label): "she/her/hers"},
-            {str(self.pronoun_he_label): "he/him/his"},
-            {str(self.pronoun_they_label): "they/them/theirs"},
-            {str(self.pronoun_zir_label): "ze/zir/zirs"},
-        ]
+        if choices:
+            shuffled_choices = choices
+        else:
+            shuffled_choices = value("al_pronoun_choices")
         if shuffle:
             random.shuffle(shuffled_choices)
         final_choices = [
