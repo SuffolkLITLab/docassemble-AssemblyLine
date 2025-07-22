@@ -1274,7 +1274,7 @@ class ALIndividual(Individual):
         show_help=False,
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
-        choices: Optional[Union[Dict[str, int], Callable]] = None,
+        choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing gender information, including a
