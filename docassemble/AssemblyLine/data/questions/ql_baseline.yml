@@ -2438,25 +2438,12 @@ template: x.pronouns_label
 content: |
   Choose one or more pronouns
 ---
-generic object: ALIndividual
-template: x.pronoun_he_label
-content: |
-  He/him/his
----
-generic object: ALIndividual
-template: x.pronoun_she_label
-content: |
-  She/her/hers
----
-generic object: ALIndividual
-template: x.pronoun_they_label
-content: |
-  They/them/theirs
----
-generic object: ALIndividual
-template: x.pronoun_zir_label
-content: |
-  Ze/zir/zirs
+variable name: al_pronoun_choices
+data:
+  - He/him/his: he/him/his
+  - She/her/hers: she/her/hers
+  - They/them/theirs: they/them/theirs
+  - Ze/zir/zirs: ze/zir/zirs
 ---
 generic object: ALIndividual
 template: x.pronoun_prefer_not_to_say_label
