@@ -1102,7 +1102,9 @@ class ALIndividual(Individual):
             and will set appropriate "show ifs" conditions for each type.
         """
         if title_options:
-            log("title_options parameter to name_fields() is deprecated: use title_choices instead")
+            log(
+                "title_options parameter to name_fields() is deprecated: use title_choices instead"
+            )
             title_choices = title_options
 
         if not suffix_choices:
