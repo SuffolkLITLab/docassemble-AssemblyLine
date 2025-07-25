@@ -607,8 +607,10 @@ subquestion: |
 fields:  
   - Mobile number: users[0].mobile_number
     required: False
+    datatype: al_international_phone
   - Other phone number: users[0].phone_number
     required: False
+    datatype: al_international_phone
   - Email address: users[0].email    
     datatype: email
     required: False
@@ -1155,12 +1157,21 @@ fields:
     field: users[i].previous_addresses.there_is_another  
     datatype: yesnoradio
 ---
-id: persons contact information
+id: persons phone number
 generic object: ALIndividual
 question: |
   What is ${x}'s phone number?
 fields:
   - Phone: x.phone_number
+    datatype: al_international_phone
+---
+id: persons mobile number
+generic object: ALIndividual
+question: |
+  What is ${x}'s mobile number?
+fields:
+  - Phone: x.mobile_number
+    datatype: al_international_phone
 ---
 id: persons fax number
 generic object: ALIndividual
@@ -1168,6 +1179,7 @@ question: |
   What is ${x}'s fax number?
 fields:
   - Fax number: x.fax_number
+    datatype: al_international_phone  
 ---
 id: email
 generic object: ALIndividual
