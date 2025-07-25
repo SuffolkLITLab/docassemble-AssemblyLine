@@ -2222,7 +2222,7 @@ class ALDocumentBundle(DAList):
             self._cached_include_editable_documents = str(
                 self.include_editable_documents
             )
-        name = html_safe_str(self.instanceName) + secure_random_string()
+        name = html_safe_str(self.instanceName) + secure_random_suffix()
         al_wants_editable_input_id = "_ignore_al_wants_editable_" + name
         al_email_input_id = "_ignore_al_doc_email_" + name
         al_send_button_id = "al_send_email_button_" + name
@@ -2263,7 +2263,7 @@ class ALDocumentBundle(DAList):
         icon: str = "envelope",
         color: str = "primary",
         key: str = "final",
-        allowed_formats: Optional[Union[str,List[str]]] = None,
+        valid_formats: Optional[Union[str,List[str]]] = None,
     ) -> str:
         """
         Generate HTML for a button that allows someone to send the bundle to a
@@ -2272,13 +2272,13 @@ class ALDocumentBundle(DAList):
 
         Args:
             email (str): The recipient's email address.
-            editable (bool, optional): Flag indicating if the bundle is editable. Defaults to False. (deprecated; use allowed_formats instead)
+            editable (bool, optional): Flag indicating if the bundle is editable. Defaults to False. (deprecated; use valid_formats instead)
             template_name (str, optional): The name of the template to be used. Defaults to an empty string.
             label (str, optional): The label for the button. Defaults to "Send".
             icon (str, optional): The Fontawesome icon for the button. Defaults to "envelope".
             color (str, optional): The Bootstrap color of the button. Defaults to "primary".
             key (str, optional): A key used to identify which version of the ALDocument to send. Defaults to "final".
-            allowed_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
+            valid_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
 
         Returns:
             str: The generated HTML string for the button.
@@ -2287,13 +2287,13 @@ class ALDocumentBundle(DAList):
             return ""  # Don't let people email an empty set of documents
         if not hasattr(self, "_cached_get_email_copy"):
             self._cached_get_email_copy = str(self.get_email_copy)
-        name = html_safe_str(self.instanceName) + secure_random_string()
+        name = html_safe_str(self.instanceName) + secure_random_suffix()
         al_send_button_id = "al_send_email_to_button_" + name
 
-        if isinstance(allowed_formats, (list, tuple)):
-            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in allowed_formats) + "]"
-        elif allowed_formats:
-            formats_js = f"'{allowed_formats}'"
+        if isinstance(valid_formats, (list, tuple)):
+            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in valid_formats) + "]"
+        elif valid_formats:
+            formats_js = f"'{valid_formats}'"
         else:
             formats_js = "null"
 
@@ -2327,7 +2327,7 @@ class ALDocumentBundle(DAList):
         template_name: str = "",
         label: str = "Send",
         icon: str = "envelope",
-        allowed_formats: Optional[Union[str, List[str]]] = None,
+        valid_formats: Optional[Union[str, List[str]]] = None,
     ) -> str:
         """
         Generate HTML for an input box and button that allows someone to send the bundle
@@ -2340,13 +2340,13 @@ class ALDocumentBundle(DAList):
             key (str, optional): A key used to identify which version of the ALDocument to send. Defaults to "final".
             show_editable_checkbox (bool, optional): Flag indicating if the checkbox
                 for deciding the inclusion of an editable (Word) copy should be displayed.
-                Defaults to True. If allowed_formats = ["pdf"], this will be ignored and no checkbox will be shown.
+                Defaults to True. If valid_formats = ["pdf"], this will be ignored and no checkbox will be shown.
             template_name (str, optional): Name of the template variable that is used to fill
                 the email contents. By default, the `x.send_email_template` template will be used.
             label (str, optional): The label for the button. Defaults to "Send".
             icon (str, optional): The Fontawesome icon for the button. Defaults
                 to "envelope".
-            allowed_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
+            valid_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
 
         Returns:
             str: The generated HTML string for the input box and button.
@@ -2359,15 +2359,22 @@ class ALDocumentBundle(DAList):
             self._cached_include_editable_documents = str(
                 self.include_editable_documents
             )
-        name = html_safe_str(self.instanceName)
+
+        if isinstance(valid_formats, str):
+            valid_formats = [valid_formats]
+
+        if not valid_formats:
+            valid_formats = ["pdf", "docx"] if show_editable_checkbox else ["pdf"]
+
+        name = html_safe_str(self.instanceName) + secure_random_suffix()
         al_wants_editable_input_id = "_ignore_al_wants_editable_" + name
         al_email_input_id = "_ignore_al_doc_email_" + name
         al_send_button_id = "al_send_email_button_" + name
 
-        if isinstance(allowed_formats, (list, tuple)):
-            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in allowed_formats) + "]"
-        elif allowed_formats:
-            formats_js = f"'{allowed_formats}'"
+        if isinstance(valid_formats, (list, tuple)):
+            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in valid_formats) + "]"
+        elif valid_formats:
+            formats_js = f"'{valid_formats}'"
         else:
             formats_js = "null"
 
@@ -2384,15 +2391,15 @@ class ALDocumentBundle(DAList):
 
         # Container of whole email section with header
         return_str = f"""
-  <fieldset class="al_send_bundle al_send_section_alone {name}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
+  <fieldset class="al_send_bundle al_send_section_alone {html_safe_str(self.instanceName)}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
     <legend class="h4 al_doc_email_header">{self._cached_get_email_copy}</legend> 
     """
         # "Editable" checkbox
-        if show_editable_checkbox and allowed_formats not in ("pdf", ["pdf"]):
+        if show_editable_checkbox and len(valid_formats) > 0: # Do not need to show if only one valid format allowed
             return_str += f"""
     <div class="form-check-container">
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" class="al_wants_editable" id="{al_wants_editable_input_id}">
+        <input class="form-check-input al_wants_editable" type="checkbox" id="{al_wants_editable_input_id}">
         <label class="al_wants_editable form-check-label" for="{al_wants_editable_input_id}">{self._cached_include_editable_documents}
         </label>
       </div>
@@ -2402,7 +2409,7 @@ class ALDocumentBundle(DAList):
         return_str += f"""
   <div class="al_email_container">
   
-    <span class="al_email_address {name} container form-group row da-field-container da-field-container-datatype-email">
+    <span class="al_email_address {html_safe_str(self.instanceName)} container form-group row da-field-container da-field-container-datatype-email">
       <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">Email</label>
       <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
     </span>
@@ -2420,7 +2427,7 @@ class ALDocumentBundle(DAList):
         key: str = "final",
         editable: Optional[bool] = None,
         template: Optional[Any] = None,
-        allowed_formats: Optional[Union[str, List[str]]] = "pdf",
+        valid_formats: Optional[Union[str, List[str]]] = "pdf",
         **kwargs,
     ) -> bool:
         """
@@ -2433,36 +2440,36 @@ class ALDocumentBundle(DAList):
             key (str, optional): Specifies which version of the document to send. Defaults to "final".
             editable (bool, optional): If True, sends the editable documents. Defaults to False. (Deprecated)
             template (Any): The template variable for the subject and body of the email, similar to da `send_email` `template` variable.
-            allowed_formats (str): Specifies the format of the files to send. Can be "pdf" or "docx", or a list of these formats. Overrides deprecated `editable` keyword.
+            valid_formats (str): Specifies the format of the files to send. Can be "pdf" or "docx", or a list of these formats. Overrides deprecated `editable` keyword.
             **kwargs: Additional parameters to pass to the da `send_email` function.
 
         Returns:
             bool: Indicates if the email was sent successfully.
         """
         if editable is not None:
-            log("The 'editable' parameter is deprecated; use 'allowed_formats' instead.")
+            log("The 'editable' parameter is deprecated; use 'valid_formats' instead.")
 
-        if not template:
+        if template is None:
             template = self.send_email_template
 
-        if not allowed_formats:
-            if editable:
-                allowed_formats = ["docx", "pdf"]
-            else:
-                allowed_formats = ["pdf"]
+        if valid_formats is None:
+            valid_formats = ["docx", "pdf"] if editable else ["pdf"]
 
-        if isinstance(allowed_formats, str):
-            allowed_formats = [allowed_formats]
+        if isinstance(valid_formats, str):
+            valid_formats = [valid_formats]
 
+        allowed = {fmt.lower() for fmt in valid_formats}
         attachments = []
+
         for item in self.enabled_documents():
-            docx_version = item.as_docx(key=key)
-            if "docx" in allowed_formats:
-                attachments.append(docx_version) # this might be a PDF if it started as a PDF
-            if "pdf" in allowed_formats:
-                if hasattr(docx_version, "extension") and docx_version.extension == "pdf": # Don't add twice if we only had a PDF
-                    attachments.append(docx_version)
-                else:
+            primary = None
+
+            if "docx" in allowed:
+                primary = item.as_docx(key=key)
+                attachments.append(primary)
+
+            if "pdf" in allowed:
+                if not (primary and hasattr(primary, "extension") and primary.extension == "pdf"):
                     attachments.append(item.as_pdf(key=key))
 
         return send_email(

@@ -20,14 +20,29 @@ subquestion: |
   ${ al_user_bundle.download_list_html() }
 
   #### Allowed formats: docx
-  ${ al_user_bundle.send_button_html(allowed_formats="docx") }
+  ${ al_user_bundle.send_button_html(valid_formats="docx") }
 
-  ${ al_user_bundle.send_button_to_html(allowed_formats="docx", email=email_to_send) }
+  ${ al_user_bundle.send_button_to_html(valid_formats="docx", email=email_to_send) }
 
   #### Allowed formats: PDF, DOCX
-  ${ al_user_bundle.send_button_html(allowed_formats=["pdf", "docx"]) }
+  ${ al_user_bundle.send_button_html(valid_formats=["pdf", "docx"]) }
 
-  ${ al_user_bundle.send_button_to_html(allowed_formats=["pdf", "docx"], email=email_to_send) }
+  ${ al_user_bundle.send_button_to_html(valid_formats=["pdf", "docx"], email=email_to_send) }
+
+
+  #### In combo with `show_editable_checkbox` parameter
+
+  ##### True
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+  ##### False
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+  ##### With valid_formats overriding it
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True, valid_formats="pdf") }
+
+
 
 ---
 objects:

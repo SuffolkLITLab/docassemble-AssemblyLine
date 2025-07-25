@@ -3,7 +3,7 @@
  * or not user wants to send editable files, trigger docassemble event to
  * email an ALDocumentBundle
  */
-function aldocument_send_action(event_name, wants_editable_id, email_id, template_name="", key="final", allowed_formats="pdf") {
+function aldocument_send_action(event_name, wants_editable_id, email_id, template_name="", key="final", valid_formats="pdf") {
   var editable = null;
   
   console.log( email_id );
@@ -13,7 +13,7 @@ function aldocument_send_action(event_name, wants_editable_id, email_id, templat
   }
   
   var email = $('#' + email_id)[0].value;
-  da_action_perform(event_name, {editable: editable, email: email, key:key, template_name: template_name, allowed_formats: allowed_formats});
+  da_action_perform(event_name, {editable: editable, email: email, key:key, template_name: template_name, valid_formats: valid_formats});
 };
 
 /*
@@ -21,11 +21,11 @@ function aldocument_send_action(event_name, wants_editable_id, email_id, templat
  * or not user wants to send editable files, trigger docassemble event to
  * email an ALDocumentBundle
  */
-function aldocument_send_to_action(event_name, editable, email, button_id, template_name="", key="final", allowed_formats="pdf") {
+function aldocument_send_to_action(event_name, editable, email, button_id, template_name="", key="final", valid_formats="pdf") {
   var button = $('#' + button_id);
   button.html('Sending...');
   button.addClass('disabled');    // to visually disable button
-  da_action_call(event_name, {editable: editable, email: email, template_name: template_name, key:key, allowed_formats: allowed_formats}, function (results) {
+  da_action_call(event_name, {editable: editable, email: email, template_name: template_name, key:key, valid_formats: valid_formats}, function (results) {
     if (results.success) {
       console.log("Email sent")
       button.prop('disabled', true);

@@ -11,10 +11,10 @@ features:
 generic object: ALDocumentBundle
 event: x.send_email_action_event
 code: |
-  if action_argument("editable") and not action_argument("allowed_formats"):
-    allowed_formats = ["pdf", "docx"]
+  if action_argument("editable") and not action_argument("valid_formats"):
+    valid_formats = ["pdf", "docx"]
   else:
-    allowed_formats = action_argument("allowed_formats")
+    valid_formats = action_argument("valid_formats")
 
   email_success = x.send_email(
       to=action_argument('email'),
@@ -24,7 +24,7 @@ code: |
         else None
       ),
       key=action_argument('key'),
-      allowed_formats=allowed_formats,
+      valid_formats=valid_formats,
   )
   if email_success:
     # Exact phrase below is in Docassemble's words dictionary
@@ -36,10 +36,10 @@ code: |
 generic object: ALDocumentBundle
 event: x.send_email_to_action_event
 code: |
-  if action_argument("editable") and not action_argument("allowed_formats"):
-    allowed_formats = ["pdf", "docx"]
+  if action_argument("editable") and not action_argument("valid_formats"):
+    valid_formats = ["pdf", "docx"]
   else:
-    allowed_formats = action_argument("allowed_formats")
+    valid_formats = action_argument("valid_formats")
 
   email_success = x.send_email(
       to=action_argument('email'),
@@ -49,7 +49,7 @@ code: |
         else None
       ),
       key=action_argument('key'),
-      allowed_formats=allowed_formats,
+      valid_formats=valid_formats,
   )
   if email_success:
     log("Email sent to " + action_argument('email')) # to log file
