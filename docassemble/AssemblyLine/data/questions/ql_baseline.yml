@@ -2507,3 +2507,55 @@ generic object: ALIndividual
 template: x.other_contact_method_label
 content: >-
   by
+---
+# Backwards compatible, but you may want to override with Jr., Sr., etc.
+variable name: al_name_suffixes
+data:
+  - Jr
+  - Junior
+  - Sr
+  - Senior
+  - I
+  - II
+  - III
+  - IV
+  - V
+  - VI
+  - Esq.
+  - Ph.D.
+  - M.D.
+  - J.D.
+  - D.D.S.
+  - D.V.M.
+  - Ed.D.
+  - Ret.
+  - OBE
+  - CBE
+  - MBE
+  - QC
+  - KC
+  - Bart.
+  - Bt.
+---
+variable name: al_name_titles
+data:
+  - Mr.
+  - Mrs.
+  - Miss
+  - Ms.
+  - Mx.
+  - Dr.
+  - Prof.
+  - Hon.
+  - Rev.
+  - Sir
+  - Lord
+  - Lady
+  - Dame
+  - Maj.
+  - Gen.
+  - Capt.
+  - Lt.
+  - Sgt.
+  - Fr.
+  - Sr.
