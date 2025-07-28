@@ -11,10 +11,18 @@ features:
 generic object: ALDocumentBundle
 event: x.send_email_action_event
 code: |
-  if action_argument("editable") and not action_argument("valid_formats"):
-    valid_formats = ["pdf", "docx"]
-  else:
+  if action_argument("valid_formats"):
     valid_formats = action_argument("valid_formats")
+    if isinstance(valid_formats, str):
+      valid_formats = [valid_formats]
+  else:
+    valid_formats = ["pdf", "docx"]
+
+  if action_argument("show_editable_checkbox") is not None:
+    if not action_argument("editable") and len(valid_formats) > 1:
+      # valid_formats controls the outer limit, but we still must respect user preference
+      # We only send the PDF if "editable" checkbox wasn't checked, except when format limited to DOCX (only possible when len == 1)
+      valid_formats = ["pdf"]
 
   email_success = x.send_email(
       to=action_argument('email'),
@@ -36,10 +44,18 @@ code: |
 generic object: ALDocumentBundle
 event: x.send_email_to_action_event
 code: |
-  if action_argument("editable") and not action_argument("valid_formats"):
-    valid_formats = ["pdf", "docx"]
-  else:
+  if action_argument("valid_formats"):
     valid_formats = action_argument("valid_formats")
+    if isinstance(valid_formats, str):
+      valid_formats = [valid_formats]
+  else:
+    valid_formats = ["pdf", "docx"]
+
+  if action_argument("show_editable_checkbox") is not None:
+    if not action_argument("editable") and len(valid_formats) > 1:
+      # valid_formats controls the outer limit, but we still must respect user preference
+      # We only send the PDF if "editable" checkbox wasn't checked, except when format limited to DOCX (only possible when len == 1)
+      valid_formats = ["pdf"]
 
   email_success = x.send_email(
       to=action_argument('email'),

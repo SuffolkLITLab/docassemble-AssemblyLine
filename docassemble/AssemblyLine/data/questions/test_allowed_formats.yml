@@ -19,12 +19,12 @@ question: |
 subquestion: |
   ${ al_user_bundle.download_list_html() }
 
-  #### Allowed formats: docx
+  #### Valid formats: docx
   ${ al_user_bundle.send_button_html(valid_formats="docx") }
 
   ${ al_user_bundle.send_button_to_html(valid_formats="docx", email=email_to_send) }
 
-  #### Allowed formats: PDF, DOCX
+  #### Valid formats: PDF, DOCX
   ${ al_user_bundle.send_button_html(valid_formats=["pdf", "docx"]) }
 
   ${ al_user_bundle.send_button_to_html(valid_formats=["pdf", "docx"], email=email_to_send) }
@@ -40,8 +40,11 @@ subquestion: |
 
   ##### With valid_formats overriding it
 
+  Only PDF
   ${ al_user_bundle.send_button_html(show_editable_checkbox=True, valid_formats="pdf") }
 
+  Only DOCX
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True, valid_formats="docx") }
 
 
 ---
