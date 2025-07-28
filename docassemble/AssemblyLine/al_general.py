@@ -1088,7 +1088,7 @@ class ALIndividual(Individual):
             show_title: (bool, optional): Determines if the name's title (e.g., Mr., Ms.) should be included in the prompts.
                 Default is False.
             title_choices (Union[List[str], Callable], optional): A list or callable of title options to use in the prompts. Default is defined as a list
-                of common titles in English-speaking countries, or overridden by value of global `al_name_suffixes`.
+                of common titles in English-speaking countries, or overridden by value of global `al_name_titles`.
             show_if (Union[str, Dict[str, str], None], optional): Condition to determine which fields to show.
                 It can be a string, a dictionary with conditions, or None. Default is None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
