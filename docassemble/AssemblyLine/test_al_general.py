@@ -20,13 +20,14 @@ class test_aladdress(unittest.TestCase):
             state_label="state",
             zip_label="zip",
         )
-        fields = addr.address_fields(required={"zip": True})
+        addr.instanceName = "addr"
+        fields = addr.address_fields(required={"addr.zip": True})
         for field in fields:
-            if field["field"] == "zip":
+            if "zip" in field["field"]:
                 self.assertTrue(field["required"])
         fields = addr.address_fields()
         for field in fields:
-            if field["field"] == "zip":
+            if "zip" in field["field"]:
                 self.assertFalse(field["required"])
 
     def test_no_unit_floor_room(self):

@@ -591,20 +591,36 @@ data:
 ---
 id: your contact information
 question: |
+  % if al_person_answering == "user":
   What is your contact information?
+  % else:
+  What is ${ users[0] }'s contact information?
+  % endif
 subquestion: |
+  % if al_person_answering == "user":
   Include at least **one** way to reach you other than by mail.
+  % else:
+  Include at least **one** way to reach ${ users[0] } other than by mail.
+  % endif
 
   ${ collapse_template(why_contact_info_needed_template) }
 fields:  
   - Mobile number: users[0].mobile_number
     required: False
+    datatype: al_international_phone
   - Other phone number: users[0].phone_number
     required: False
+    datatype: al_international_phone
   - Email address: users[0].email    
     datatype: email
     required: False
-  - Other ways to reach you: users[0].other_contact_method
+  - label: |
+      % if al_person_answering == "user":
+      Other ways to reach you
+      % else:
+      Other ways to reach ${ users[0] }
+      % endif
+    field: users[0].other_contact_method
     input type: area
     required: False
     help: |
@@ -1141,12 +1157,21 @@ fields:
     field: users[i].previous_addresses.there_is_another  
     datatype: yesnoradio
 ---
-id: persons contact information
+id: persons phone number
 generic object: ALIndividual
 question: |
   What is ${x}'s phone number?
 fields:
   - Phone: x.phone_number
+    datatype: al_international_phone
+---
+id: persons mobile number
+generic object: ALIndividual
+question: |
+  What is ${x}'s mobile number?
+fields:
+  - Phone: x.mobile_number
+    datatype: al_international_phone
 ---
 id: persons fax number
 generic object: ALIndividual
@@ -1154,6 +1179,7 @@ question: |
   What is ${x}'s fax number?
 fields:
   - Fax number: x.fax_number
+    datatype: al_international_phone  
 ---
 id: email
 generic object: ALIndividual
@@ -2438,25 +2464,12 @@ template: x.pronouns_label
 content: |
   Choose one or more pronouns
 ---
-generic object: ALIndividual
-template: x.pronoun_he_label
-content: |
-  He/him/his
----
-generic object: ALIndividual
-template: x.pronoun_she_label
-content: |
-  She/her/hers
----
-generic object: ALIndividual
-template: x.pronoun_they_label
-content: |
-  They/them/theirs
----
-generic object: ALIndividual
-template: x.pronoun_zir_label
-content: |
-  Ze/zir/zirs
+variable name: al_pronoun_choices
+data:
+  - He/him/his: he/him/his
+  - She/her/hers: she/her/hers
+  - They/them/theirs: they/them/theirs
+  - Ze/zir/zirs: ze/zir/zirs
 ---
 generic object: ALIndividual
 template: x.pronoun_prefer_not_to_say_label
