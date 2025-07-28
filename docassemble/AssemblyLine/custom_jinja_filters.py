@@ -17,6 +17,7 @@ __all__ = [
     "catchall_fields_code",
 ]
 
+
 def catchall_options(value: Any, *raw_items: Any) -> DACatchAll:
     """Jinja2 filter to support defining options for DACatchAll fields inside a DOCX template.
 
@@ -219,11 +220,11 @@ def catchall_fields_code(value: Any) -> List[Dict[str, Any]]:
         choices = value._catchall_options if hasattr(value, "_catchall_options") else []
         label = value.label if hasattr(value, "label") else value.object_name()
 
-        return_val ={
-                    "label": label,
-                    "field": value.attr_name("value"),
-                    "datatype": value.datatype if hasattr(value, "datatype") else "text",
-                }
+        return_val = {
+            "label": label,
+            "field": value.attr_name("value"),
+            "datatype": value.datatype if hasattr(value, "datatype") else "text",
+        }
         if choices:
             return_val["choices"] = choices
         return [return_val]
