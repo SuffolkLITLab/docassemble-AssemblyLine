@@ -527,7 +527,7 @@ subquestion: |
   % endfor
 
   % if not get_config("verbose error messages") == False:
-  ${ collapse_template(al_formatted_error_message, collapsed=(not get_config("debug"))) }
+  ${ collapse_template(al_formatted_error_message, collapse=(not get_config("debug"))) }
   % endif
 back button label: Back
 buttons:
