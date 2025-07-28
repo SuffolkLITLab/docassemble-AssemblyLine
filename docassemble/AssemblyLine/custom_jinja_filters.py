@@ -5,9 +5,17 @@
 
 # See: https://docassemble.org/docs/documents.html#register_jinja_filter
 
-from typing import Any
+from typing import Any, Dict, List
 from docassemble.base.util import register_jinja_filter, DACatchAll
 
+__all__ = [
+    "catchall_options",
+    "catchall_label",
+    "catchall_datatype",
+    "catchall_question",
+    "catchall_subquestion",
+    "catchall_fields_code",
+]
 
 def catchall_options(value: Any, *raw_items: Any) -> DACatchAll:
     """Jinja2 filter to support defining options for DACatchAll fields inside a DOCX template.
@@ -119,5 +127,104 @@ def catchall_label(value: Any, label: str) -> DACatchAll:
     return value
 
 
+def catchall_datatype(value: Any, datatype: str) -> DACatchAll:
+    """Jinja2 filter to allow you to define a datatype for a DACatchAll field inside a DOCX template.
+
+    This filter takes a datatype string and assigns it to the `datatype` attribute of the
+    DACatchAll object. This can be useful for specifying the type of data expected in the
+    catchall field.
+
+    Example usage in a DOCX template:
+    ```
+    {{ my_catchall_field | catchall_datatype("radio") }}
+    ```
+
+    Args:
+        value (DACatchAll): The DACatchAll object to which the datatype will be assigned.
+        datatype (str): The datatype string to assign to the DACatchAll object.
+
+    Returns:
+        DACatchAll: The modified DACatchAll object with the assigned datatype.
+    """
+    if isinstance(value, DACatchAll):
+        value.datatype = datatype
+    return value
+
+
+def catchall_question(value: Any, question: str) -> DACatchAll:
+    """Jinja2 filter to allow you to define a question for a DACatchAll field inside a DOCX template.
+
+    This filter takes a question string and assigns it to the `question` attribute of the
+    DACatchAll object. This can be useful for providing a specific question or prompt
+    related to the catchall field.
+
+    Example usage in a DOCX template:
+    ```
+    {{ my_catchall_field | catchall_question("What additional information do you need?") }}
+    ```
+
+    Args:
+        value (DACatchAll): The DACatchAll object to which the question will be assigned.
+        question (str): The question string to assign to the DACatchAll object.
+
+    Returns:
+        DACatchAll: The modified DACatchAll object with the assigned question.
+    """
+    if isinstance(value, DACatchAll):
+        value.question = question
+    return value
+
+
+def catchall_subquestion(value: Any, subquestion: str) -> DACatchAll:
+    """Jinja2 filter to allow you to define a subquestion for a DACatchAll field inside a DOCX template.
+
+    This filter takes a subquestion string and assigns it to the `subquestion` attribute of the
+    DACatchAll object. This can be useful for providing additional context or instructions
+    related to the catchall field.
+
+    Example usage in a DOCX template:
+    ```
+    {{ my_catchall_field | catchall_subquestion("Please provide additional details.") }}
+    ```
+
+    Args:
+        value (DACatchAll): The DACatchAll object to which the subquestion will be assigned.
+        subquestion (str): The subquestion string to assign to the DACatchAll object.
+
+    Returns:
+        DACatchAll: The modified DACatchAll object with the assigned subquestion.
+    """
+    if isinstance(value, DACatchAll):
+        value.subquestion = subquestion
+    return value
+
+
 register_jinja_filter("catchall_options", catchall_options)
 register_jinja_filter("catchall_label", catchall_label)
+register_jinja_filter("catchall_datatype", catchall_datatype)
+register_jinja_filter("catchall_question", catchall_question)
+register_jinja_filter("catchall_subquestion", catchall_subquestion)
+
+
+def catchall_fields_code(value: Any) -> List[Dict[str, Any]]:
+    """
+    Create Docassemble code for a catchall field with the appropriate datatypes.
+
+    Args:
+        value (DACatchAll): The DACatchAll object containing the question and options.
+    Returns:
+        List[Dict[str, Any]]: A dictionary containing the Docassemble code for the catchall question.
+    """
+    if isinstance(value, DACatchAll):
+        choices = value._catchall_options if hasattr(value, "_catchall_options") else []
+        label = value.label if hasattr(value, "label") else value.object_name()
+
+        return_val ={
+                    "label": label,
+                    "field": value.attr_name("value"),
+                    "datatype": value.datatype if hasattr(value, "datatype") else "text",
+                }
+        if choices:
+            return_val["choices"] = choices
+        return [return_val]
+    return []

@@ -1,0 +1,45 @@
+---
+include:
+  - assembly_line.yml
+  - ql_catchall.yml
+---
+mandatory: True
+code: |
+  upload_or_existing
+  download
+---
+id: upload or existing
+question: |
+  Test a catchall question
+fields:
+  - Upload something new or use the test file?: upload_or_existing
+    datatype: radio
+    choices:
+      - Upload: upload
+      - Standard test file: existing
+  - Upload: uploaded_file
+    datatype: file
+    show if:
+      variable: upload_or_existing
+      is: upload
+---
+id: download
+event: download
+question: |
+  Download the uploaded file
+subquestion: |
+  % if upload_or_existing == 'upload':
+  ${ uploaded_attachment }
+  % else:
+  ${ test_attachment }
+  % endif
+---
+attachment:
+  variable name: uploaded_attachment
+  docx template file:
+    code: |
+      uploaded_file
+---
+attachment:
+  variable name: test_attachment
+  docx template file: test_catchall.docx
