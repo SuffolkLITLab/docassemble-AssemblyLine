@@ -63,7 +63,17 @@ DEBUG_MODE = get_config("debug")
 
 
 def secure_random_suffix(length: int = 8) -> str:
-    """Return a random string for use in unique IDs."""
+    """Return a random string for use in unique IDs.
+
+    Note: this is powerful enough for the expected usecase of distinguishing a few
+    HTML elements from each other, but not cryptographically secure or as strong as
+    a true GUID.
+    
+    Args:
+        length (int): The length of the random string to generate. Defaults to 8.
+    Returns:
+        str: A random string of lowercase letters and digits.
+    """
     alphabet = string.ascii_lowercase + string.digits
     return "".join(secrets.choice(alphabet) for _ in range(length))
 
