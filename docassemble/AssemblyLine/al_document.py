@@ -1970,7 +1970,9 @@ class ALDocumentBundle(DAList):
 
         if len(enabled_docs) > 1 and include_zip:
             bundled_zip = self.as_zip(
-                key=key, format="original" if original else "docx" if docx else "pdf", valid_formats=zip_valid_formats
+                key=key,
+                format="original" if original else "docx" if docx else "pdf",
+                valid_formats=zip_valid_formats,
             )
         else:
             bundled_zip = None
