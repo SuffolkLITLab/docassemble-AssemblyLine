@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Dict, List, Literal, Union, Optional, Any
+from typing import Callable, Dict, List, Literal, Union, Optional, Any
 from docassemble.base.util import (
     Address,
     as_datetime,
@@ -21,7 +21,6 @@ from docassemble.base.util import (
     Individual,
     IndividualName,
     its,
-    name_suffix,
     phone_number_formatted,
     phone_number_is_valid,
     showifdef,
@@ -32,8 +31,10 @@ from docassemble.base.util import (
     this_thread,
     url_action,
     validation_error,
+    value,
     word,
     your,
+    log,
     value,
 )
 import random
@@ -1069,9 +1070,11 @@ class ALIndividual(Individual):
         person_or_business: str = "person",
         show_suffix: bool = True,
         show_title: bool = False,
-        title_options: Optional[List[str]] = None,
+        title_choices: Optional[Union[List[str], Callable]] = None,
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
+        suffix_choices: Optional[Union[List[str], Callable]] = None,
+        title_options: Optional[Union[List[str], Callable]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generates suitable field prompts for a name based on the type of entity (person or business)
@@ -1084,11 +1087,13 @@ class ALIndividual(Individual):
                 Default is True.
             show_title: (bool, optional): Determines if the name's title (e.g., Mr., Ms.) should be included in the prompts.
                 Default is False.
-            title_options (List[str], optional): A list of title options to use in the prompts. Default is defined as a list
-                of common titles in English-speaking countries.
+            title_choices (Union[List[str], Callable], optional): A list or callable of title options to use in the prompts. Default is defined as a list
+                of common titles in English-speaking countries, or overridden by value of global `al_name_titles`.
             show_if (Union[str, Dict[str, str], None], optional): Condition to determine which fields to show.
                 It can be a string, a dictionary with conditions, or None. Default is None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            suffix_choices (Union[List[str], Callable], optional): A list of suffix options or a callable to generate suffix options, or overridden by value of global `al_name_suffixes`.
+            title_options: (Union[List[str], Callable], optional): Deprecated parameter, use `title_choices` instead. If provided, it will be used to set the title choices.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries where each dictionary contains field prompt details.
@@ -1097,29 +1102,23 @@ class ALIndividual(Individual):
             If `person_or_business` is set to None, the method will offer the end user a choice
             and will set appropriate "show ifs" conditions for each type.
         """
-        if not title_options:
-            title_options = [
-                "Mr.",
-                "Mrs.",
-                "Miss",
-                "Ms.",
-                "Mx.",
-                "Dr.",
-                "Prof.",
-                "Hon.",
-                "Rev.",
-                "Sir",
-                "Lord",
-                "Lady",
-                "Dame",
-                "Maj.",
-                "Gen.",
-                "Capt.",
-                "Lt.",
-                "Sgt.",
-                "Fr.",
-                "Sr.",
-            ]
+        if title_options:
+            log(
+                "title_options parameter to name_fields() is deprecated: use title_choices instead"
+            )
+            title_choices = title_options
+
+        if not suffix_choices:
+            suffix_choices = value("al_name_suffixes")
+        if callable(suffix_choices):
+            suffix_choices = suffix_choices()
+
+        if not title_choices:
+            title_choices = value("al_name_titles")
+
+        if callable(title_choices):
+            title_choices = title_choices()
+
         if person_or_business == "person":
             fields = [
                 {
@@ -1141,7 +1140,7 @@ class ALIndividual(Individual):
                     {
                         "label": str(self.suffix_label),
                         "field": self.attr_name("name.suffix"),
-                        "choices": name_suffix(),
+                        "choices": suffix_choices,
                         "required": False,
                     }
                 )
@@ -1151,7 +1150,7 @@ class ALIndividual(Individual):
                     {
                         "label": str(self.name_title_label),
                         "field": self.attr_name("name.title"),
-                        "choices": title_options,
+                        "choices": title_choices,
                         "required": False,
                     },
                 )
@@ -1160,8 +1159,6 @@ class ALIndividual(Individual):
                     field["show if"] = show_if
             return fields
         elif person_or_business == "business":
-            # Note: we don't make use of the name.text field for simplicity
-            # TODO: this could be reconsidered`, but name.text tends to lead to developer error
             fields = [
                 {
                     "label": str(self.business_name_label),
@@ -1219,7 +1216,7 @@ class ALIndividual(Individual):
                     {
                         "label": str(self.suffix_label),
                         "field": self.attr_name("name.suffix"),
-                        "choices": name_suffix(),
+                        "choices": suffix_choices,
                         "required": False,
                         "show if": show_if_indiv,
                     }
@@ -1287,6 +1284,7 @@ class ALIndividual(Individual):
         show_help=False,
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
+        choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing gender information, including a
@@ -1296,18 +1294,26 @@ class ALIndividual(Individual):
             show_help (bool): Whether to show additional help text. Defaults to False.
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of choices of genders to use in the prompts, or a callable that returns such a list. Default set of choices includes male, female, nonbinary, prefer-not-to-say, self-described, and unknown.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for gender.
+
+        Note:
+            self-described will provide an input that overrides the value of `gender` and is not persisted.
         """
-        choices = [
-            {str(self.gender_female_label): "female"},
-            {str(self.gender_male_label): "male"},
-            {str(self.gender_nonbinary_label): "nonbinary"},
-            {str(self.gender_prefer_not_to_say_label): "prefer-not-to-say"},
-            {str(self.gender_prefer_self_described_label): "self-described"},
-            {str(self.gender_unknown_label): "unknown"},
-        ]
+        if not choices:
+            choices = [
+                {str(self.gender_female_label): "female"},
+                {str(self.gender_male_label): "male"},
+                {str(self.gender_nonbinary_label): "nonbinary"},
+                {str(self.gender_prefer_not_to_say_label): "prefer-not-to-say"},
+                {str(self.gender_prefer_self_described_label): "self-described"},
+                {str(self.gender_unknown_label): "unknown"},
+            ]
+        if callable(choices):
+            choices = choices()
+
         self_described_input = {
             "label": str(self.gender_self_described_label),
             "field": self.attr_name("gender"),
@@ -1433,7 +1439,7 @@ class ALIndividual(Individual):
 
     def language_fields(
         self,
-        choices: Optional[List[Dict[str, str]]] = None,
+        choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
         style: str = "radio",
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
@@ -1442,7 +1448,7 @@ class ALIndividual(Individual):
         Generate fields for capturing language preferences.
 
         Args:
-            choices (Optional[List[Dict[str, str]]]): A list of language choices. Defaults to None.
+            choices (Optional[Union[List[Dict[str, str]], Callable]]): A list or callable of language choices. Defaults to None.
             style (str): The display style of choices. Defaults to "radio".
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
@@ -1456,6 +1462,8 @@ class ALIndividual(Individual):
                 {"Spanish": "es"},
                 {"Other": "other"},
             ]
+        if callable(choices):
+            choices = choices()
         other = {
             "label": str(self.language_other_label),
             "field": self.attr_name("language_other"),

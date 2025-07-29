@@ -2,6 +2,9 @@
 features:
   use catchall: True
 ---
+modules:
+  - .custom_jinja_filters
+---
 ###################### Catchall questions ###########################################
 ---
 code: |
@@ -128,19 +131,37 @@ content: |
   This warning message will not appear when this interview is installed on a production
   server.
 ---
+#############
+# Catchall questions for generic objects with custom Jinja2 filters to provide text
+# 1. catchall_options()
+# 2. catchall_label()
+# 3. catchall_datatype()
+# 4. catchall_question()
+# 5. catchall_subquestion()
+#############
+sets:
+  - x.value
 if: |
-  hasattr(x, "_catchall_options")
+  hasattr(x, "_catchall_options") or hasattr(x, "label") or hasattr(x, "datatype") or hasattr(x, "question") or hasattr(x, "subquestion")
 generic object: DACatchAll
 question: |
-  ${ x.label if hasattr(x, "label") else x.object_name() }?
+  % if hasattr(x, "question"):
+  ${ x.question }
+  % elif hasattr(x, "label"):
+  ${ x.label }
+  % else:
+  ${ x.object_name()}?
+  % endif
 subquestion: |
+  % if hasattr(x, "subquestion"):
+  ${ x.subquestion }
+  % endif
   % if get_config("debug") and al_warn_catchall_questions:
   ${ collapse_template(x.catchall_question_explanation) }
   % endif
 fields:
-  - ${ x.label if hasattr(x, "label") else x.object_name() }: x.value
-    code: |
-      x._catchall_options
+  - code: |
+      catchall_fields_code(x)
 validation code: |
   define(x.instanceName, x.value)
 ---
