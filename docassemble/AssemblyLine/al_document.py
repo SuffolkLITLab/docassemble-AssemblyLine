@@ -68,7 +68,7 @@ def secure_random_suffix(length: int = 8) -> str:
     Note: this is powerful enough for the expected usecase of distinguishing a few
     HTML elements from each other, but not cryptographically secure or as strong as
     a true GUID.
-    
+
     Args:
         length (int): The length of the random string to generate. Defaults to 8.
     Returns:
