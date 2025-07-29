@@ -2432,7 +2432,7 @@ class ALDocumentBundle(DAList):
     """
         # "Editable" checkbox
         if (
-            show_editable_checkbox and len(valid_formats) > 0
+            show_editable_checkbox and valid_formats and isinstance(valid_formats, list) and len(valid_formats) > 1
         ):  # Do not need to show if only one valid format allowed
             return_str += f"""
     <div class="form-check-container">
