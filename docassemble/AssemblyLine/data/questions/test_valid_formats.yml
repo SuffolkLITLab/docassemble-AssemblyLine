@@ -17,7 +17,7 @@ event: download
 question: |
   Download
 subquestion: |
-  ${ al_user_bundle.download_list_html() }
+  ${ al_user_bundle.download_list_html(format="docx", zip_valid_formats=["docx", "pdf"]) }
 
   #### Valid formats: docx
   ${ al_user_bundle.send_button_html(valid_formats="docx") }

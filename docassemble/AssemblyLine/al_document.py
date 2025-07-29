@@ -61,10 +61,12 @@ __all__ = [
 
 DEBUG_MODE = get_config("debug")
 
+
 def secure_random_suffix(length: int = 8) -> str:
     """Return a random string for use in unique IDs."""
     alphabet = string.ascii_lowercase + string.digits
-    return ''.join(secrets.choice(alphabet) for _ in range(length))    
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
 
 def base_name(filename: str) -> str:
     """
@@ -1662,6 +1664,7 @@ class ALDocumentBundle(DAList):
         title: str = "",
         format="pdf",
         include_pdf=True,
+        valid_formats: Optional[Union[List[str], str]] = None,
     ) -> DAFile:
         """
         Returns a zip file containing all enabled documents in the bundle in the specified format.
@@ -1671,8 +1674,9 @@ class ALDocumentBundle(DAList):
             refresh (bool): Flag to reconsider the 'enabled' attribute, default is True.
             pdfa (bool): If True, all PDFs in the zip will be PDF/A compliant, defaults to False.
             title (str): Title of the zip file, shown next to the button to download the zip. Defaults to the bundle's title.
-            format (str): Format of the documents in the zip file (e.g., "pdf", "docx", "original"), default is "pdf".
-            include_pdf (bool): Flag to include a PDF version of the document if it's originally in docx format, default is True.
+            format (str): Format of the documents in the zip file (e.g., "pdf", "docx", "original"), default is "pdf". Will be deprecated in future release.
+            include_pdf (bool): Flag to include a PDF version of the document if it's originally in docx format, default is True. Will be deprecated in future release.
+            valid_formats (Optional[Union[List[str], str]]): List of valid formats for the documents in the zip file. If None, defaults to ["pdf", "docx", "original"]. Overrides include_pdf and format parameters when provided.
 
         Returns:
             DAFile: A zip file containing the enabled documents.
@@ -1686,6 +1690,21 @@ class ALDocumentBundle(DAList):
 
         # strip out a possible '.pdf' ending then add '.zip'
         zipname = os.path.splitext(self.filename)[0]
+
+        # Override the format and include_pdf parameters if valid_formats is provided
+
+        if valid_formats is not None:
+            if isinstance(valid_formats, str):
+                valid_formats = [valid_formats]
+            include_pdf = "pdf" in valid_formats
+            # DOCX and "original" are exclusive (original is for XLSX files and the like)
+            if "original" in valid_formats:
+                format = "original"
+            elif "docx" in valid_formats:
+                format = "docx"
+            else:
+                format = "pdf"
+
         if format == "docx":
             docs = []
             for doc in self.enabled_documents(refresh=refresh):
@@ -1871,6 +1890,7 @@ class ALDocumentBundle(DAList):
         include_zip: bool = True,
         include_full_pdf: bool = False,
         append_matching_suffix: bool = True,
+        zip_valid_formats: Optional[Union[List[str], str]] = None,
     ) -> Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]:
         """
         Generates a cache of all enabled documents in the bundle, and returns it in a structure that can be cached
@@ -1894,6 +1914,7 @@ class ALDocumentBundle(DAList):
             include_zip (bool): Flag to include a zip option, default is True.
             include_full_pdf (bool): Flag to include a PDF version of the whole bundle, default is False.
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
+            zip_valid_formats (Optional[Union[List[str], str]]): Valid formats for the zip file. If None, defaults to ["pdf", "docx", "original"].
 
         Returns:
             Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]: A list of dictionaries containing the enabled documents, a zip file of the whole bundle, and a PDF of the whole
@@ -1949,7 +1970,7 @@ class ALDocumentBundle(DAList):
 
         if len(enabled_docs) > 1 and include_zip:
             bundled_zip = self.as_zip(
-                key=key, format="original" if original else "docx" if docx else "pdf"
+                key=key, format="original" if original else "docx" if docx else "pdf", valid_formats=zip_valid_formats
             )
         else:
             bundled_zip = None
@@ -1983,6 +2004,7 @@ class ALDocumentBundle(DAList):
         use_previously_cached_files: bool = False,
         include_full_pdf: bool = False,
         full_pdf_label: Optional[str] = None,
+        zip_valid_formats: Optional[Union[List[str], str]] = None,
     ) -> str:
         """
         Constructs an HTML table displaying a list of documents with 'view' and 'download' buttons.
@@ -2009,6 +2031,7 @@ class ALDocumentBundle(DAList):
             use_previously_cached_files (bool): Flag to use previously cached files (e.g., made in background) if defined. default is False.
             include_full_pdf (bool): Flag to include a full PDF option, default is False.
             full_pdf_label (Optional[str]): Label for the full PDF option. If not provided, uses the generic template for `self.full_pdf_label` ("Download all").
+            zip_valid_formats (Optional[Union[List[str], str]]): If provided, only include documents in the zip that match these formats. Defaults to None, which includes all formats.
 
         Returns:
             str: HTML representation of a table with documents and their associated actions.
@@ -2032,6 +2055,7 @@ class ALDocumentBundle(DAList):
                 include_zip=include_zip,
                 include_full_pdf=include_full_pdf,
                 append_matching_suffix=append_matching_suffix,
+                zip_valid_formats=zip_valid_formats,
             )
 
         html = f'<div class="container al_table al_doc_table" id="{ html_safe_str(self.instanceName) }">'
@@ -2263,7 +2287,7 @@ class ALDocumentBundle(DAList):
         icon: str = "envelope",
         color: str = "primary",
         key: str = "final",
-        valid_formats: Optional[Union[str,List[str]]] = None,
+        valid_formats: Optional[Union[str, List[str]]] = None,
     ) -> str:
         """
         Generate HTML for a button that allows someone to send the bundle to a
@@ -2395,7 +2419,9 @@ class ALDocumentBundle(DAList):
     <legend class="h4 al_doc_email_header">{self._cached_get_email_copy}</legend> 
     """
         # "Editable" checkbox
-        if show_editable_checkbox and len(valid_formats) > 0: # Do not need to show if only one valid format allowed
+        if (
+            show_editable_checkbox and len(valid_formats) > 0
+        ):  # Do not need to show if only one valid format allowed
             return_str += f"""
     <div class="form-check-container">
       <div class="form-check">
@@ -2469,7 +2495,11 @@ class ALDocumentBundle(DAList):
                 attachments.append(primary)
 
             if "pdf" in allowed:
-                if not (primary and hasattr(primary, "extension") and primary.extension == "pdf"):
+                if not (
+                    primary
+                    and hasattr(primary, "extension")
+                    and primary.extension == "pdf"
+                ):
                     attachments.append(item.as_pdf(key=key))
 
         return send_email(

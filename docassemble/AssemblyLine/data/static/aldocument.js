@@ -3,17 +3,23 @@
  * or not user wants to send editable files, trigger docassemble event to
  * email an ALDocumentBundle
  */
-function aldocument_send_action(event_name, wants_editable_id, email_id, template_name="", key="final", valid_formats="pdf") {
+function aldocument_send_action(event_name, wants_editable_id, email_id, template_name="", key="final", valid_formats=null) {
   var editable = null;
+  var final_formats = valid_formats;
   
   console.log( email_id );
   var editable_choice_node = $('#' + wants_editable_id);
   if ( editable_choice_node && editable_choice_node[0] ) {
     editable = $('#' + wants_editable_id)[0].checked;
+    if (editable) {
+      final_formats = ["pdf", "docx"];
+    } else {
+      final_formats = ["pdf"];
+    }
   }
   
   var email = $('#' + email_id)[0].value;
-  da_action_perform(event_name, {editable: editable, email: email, key:key, template_name: template_name, valid_formats: valid_formats});
+  da_action_perform(event_name, {editable: editable, email: email, key:key, template_name: template_name, valid_formats: final_formats});
 };
 
 /*
