@@ -20,14 +20,14 @@ subquestion: |
   ${ al_user_bundle.download_list_html(format="docx", zip_valid_formats=["docx", "pdf"]) }
 
   #### Valid formats: docx
-  ${ al_user_bundle.send_button_html(valid_formats="docx") }
+  ${ al_user_bundle.send_button_html(preferred_formats="docx") }
 
-  ${ al_user_bundle.send_button_to_html(valid_formats="docx", email=email_to_send) }
+  ${ al_user_bundle.send_button_to_html(preferred_formats="docx", email=email_to_send) }
 
   #### Valid formats: PDF, DOCX
-  ${ al_user_bundle.send_button_html(valid_formats=["pdf", "docx"]) }
+  ${ al_user_bundle.send_button_html(preferred_formats=["pdf", "docx"]) }
 
-  ${ al_user_bundle.send_button_to_html(valid_formats=["pdf", "docx"], email=email_to_send) }
+  ${ al_user_bundle.send_button_to_html(preferred_formats=["pdf", "docx"], email=email_to_send) }
 
 
   #### In combo with `show_editable_checkbox` parameter
@@ -38,13 +38,13 @@ subquestion: |
   ##### False
   ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
 
-  ##### With valid_formats overriding it
+  ##### With preferred_formats overriding it
 
   Only PDF
-  ${ al_user_bundle.send_button_html(show_editable_checkbox=True, valid_formats="pdf") }
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True, preferred_formats="pdf") }
 
   Only DOCX
-  ${ al_user_bundle.send_button_html(show_editable_checkbox=True, valid_formats="docx") }
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True, preferred_formats="docx") }
 
 
 ---

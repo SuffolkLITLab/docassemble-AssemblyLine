@@ -62,7 +62,7 @@ __all__ = [
 DEBUG_MODE = get_config("debug")
 
 
-def secure_random_suffix(length: int = 8) -> str:
+def random_suffix(length: int = 8) -> str:
     """Return a random string for use in unique IDs.
 
     Note: this is powerful enough for the expected usecase of distinguishing a few
@@ -1672,9 +1672,8 @@ class ALDocumentBundle(DAList):
         refresh: bool = True,
         pdfa: bool = False,
         title: str = "",
-        format="pdf",
-        include_pdf=True,
-        valid_formats: Optional[Union[List[str], str]] = None,
+        format: Optional[str]="pdf",
+        include_pdf: Optional[bool]=True,
     ) -> DAFile:
         """
         Returns a zip file containing all enabled documents in the bundle in the specified format.
@@ -1684,13 +1683,17 @@ class ALDocumentBundle(DAList):
             refresh (bool): Flag to reconsider the 'enabled' attribute, default is True.
             pdfa (bool): If True, all PDFs in the zip will be PDF/A compliant, defaults to False.
             title (str): Title of the zip file, shown next to the button to download the zip. Defaults to the bundle's title.
-            format (str): Format of the documents in the zip file (e.g., "pdf", "docx", "original"), default is "pdf". Will be deprecated in future release.
-            include_pdf (bool): Flag to include a PDF version of the document if it's originally in docx format, default is True. Will be deprecated in future release.
-            valid_formats (Optional[Union[List[str], str]]): List of valid formats for the documents in the zip file. If None, defaults to ["pdf", "docx", "original"]. Overrides include_pdf and format parameters when provided.
+            format (str): Format of the documents in the zip file (e.g., "pdf", "docx", "original"), default is "pdf".
+            include_pdf (bool): Flag to include a PDF version of the document if it's originally in docx format, default is True.
 
         Returns:
             DAFile: A zip file containing the enabled documents.
         """
+        if format is None:
+            format = "pdf"
+        
+        if include_pdf is None:
+            include_pdf = True
 
         zip_key = f"{ space_to_underscore( key )}_zip"
 
@@ -1700,20 +1703,6 @@ class ALDocumentBundle(DAList):
 
         # strip out a possible '.pdf' ending then add '.zip'
         zipname = os.path.splitext(self.filename)[0]
-
-        # Override the format and include_pdf parameters if valid_formats is provided
-
-        if valid_formats is not None:
-            if isinstance(valid_formats, str):
-                valid_formats = [valid_formats]
-            include_pdf = "pdf" in valid_formats
-            # DOCX and "original" are exclusive (original is for XLSX files and the like)
-            if "original" in valid_formats:
-                format = "original"
-            elif "docx" in valid_formats:
-                format = "docx"
-            else:
-                format = "pdf"
 
         if format == "docx":
             docs = []
@@ -1900,7 +1889,8 @@ class ALDocumentBundle(DAList):
         include_zip: bool = True,
         include_full_pdf: bool = False,
         append_matching_suffix: bool = True,
-        zip_valid_formats: Optional[Union[List[str], str]] = None,
+        zip_include_pdf: Optional[bool] = None,
+        zip_format: Optional[str] = None,
     ) -> Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]:
         """
         Generates a cache of all enabled documents in the bundle, and returns it in a structure that can be cached
@@ -1924,7 +1914,8 @@ class ALDocumentBundle(DAList):
             include_zip (bool): Flag to include a zip option, default is True.
             include_full_pdf (bool): Flag to include a PDF version of the whole bundle, default is False.
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
-            zip_valid_formats (Optional[Union[List[str], str]]): Valid formats for the zip file. If None, defaults to ["pdf", "docx", "original"].
+            zip_include_pdf (Optional[bool]): If True, includes a PDF version in the zip file even if original is in DOCX format.
+            zip_format (Optional[str]): Format of the primary version of each document. 
 
         Returns:
             Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]: A list of dictionaries containing the enabled documents, a zip file of the whole bundle, and a PDF of the whole
@@ -1977,12 +1968,15 @@ class ALDocumentBundle(DAList):
             except:
                 pass
             results.append(result)
+        
+        if zip_format is None:
+            zip_format = "original" if original else "docx" if docx else "pdf"
 
         if len(enabled_docs) > 1 and include_zip:
             bundled_zip = self.as_zip(
                 key=key,
-                format="original" if original else "docx" if docx else "pdf",
-                valid_formats=zip_valid_formats,
+                format=zip_format,
+                include_pdf=zip_include_pdf,
             )
         else:
             bundled_zip = None
@@ -2016,7 +2010,8 @@ class ALDocumentBundle(DAList):
         use_previously_cached_files: bool = False,
         include_full_pdf: bool = False,
         full_pdf_label: Optional[str] = None,
-        zip_valid_formats: Optional[Union[List[str], str]] = None,
+        zip_include_pdf: Optional[bool] = True,
+        zip_format: Optional[str] = None,
     ) -> str:
         """
         Constructs an HTML table displaying a list of documents with 'view' and 'download' buttons.
@@ -2043,7 +2038,8 @@ class ALDocumentBundle(DAList):
             use_previously_cached_files (bool): Flag to use previously cached files (e.g., made in background) if defined. default is False.
             include_full_pdf (bool): Flag to include a full PDF option, default is False.
             full_pdf_label (Optional[str]): Label for the full PDF option. If not provided, uses the generic template for `self.full_pdf_label` ("Download all").
-            zip_valid_formats (Optional[Union[List[str], str]]): If provided, only include documents in the zip that match these formats. Defaults to None, which includes all formats.
+            zip_include_pdf (Optional[bool]): Flag to include PDF files in the zip archive, default is True. If `None` value of `view` will be used.
+            zip_format (Optional[str]): Format of the files in the zip archive. If None, defaults to value of "format" parameter.
 
         Returns:
             str: HTML representation of a table with documents and their associated actions.
@@ -2053,6 +2049,12 @@ class ALDocumentBundle(DAList):
 
         if not hasattr(self, "_cached_full_pdf_label"):
             self._cached_full_pdf_label = str(self.full_pdf_label)
+
+        if zip_format is None:
+            zip_format = format
+        
+        if zip_include_pdf is None:
+            zip_include_pdf = view
 
         if use_previously_cached_files and hasattr(self, "_downloadable_files"):
             downloadable_files, bundled_zip, bundled_pdf = self._downloadable_files
@@ -2067,7 +2069,8 @@ class ALDocumentBundle(DAList):
                 include_zip=include_zip,
                 include_full_pdf=include_full_pdf,
                 append_matching_suffix=append_matching_suffix,
-                zip_valid_formats=zip_valid_formats,
+                zip_include_pdf=zip_include_pdf,
+                zip_format=zip_format,
             )
 
         html = f'<div class="container al_table al_doc_table" id="{ html_safe_str(self.instanceName) }">'
@@ -2258,7 +2261,7 @@ class ALDocumentBundle(DAList):
             self._cached_include_editable_documents = str(
                 self.include_editable_documents
             )
-        name = html_safe_str(self.instanceName) + secure_random_suffix()
+        name = html_safe_str(self.instanceName) + random_suffix()
         al_wants_editable_input_id = "_ignore_al_wants_editable_" + name
         al_email_input_id = "_ignore_al_doc_email_" + name
         al_send_button_id = "al_send_email_button_" + name
@@ -2299,7 +2302,7 @@ class ALDocumentBundle(DAList):
         icon: str = "envelope",
         color: str = "primary",
         key: str = "final",
-        valid_formats: Optional[Union[str, List[str]]] = None,
+        preferred_formats: Optional[Union[str, List[str]]] = None,
     ) -> str:
         """
         Generate HTML for a button that allows someone to send the bundle to a
@@ -2308,13 +2311,13 @@ class ALDocumentBundle(DAList):
 
         Args:
             email (str): The recipient's email address.
-            editable (bool, optional): Flag indicating if the bundle is editable. Defaults to False. (deprecated; use valid_formats instead)
+            editable (bool, optional): Flag indicating if the bundle is editable. Defaults to False. (deprecated; use preferred_formats instead)
             template_name (str, optional): The name of the template to be used. Defaults to an empty string.
             label (str, optional): The label for the button. Defaults to "Send".
             icon (str, optional): The Fontawesome icon for the button. Defaults to "envelope".
             color (str, optional): The Bootstrap color of the button. Defaults to "primary".
             key (str, optional): A key used to identify which version of the ALDocument to send. Defaults to "final".
-            valid_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
+            preferred_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
 
         Returns:
             str: The generated HTML string for the button.
@@ -2323,13 +2326,13 @@ class ALDocumentBundle(DAList):
             return ""  # Don't let people email an empty set of documents
         if not hasattr(self, "_cached_get_email_copy"):
             self._cached_get_email_copy = str(self.get_email_copy)
-        name = html_safe_str(self.instanceName) + secure_random_suffix()
+        name = html_safe_str(self.instanceName) + random_suffix()
         al_send_button_id = "al_send_email_to_button_" + name
 
-        if isinstance(valid_formats, (list, tuple)):
-            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in valid_formats) + "]"
-        elif valid_formats:
-            formats_js = f"'{valid_formats}'"
+        if isinstance(preferred_formats, (list, tuple)):
+            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in preferred_formats) + "]"
+        elif preferred_formats:
+            formats_js = f"'{preferred_formats}'"
         else:
             formats_js = "null"
 
@@ -2363,7 +2366,7 @@ class ALDocumentBundle(DAList):
         template_name: str = "",
         label: str = "Send",
         icon: str = "envelope",
-        valid_formats: Optional[Union[str, List[str]]] = None,
+        preferred_formats: Optional[Union[str, List[str]]] = None,
     ) -> str:
         """
         Generate HTML for an input box and button that allows someone to send the bundle
@@ -2376,13 +2379,13 @@ class ALDocumentBundle(DAList):
             key (str, optional): A key used to identify which version of the ALDocument to send. Defaults to "final".
             show_editable_checkbox (bool, optional): Flag indicating if the checkbox
                 for deciding the inclusion of an editable (Word) copy should be displayed.
-                Defaults to True. If valid_formats = ["pdf"], this will be ignored and no checkbox will be shown.
+                Defaults to True. If preferred_formats = ["pdf"], this will be ignored and no checkbox will be shown.
             template_name (str, optional): Name of the template variable that is used to fill
                 the email contents. By default, the `x.send_email_template` template will be used.
             label (str, optional): The label for the button. Defaults to "Send".
             icon (str, optional): The Fontawesome icon for the button. Defaults
                 to "envelope".
-            valid_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
+            preferred_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
 
         Returns:
             str: The generated HTML string for the input box and button.
@@ -2396,21 +2399,21 @@ class ALDocumentBundle(DAList):
                 self.include_editable_documents
             )
 
-        if isinstance(valid_formats, str):
-            valid_formats = [valid_formats]
+        if isinstance(preferred_formats, str):
+            preferred_formats = [preferred_formats]
 
-        if not valid_formats:
-            valid_formats = ["pdf", "docx"] if show_editable_checkbox else ["pdf"]
+        if not preferred_formats:
+            preferred_formats = ["pdf", "docx"] if show_editable_checkbox else ["pdf"]
 
-        name = html_safe_str(self.instanceName) + secure_random_suffix()
+        name = html_safe_str(self.instanceName) + random_suffix()
         al_wants_editable_input_id = "_ignore_al_wants_editable_" + name
         al_email_input_id = "_ignore_al_doc_email_" + name
         al_send_button_id = "al_send_email_button_" + name
 
-        if isinstance(valid_formats, (list, tuple)):
-            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in valid_formats) + "]"
-        elif valid_formats:
-            formats_js = f"'{valid_formats}'"
+        if isinstance(preferred_formats, (list, tuple)):
+            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in preferred_formats) + "]"
+        elif preferred_formats:
+            formats_js = f"'{preferred_formats}'"
         else:
             formats_js = "null"
 
@@ -2433,9 +2436,9 @@ class ALDocumentBundle(DAList):
         # "Editable" checkbox
         if (
             show_editable_checkbox
-            and valid_formats
-            and isinstance(valid_formats, list)
-            and len(valid_formats) > 1
+            and preferred_formats
+            and isinstance(preferred_formats, list)
+            and len(preferred_formats) > 1
         ):  # Do not need to show if only one valid format allowed
             return_str += f"""
     <div class="form-check-container">
@@ -2468,7 +2471,7 @@ class ALDocumentBundle(DAList):
         key: str = "final",
         editable: Optional[bool] = None,
         template: Optional[Any] = None,
-        valid_formats: Optional[Union[str, List[str]]] = "pdf",
+        preferred_formats: Optional[Union[str, List[str]]] = "pdf",
         **kwargs,
     ) -> bool:
         """
@@ -2481,25 +2484,25 @@ class ALDocumentBundle(DAList):
             key (str, optional): Specifies which version of the document to send. Defaults to "final".
             editable (bool, optional): If True, sends the editable documents. Defaults to False. (Deprecated)
             template (Any): The template variable for the subject and body of the email, similar to da `send_email` `template` variable.
-            valid_formats (str): Specifies the format of the files to send. Can be "pdf" or "docx", or a list of these formats. Overrides deprecated `editable` keyword.
+            preferred_formats (str): Specifies the format of the files to send. Can be "pdf" or "docx", or a list of these formats. Overrides deprecated `editable` keyword.
             **kwargs: Additional parameters to pass to the da `send_email` function.
 
         Returns:
             bool: Indicates if the email was sent successfully.
         """
         if editable is not None:
-            log("The 'editable' parameter is deprecated; use 'valid_formats' instead.")
+            log("The 'editable' parameter is deprecated; use 'preferred_formats' instead.")
 
         if template is None:
             template = self.send_email_template
 
-        if valid_formats is None:
-            valid_formats = ["docx", "pdf"] if editable else ["pdf"]
+        if preferred_formats is None:
+            preferred_formats = ["docx", "pdf"] if editable else ["pdf"]
 
-        if isinstance(valid_formats, str):
-            valid_formats = [valid_formats]
+        if isinstance(preferred_formats, str):
+            preferred_formats = [preferred_formats]
 
-        allowed = {fmt.lower() for fmt in valid_formats}
+        allowed = {fmt.lower() for fmt in preferred_formats}
         attachments = []
 
         for item in self.enabled_documents():
