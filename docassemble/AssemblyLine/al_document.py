@@ -1672,8 +1672,8 @@ class ALDocumentBundle(DAList):
         refresh: bool = True,
         pdfa: bool = False,
         title: str = "",
-        format: Optional[str]="pdf",
-        include_pdf: Optional[bool]=True,
+        format: Optional[str] = "pdf",
+        include_pdf: Optional[bool] = True,
     ) -> DAFile:
         """
         Returns a zip file containing all enabled documents in the bundle in the specified format.
@@ -1691,7 +1691,7 @@ class ALDocumentBundle(DAList):
         """
         if format is None:
             format = "pdf"
-        
+
         if include_pdf is None:
             include_pdf = True
 
@@ -1915,7 +1915,7 @@ class ALDocumentBundle(DAList):
             include_full_pdf (bool): Flag to include a PDF version of the whole bundle, default is False.
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
             zip_include_pdf (Optional[bool]): If True, includes a PDF version in the zip file even if original is in DOCX format.
-            zip_format (Optional[str]): Format of the primary version of each document. 
+            zip_format (Optional[str]): Format of the primary version of each document.
 
         Returns:
             Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]: A list of dictionaries containing the enabled documents, a zip file of the whole bundle, and a PDF of the whole
@@ -1968,7 +1968,7 @@ class ALDocumentBundle(DAList):
             except:
                 pass
             results.append(result)
-        
+
         if zip_format is None:
             zip_format = "original" if original else "docx" if docx else "pdf"
 
@@ -2052,7 +2052,7 @@ class ALDocumentBundle(DAList):
 
         if zip_format is None:
             zip_format = format
-        
+
         if zip_include_pdf is None:
             zip_include_pdf = view
 
@@ -2491,7 +2491,9 @@ class ALDocumentBundle(DAList):
             bool: Indicates if the email was sent successfully.
         """
         if editable is not None:
-            log("The 'editable' parameter is deprecated; use 'preferred_formats' instead.")
+            log(
+                "The 'editable' parameter is deprecated; use 'preferred_formats' instead."
+            )
 
         if template is None:
             template = self.send_email_template
