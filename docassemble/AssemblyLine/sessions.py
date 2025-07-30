@@ -1,4 +1,3 @@
-import psycopg2
 from psycopg2.extras import DictCursor
 
 from collections.abc import Iterable
@@ -49,6 +48,8 @@ from .al_document import (
 import json
 import os
 import re
+import hashlib
+import struct
 
 try:
     import zoneinfo  # type: ignore
@@ -1709,65 +1710,75 @@ def update_session_metadata(
     metadata_key_name: str = "metadata",
 ) -> None:
     """
-    Performs a reasonably safe "upsert" by first attempting an UPDATE.
-    If no row is updated, it then performs an INSERT.
-
-    This is optimized for speed and has a small chance of losing updates
-    because Docassemble does not have a unique constraint on the jsonstorage
-    table. Workarounds for this are too slow as this can run multiple times per page
-    load.
+    Upsert session metadata into jsonstorage using a PostgreSQL advisory lock
+    (two-int form) to serialize concurrent upserts on the same (session_id,filename,tags) key.
 
     Args:
-        filename (str): The filename of the interview session to update.
-        session_id (str): The ID of the session to update.
-        data (Dict[str, Any]): A dictionary of metadata to add or update.
-        metadata_key_name (str, optional): The tag for the metadata in the
-                                           jsonstorage table. Defaults to "metadata".
+        filename:           The filename of the interview session to update.
+        session_id:         The ID of the session to update.
+        data:               A dict of metadata to add or update.
+        metadata_key_name:  The tag for the metadata in jsonstorage. Defaults to "metadata".
     """
+    # 1) Prepare JSON payload
     json_data_string = json.dumps(safe_json(data))
 
+    # 2) Derive two signed 32‑bit ints from MD5(session_id|filename|tags)
+    key_string = f"{session_id}|{filename}|{metadata_key_name}"
+    digest = hashlib.md5(key_string.encode("utf-8")).digest()
+    high_u32, low_u32 = struct.unpack(">II", digest[:8])
+
+    def to_signed_32(x: int) -> int:
+        return x - (1 << 32) if x & 0x80000000 else x
+
+    h1 = to_signed_32(high_u32)
+    h2 = to_signed_32(low_u32)
+
     with db.connect() as con:
-        # 1. Attempt to update the existing row.
-        update_query = text(
-            """
-            UPDATE jsonstorage
-            SET data = jsonstorage.data || :data ::jsonb
-            WHERE key = :session_id AND filename = :filename AND tags = :tags;
-            """
-        )
-        result = con.execute(
-            update_query,
-            {
-                "data": json_data_string,
-                "session_id": session_id,
-                "filename": filename,
-                "tags": metadata_key_name,
-            },
-        )
-
-        # 2. Check if any rows were affected by the update.
-        # result.rowcount tells us how many rows were updated.
-        if result.rowcount == 0:
-            # 3. If no rows were updated, the row doesn't exist. Insert it.
-
-            # This has a small chance of a race condition, but we do these
-            # updates on an `initial: True` block so it's not high impact
-
-            insert_query = text(
-                """
-                INSERT INTO jsonstorage (key, filename, tags, data)
-                VALUES (:session_id, :filename, :tags, :data ::jsonb);
-                """
-            )
+        # Wrap in a transaction so the advisory lock holds until COMMIT
+        with con.begin():
+            # 3) Acquire the advisory lock on (h1,h2)
             con.execute(
-                insert_query,
+                text("SELECT pg_advisory_xact_lock(:h1, :h2)"),
+                {"h1": h1, "h2": h2},
+            )
+
+            # 4) Try UPDATE first, using CAST() instead of ::jsonb
+            update_sql = text(
+                """
+                UPDATE jsonstorage
+                   SET data = jsonstorage.data || CAST(:data AS jsonb)
+                 WHERE key = :session_id
+                   AND filename = :filename
+                   AND tags = :tags
+            """
+            )
+            result = con.execute(
+                update_sql,
                 {
+                    "data": json_data_string,
                     "session_id": session_id,
                     "filename": filename,
                     "tags": metadata_key_name,
-                    "data": json_data_string,
                 },
             )
+
+            # 5) If nothing was updated, INSERT
+            if (result.rowcount or 0) == 0:
+                insert_sql = text(
+                    """
+                    INSERT INTO jsonstorage (key, filename, tags, data)
+                    VALUES (:session_id, :filename, :tags, CAST(:data AS jsonb))
+                """
+                )
+                con.execute(
+                    insert_sql,
+                    {
+                        "session_id": session_id,
+                        "filename": filename,
+                        "tags": metadata_key_name,
+                        "data": json_data_string,
+                    },
+                )
 
 
 def update_current_session_metadata(
