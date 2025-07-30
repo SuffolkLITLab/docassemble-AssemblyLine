@@ -1743,13 +1743,15 @@ def update_session_metadata(
             )
 
             # 4) Try UPDATE first, using CAST() instead of ::jsonb
-            update_sql = text("""
+            update_sql = text(
+                """
                 UPDATE jsonstorage
                    SET data = jsonstorage.data || CAST(:data AS jsonb)
                  WHERE key = :session_id
                    AND filename = :filename
                    AND tags = :tags
-            """)
+            """
+            )
             result = con.execute(
                 update_sql,
                 {
@@ -1762,10 +1764,12 @@ def update_session_metadata(
 
             # 5) If nothing was updated, INSERT
             if (result.rowcount or 0) == 0:
-                insert_sql = text("""
+                insert_sql = text(
+                    """
                     INSERT INTO jsonstorage (key, filename, tags, data)
                     VALUES (:session_id, :filename, :tags, CAST(:data AS jsonb))
-                """)
+                """
+                )
                 con.execute(
                     insert_sql,
                     {
