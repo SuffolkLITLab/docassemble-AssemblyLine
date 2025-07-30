@@ -1,0 +1,75 @@
+---
+include:
+ - assembly_line.yml
+---
+mandatory: True
+code: |
+  email_to_send
+  download
+---
+question: |
+  Enter an email that the document should be sent to when "Send" button is clicked
+fields:
+    - Email: email_to_send
+      datatype: email
+---
+event: download
+question: |
+  Download
+subquestion: |
+  ${ al_user_bundle.download_list_html(format="docx", zip_valid_formats=["docx", "pdf"]) }
+
+  #### Valid formats: docx
+  ${ al_user_bundle.send_button_html(preferred_formats="docx") }
+
+  ${ al_user_bundle.send_button_to_html(preferred_formats="docx", email=email_to_send) }
+
+  #### Valid formats: PDF, DOCX
+  ${ al_user_bundle.send_button_html(preferred_formats=["pdf", "docx"]) }
+
+  ${ al_user_bundle.send_button_to_html(preferred_formats=["pdf", "docx"], email=email_to_send) }
+
+
+  #### In combo with `show_editable_checkbox` parameter
+
+  ##### True
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True) }
+
+  ##### False
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+  ##### With preferred_formats overriding it
+
+  Only PDF
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True, preferred_formats="pdf") }
+
+  Only DOCX
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=True, preferred_formats="docx") }
+
+
+---
+objects:
+  - doc1: ALDocument.using(enabled=True, title="Doc1", filename="doc1")
+  - doc2: ALDocument.using(enabled=True, title="Doc2", filename="doc2")
+  - doc3: ALDocument.using(enabled=True, title="Doc3", filename="doc3")
+---
+attachments:
+    - variable name: doc1[i]
+      content: |
+        This is the content of doc1
+      valid formats:
+        - docx
+        - pdf
+    - variable name: doc2[i]
+      content: |
+        This is the content of doc2
+      valid formats:
+        - docx
+        - pdf
+    - variable name: doc3[i]
+      pdf template file: test_aldocument_pdf_1.pdf
+      fields:
+        - "sample_field": test
+---
+objects:
+    - al_user_bundle: ALDocumentBundle.using(elements=[doc1, doc2, doc3], title="Test Bundle", enabled=True, filename="all_docs")

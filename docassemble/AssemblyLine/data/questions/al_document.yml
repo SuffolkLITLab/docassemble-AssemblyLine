@@ -11,15 +11,28 @@ features:
 generic object: ALDocumentBundle
 event: x.send_email_action_event
 code: |
+  if action_argument("preferred_formats"):
+    preferred_formats = action_argument("preferred_formats")
+    if isinstance(preferred_formats, str):
+      preferred_formats = [preferred_formats]
+  else:
+    preferred_formats = ["pdf", "docx"]
+
+  if action_argument("show_editable_checkbox") is not None:
+    if not action_argument("editable") and len(preferred_formats) > 1:
+      # preferred_formats controls the outer limit, but we still must respect user preference
+      # We only send the PDF if "editable" checkbox wasn't checked, except when format limited to DOCX (only possible when len == 1)
+      preferred_formats = ["pdf"]
+
   email_success = x.send_email(
       to=action_argument('email'),
-      editable=action_argument('editable'),
       template=(
         value(action_argument('template_name'))
         if action_argument('template_name')
         else None
       ),
-      key=action_argument('key')
+      key=action_argument('key'),
+      preferred_formats=preferred_formats,
   )
   if email_success:
     # Exact phrase below is in Docassemble's words dictionary
@@ -31,15 +44,28 @@ code: |
 generic object: ALDocumentBundle
 event: x.send_email_to_action_event
 code: |
+  if action_argument("preferred_formats"):
+    preferred_formats = action_argument("preferred_formats")
+    if isinstance(preferred_formats, str):
+      preferred_formats = [preferred_formats]
+  else:
+    preferred_formats = ["pdf", "docx"]
+
+  if action_argument("show_editable_checkbox") is not None:
+    if not action_argument("editable") and len(preferred_formats) > 1:
+      # preferred_formats controls the outer limit, but we still must respect user preference
+      # We only send the PDF if "editable" checkbox wasn't checked, except when format limited to DOCX (only possible when len == 1)
+      preferred_formats = ["pdf"]
+
   email_success = x.send_email(
       to=action_argument('email'),
-      editable=action_argument('editable'),
       template=(
         value(action_argument('template_name'))
         if action_argument('template_name')
         else None
       ),
       key=action_argument('key'),
+      preferred_formats=preferred_formats,
   )
   if email_success:
     log("Email sent to " + action_argument('email')) # to log file
