@@ -50,6 +50,7 @@ import os
 import re
 import hashlib
 import struct
+from contextlib import closing
 
 try:
     import zoneinfo  # type: ignore
@@ -301,15 +302,14 @@ def get_interview_metadata(
     Returns:
         Dict[str, Any]: The metadata associated with the interview
     """
-    conn = variables_snapshot_connection()
-    with conn.cursor() as cur:
-        query = "select data from jsonstorage where filename=%(filename)s and tags=%(tags)s and key=%(session_id)s"
-        cur.execute(
-            query,
-            {"filename": filename, "tags": metadata_key_name, "session_id": session_id},
-        )
-        val = cur.fetchone()
-    conn.close()
+    with closing(variables_snapshot_connection()) as conn:
+        with conn.cursor() as cur:
+            query = "select data from jsonstorage where filename=%(filename)s and tags=%(tags)s and key=%(session_id)s"
+            cur.execute(
+                query,
+                {"filename": filename, "tags": metadata_key_name, "session_id": session_id},
+            )
+            val = cur.fetchone()
     if val and len(val):
         return val[0]  # cur.fetchone() returns a tuple
     return val or {}
