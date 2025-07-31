@@ -1172,13 +1172,13 @@ def rename_interview_answers(
 
     If exception is raised in set_session_variables, this will silently fail but log the error.
     """
-    existing_metadata = get_interview_metadata(
-        filename, session_id, metadata_key_name=metadata_key_name
+    update_session_metadata(
+        filename,
+        session_id,
+        {"title": new_name},
+        metadata_key_name=metadata_key_name,
     )
-    existing_metadata["title"] = new_name
-    set_interview_metadata(
-        filename, session_id, existing_metadata, metadata_key_name=metadata_key_name
-    )
+
     if session_id == current_context().session:
         set_parts(subtitle=new_name)
     else:
