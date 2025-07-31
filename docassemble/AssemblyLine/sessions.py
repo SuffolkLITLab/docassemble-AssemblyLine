@@ -317,13 +317,11 @@ def get_interview_metadata(
     with closing(db.engine.connect()) as conn:
         row = conn.execute(
             sql,
-            {"filename": filename,
-             "tags": metadata_key_name,
-             "session_id": session_id},
+            {"filename": filename, "tags": metadata_key_name, "session_id": session_id},
         ).fetchone()
 
     if row:
-        return row[0]          # row is a RowMapping/tuple; data is column 0
+        return row[0]  # row is a RowMapping/tuple; data is column 0
     return {}
 
 
@@ -1635,9 +1633,9 @@ def get_filenames_having_sessions(
 
     if user_id == "all":
         if user_has_privilege(global_search_allowed_roles):
-            user_id = None                     # unrestricted query
+            user_id = None  # unrestricted query
         elif user_logged_in():
-            user_id = user_info().id           # downgrade to self
+            user_id = user_info().id  # downgrade to self
             log(
                 f"User {user_info().email} lacks permission to list sessions for other users"
             )
@@ -1645,10 +1643,8 @@ def get_filenames_having_sessions(
             log("Asked to get interview list for user that is not logged in")
             return []
 
-    sql_all   = text("SELECT DISTINCT filename FROM userdict")
-    sql_user  = text(
-        "SELECT DISTINCT filename FROM userdict WHERE user_id = :user_id"
-    )
+    sql_all = text("SELECT DISTINCT filename FROM userdict")
+    sql_user = text("SELECT DISTINCT filename FROM userdict WHERE user_id = :user_id")
 
     with db.connect() as conn:
         if user_id is None:
