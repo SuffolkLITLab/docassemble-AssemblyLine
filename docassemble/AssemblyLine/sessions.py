@@ -302,17 +302,29 @@ def get_interview_metadata(
     Returns:
         Dict[str, Any]: The metadata associated with the interview
     """
-    with closing(variables_snapshot_connection()) as conn:
-        with conn.cursor() as cur:
-            query = "select data from jsonstorage where filename=%(filename)s and tags=%(tags)s and key=%(session_id)s"
-            cur.execute(
-                query,
-                {"filename": filename, "tags": metadata_key_name, "session_id": session_id},
-            )
-            val = cur.fetchone()
-    if val and len(val):
-        return val[0]  # cur.fetchone() returns a tuple
-    return val or {}
+    sql = text(
+        """
+        SELECT data
+          FROM jsonstorage
+         WHERE filename    = :filename
+           AND tags        = :tags
+           AND key         = :session_id
+        """
+    )
+
+    # engine.connect() returns an SQLAlchemy Connection that closes
+    # (and returns to the pool) when the with-block exits, solving possible race conditions
+    with closing(db.engine.connect()) as conn:
+        row = conn.execute(
+            sql,
+            {"filename": filename,
+             "tags": metadata_key_name,
+             "session_id": session_id},
+        ).fetchone()
+
+    if row:
+        return row[0]          # row is a RowMapping/tuple; data is column 0
+    return {}
 
 
 def get_saved_interview_list(
@@ -1614,7 +1626,6 @@ def get_filenames_having_sessions(
         {"admin", "developer"}
     )
 
-    conn = variables_snapshot_connection()
     if user_id is None:
         if user_logged_in():
             user_id = user_info().id
@@ -1624,37 +1635,28 @@ def get_filenames_having_sessions(
 
     if user_id == "all":
         if user_has_privilege(global_search_allowed_roles):
-            user_id = None
+            user_id = None                     # unrestricted query
         elif user_logged_in():
-            user_id = user_info().id
+            user_id = user_info().id           # downgrade to self
             log(
-                f"User {user_info().email} does not have permission to list interview sessions belonging to other users"
+                f"User {user_info().email} lacks permission to list sessions for other users"
             )
         else:
             log("Asked to get interview list for user that is not logged in")
             return []
 
-    try:
-        with conn.cursor(cursor_factory=DictCursor) as cur:
-            if user_id is None:
-                query = """
-                    SELECT DISTINCT(filename) AS filename 
-                    FROM userdict
-                """
-                cur.execute(query)
-            else:
-                query = """
-                    SELECT DISTINCT(filename) AS filename 
-                    FROM userdict 
-                    WHERE (%(user_id)s is null OR user_id = %(user_id)s)
-                """
-                cur.execute(query, {"user_id": user_id})
+    sql_all   = text("SELECT DISTINCT filename FROM userdict")
+    sql_user  = text(
+        "SELECT DISTINCT filename FROM userdict WHERE user_id = :user_id"
+    )
 
-            results = [record["filename"] for record in cur]
-    finally:
-        conn.close()
+    with db.connect() as conn:
+        if user_id is None:
+            rows = conn.execute(sql_all).mappings().all()
+        else:
+            rows = conn.execute(sql_user, {"user_id": user_id}).mappings().all()
 
-    return results
+    return [row["filename"] for row in rows]
 
 
 def get_combined_filename_list(
