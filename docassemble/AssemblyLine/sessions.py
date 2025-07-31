@@ -50,8 +50,6 @@ import os
 import re
 import hashlib
 import struct
-from contextlib import closing
-
 try:
     import zoneinfo  # type: ignore
 except ImportError:
