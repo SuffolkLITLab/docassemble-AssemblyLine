@@ -311,11 +311,8 @@ def get_interview_metadata(
            AND key         = :session_id
         """
     )
-
-    # engine.connect() returns an SQLAlchemy Connection that closes
-    # (and returns to the pool) when the with-block exits, solving possible race conditions
-    with closing(db.engine.connect()) as conn:
-        row = conn.execute(
+    with db.connect() as con:
+        row = con.execute(
             sql,
             {"filename": filename, "tags": metadata_key_name, "session_id": session_id},
         ).fetchone()
