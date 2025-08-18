@@ -2404,7 +2404,7 @@ def is_phone_or_email(text: str) -> bool:
         DAValidationError if the string is neither a valid phone number nor a valid email address.
     """
     sms_enabled = is_sms_enabled()
-    if re.match("\S+@\S+", text) or (sms_enabled and phone_number_is_valid(text)):
+    if re.match(r"\S+@\S+", text) or (sms_enabled and phone_number_is_valid(text)):
         return True
     else:
         if sms_enabled:
