@@ -958,6 +958,14 @@ class ALIndividual(Individual):
     ) -> str:
         """Fetches and formats the phone numbers of the individual.
 
+        Supports the following attributes:
+
+        - `mobile_number`: Mobile phone number
+        - `phone_number`: Other phone number
+        - `work_number`: Work phone number
+        - `other_number`: Any other phone number
+        - `home_number`: Home phone number (if applicable)
+
         Args:
             country (str, optional): The country for phone number formatting. Defaults to the country of the docassemble server.
             show_impounded (bool): If True, shows the phone numbers even if impounded. Defaults to False.
@@ -986,6 +994,36 @@ class ALIndividual(Individual):
                 nums.append({fmt_number: "other"})
             else:
                 nums.append({self.phone_number: "other"})
+        if hasattr(self, "work_number") and self.work_number:
+            fmt_number = None
+            try:
+                fmt_number = phone_number_formatted(self.work_number, country=country)
+            except:
+                fmt_number = None
+            if fmt_number:
+                nums.append({fmt_number: "work"})
+            else:
+                nums.append({self.work_number: "work"})
+        if hasattr(self, "other_number") and self.other_number:
+            fmt_number = None
+            try:
+                fmt_number = phone_number_formatted(self.other_number, country=country)
+            except:
+                fmt_number = None
+            if fmt_number:
+                nums.append({fmt_number: "other"})
+            else:
+                nums.append({self.other_number: "other"})
+        if hasattr(self, "home_number") and self.home_number:
+            fmt_number = None
+            try:
+                fmt_number = phone_number_formatted(self.home_number, country=country)
+            except:
+                fmt_number = None
+            if fmt_number:
+                nums.append({fmt_number: "home"})
+            else:
+                nums.append({self.home_number: "home"})
         if len(nums) < 1:
             return ""
         # Check for impounded phone number
