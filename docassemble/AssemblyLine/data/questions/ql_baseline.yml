@@ -1176,7 +1176,7 @@ fields:
 id: persons home number
 generic object: ALIndividual
 question: |
-  What is ${x}'s home number?
+  What is ${x}'s home phone number?
 fields:
   - Phone: x.home_number
     datatype: al_international_phone
