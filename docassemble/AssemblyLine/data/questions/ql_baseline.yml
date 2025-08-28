@@ -1173,6 +1173,30 @@ fields:
   - Phone: x.mobile_number
     datatype: al_international_phone
 ---
+id: persons home number
+generic object: ALIndividual
+question: |
+  What is ${x}'s home phone number?
+fields:
+  - Phone: x.home_number
+    datatype: al_international_phone
+---
+id: persons work number
+generic object: ALIndividual
+question: |
+  What is ${x}'s work phone number?
+fields:
+  - Phone: x.work_number
+    datatype: al_international_phone
+---
+id: persons other number
+generic object: ALIndividual
+question: |
+  What is ${x}'s other phone number?
+fields:
+  - Phone: x.other_number
+    datatype: al_international_phone
+---
 id: persons fax number
 generic object: ALIndividual
 question: |
