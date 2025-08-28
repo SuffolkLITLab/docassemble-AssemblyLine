@@ -1184,7 +1184,7 @@ fields:
 id: persons work number
 generic object: ALIndividual
 question: |
-  What is ${x}'s work number?
+  What is ${x}'s work phone number?
 fields:
   - Phone: x.work_number
     datatype: al_international_phone
