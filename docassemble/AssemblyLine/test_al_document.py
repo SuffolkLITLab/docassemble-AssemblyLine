@@ -1,3 +1,5 @@
+# do not pre-load
+
 import unittest
 from docassemble.base.util import DAFile
 from .al_document import ALDocument, ALDocumentBundle, ALAddendumField
