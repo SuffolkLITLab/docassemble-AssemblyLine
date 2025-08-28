@@ -1464,6 +1464,17 @@ code: |
 code: |
   signature_fields = ['users[0].signature']
 ---
+code: |
+  if len(signature_fields):    
+    if next(iter(signature_fields)).endswith(".signature"):
+      # the id: signature choice question has to assume the object exists, so we don't guard against that here
+      # note: this does not need to be an ALIndividual, so just use str() instead of .full_name()
+      slash_s_example_name = str(value( next(iter(signature_fields))[:-len(".signature")] ))
+    else:
+      slash_s_example_name = "Signer's Name"
+  else:
+    slash_s_example_name = "Signer's Name"
+---
 id: signature choice
 decoration: file-signature
 question: |
@@ -1482,7 +1493,7 @@ fields:
           We can share a link with your phone on the next screen
           % endif
       - On this device: this_device
-      - With a typed signature, like "${ al_typed_signature_prefix }${ users[0] }": typed_signature
+      - With a typed signature, like "${ al_typed_signature_prefix }${ slash_s_example_name }": typed_signature
     show if:
       code: |
         al_form_requires_digital_signature and not (device() and (device().is_mobile or device().is_touch_capable))
@@ -1491,7 +1502,7 @@ fields:
     input type: radio
     choices:
       - On this device: this_device
-      - With a typed signature, like "${ al_typed_signature_prefix }${ users[0] }": typed_signature
+      - With a typed signature, like "${ al_typed_signature_prefix }${ slash_s_example_name }": typed_signature
     show if:
       code: |
         al_form_requires_digital_signature and (device() and (device().is_mobile or device().is_touch_capable))
@@ -1507,7 +1518,7 @@ fields:
           We can share a link with your phone on the next screen
           % endif
       - On this device: this_device
-      - With a typed signature, like "${ al_typed_signature_prefix }${ users[0] }": typed_signature
+      - With a typed signature, like "${ al_typed_signature_prefix }${ slash_s_example_name }": typed_signature
       - On the paper with a pen after I print the documents: sign_after_printing
     show if:
       code: |
@@ -1517,7 +1528,7 @@ fields:
     input type: radio
     choices:
       - On this device: this_device
-      - With a typed signature, like "${ al_typed_signature_prefix }${ users[0] }": typed_signature
+      - With a typed signature, like "${ al_typed_signature_prefix }${ slash_s_example_name }": typed_signature
       - On the paper with a pen after I print the documents: sign_after_printing
     show if:
       code: |
