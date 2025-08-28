@@ -1192,7 +1192,7 @@ fields:
 id: persons other number
 generic object: ALIndividual
 question: |
-  What is ${x}'s other number?
+  What is ${x}'s other phone number?
 fields:
   - Phone: x.other_number
     datatype: al_international_phone
