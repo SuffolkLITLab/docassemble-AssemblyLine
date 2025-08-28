@@ -1445,7 +1445,7 @@ code: |
     if ".signature" in next(iter(signature_fields)):
       # the id: signature choice question has to assume the object exists, so we don't guard against that here
       # note: this does not need to be an ALIndividual, so just use str() instead of .full_name()
-      slash_s_example_name = str(value( next(iter(signature_fields)).split('.')[0] ))
+      slash_s_example_name = str(value( next(iter(signature_fields))[:-len(".signature")] ))
     else:
       slash_s_example_name = "Signer's Name"
   else:
