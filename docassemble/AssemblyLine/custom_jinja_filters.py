@@ -5,6 +5,7 @@
 
 # See: https://docassemble.org/docs/documents.html#register_jinja_filter
 
+import re
 from typing import Any, Dict, List, Optional, Union
 from docassemble.base.util import register_jinja_filter, DACatchAll, word
 from jinja2 import Undefined, pass_context
@@ -202,13 +203,43 @@ def catchall_subquestion(value: Any, subquestion: str) -> DACatchAll:
     return value
 
 
+def _undefined_label(ud: Undefined, placeholder: Optional[str] = None) -> str:
+    """
+    Extract a friendly name from a Jinja2 Undefined.
+    Prefer the last missing attribute/key; fall back to the variable name;
+    then try parsing the hint; finally a generic label.
+
+    Args:
+        ud (Undefined): The Jinja2 Undefined object.
+        placeholder (str, optional): A generic label to use if no other name can be found.
+    Returns:
+        str: A friendly name extracted from the Undefined object.
+    """
+    # 1) Best case: attribute/key name (e.g., "signature" from users[0].signature)
+    name = getattr(ud, "_undefined_name", None)
+    if isinstance(name, str) and name:
+        # Note that name is already going to be just the last part of a dotted variable name,
+        # whic is perfect for a descriptive-ish placeholder.
+        return name
+
+    # 2) Sometimes the hint contains 'foo' or "foo"
+    hint = getattr(ud, "_undefined_hint", None)
+    if isinstance(hint, str):
+        m = re.search(r"""['"]([A-Za-z_][\w]*)['"]""", hint)
+        if m:
+            return m.group(1)
+
+    # 3) As a last resort, use a generic label
+    return str(placeholder)
+
+
 @pass_context
 def if_final(
     context: Jinja2Context,
     value: Any,
     i: Optional[str] = None,
     expected_values: Union[str, List[str]] = "final",
-    placeholder: str = word("[ Signature here ]"),
+    placeholder: Optional[str] = None,
 ):
     """
     Jinja2 filter to only seek the definition of a variable if the current value of `i`
@@ -222,8 +253,50 @@ def if_final(
     E.g., to show a placeholder for a signature field when the document is being
     shown to the signer, but show the actual signature when the document is finalized.
 
+    The default placeholder is "[ signature ]" if the variable name follows the pattern "users[0].signature",
+    or [ variable_name ] if it is not an attribute of an item.
+
     `i` will be the value from the template's context unless it is explicitly passed,
     as in an ALDocument's "preview" or "final" values.
+
+    Example:
+        Contents of test_if_final.docx:
+        ```jinja
+        {{ users[0].signature | if_final }}
+        ```
+
+        Returns "[ signature ]" if `i` (passed to the context of the attachment block) is not "final", 
+        otherwise the actual value of `users[0].signature`.
+
+        ```yaml
+        ---
+        include:
+        - assembly_line.yml
+        ---
+        mandatory: True
+        code: |
+            preview_screen
+            final_screen
+        ---
+        question: |
+            Here is what it looks like unsigned
+        subquestion: |
+            ${ test_if_final_attachment.as_pdf(key="preview") }
+        continue button field: preview_screen
+        ---
+        question: |
+            Here is what it looks like signed
+        subquestion: |
+            ${ test_if_final_attachment.as_pdf(key="final") }
+        event: final_screen
+        ---
+        objects:
+            - test_if_final_attachment: ALDocument.using(title="test_if_final", filename="test_if_final")
+        ---
+        attachment:
+            variable name: test_if_final_attachment[i]
+            docx template file: test_if_final.docx
+        ```
 
     Args:
         context (Jinja2Context): The Jinja2 context, automatically passed by the `pass_context` decorator.
@@ -231,8 +304,8 @@ def if_final(
         i (str, optional): The current value of `i`. If not provided, it will be fetched from the context.
         expected_values (Union[str, List[str]], optional): The expected value(s) of `i` to trigger returning `value`.
             Defaults to "final".
-        placeholder (str, optional): The placeholder string to return if the condition is not met.
-            Defaults to "[ Signature here ]".
+        placeholder (str, optional): The placeholder string to return if the condition is not met. If 
+            not provided, a default placeholder will be generated based on the variable name.
 
     Returns:
         Any: The original `value` if `i` matches `expected_values`, otherwise the `placeholder`.
@@ -246,10 +319,15 @@ def if_final(
         else i not in expected_values
     ):
         if isinstance(value, Undefined):
+            if not placeholder:
+                _label = _undefined_label(value)
+                if "." in _label:
+                    _label = _label.split(".")[-1]
+                placeholder = f"[ {_label} ]"
             return placeholder
         return value
 
-    # Allow Docassemble to trap the UndefinedError when i is not == expected_value (e.g., "final")
+    # Allow Docassemble to trap the UndefinedError when i not == expected_value (e.g., "final")
     return value
 
 
