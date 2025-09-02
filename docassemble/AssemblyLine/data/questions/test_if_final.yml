@@ -1,0 +1,27 @@
+---
+include:
+  - assembly_line.yml
+---
+mandatory: True
+code: |
+  preview_screen
+  final_screen
+---
+question: |
+  Here is what it looks like unsigned
+subquestion: |
+  ${ test_if_final_attachment.as_pdf(key="preview") }
+continue button field: preview_screen
+---
+question: |
+  Here is what it looks like signed
+subquestion: |
+  ${ test_if_final_attachment.as_pdf(key="final") }
+event: final_screen
+---
+objects:
+  - test_if_final_attachment: ALDocument.using(title="test_if_final", filename="test_if_final")
+---
+attachment:
+  variable name: test_if_final_attachment[i]
+  docx template file: test_if_final.docx

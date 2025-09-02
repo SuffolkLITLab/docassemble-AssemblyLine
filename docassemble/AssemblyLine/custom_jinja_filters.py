@@ -5,8 +5,11 @@
 
 # See: https://docassemble.org/docs/documents.html#register_jinja_filter
 
-from typing import Any, Dict, List
-from docassemble.base.util import register_jinja_filter, DACatchAll
+import re
+from typing import Any, Dict, List, Optional, Union
+from docassemble.base.util import register_jinja_filter, DACatchAll, word
+from jinja2 import Undefined, pass_context
+from jinja2.runtime import Context as Jinja2Context
 
 __all__ = [
     "catchall_options",
@@ -200,11 +203,118 @@ def catchall_subquestion(value: Any, subquestion: str) -> DACatchAll:
     return value
 
 
+def _undefined_label(ud: Undefined) -> Union[str, None]:
+    """
+    Extract the variable name from a Jinja2 Undefined object for use as a placeholder label.
+
+    Args:
+        ud (Undefined): The Jinja2 Undefined object.
+    Returns:
+        str: A friendly name extracted from the Undefined object.
+    """
+    return getattr(ud, "_undefined_name", None)
+
+
+@pass_context
+def if_final(
+    context: Jinja2Context,
+    value: Any,
+    i: Optional[str] = None,
+    expected_i: Union[str, List[str]] = "final",
+    placeholder: Optional[str] = None,
+) -> Any:
+    """
+    Jinja2 filter to only seek the definition of a variable if the current value of `i`
+    is equal to the expected value (normally "final"); otherwise,
+    return a placeholder.
+
+    This is useful in ALDocument DOCX templates where you want to show a placeholder when
+    the document is being generated for preview or testing, but let Docassemble trigger
+    the actual value when the document is being generated for final output.
+
+    E.g., to show a placeholder for a signature field when the document is being
+    shown to the signer, but show the actual signature when the document is finalized.
+
+    The default placeholder is "[ signature ]" if the variable name follows the pattern "users[0].signature",
+    or [ variable_name ] if it is not an attribute of an item.
+
+    `i` will be the value from the template's context unless it is explicitly passed,
+    as in an ALDocument's "preview" or "final" values.
+
+    Example:
+        Contents of test_if_final.docx:
+        ```jinja
+        {{ users[0].signature | if_final }}
+        ```
+
+        Returns "[ signature ]" if `i` (passed to the context of the attachment block) is not "final",
+        otherwise the actual value of `users[0].signature`.
+
+        ```yaml
+        ---
+        include:
+        - assembly_line.yml
+        ---
+        mandatory: True
+        code: |
+            preview_screen
+            final_screen
+        ---
+        question: |
+            Here is what it looks like unsigned
+        subquestion: |
+            ${ test_if_final_attachment.as_pdf(key="preview") }
+        continue button field: preview_screen
+        ---
+        question: |
+            Here is what it looks like signed
+        subquestion: |
+            ${ test_if_final_attachment.as_pdf(key="final") }
+        event: final_screen
+        ---
+        objects:
+            - test_if_final_attachment: ALDocument.using(title="test_if_final", filename="test_if_final")
+        ---
+        attachment:
+            variable name: test_if_final_attachment[i]
+            docx template file: test_if_final.docx
+        ```
+
+    Args:
+        context (Jinja2Context): The Jinja2 context, automatically passed by the `pass_context` decorator.
+        value (Any): The original value as passed to the filter.
+        i (str, optional): The current value of `i`. If not provided, it will be fetched from the context.
+        expected_i (Union[str, List[str]], optional): The expected value(s) of `i` to trigger passthrough of `value`.
+            Defaults to "final".
+        placeholder (str, optional): The placeholder string to return if the condition is not met. If
+            not provided, a default placeholder will be generated based on the variable name.
+
+    Returns:
+        Any: The original `value` if `i` matches `expected_i`, otherwise the `placeholder`.
+    """
+    if i is None:
+        i = context.get("i")
+
+    if i != expected_i if isinstance(expected_i, str) else i not in expected_i:
+        if isinstance(value, Undefined):
+            _label = _undefined_label(value)
+            if _label and not placeholder:
+                if "." in _label:
+                    _label = _label.split(".")[-1]
+                placeholder = f"[ {_label} ]"
+            return placeholder
+        return value
+
+    # Allow Docassemble to trap the UndefinedError when i == expected_i (e.g., "final" instead of "preview"), triggering a question to define `value`
+    return value
+
+
 register_jinja_filter("catchall_options", catchall_options)
 register_jinja_filter("catchall_label", catchall_label)
 register_jinja_filter("catchall_datatype", catchall_datatype)
 register_jinja_filter("catchall_question", catchall_question)
 register_jinja_filter("catchall_subquestion", catchall_subquestion)
+register_jinja_filter("if_final", if_final)
 
 
 def catchall_fields_code(value: Any) -> List[Dict[str, Any]]:
