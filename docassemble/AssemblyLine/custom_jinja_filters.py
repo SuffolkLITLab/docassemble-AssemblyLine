@@ -240,7 +240,7 @@ def if_final(
     i: Optional[str] = None,
     expected_values: Union[str, List[str]] = "final",
     placeholder: Optional[str] = None,
-):
+) -> Any:
     """
     Jinja2 filter to only seek the definition of a variable if the current value of `i`
     is equal to the expected value (normally "final"); otherwise,
@@ -265,7 +265,7 @@ def if_final(
         {{ users[0].signature | if_final }}
         ```
 
-        Returns "[ signature ]" if `i` (passed to the context of the attachment block) is not "final", 
+        Returns "[ signature ]" if `i` (passed to the context of the attachment block) is not "final",
         otherwise the actual value of `users[0].signature`.
 
         ```yaml
@@ -304,7 +304,7 @@ def if_final(
         i (str, optional): The current value of `i`. If not provided, it will be fetched from the context.
         expected_values (Union[str, List[str]], optional): The expected value(s) of `i` to trigger returning `value`.
             Defaults to "final".
-        placeholder (str, optional): The placeholder string to return if the condition is not met. If 
+        placeholder (str, optional): The placeholder string to return if the condition is not met. If
             not provided, a default placeholder will be generated based on the variable name.
 
     Returns:
