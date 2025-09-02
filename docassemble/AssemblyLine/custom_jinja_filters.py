@@ -5,8 +5,10 @@
 
 # See: https://docassemble.org/docs/documents.html#register_jinja_filter
 
-from typing import Any, Dict, List
-from docassemble.base.util import register_jinja_filter, DACatchAll
+from typing import Any, Dict, List, Optional, Union
+from docassemble.base.util import register_jinja_filter, DACatchAll, word
+from jinja2 import Undefined, pass_context
+from jinja2.runtime import Context as Jinja2Context
 
 __all__ = [
     "catchall_options",
@@ -200,11 +202,63 @@ def catchall_subquestion(value: Any, subquestion: str) -> DACatchAll:
     return value
 
 
+@pass_context
+def if_final(
+    context: Jinja2Context,
+    value: Any,
+    i: Optional[str] = None,
+    expected_values: Union[str, List[str]] = "final",
+    placeholder: str = word("[ Signature here ]"),
+):
+    """
+    Jinja2 filter to only seek the definition of a variable if the current value of `i`
+    is equal to the expected value (normally "final"); otherwise,
+    return a placeholder.
+
+    This is useful in ALDocument DOCX templates where you want to show a placeholder when
+    the document is being generated for preview or testing, but let Docassemble trigger
+    the actual value when the document is being generated for final output.
+
+    E.g., to show a placeholder for a signature field when the document is being
+    shown to the signer, but show the actual signature when the document is finalized.
+
+    `i` will be the value from the template's context unless it is explicitly passed,
+    as in an ALDocument's "preview" or "final" values.
+
+    Args:
+        context (Jinja2Context): The Jinja2 context, automatically passed by the `pass_context` decorator.
+        value (Any): The original value as passed to the filter.
+        i (str, optional): The current value of `i`. If not provided, it will be fetched from the context.
+        expected_values (Union[str, List[str]], optional): The expected value(s) of `i` to trigger returning `value`.
+            Defaults to "final".
+        placeholder (str, optional): The placeholder string to return if the condition is not met.
+            Defaults to "[ Signature here ]".
+
+    Returns:
+        Any: The original `value` if `i` matches `expected_values`, otherwise the `placeholder`.
+    """
+    if i is None:
+        i = context.get("i")
+
+    if (
+        i != expected_values
+        if isinstance(expected_values, str)
+        else i not in expected_values
+    ):
+        if isinstance(value, Undefined):
+            return placeholder
+        return value
+
+    # Allow Docassemble to trap the UndefinedError when i is not == expected_value (e.g., "final")
+    return value
+
+
 register_jinja_filter("catchall_options", catchall_options)
 register_jinja_filter("catchall_label", catchall_label)
 register_jinja_filter("catchall_datatype", catchall_datatype)
 register_jinja_filter("catchall_question", catchall_question)
 register_jinja_filter("catchall_subquestion", catchall_subquestion)
+register_jinja_filter("if_final", if_final)
 
 
 def catchall_fields_code(value: Any) -> List[Dict[str, Any]]:
