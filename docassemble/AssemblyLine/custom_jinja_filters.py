@@ -203,42 +203,23 @@ def catchall_subquestion(value: Any, subquestion: str) -> DACatchAll:
     return value
 
 
-def _undefined_label(ud: Undefined, placeholder: Optional[str] = None) -> str:
+def _undefined_label(ud: Undefined) -> Union[str, None]:
     """
-    Extract a friendly name from a Jinja2 Undefined.
-    Prefer the last missing attribute/key; fall back to the variable name;
-    then try parsing the hint; finally a generic label.
+    Extract the variable name from a Jinja2 Undefined object for use as a placeholder label.
 
     Args:
         ud (Undefined): The Jinja2 Undefined object.
-        placeholder (str, optional): A generic label to use if no other name can be found.
     Returns:
         str: A friendly name extracted from the Undefined object.
     """
-    # 1) Best case: attribute/key name (e.g., "signature" from users[0].signature)
-    name = getattr(ud, "_undefined_name", None)
-    if isinstance(name, str) and name:
-        # Note that name is already going to be just the last part of a dotted variable name,
-        # whic is perfect for a descriptive-ish placeholder.
-        return name
-
-    # 2) Sometimes the hint contains 'foo' or "foo"
-    hint = getattr(ud, "_undefined_hint", None)
-    if isinstance(hint, str):
-        m = re.search(r"""['"]([A-Za-z_][\w]*)['"]""", hint)
-        if m:
-            return m.group(1)
-
-    # 3) As a last resort, use a generic label
-    return str(placeholder)
-
+    return getattr(ud, "_undefined_name", None)
 
 @pass_context
 def if_final(
     context: Jinja2Context,
     value: Any,
     i: Optional[str] = None,
-    expected_values: Union[str, List[str]] = "final",
+    expected_i: Union[str, List[str]] = "final",
     placeholder: Optional[str] = None,
 ) -> Any:
     """
@@ -302,32 +283,28 @@ def if_final(
         context (Jinja2Context): The Jinja2 context, automatically passed by the `pass_context` decorator.
         value (Any): The original value as passed to the filter.
         i (str, optional): The current value of `i`. If not provided, it will be fetched from the context.
-        expected_values (Union[str, List[str]], optional): The expected value(s) of `i` to trigger returning `value`.
+        expected_i (Union[str, List[str]], optional): The expected value(s) of `i` to trigger passthrough of `value`.
             Defaults to "final".
         placeholder (str, optional): The placeholder string to return if the condition is not met. If
             not provided, a default placeholder will be generated based on the variable name.
 
     Returns:
-        Any: The original `value` if `i` matches `expected_values`, otherwise the `placeholder`.
+        Any: The original `value` if `i` matches `expected_i`, otherwise the `placeholder`.
     """
     if i is None:
         i = context.get("i")
 
-    if (
-        i != expected_values
-        if isinstance(expected_values, str)
-        else i not in expected_values
-    ):
+    if i != expected_i if isinstance(expected_i, str) else i not in expected_i:
         if isinstance(value, Undefined):
-            if not placeholder:
-                _label = _undefined_label(value)
+            _label = _undefined_label(value)
+            if _label and not placeholder:
                 if "." in _label:
                     _label = _label.split(".")[-1]
                 placeholder = f"[ {_label} ]"
             return placeholder
         return value
 
-    # Allow Docassemble to trap the UndefinedError when i not == expected_value (e.g., "final")
+    # Allow Docassemble to trap the UndefinedError when i == expected_i (e.g., "final" instead of "preview"), triggering a question to define `value`
     return value
 
 
