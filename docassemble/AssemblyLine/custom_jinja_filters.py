@@ -214,6 +214,7 @@ def _undefined_label(ud: Undefined) -> Union[str, None]:
     """
     return getattr(ud, "_undefined_name", None)
 
+
 @pass_context
 def if_final(
     context: Jinja2Context,
