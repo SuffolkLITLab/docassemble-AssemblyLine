@@ -243,9 +243,7 @@ class ALCourtLoader(DAObject):
         Return a list of all courts in the spreadsheet.
 
         Returns:
-            List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value).
-                The dataframe_index (int) can be used with as_court() to retrieve the full court object.
-                The display_value (str) is the court's name or other display column value.
+            List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value). The dataframe_index (int) can be used with as_court() to retrieve the full court object. The display_value (str) is the court's name or other display column value.
         """
         return self.filter_courts(None)
 
@@ -349,9 +347,7 @@ class ALCourtLoader(DAObject):
                 the search_string in a case-insensitive manner. Defaults to None.
 
         Returns:
-            List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value).
-                The dataframe_index (int) can be used with as_court() to retrieve the full court object.
-                The display_value (str) is the court's name or other display column value.
+            List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value). The dataframe_index (int) can be used with as_court() to retrieve the full court object. The display_value (str) is the court's name or other display column value.
         """
         return self.filter_courts(
             court_types=county_name,
@@ -385,9 +381,7 @@ class ALCourtLoader(DAObject):
                 the search_string in a case-insensitive manner. Defaults to None.
 
         Returns:
-            List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value).
-                The dataframe_index (int) can be used with as_court() to retrieve the full court object.
-                The display_value (str) is the court's name or other display column value.
+            List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value). The dataframe_index (int) can be used with as_court() to retrieve the full court object. The display_value (str) is the court's name or other display column value.
         """
         df = self._load_courts()
         if court_types:
