@@ -3,7 +3,7 @@ Package for a very simple / MVP list of courts that is mostly signature compatib
 """
 
 import os
-from typing import Any, Callable, Dict, List, Mapping, Optional, Union, Set
+from typing import Any, Callable, Dict, List, Mapping, Optional, Union, Set, Tuple
 import pandas as pd
 import docassemble.base.functions
 from docassemble.base.util import (
@@ -238,12 +238,12 @@ class ALCourtLoader(DAObject):
     # Only solution I can think of would require court database owners to assign each court a unique ID
     # and something that triggers recalculating the court address/etc info.
 
-    def all_courts(self) -> List[Dict[int, str]]:
+    def all_courts(self) -> List[Tuple[int, str]]:
         """
         Return a list of all courts in the spreadsheet.
 
         Returns:
-            List[Dict[int, str]]: List of all ALCourt instances without filtering.
+            List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value). The dataframe_index (int) can be used with as_court() to retrieve the full court object. The display_value (str) is the court's name or other display column value.
         """
         return self.filter_courts(None)
 
@@ -329,13 +329,14 @@ class ALCourtLoader(DAObject):
         display_column: str = "name",
         search_string: Optional[str] = None,
         search_columns: Optional[Union[List[str], str]] = None,
-    ) -> List[Dict[int, str]]:
+    ) -> List[Tuple[int, str]]:
         """
         Retrieve a list of all courts in the specified county.
 
         This function fetches courts suitable for displaying as a drop-down or radio button list
-        in Docassemble. The results are dictionaries where the key is the index in the dataframe,
-        useful for retrieving the court's full details later using the as_court() method.
+        in Docassemble. The results are tuples where the first element is the dataframe index
+        (useful for retrieving the court's full details later using the as_court() method) and
+        the second element is the display value from the specified display_column.
 
         Args:
             county_name (str): Name of the county.
@@ -346,7 +347,7 @@ class ALCourtLoader(DAObject):
                 the search_string in a case-insensitive manner. Defaults to None.
 
         Returns:
-            List[Dict[int, str]]: List of dictionaries representing matching courts.
+            List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value). The dataframe_index (int) can be used with as_court() to retrieve the full court object. The display_value (str) is the court's name or other display column value.
         """
         return self.filter_courts(
             court_types=county_name,
@@ -363,11 +364,11 @@ class ALCourtLoader(DAObject):
         display_column: str = "name",
         search_string: Optional[str] = None,
         search_columns: Optional[Union[List[str], str]] = None,
-    ) -> List[Dict[int, str]]:
+    ) -> List[Tuple[int, str]]:
         """
-        Return a filtered subset of courts represented as a list of dictionaries.
+        Return a filtered subset of courts represented as a list of tuples.
 
-        Each dictionary has the format {index: name}, where "index" refers to the dataframe index and "name"
+        Each tuple has the format (index, display_value), where "index" refers to the dataframe index and "display_value"
         is determined by the `display_column`.
 
         Args:
@@ -380,7 +381,7 @@ class ALCourtLoader(DAObject):
                 the search_string in a case-insensitive manner. Defaults to None.
 
         Returns:
-            List[Dict[int, str]]: List of dictionaries representing filtered courts.
+            List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value). The dataframe_index (int) can be used with as_court() to retrieve the full court object. The display_value (str) is the court's name or other display column value.
         """
         df = self._load_courts()
         if court_types:
