@@ -37,6 +37,7 @@ from docassemble.base.util import (
     log,
     value,
 )
+from docassemble.ALToolbox.misc import fa_icon
 import random
 import re
 import pycountry
@@ -2358,47 +2359,6 @@ def filter_letters(letter_strings: Union[List[str], str]) -> str:
 
 
 # Note: removed "combined_locations" because it is too tightly coupled to MACourts.py right now
-
-
-def fa_icon(
-    icon: str, color: str = "primary", color_css: Optional[str] = None, size: str = "sm"
-) -> str:
-    """
-    Return HTML for a font-awesome icon of the specified size and color. You can reference
-    a CSS variable (such as Bootstrap theme color) or a true CSS color reference, such as 'blue' or
-    '#DDDDDD'. Defaults to Bootstrap theme color "primary".
-
-    Args:
-        icon (str): The name of the icon to use. See https://fontawesome.com/icons for a list of icons.
-        color (str): The color of the icon. Defaults to "primary".
-        color_css (Optional[str]): A CSS variable or color reference. Defaults to None.
-        size (str): The size of the icon. Defaults to "sm".
-
-    Returns:
-        str: HTML for the icon.
-    """
-    if not color and not color_css:
-        return ":" + icon + ":"  # Default to letting Docassemble handle it
-    elif color_css:
-        return (
-            '<i class="fa fa-'
-            + icon
-            + " fa-"
-            + size
-            + '" style="color:'
-            + color_css
-            + ';"></i>'
-        )
-    else:
-        return (
-            '<i class="fa fa-'
-            + icon
-            + " fa-"
-            + size
-            + '" style="color:var(--'
-            + color
-            + ');"></i>'
-        )
 
 
 def is_sms_enabled() -> bool:
