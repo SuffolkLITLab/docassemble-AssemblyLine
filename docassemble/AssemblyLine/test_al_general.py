@@ -148,7 +148,9 @@ class TestALIndividual(unittest.TestCase):
                 {"Prefer not to say": "prefer_not_to_say"},
             ]
         # Never pass through to the real value() function as it only works in an interactive DA server
-        raise ValueError(f"Unmocked call to value() with variable_name='{variable_name}'. Please add a mock for this variable in the test.")
+        raise ValueError(
+            f"Unmocked call to value() with variable_name='{variable_name}'. Please add a mock for this variable in the test."
+        )
 
     def test_phone_numbers(self):
         self.assertEqual(self.individual.phone_numbers(), "")
