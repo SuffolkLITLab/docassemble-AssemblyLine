@@ -1,0 +1,132 @@
+---
+include:
+  - assembly_line.yml
+---
+metadata:
+  title: |
+    Test Preferred Name Functionality
+---
+mandatory: True
+code: |
+  # Get basic user information
+  users[0].name.first
+  users[0].name.last
+  
+  # Choose test scenario
+  test_scenario
+  
+  # Handle different scenarios
+  if test_scenario == 'with_preferred':
+    users[0].preferred_name.first
+  elif test_scenario == 'business_with_preferred':
+    users[0].person_type = 'business'
+    users[0].preferred_name.first
+  elif test_scenario == 'conflict_resolution':
+    # Create another person to test conflict resolution
+    other_people.gather()
+    users[0].preferred_name.first
+  # For 'without_preferred', we don't ask for preferred name
+  
+  show_results
+---
+question: |
+  Which test scenario would you like to run?
+field: test_scenario
+choices:
+  - Test with preferred name: with_preferred
+  - Test without preferred name: without_preferred  
+  - Test business with preferred name: business_with_preferred
+  - Test conflict resolution: conflict_resolution
+---
+question: |
+  What is your preferred first name?
+subquestion: |
+  This is the name you'd like to be called, which may be different from your legal first name.
+  
+  Leave blank if you want to use your legal first name.
+fields:
+  - Preferred first name: users[0].preferred_name.first
+    required: False
+---
+question: |
+  What is the other person's name?
+subquestion: |
+  We need another person to test name conflict resolution.
+fields:
+  - First name: other_people[0].name.first
+  - Last name: other_people[0].name.last
+---
+objects:
+  - other_people: ALPeopleList.using(object_type=ALIndividual, complete_attribute="complete")
+---
+question: |
+  Is there anyone else?
+yesno: other_people.there_is_another
+---
+code: |
+  other_people[i].name.first
+  other_people[i].complete = True
+---
+event: show_results
+question: |
+  Test Results
+subquestion: |
+  #### Test Scenario: ${ test_scenario }
+  
+  #### Your Information:
+  
+  - Legal name: ${ users[0].name.first } ${ users[0].name.last }
+  % if test_scenario == 'business_with_preferred':
+  - Person type: ${ users[0].person_type }
+  % endif
+  % if test_scenario in ['with_preferred', 'business_with_preferred', 'conflict_resolution']:
+  - Preferred name: ${ users[0].preferred_name.first if users[0].preferred_name.first else "(not set)" }
+  % endif
+  
+  % if test_scenario == 'conflict_resolution' and other_people.number() > 0:
+  #### Other People:
+  % for person in other_people:
+  - ${ person.name.first } ${ person.name.last }
+  % endfor
+  % endif
+  
+  ---
+  
+  #### Familiar Name Results:
+  
+  % if test_scenario == 'conflict_resolution' and other_people.number() > 0:
+  - Without considering conflicts: `${ users[0].familiar() }`
+  - Considering conflicts with other people: `${ users[0].familiar(unique_names=other_people) }`
+  % else:
+  - Your familiar name: `${ users[0].familiar() }`
+  % endif
+  
+  ---
+  
+  #### What this means:
+  
+  % if test_scenario == 'with_preferred':
+  % if users[0].preferred_name.first:
+  Since you provided a preferred name ("${ users[0].preferred_name.first }"), the `.familiar()` method uses it instead of your legal first name.
+  % else:
+  Since you didn't provide a preferred name, the `.familiar()` method uses your legal first name ("${ users[0].name.first }").
+  % endif
+  % elif test_scenario == 'without_preferred':
+  No preferred name was requested, so the `.familiar()` method uses your legal first name ("${ users[0].name.first }").
+  % elif test_scenario == 'business_with_preferred':
+  % if users[0].preferred_name.first:
+  Even though you provided a preferred name ("${ users[0].preferred_name.first }"), because this is a business entity, the `.familiar()` method ignores the preferred name and uses the legal name ("${ users[0].name.first }").
+  % else:
+  This is a business entity, so the `.familiar()` method uses the legal name ("${ users[0].name.first }").
+  % endif
+  % elif test_scenario == 'conflict_resolution':
+  % if users[0].preferred_name.first:
+  With your preferred name "${ users[0].preferred_name.first }":
+  % else:
+  With your legal name "${ users[0].name.first }":
+  % endif
+  - When no other people are considered, you get: `${ users[0].familiar() }`
+  - When considering potential name conflicts with other people, the system tries to find a unique way to refer to you: `${ users[0].familiar(unique_names=other_people) }`
+  % endif
+buttons:
+  - Start over: restart
