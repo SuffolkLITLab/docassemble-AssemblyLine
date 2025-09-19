@@ -1476,6 +1476,242 @@ class ALIndividual(Individual):
         """
         return comma_list(sorted(self.get_pronouns()))
 
+    def race_and_ethnicity_fields(
+        self,
+        show_help: bool = False,
+        show_if: Union[str, Dict[str, str], None] = None,
+        maxlengths: Optional[Dict[str, int]] = None,
+        choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+    ) -> List[Dict[str, str]]:
+        """
+        Generate fields for capturing race and ethnicity information.
+
+        Args:
+            show_help (bool): Whether to show additional help text. Defaults to False.
+            show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
+            maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of choices for race/ethnicity or a callable that returns such a list. Defaults to standard categories.
+
+        Returns:
+            List[Dict[str, str]]: A list of dictionaries with field prompts for race and ethnicity.
+        """
+        if not choices:
+            choices = [
+                {"American Indian or Alaska Native": "american_indian_alaska_native"},
+                {"Asian": "asian"},
+                {"Black or African American": "black_african_american"},
+                {"Hispanic or Latino": "hispanic_latino"},
+                {"Native Hawaiian or Other Pacific Islander": "native_hawaiian_pacific_islander"},
+                {"White": "white"},
+                {"Two or more races": "two_or_more_races"},
+                {"Other": "other"},
+                {"Prefer not to say": "prefer_not_to_say"},
+            ]
+        if callable(choices):
+            choices = choices()
+
+        other_input = {
+            "label": "Please specify",
+            "field": self.attr_name("race_ethnicity_other"),
+            "show if": {"variable": self.attr_name("race_ethnicity"), "is": "other"},
+        }
+
+        fields = [
+            {
+                "label": "Race and ethnicity",
+                "field": self.attr_name("race_ethnicity"),
+                "datatype": "checkboxes",
+                "choices": choices,
+            },
+            other_input,
+        ]
+
+        if show_help:
+            fields[0]["help"] = "You may select more than one category that applies to you."
+        if show_if:
+            fields[0]["show if"] = show_if
+
+        if maxlengths:
+            for field in fields:
+                if field["field"] in maxlengths:
+                    field["maxlength"] = maxlengths[field["field"]]
+
+        return fields
+
+    def age_range_fields(
+        self,
+        show_help: bool = False,
+        show_if: Union[str, Dict[str, str], None] = None,
+        maxlengths: Optional[Dict[str, int]] = None,
+        choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+    ) -> List[Dict[str, str]]:
+        """
+        Generate fields for capturing age range information.
+
+        Args:
+            show_help (bool): Whether to show additional help text. Defaults to False.
+            show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
+            maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of age range choices or a callable that returns such a list. Defaults to standard ranges.
+
+        Returns:
+            List[Dict[str, str]]: A list of dictionaries with field prompts for age range.
+        """
+        if not choices:
+            choices = [
+                {"Under 18": "under_18"},
+                {"18-24": "18_24"},
+                {"25-34": "25_34"},
+                {"35-44": "35_44"},
+                {"45-54": "45_54"},
+                {"55-64": "55_64"},
+                {"65-74": "65_74"},
+                {"75 and over": "75_and_over"},
+                {"Prefer not to say": "prefer_not_to_say"},
+            ]
+        if callable(choices):
+            choices = choices()
+
+        fields = [
+            {
+                "label": "Age range",
+                "field": self.attr_name("age_range"),
+                "input type": "radio",
+                "choices": choices,
+            }
+        ]
+
+        if show_help:
+            fields[0]["help"] = "Select the age range that applies to you."
+        if show_if:
+            fields[0]["show if"] = show_if
+
+        if maxlengths:
+            for field in fields:
+                if field["field"] in maxlengths:
+                    field["maxlength"] = maxlengths[field["field"]]
+
+        return fields
+
+    def income_range_fields(
+        self,
+        show_help: bool = False,
+        show_if: Union[str, Dict[str, str], None] = None,
+        maxlengths: Optional[Dict[str, int]] = None,
+        choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+    ) -> List[Dict[str, str]]:
+        """
+        Generate fields for capturing household income range information.
+
+        Args:
+            show_help (bool): Whether to show additional help text. Defaults to False.
+            show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
+            maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of income range choices or a callable that returns such a list. Defaults to standard ranges.
+
+        Returns:
+            List[Dict[str, str]]: A list of dictionaries with field prompts for income range.
+        """
+        if not choices:
+            choices = [
+                {"Less than $15,000": "under_15k"},
+                {"$15,000 - $24,999": "15k_24k"},
+                {"$25,000 - $34,999": "25k_34k"},
+                {"$35,000 - $49,999": "35k_49k"},
+                {"$50,000 - $74,999": "50k_74k"},
+                {"$75,000 - $99,999": "75k_99k"},
+                {"$100,000 - $149,999": "100k_149k"},
+                {"$150,000 or more": "150k_and_over"},
+                {"Prefer not to say": "prefer_not_to_say"},
+            ]
+        if callable(choices):
+            choices = choices()
+
+        fields = [
+            {
+                "label": "Household income range",
+                "field": self.attr_name("income_range"),
+                "input type": "radio",
+                "choices": choices,
+            }
+        ]
+
+        if show_help:
+            fields[0]["help"] = "Select the range that best describes your household's total income before taxes in the last 12 months."
+        if show_if:
+            fields[0]["show if"] = show_if
+
+        if maxlengths:
+            for field in fields:
+                if field["field"] in maxlengths:
+                    field["maxlength"] = maxlengths[field["field"]]
+
+        return fields
+
+    def occupation_fields(
+        self,
+        show_help: bool = False,
+        show_if: Union[str, Dict[str, str], None] = None,
+        maxlengths: Optional[Dict[str, int]] = None,
+        choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+    ) -> List[Dict[str, str]]:
+        """
+        Generate fields for capturing occupation classification information.
+
+        Args:
+            show_help (bool): Whether to show additional help text. Defaults to False.
+            show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
+            maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of occupation choices or a callable that returns such a list. Defaults to standard classifications.
+
+        Returns:
+            List[Dict[str, str]]: A list of dictionaries with field prompts for occupation.
+        """
+        if not choices:
+            choices = [
+                {"Management, business, science, and arts": "management_business_science_arts"},
+                {"Service": "service"},
+                {"Sales and office": "sales_office"},
+                {"Natural resources, construction, and maintenance": "natural_resources_construction_maintenance"},
+                {"Production, transportation, and material moving": "production_transportation_material_moving"},
+                {"Military": "military"},
+                {"Student": "student"},
+                {"Retired": "retired"},
+                {"Unemployed": "unemployed"},
+                {"Other": "other"},
+                {"Prefer not to say": "prefer_not_to_say"},
+            ]
+        if callable(choices):
+            choices = choices()
+
+        other_input = {
+            "label": "Please specify your occupation",
+            "field": self.attr_name("occupation_other"),
+            "show if": {"variable": self.attr_name("occupation"), "is": "other"},
+        }
+
+        fields = [
+            {
+                "label": "Occupation",
+                "field": self.attr_name("occupation"),
+                "input type": "radio",
+                "choices": choices,
+            },
+            other_input,
+        ]
+
+        if show_help:
+            fields[0]["help"] = "Select the category that best describes your current work or situation."
+        if show_if:
+            fields[0]["show if"] = show_if
+
+        if maxlengths:
+            for field in fields:
+                if field["field"] in maxlengths:
+                    field["maxlength"] = maxlengths[field["field"]]
+
+        return fields
+
     def language_fields(
         self,
         choices: Optional[Union[List[Dict[str, str]], Callable]] = None,

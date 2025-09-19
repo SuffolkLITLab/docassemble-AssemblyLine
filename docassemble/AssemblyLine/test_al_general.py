@@ -1,6 +1,6 @@
 import unittest
 from .al_general import ALIndividual, ALAddress, get_visible_al_nav_items
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from docassemble.base.util import DADict, DAAttributeError
 
 
@@ -552,6 +552,133 @@ class test_get_visible_al_nav_items(unittest.TestCase):
             {"criminal_defense": ["Know Your Rights"]},
         ]
         self.assertEqual(get_visible_al_nav_items(data), expected)
+
+
+class test_demographic_fields(unittest.TestCase):
+    def setUp(self):
+        self.individual = ALIndividual()
+        self.individual.instanceName = "test_person"
+
+    def test_race_and_ethnicity_fields_basic(self):
+        """Test basic race_and_ethnicity_fields functionality"""
+        fields = self.individual.race_and_ethnicity_fields()
+        
+        # Should return 2 fields: the main field and the "other" text field
+        self.assertEqual(len(fields), 2)
+        
+        # Check main field structure
+        main_field = fields[0]
+        self.assertEqual(main_field["label"], "Race and ethnicity")
+        self.assertEqual(main_field["field"], "test_person.race_ethnicity")
+        self.assertEqual(main_field["datatype"], "checkboxes")
+        self.assertIsInstance(main_field["choices"], list)
+        
+        # Check "other" field structure
+        other_field = fields[1]
+        self.assertEqual(other_field["field"], "test_person.race_ethnicity_other")
+        self.assertIn("show if", other_field)
+
+    def test_age_range_fields_basic(self):
+        """Test basic age_range_fields functionality"""
+        fields = self.individual.age_range_fields()
+        
+        # Should return 1 field
+        self.assertEqual(len(fields), 1)
+        
+        # Check field structure
+        field = fields[0]
+        self.assertEqual(field["label"], "Age range")
+        self.assertEqual(field["field"], "test_person.age_range")
+        self.assertEqual(field["input type"], "radio")
+        self.assertIsInstance(field["choices"], list)
+
+    def test_income_range_fields_basic(self):
+        """Test basic income_range_fields functionality"""
+        fields = self.individual.income_range_fields()
+        
+        # Should return 1 field
+        self.assertEqual(len(fields), 1)
+        
+        # Check field structure
+        field = fields[0]
+        self.assertEqual(field["label"], "Household income range")
+        self.assertEqual(field["field"], "test_person.income_range")
+        self.assertEqual(field["input type"], "radio")
+        self.assertIsInstance(field["choices"], list)
+
+    def test_occupation_fields_basic(self):
+        """Test basic occupation_fields functionality"""
+        fields = self.individual.occupation_fields()
+        
+        # Should return 2 fields: the main field and the "other" text field
+        self.assertEqual(len(fields), 2)
+        
+        # Check main field structure
+        main_field = fields[0]
+        self.assertEqual(main_field["label"], "Occupation")
+        self.assertEqual(main_field["field"], "test_person.occupation")
+        self.assertEqual(main_field["input type"], "radio")
+        self.assertIsInstance(main_field["choices"], list)
+        
+        # Check "other" field structure
+        other_field = fields[1]
+        self.assertEqual(other_field["field"], "test_person.occupation_other")
+        self.assertIn("show if", other_field)
+
+    def test_demographic_fields_with_show_help(self):
+        """Test that show_help parameter adds help text"""
+        fields = self.individual.race_and_ethnicity_fields(show_help=True)
+        self.assertIn("help", fields[0])
+        
+        fields = self.individual.age_range_fields(show_help=True)
+        self.assertIn("help", fields[0])
+        
+        fields = self.individual.income_range_fields(show_help=True)
+        self.assertIn("help", fields[0])
+        
+        fields = self.individual.occupation_fields(show_help=True)
+        self.assertIn("help", fields[0])
+
+    def test_demographic_fields_with_show_if(self):
+        """Test that show_if parameter is applied"""
+        show_if_condition = {"variable": "some_condition", "is": "true"}
+        
+        fields = self.individual.race_and_ethnicity_fields(show_if=show_if_condition)
+        self.assertEqual(fields[0]["show if"], show_if_condition)
+        
+        fields = self.individual.age_range_fields(show_if=show_if_condition)
+        self.assertEqual(fields[0]["show if"], show_if_condition)
+        
+        fields = self.individual.income_range_fields(show_if=show_if_condition)
+        self.assertEqual(fields[0]["show if"], show_if_condition)
+        
+        fields = self.individual.occupation_fields(show_if=show_if_condition)
+        self.assertEqual(fields[0]["show if"], show_if_condition)
+
+    def test_demographic_fields_with_custom_choices(self):
+        """Test that custom choices parameter works"""
+        custom_choices = [{"Custom Option": "custom_value"}]
+        
+        fields = self.individual.race_and_ethnicity_fields(choices=custom_choices)
+        self.assertEqual(fields[0]["choices"], custom_choices)
+        
+        fields = self.individual.age_range_fields(choices=custom_choices)
+        self.assertEqual(fields[0]["choices"], custom_choices)
+        
+        fields = self.individual.income_range_fields(choices=custom_choices)
+        self.assertEqual(fields[0]["choices"], custom_choices)
+        
+        fields = self.individual.occupation_fields(choices=custom_choices)
+        self.assertEqual(fields[0]["choices"], custom_choices)
+
+    def test_demographic_fields_with_maxlengths(self):
+        """Test that maxlengths parameter is applied"""
+        maxlengths = {"test_person.race_ethnicity_other": 100}
+        
+        fields = self.individual.race_and_ethnicity_fields(maxlengths=maxlengths)
+        # Find the "other" field
+        other_field = next(f for f in fields if "race_ethnicity_other" in f["field"])
+        self.assertEqual(other_field["maxlength"], 100)
 
 
 if __name__ == "__main__":

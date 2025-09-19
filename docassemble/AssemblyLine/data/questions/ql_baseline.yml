@@ -2594,3 +2594,105 @@ data:
   - Sgt.
   - Fr.
   - Sr.
+---
+################## Demographic Questions ######################
+---
+sets:
+  - users[i].race_ethnicity
+id: user race and ethnicity
+question: |
+  % if i == 0 and al_person_answering == "user":
+  What is your race and ethnicity?
+  % else:
+  What is ${ users[i] }'s race and ethnicity?
+  % endif
+subquestion: |
+  % if i == 0 and al_person_answering == "user":
+  You may select all categories that apply to you.
+  % else:
+  ${ users[i] } may select all categories that apply.
+  % endif
+fields:
+  - code: |
+      users[i].race_and_ethnicity_fields(show_help=True)
+---
+generic object: ALIndividual
+sets:
+  - x.race_ethnicity
+id: x race and ethnicity
+question: |
+  What is ${ x }'s race and ethnicity?
+subquestion: |
+  You may select all categories that apply.
+fields:
+  - code: |
+      x.race_and_ethnicity_fields(show_help=True)
+---
+sets:
+  - users[i].age_range
+id: user age range
+question: |
+  % if i == 0 and al_person_answering == "user":
+  What is your age range?
+  % else:
+  What is ${ users[i] }'s age range?
+  % endif
+fields:
+  - code: |
+      users[i].age_range_fields(show_help=True)
+---
+generic object: ALIndividual
+sets:
+  - x.age_range
+id: x age range
+question: |
+  What is ${ x }'s age range?
+fields:
+  - code: |
+      x.age_range_fields(show_help=True)
+---
+sets:
+  - users[i].income_range
+id: user income range
+question: |
+  % if i == 0 and al_person_answering == "user":
+  What is your household income range?
+  % else:
+  What is ${ users[i] }'s household income range?
+  % endif
+fields:
+  - code: |
+      users[i].income_range_fields(show_help=True)
+---
+generic object: ALIndividual
+sets:
+  - x.income_range
+id: x income range
+question: |
+  What is ${ x }'s household income range?
+fields:
+  - code: |
+      x.income_range_fields(show_help=True)
+---
+sets:
+  - users[i].occupation
+id: user occupation
+question: |
+  % if i == 0 and al_person_answering == "user":
+  What is your occupation?
+  % else:
+  What is ${ users[i] }'s occupation?
+  % endif
+fields:
+  - code: |
+      users[i].occupation_fields(show_help=True)
+---
+generic object: ALIndividual
+sets:
+  - x.occupation
+id: x occupation
+question: |
+  What is ${ x }'s occupation?
+fields:
+  - code: |
+      x.occupation_fields(show_help=True)
