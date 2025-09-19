@@ -1519,6 +1519,244 @@ class ALIndividual(Individual):
         """
         return comma_list(sorted(self.get_pronouns()))
 
+    def race_and_ethnicity_fields(
+        self,
+        show_help: bool = False,
+        show_if: Union[str, Dict[str, str], None] = None,
+        maxlengths: Optional[Dict[str, int]] = None,
+        choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+        required: Optional[Dict[str, bool]] = None,
+    ) -> List[Dict[str, str]]:
+        """
+        Generate fields for capturing race and ethnicity information.
+
+        Args:
+            show_help (bool): Whether to show additional help text. Defaults to False.
+            show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
+            maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of choices for race/ethnicity or a callable that returns such a list. If not provided, uses the `al_race_ethnicity_choices` variable defined in ql_baseline.yml.
+            required (Optional[Dict[str, bool]]): A dictionary of field names and their required status. Default is None.
+
+        Returns:
+            List[Dict[str, str]]: A list of dictionaries with field prompts for race and ethnicity.
+
+        Note:
+            The default choices are defined in the `al_race_ethnicity_choices` variable in ql_baseline.yml
+            and can be customized by redefining this variable in your interview.
+        """
+        if not choices:
+            choices = value("al_race_ethnicity_choices")
+        if callable(choices):
+            choices = choices()
+
+        other_input = {
+            "label": str(self.race_ethnicity_other_label),
+            "field": self.attr_name("race_ethnicity_other"),
+            "show if": {"variable": self.attr_name("race_ethnicity"), "is": "other"},
+        }
+
+        fields = [
+            {
+                "label": str(self.race_ethnicity_label),
+                "field": self.attr_name("race_ethnicity"),
+                "datatype": "checkboxes",
+                "choices": choices,
+            },
+            other_input,
+        ]
+
+        if show_help:
+            fields[0]["help"] = str(self.race_ethnicity_help_text)
+        if show_if:
+            fields[0]["show if"] = show_if
+
+        if maxlengths:
+            for field in fields:
+                if field["field"] in maxlengths:
+                    field["maxlength"] = maxlengths[field["field"]]
+
+        if required:
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
+
+        return fields
+
+    def age_range_fields(
+        self,
+        show_help: bool = False,
+        show_if: Union[str, Dict[str, str], None] = None,
+        maxlengths: Optional[Dict[str, int]] = None,
+        choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+        required: Optional[Dict[str, bool]] = None,
+    ) -> List[Dict[str, str]]:
+        """
+        Generate fields for capturing age range information.
+
+        Args:
+            show_help (bool): Whether to show additional help text. Defaults to False.
+            show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
+            maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of age range choices or a callable that returns such a list. If not provided, uses the `al_age_range_choices` variable defined in ql_baseline.yml.
+            required (Optional[Dict[str, bool]]): A dictionary of field names and their required status. Default is None.
+
+        Returns:
+            List[Dict[str, str]]: A list of dictionaries with field prompts for age range.
+
+        Note:
+            The default choices are defined in the `al_age_range_choices` variable in ql_baseline.yml
+            and can be customized by redefining this variable in your interview.
+        """
+        if not choices:
+            choices = value("al_age_range_choices")
+        if callable(choices):
+            choices = choices()
+
+        fields = [
+            {
+                "label": str(self.age_range_label),
+                "field": self.attr_name("age_range"),
+                "input type": "radio",
+                "choices": choices,
+            }
+        ]
+
+        if show_help:
+            fields[0]["help"] = str(self.age_range_help_text)
+        if show_if:
+            fields[0]["show if"] = show_if
+
+        if maxlengths:
+            for field in fields:
+                if field["field"] in maxlengths:
+                    field["maxlength"] = maxlengths[field["field"]]
+
+        if required:
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
+
+        return fields
+
+    def income_range_fields(
+        self,
+        show_help: bool = False,
+        show_if: Union[str, Dict[str, str], None] = None,
+        maxlengths: Optional[Dict[str, int]] = None,
+        choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+        required: Optional[Dict[str, bool]] = None,
+    ) -> List[Dict[str, str]]:
+        """
+        Generate fields for capturing household income range information.
+
+        Args:
+            show_help (bool): Whether to show additional help text. Defaults to False.
+            show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
+            maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of income range choices or a callable that returns such a list. If not provided, uses the `al_income_range_choices` variable defined in ql_baseline.yml.
+            required (Optional[Dict[str, bool]]): A dictionary of field names and their required status. Default is None.
+
+        Returns:
+            List[Dict[str, str]]: A list of dictionaries with field prompts for income range.
+
+        Note:
+            The default choices are defined in the `al_income_range_choices` variable in ql_baseline.yml
+            and can be customized by redefining this variable in your interview.
+        """
+        if not choices:
+            choices = value("al_income_range_choices")
+        if callable(choices):
+            choices = choices()
+
+        fields = [
+            {
+                "label": str(self.income_range_label),
+                "field": self.attr_name("income_range"),
+                "input type": "radio",
+                "choices": choices,
+            }
+        ]
+
+        if show_help:
+            fields[0]["help"] = str(self.income_range_help_text)
+        if show_if:
+            fields[0]["show if"] = show_if
+
+        if maxlengths:
+            for field in fields:
+                if field["field"] in maxlengths:
+                    field["maxlength"] = maxlengths[field["field"]]
+
+        if required:
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
+
+        return fields
+
+    def occupation_fields(
+        self,
+        show_help: bool = False,
+        show_if: Union[str, Dict[str, str], None] = None,
+        maxlengths: Optional[Dict[str, int]] = None,
+        choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+        required: Optional[Dict[str, bool]] = None,
+    ) -> List[Dict[str, str]]:
+        """
+        Generate fields for capturing occupation classification information.
+
+        Args:
+            show_help (bool): Whether to show additional help text. Defaults to False.
+            show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
+            maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of occupation choices or a callable that returns such a list. If not provided, uses the `al_occupation_choices` variable defined in ql_baseline.yml.
+            required (Optional[Dict[str, bool]]): A dictionary of field names and their required status. Default is None.
+
+        Returns:
+            List[Dict[str, str]]: A list of dictionaries with field prompts for occupation.
+
+        Note:
+            The default choices are defined in the `al_occupation_choices` variable in ql_baseline.yml
+            and can be customized by redefining this variable in your interview.
+        """
+        if not choices:
+            choices = value("al_occupation_choices")
+        if callable(choices):
+            choices = choices()
+
+        other_input = {
+            "label": str(self.occupation_other_label),
+            "field": self.attr_name("occupation_other"),
+            "show if": {"variable": self.attr_name("occupation"), "is": "other"},
+        }
+
+        fields = [
+            {
+                "label": str(self.occupation_label),
+                "field": self.attr_name("occupation"),
+                "input type": "radio",
+                "choices": choices,
+            },
+            other_input,
+        ]
+
+        if show_help:
+            fields[0]["help"] = str(self.occupation_help_text)
+        if show_if:
+            fields[0]["show if"] = show_if
+
+        if maxlengths:
+            for field in fields:
+                if field["field"] in maxlengths:
+                    field["maxlength"] = maxlengths[field["field"]]
+
+        if required:
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
+
+        return fields
+
     def language_fields(
         self,
         choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
