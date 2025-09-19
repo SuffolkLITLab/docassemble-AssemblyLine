@@ -1198,17 +1198,17 @@ class ALIndividual(Individual):
             if show_if:
                 for field in fields:
                     field["show if"] = show_if
-            
+
             if maxlengths:
                 for field in fields:
                     if field["field"] in maxlengths:
                         field["maxlength"] = maxlengths[field["field"]]
-            
+
             if required:
                 for field in fields:
                     if field["field"] in required:
                         field["required"] = required[field["field"]]
-            
+
             return fields
         elif person_or_business == "business":
             fields = [
@@ -1219,17 +1219,17 @@ class ALIndividual(Individual):
             ]
             if show_if:
                 fields[0]["show if"] = show_if
-            
+
             if maxlengths:
                 for field in fields:
                     if field["field"] in maxlengths:
                         field["maxlength"] = maxlengths[field["field"]]
-            
+
             if required:
                 for field in fields:
                     if field["field"] in required:
                         field["required"] = required[field["field"]]
-            
+
             return fields
         else:
             # Note: the labels are template block objects: if they are keys,
@@ -1297,12 +1297,12 @@ class ALIndividual(Individual):
                 for field in fields:
                     if field["field"] in maxlengths:
                         field["maxlength"] = maxlengths[field["field"]]
-            
+
             if required:
                 for field in fields:
                     if field["field"] in required:
                         field["required"] = required[field["field"]]
-            
+
             return fields
 
     def address_fields(
@@ -1570,12 +1570,12 @@ class ALIndividual(Individual):
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
-        
+
         if required:
             for field in fields:
                 if field["field"] in required:
                     field["required"] = required[field["field"]]
-        
+
         return fields
 
     def language_name(self) -> str:
