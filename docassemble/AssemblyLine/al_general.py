@@ -2223,9 +2223,11 @@ class ALIndividual(Individual):
 
         # Use preferred_name.first if it exists and is non-empty, otherwise use name.first
         first_name_to_use = self.name.first
-        if (hasattr(self, "preferred_name") and 
-            hasattr(self.preferred_name, "first") and 
-            self.preferred_name.first):
+        if (
+            hasattr(self, "preferred_name")
+            and hasattr(self.preferred_name, "first")
+            and self.preferred_name.first
+        ):
             first_name_to_use = self.preferred_name.first
 
         first_name_candidates = [person.familiar() for person in unique_names]
