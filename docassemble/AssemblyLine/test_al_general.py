@@ -1,7 +1,8 @@
 import unittest
 from .al_general import ALIndividual, ALAddress, get_visible_al_nav_items
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from docassemble.base.util import DADict, DAAttributeError
+from docassemble.base.functions import value as da_value
 
 
 class test_aladdress(unittest.TestCase):
@@ -80,6 +81,72 @@ class TestALIndividual(unittest.TestCase):
         self.individual.this_thread = self.this_thread
 
         self.individual.name.first = "John"
+
+        label_defaults = {
+            "first_name_label": "First name",
+            "middle_name_label": "Middle name",
+            "last_name_label": "Last name",
+            "suffix_label": "Suffix",
+            "name_title_label": "Title",
+            "business_name_label": "Business name",
+            "person_type_label": "Person type",
+            "individual_choice_label": "Person",
+            "business_choice_label": "Business",
+            "gender_label": "Gender",
+            "gender_female_label": "Female",
+            "gender_male_label": "Male",
+            "gender_nonbinary_label": "Nonbinary",
+            "gender_prefer_not_to_say_label": "Prefer not to say",
+            "gender_prefer_self_described_label": "Self described",
+            "gender_self_described_label": "Self described gender",
+            "gender_unknown_label": "Unknown",
+            "gender_help_text": "Help text",
+            "pronouns_label": "Pronouns",
+            "pronouns_help_text": "Pronouns help",
+            "pronoun_prefer_not_to_say_label": "Prefer not to say",
+            "pronoun_unknown_label": "Unknown",
+            "pronoun_prefer_self_described_label": "Something else",
+            "pronoun_self_described_label": "Self described pronouns",
+            "language_label": "Language",
+            "language_other_label": "Other language",
+        }
+
+        for attr, value in label_defaults.items():
+            setattr(self.individual, attr, value)
+
+        self._functions_value_patcher = patch(
+            "docassemble.base.functions.value",
+            side_effect=self._mock_value_with_defaults,
+        )
+        self._util_value_patcher = patch(
+            "docassemble.base.util.value",
+            side_effect=self._mock_value_with_defaults,
+        )
+        self._al_general_value_patcher = patch(
+            "docassemble.AssemblyLine.al_general.value",
+            side_effect=self._mock_value_with_defaults,
+        )
+        self._functions_value_patcher.start()
+        self._util_value_patcher.start()
+        self._al_general_value_patcher.start()
+
+    def tearDown(self):
+        self._al_general_value_patcher.stop()
+        self._util_value_patcher.stop()
+        self._functions_value_patcher.stop()
+
+    def _mock_value_with_defaults(self, variable_name, *args, **kwargs):
+        if variable_name == "al_name_suffixes":
+            return ["Jr.", "Sr."]
+        if variable_name == "al_name_titles":
+            return ["Mr.", "Ms."]
+        if variable_name == "al_pronoun_choices":
+            return [
+                {"He/him/his": "he/him/his"},
+                {"She/her/hers": "she/her/hers"},
+                {"They/them/theirs": "they/them/theirs"},
+            ]
+        return da_value(variable_name, *args, **kwargs)
 
     def test_phone_numbers(self):
         self.assertEqual(self.individual.phone_numbers(), "")
