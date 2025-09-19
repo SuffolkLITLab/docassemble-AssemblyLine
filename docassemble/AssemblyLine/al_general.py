@@ -1507,14 +1507,14 @@ class ALIndividual(Individual):
             choices = choices()
 
         other_input = {
-            "label": "Please specify",
+            "label": str(self.race_ethnicity_other_label),
             "field": self.attr_name("race_ethnicity_other"),
             "show if": {"variable": self.attr_name("race_ethnicity"), "is": "other"},
         }
 
         fields = [
             {
-                "label": "Race and ethnicity",
+                "label": str(self.race_ethnicity_label),
                 "field": self.attr_name("race_ethnicity"),
                 "datatype": "checkboxes",
                 "choices": choices,
@@ -1523,9 +1523,7 @@ class ALIndividual(Individual):
         ]
 
         if show_help:
-            fields[0][
-                "help"
-            ] = "You may select more than one category that applies to you."
+            fields[0]["help"] = str(self.race_ethnicity_help_text)
         if show_if:
             fields[0]["show if"] = show_if
 
@@ -1573,7 +1571,7 @@ class ALIndividual(Individual):
 
         fields = [
             {
-                "label": "Age range",
+                "label": str(self.age_range_label),
                 "field": self.attr_name("age_range"),
                 "input type": "radio",
                 "choices": choices,
@@ -1581,7 +1579,7 @@ class ALIndividual(Individual):
         ]
 
         if show_help:
-            fields[0]["help"] = "Select the age range that applies to you."
+            fields[0]["help"] = str(self.age_range_help_text)
         if show_if:
             fields[0]["show if"] = show_if
 
@@ -1629,7 +1627,7 @@ class ALIndividual(Individual):
 
         fields = [
             {
-                "label": "Household income range",
+                "label": str(self.income_range_label),
                 "field": self.attr_name("income_range"),
                 "input type": "radio",
                 "choices": choices,
@@ -1637,9 +1635,7 @@ class ALIndividual(Individual):
         ]
 
         if show_help:
-            fields[0][
-                "help"
-            ] = "Select the range that best describes your household's total income before taxes in the last 12 months."
+            fields[0]["help"] = str(self.income_range_help_text)
         if show_if:
             fields[0]["show if"] = show_if
 
@@ -1686,14 +1682,14 @@ class ALIndividual(Individual):
             choices = choices()
 
         other_input = {
-            "label": "Please specify your occupation",
+            "label": str(self.occupation_other_label),
             "field": self.attr_name("occupation_other"),
             "show if": {"variable": self.attr_name("occupation"), "is": "other"},
         }
 
         fields = [
             {
-                "label": "Occupation",
+                "label": str(self.occupation_label),
                 "field": self.attr_name("occupation"),
                 "input type": "radio",
                 "choices": choices,
@@ -1702,9 +1698,7 @@ class ALIndividual(Individual):
         ]
 
         if show_help:
-            fields[0][
-                "help"
-            ] = "Select the category that best describes your current work or situation."
+            fields[0]["help"] = str(self.occupation_help_text)
         if show_if:
             fields[0]["show if"] = show_if
 

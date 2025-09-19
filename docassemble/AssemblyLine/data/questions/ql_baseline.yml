@@ -2627,6 +2627,60 @@ data:
   - Other: other
   - Prefer not to say: prefer_not_to_say
 ---
+################ Demographic Templates ################
+comment: |
+  These templates define the labels and help text for demographic fields.
+---
+generic object: ALIndividual
+template: x.race_ethnicity_label
+content: |
+  Race and ethnicity
+---
+generic object: ALIndividual
+template: x.race_ethnicity_other_label
+content: |
+  Other
+---
+generic object: ALIndividual
+template: x.race_ethnicity_help_text
+content: |
+  You may select more than one race or ethnicity that applies to you.
+---
+generic object: ALIndividual
+template: x.age_range_label
+content: |
+  Age range
+---
+generic object: ALIndividual
+template: x.age_range_help_text
+content: |
+  Pick the age range that describes you best.
+---
+generic object: ALIndividual
+template: x.income_range_label
+content: |
+  Household income range
+---
+generic object: ALIndividual
+template: x.income_range_help_text
+content: |
+  Pick the range that best describes your household's total income before taxes in the last 12 months.
+---
+generic object: ALIndividual
+template: x.occupation_label
+content: |
+  Occupation (job)
+---
+generic object: ALIndividual
+template: x.occupation_other_label
+content: |
+  Other
+---
+generic object: ALIndividual
+template: x.occupation_help_text
+content: |
+  Pick the category that best describes your current work or situation.
+---
 variable name: al_name_titles
 data:
   - Mr.

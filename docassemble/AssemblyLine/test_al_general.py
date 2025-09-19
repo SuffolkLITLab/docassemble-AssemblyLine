@@ -81,6 +81,18 @@ class TestALIndividual(unittest.TestCase):
 
         self.individual.name.first = "John"
 
+        # Mock template attributes for demographic fields
+        self.individual.race_ethnicity_label = "Race and ethnicity"
+        self.individual.race_ethnicity_other_label = "Please specify"
+        self.individual.race_ethnicity_help_text = "You may select more than one category that applies to you."
+        self.individual.age_range_label = "Age range"
+        self.individual.age_range_help_text = "Select the age range that applies to you."
+        self.individual.income_range_label = "Household income range"
+        self.individual.income_range_help_text = "Select the range that best describes your household's total income before taxes in the last 12 months."
+        self.individual.occupation_label = "Occupation"
+        self.individual.occupation_other_label = "Please specify your occupation"
+        self.individual.occupation_help_text = "Select the category that best describes your current work or situation."
+
         self._functions_value_patcher = patch(
             "docassemble.base.functions.value",
             side_effect=self._mock_value_with_defaults,
@@ -629,6 +641,18 @@ class test_demographic_fields(unittest.TestCase):
     def setUp(self):
         self.individual = ALIndividual()
         self.individual.instanceName = "test_person"
+        
+        # Mock template attributes for demographic fields
+        self.individual.race_ethnicity_label = "Race and ethnicity"
+        self.individual.race_ethnicity_other_label = "Please specify"
+        self.individual.race_ethnicity_help_text = "You may select more than one category that applies to you."
+        self.individual.age_range_label = "Age range"
+        self.individual.age_range_help_text = "Select the age range that applies to you."
+        self.individual.income_range_label = "Household income range"
+        self.individual.income_range_help_text = "Select the range that best describes your household's total income before taxes in the last 12 months."
+        self.individual.occupation_label = "Occupation"
+        self.individual.occupation_other_label = "Please specify your occupation"
+        self.individual.occupation_help_text = "Select the category that best describes your current work or situation."
 
     @patch("docassemble.AssemblyLine.al_general.value")
     def test_race_and_ethnicity_fields_basic(self, mock_value):
