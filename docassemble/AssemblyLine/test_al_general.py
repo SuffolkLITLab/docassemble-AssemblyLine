@@ -81,14 +81,27 @@ class TestALIndividual(unittest.TestCase):
 
         self.individual.name.first = "John"
 
-        self._value_patcher = patch(
+        self._real_value = da_value
+        self._functions_value_patcher = patch(
+            "docassemble.base.functions.value",
+            side_effect=self._mock_value_with_defaults,
+        )
+        self._util_value_patcher = patch(
+            "docassemble.base.util.value",
+            side_effect=self._mock_value_with_defaults,
+        )
+        self._al_general_value_patcher = patch(
             "docassemble.AssemblyLine.al_general.value",
             side_effect=self._mock_value_with_defaults,
         )
-        self._value_patcher.start()
+        self._functions_value_patcher.start()
+        self._util_value_patcher.start()
+        self._al_general_value_patcher.start()
 
     def tearDown(self):
-        self._value_patcher.stop()
+        self._al_general_value_patcher.stop()
+        self._util_value_patcher.stop()
+        self._functions_value_patcher.stop()
 
     def _mock_value_with_defaults(self, variable_name, *args, **kwargs):
         if variable_name == "al_name_suffixes":
@@ -124,7 +137,7 @@ class TestALIndividual(unittest.TestCase):
                 {"Other": "other"},
                 {"Prefer not to say": "prefer_not_to_say"},
             ]
-        return da_value(variable_name, *args, **kwargs)
+        return self._real_value(variable_name, *args, **kwargs)
 
     def test_phone_numbers(self):
         self.assertEqual(self.individual.phone_numbers(), "")
