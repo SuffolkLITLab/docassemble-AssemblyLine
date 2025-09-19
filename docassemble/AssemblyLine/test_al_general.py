@@ -1,7 +1,7 @@
 import unittest
 from .al_general import ALIndividual, ALAddress, get_visible_al_nav_items
 from unittest.mock import Mock, patch
-from docassemble.base.util import DADict, DAAttributeError, value as da_value
+from docassemble.base.util import DADict, DAAttributeError
 
 
 class test_aladdress(unittest.TestCase):
@@ -81,7 +81,6 @@ class TestALIndividual(unittest.TestCase):
 
         self.individual.name.first = "John"
 
-        self._real_value = da_value
         self._functions_value_patcher = patch(
             "docassemble.base.functions.value",
             side_effect=self._mock_value_with_defaults,
@@ -137,7 +136,19 @@ class TestALIndividual(unittest.TestCase):
                 {"Other": "other"},
                 {"Prefer not to say": "prefer_not_to_say"},
             ]
-        return self._real_value(variable_name, *args, **kwargs)
+        if variable_name == "al_age_range_choices":
+            return [
+                {"Under 18": "under_18"},
+                {"18-24": "18_24"},
+                {"25-34": "25_34"},
+                {"35-44": "35_44"},
+                {"45-54": "45_54"},
+                {"55-64": "55_64"},
+                {"65 or older": "65_older"},
+                {"Prefer not to say": "prefer_not_to_say"},
+            ]
+        # Never pass through to the real value() function as it only works in an interactive DA server
+        raise ValueError(f"Unmocked call to value() with variable_name='{variable_name}'. Please add a mock for this variable in the test.")
 
     def test_phone_numbers(self):
         self.assertEqual(self.individual.phone_numbers(), "")
