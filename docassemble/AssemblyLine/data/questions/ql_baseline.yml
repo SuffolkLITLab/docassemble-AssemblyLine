@@ -2572,6 +2572,61 @@ data:
   - Bart.
   - Bt.
 ---
+################ Demographic Choice Variables ################
+comment: |
+  These variables define the default choices for demographic fields.
+  They can be customized by redefining them in your interview.
+---
+variable name: al_race_ethnicity_choices
+data:
+  - American Indian or Alaska Native: american_indian_alaska_native
+  - Asian: asian
+  - Black or African American: black_african_american
+  - Hispanic or Latino: hispanic_latino
+  - Native Hawaiian or Other Pacific Islander: native_hawaiian_pacific_islander
+  - White: white
+  - Two or more races: two_or_more_races
+  - Other: other
+  - Prefer not to say: prefer_not_to_say
+---
+variable name: al_age_range_choices
+data:
+  - Under 18: under_18
+  - 18-24: 18_24
+  - 25-34: 25_34
+  - 35-44: 35_44
+  - 45-54: 45_54
+  - 55-64: 55_64
+  - 65-74: 65_74
+  - 75 and over: 75_and_over
+  - Prefer not to say: prefer_not_to_say
+---
+variable name: al_income_range_choices
+data:
+  - Less than $15,000: under_15k
+  - $15,000 - $24,999: 15k_24k
+  - $25,000 - $34,999: 25k_34k
+  - $35,000 - $49,999: 35k_49k
+  - $50,000 - $74,999: 50k_74k
+  - $75,000 - $99,999: 75k_99k
+  - $100,000 - $149,999: 100k_149k
+  - $150,000 or more: 150k_and_over
+  - Prefer not to say: prefer_not_to_say
+---
+variable name: al_occupation_choices
+data:
+  - Management, business, science, and arts: management_business_science_arts
+  - Service: service
+  - Sales and office: sales_office
+  - Natural resources, construction, and maintenance: natural_resources_construction_maintenance
+  - Production, transportation, and material moving: production_transportation_material_moving
+  - Military: military
+  - Student: student
+  - Retired: retired
+  - Unemployed: unemployed
+  - Other: other
+  - Prefer not to say: prefer_not_to_say
+---
 variable name: al_name_titles
 data:
   - Mr.

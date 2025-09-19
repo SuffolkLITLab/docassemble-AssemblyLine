@@ -1,0 +1,139 @@
+---
+include:
+  - assembly_line.yml
+---
+metadata:
+  title: |
+    Test Demographic Fields
+  description: |
+    Interactive test for exploring Assembly Line demographic data collection fields
+---
+objects:
+  - test_person: ALIndividual
+---
+mandatory: True
+code: |
+  intro_screen
+  test_person.name.first
+  test_demographic_fields
+  review_demographics
+  end_screen
+---
+continue button field: intro_screen
+question: |
+  Test Demographic Fields
+subquestion: |
+  This interview allows you to test the demographic data collection fields available in the Assembly Line library.
+  
+  You'll be able to explore:
+  
+  * Race and ethnicity questions (checkboxes)
+  * Age range questions (radio buttons)  
+  * Income range questions (radio buttons)
+  * Occupation questions (radio buttons)
+  
+  The questions support customization through the `show_help`, `show_if`, `maxlengths`, `choices`, and `required` parameters.
+---
+sets:
+  - test_person.name.first
+  - test_person.name.last
+question: |
+  What is your name?
+subquestion: |
+  We'll use this to personalize the demographic questions.
+fields:
+  - code: |
+      test_person.name_fields()
+---
+continue button field: test_demographic_fields
+question: |
+  Test Individual Demographic Fields
+subquestion: |
+  Here are examples of each demographic field type. All questions are optional for testing purposes.
+fields:
+  - note: |
+      **Race and Ethnicity** (checkboxes - allows multiple selections)
+  - code: |
+      test_person.race_and_ethnicity_fields(show_help=True)
+  - note: |
+      **Age Range** (radio buttons - single selection)
+  - code: |
+      test_person.age_range_fields(show_help=True)
+  - note: |
+      **Household Income Range** (radio buttons - single selection)
+  - code: |
+      test_person.income_range_fields(show_help=True)
+  - note: |
+      **Occupation** (radio buttons - single selection)
+  - code: |
+      test_person.occupation_fields(show_help=True)
+---
+continue button field: review_demographics
+question: |
+  Review Your Demographic Information
+subquestion: |
+  Here's what you entered:
+  
+  **Name:** ${ test_person.name }
+  
+  % if defined('test_person.race_ethnicity'):
+  **Race/Ethnicity:** 
+  % if hasattr(test_person.race_ethnicity, 'true_values'):
+  ${ comma_and_list(test_person.race_ethnicity.true_values()) }
+  % else:
+  ${ test_person.race_ethnicity }
+  % endif
+  % if defined('test_person.race_ethnicity_other') and test_person.race_ethnicity_other:
+  (Other: ${ test_person.race_ethnicity_other })
+  % endif
+  % endif
+  
+  % if defined('test_person.age_range'):
+  **Age Range:** ${ test_person.age_range }
+  % endif
+  
+  % if defined('test_person.income_range'):
+  **Income Range:** ${ test_person.income_range }
+  % endif
+  
+  % if defined('test_person.occupation'):
+  **Occupation:** ${ test_person.occupation }
+  % if defined('test_person.occupation_other') and test_person.occupation_other:
+  (Other: ${ test_person.occupation_other })
+  % endif
+  % endif
+  
+  This data would be available in templates and can be used for analytics and reporting.
+---
+continue button field: end_screen
+question: |
+  Test Complete
+subquestion: |
+  You've successfully tested the Assembly Line demographic fields!
+  
+  ## Key Features Demonstrated:
+  
+  * **Customizable choices**: Each field method accepts a `choices` parameter
+  * **Help text**: The `show_help` parameter adds explanatory text
+  * **Conditional display**: The `show_if` parameter can hide/show fields
+  * **Required fields**: The `required` parameter controls field requirements  
+  * **Other options**: Text fields appear when "Other" is selected
+  * **Privacy-focused**: All questions include "Prefer not to say" options
+  
+  ## Implementation:
+  
+  These fields can be used individually or combined in your interviews:
+  
+  ```yaml
+  fields:
+    - code: |
+        users[0].race_and_ethnicity_fields(show_help=True)
+    - code: |
+        users[0].age_range_fields(show_help=True)  
+    - code: |
+        users[0].income_range_fields(show_help=True)
+    - code: |
+        users[0].occupation_fields(show_help=True)
+  ```
+  
+  The choice lists are defined as `al_` variables and can be customized in your interview.

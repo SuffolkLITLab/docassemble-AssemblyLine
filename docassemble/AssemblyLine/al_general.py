@@ -1482,6 +1482,7 @@ class ALIndividual(Individual):
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
         choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+        required: Optional[Dict[str, bool]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing race and ethnicity information.
@@ -1491,22 +1492,13 @@ class ALIndividual(Individual):
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
             choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of choices for race/ethnicity or a callable that returns such a list. Defaults to standard categories.
+            required (Optional[Dict[str, bool]]): A dictionary of field names and their required status. Default is None.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for race and ethnicity.
         """
         if not choices:
-            choices = [
-                {"American Indian or Alaska Native": "american_indian_alaska_native"},
-                {"Asian": "asian"},
-                {"Black or African American": "black_african_american"},
-                {"Hispanic or Latino": "hispanic_latino"},
-                {"Native Hawaiian or Other Pacific Islander": "native_hawaiian_pacific_islander"},
-                {"White": "white"},
-                {"Two or more races": "two_or_more_races"},
-                {"Other": "other"},
-                {"Prefer not to say": "prefer_not_to_say"},
-            ]
+            choices = value("al_race_ethnicity_choices")
         if callable(choices):
             choices = choices()
 
@@ -1536,6 +1528,11 @@ class ALIndividual(Individual):
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
 
+        if required:
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
+
         return fields
 
     def age_range_fields(
@@ -1544,6 +1541,7 @@ class ALIndividual(Individual):
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
         choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+        required: Optional[Dict[str, bool]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing age range information.
@@ -1553,22 +1551,13 @@ class ALIndividual(Individual):
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
             choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of age range choices or a callable that returns such a list. Defaults to standard ranges.
+            required (Optional[Dict[str, bool]]): A dictionary of field names and their required status. Default is None.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for age range.
         """
         if not choices:
-            choices = [
-                {"Under 18": "under_18"},
-                {"18-24": "18_24"},
-                {"25-34": "25_34"},
-                {"35-44": "35_44"},
-                {"45-54": "45_54"},
-                {"55-64": "55_64"},
-                {"65-74": "65_74"},
-                {"75 and over": "75_and_over"},
-                {"Prefer not to say": "prefer_not_to_say"},
-            ]
+            choices = value("al_age_range_choices")
         if callable(choices):
             choices = choices()
 
@@ -1591,6 +1580,11 @@ class ALIndividual(Individual):
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
 
+        if required:
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
+
         return fields
 
     def income_range_fields(
@@ -1599,6 +1593,7 @@ class ALIndividual(Individual):
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
         choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+        required: Optional[Dict[str, bool]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing household income range information.
@@ -1608,22 +1603,13 @@ class ALIndividual(Individual):
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
             choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of income range choices or a callable that returns such a list. Defaults to standard ranges.
+            required (Optional[Dict[str, bool]]): A dictionary of field names and their required status. Default is None.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for income range.
         """
         if not choices:
-            choices = [
-                {"Less than $15,000": "under_15k"},
-                {"$15,000 - $24,999": "15k_24k"},
-                {"$25,000 - $34,999": "25k_34k"},
-                {"$35,000 - $49,999": "35k_49k"},
-                {"$50,000 - $74,999": "50k_74k"},
-                {"$75,000 - $99,999": "75k_99k"},
-                {"$100,000 - $149,999": "100k_149k"},
-                {"$150,000 or more": "150k_and_over"},
-                {"Prefer not to say": "prefer_not_to_say"},
-            ]
+            choices = value("al_income_range_choices")
         if callable(choices):
             choices = choices()
 
@@ -1646,6 +1632,11 @@ class ALIndividual(Individual):
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
 
+        if required:
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
+
         return fields
 
     def occupation_fields(
@@ -1654,6 +1645,7 @@ class ALIndividual(Individual):
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
         choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+        required: Optional[Dict[str, bool]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing occupation classification information.
@@ -1663,24 +1655,13 @@ class ALIndividual(Individual):
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
             choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of occupation choices or a callable that returns such a list. Defaults to standard classifications.
+            required (Optional[Dict[str, bool]]): A dictionary of field names and their required status. Default is None.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for occupation.
         """
         if not choices:
-            choices = [
-                {"Management, business, science, and arts": "management_business_science_arts"},
-                {"Service": "service"},
-                {"Sales and office": "sales_office"},
-                {"Natural resources, construction, and maintenance": "natural_resources_construction_maintenance"},
-                {"Production, transportation, and material moving": "production_transportation_material_moving"},
-                {"Military": "military"},
-                {"Student": "student"},
-                {"Retired": "retired"},
-                {"Unemployed": "unemployed"},
-                {"Other": "other"},
-                {"Prefer not to say": "prefer_not_to_say"},
-            ]
+            choices = value("al_occupation_choices")
         if callable(choices):
             choices = choices()
 
@@ -1709,6 +1690,11 @@ class ALIndividual(Individual):
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
+
+        if required:
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
 
         return fields
 

@@ -559,8 +559,17 @@ class test_demographic_fields(unittest.TestCase):
         self.individual = ALIndividual()
         self.individual.instanceName = "test_person"
 
-    def test_race_and_ethnicity_fields_basic(self):
+    @patch('docassemble.AssemblyLine.al_general.value')
+    def test_race_and_ethnicity_fields_basic(self, mock_value):
         """Test basic race_and_ethnicity_fields functionality"""
+        mock_value.return_value = [
+            {"American Indian or Alaska Native": "american_indian_alaska_native"},
+            {"Asian": "asian"},
+            {"White": "white"},
+            {"Other": "other"},
+            {"Prefer not to say": "prefer_not_to_say"},
+        ]
+        
         fields = self.individual.race_and_ethnicity_fields()
         
         # Should return 2 fields: the main field and the "other" text field
@@ -578,8 +587,15 @@ class test_demographic_fields(unittest.TestCase):
         self.assertEqual(other_field["field"], "test_person.race_ethnicity_other")
         self.assertIn("show if", other_field)
 
-    def test_age_range_fields_basic(self):
+    @patch('docassemble.AssemblyLine.al_general.value')
+    def test_age_range_fields_basic(self, mock_value):
         """Test basic age_range_fields functionality"""
+        mock_value.return_value = [
+            {"Under 18": "under_18"},
+            {"25-34": "25_34"},
+            {"Prefer not to say": "prefer_not_to_say"},
+        ]
+        
         fields = self.individual.age_range_fields()
         
         # Should return 1 field
@@ -592,8 +608,15 @@ class test_demographic_fields(unittest.TestCase):
         self.assertEqual(field["input type"], "radio")
         self.assertIsInstance(field["choices"], list)
 
-    def test_income_range_fields_basic(self):
+    @patch('docassemble.AssemblyLine.al_general.value')
+    def test_income_range_fields_basic(self, mock_value):
         """Test basic income_range_fields functionality"""
+        mock_value.return_value = [
+            {"Less than $15,000": "under_15k"},
+            {"$50,000 - $74,999": "50k_74k"},
+            {"Prefer not to say": "prefer_not_to_say"},
+        ]
+        
         fields = self.individual.income_range_fields()
         
         # Should return 1 field
@@ -606,8 +629,16 @@ class test_demographic_fields(unittest.TestCase):
         self.assertEqual(field["input type"], "radio")
         self.assertIsInstance(field["choices"], list)
 
-    def test_occupation_fields_basic(self):
+    @patch('docassemble.AssemblyLine.al_general.value')
+    def test_occupation_fields_basic(self, mock_value):
         """Test basic occupation_fields functionality"""
+        mock_value.return_value = [
+            {"Service": "service"},
+            {"Student": "student"},
+            {"Other": "other"},
+            {"Prefer not to say": "prefer_not_to_say"},
+        ]
+        
         fields = self.individual.occupation_fields()
         
         # Should return 2 fields: the main field and the "other" text field
@@ -625,8 +656,11 @@ class test_demographic_fields(unittest.TestCase):
         self.assertEqual(other_field["field"], "test_person.occupation_other")
         self.assertIn("show if", other_field)
 
-    def test_demographic_fields_with_show_help(self):
+    @patch('docassemble.AssemblyLine.al_general.value')
+    def test_demographic_fields_with_show_help(self, mock_value):
         """Test that show_help parameter adds help text"""
+        mock_value.return_value = [{"Test": "test"}]
+        
         fields = self.individual.race_and_ethnicity_fields(show_help=True)
         self.assertIn("help", fields[0])
         
@@ -639,8 +673,10 @@ class test_demographic_fields(unittest.TestCase):
         fields = self.individual.occupation_fields(show_help=True)
         self.assertIn("help", fields[0])
 
-    def test_demographic_fields_with_show_if(self):
+    @patch('docassemble.AssemblyLine.al_general.value')
+    def test_demographic_fields_with_show_if(self, mock_value):
         """Test that show_if parameter is applied"""
+        mock_value.return_value = [{"Test": "test"}]
         show_if_condition = {"variable": "some_condition", "is": "true"}
         
         fields = self.individual.race_and_ethnicity_fields(show_if=show_if_condition)
@@ -654,6 +690,27 @@ class test_demographic_fields(unittest.TestCase):
         
         fields = self.individual.occupation_fields(show_if=show_if_condition)
         self.assertEqual(fields[0]["show if"], show_if_condition)
+
+    @patch('docassemble.AssemblyLine.al_general.value')
+    def test_demographic_fields_with_required(self, mock_value):
+        """Test that required parameter is applied"""
+        mock_value.return_value = [{"Test": "test"}]
+        required_dict = {"test_person.race_ethnicity": True}
+        
+        fields = self.individual.race_and_ethnicity_fields(required=required_dict)
+        # Find the main field
+        main_field = next(f for f in fields if "race_ethnicity" in f["field"] and "other" not in f["field"])
+        self.assertEqual(main_field["required"], True)
+        
+        fields = self.individual.age_range_fields(required={"test_person.age_range": False})
+        self.assertEqual(fields[0]["required"], False)
+        
+        fields = self.individual.income_range_fields(required={"test_person.income_range": True})
+        self.assertEqual(fields[0]["required"], True)
+        
+        fields = self.individual.occupation_fields(required={"test_person.occupation": False})
+        main_field = next(f for f in fields if "occupation" in f["field"] and "other" not in f["field"])
+        self.assertEqual(main_field["required"], False)
 
     def test_demographic_fields_with_custom_choices(self):
         """Test that custom choices parameter works"""
@@ -671,8 +728,10 @@ class test_demographic_fields(unittest.TestCase):
         fields = self.individual.occupation_fields(choices=custom_choices)
         self.assertEqual(fields[0]["choices"], custom_choices)
 
-    def test_demographic_fields_with_maxlengths(self):
+    @patch('docassemble.AssemblyLine.al_general.value')
+    def test_demographic_fields_with_maxlengths(self, mock_value):
         """Test that maxlengths parameter is applied"""
+        mock_value.return_value = [{"Test": "test"}]
         maxlengths = {"test_person.race_ethnicity_other": 100}
         
         fields = self.individual.race_and_ethnicity_fields(maxlengths=maxlengths)
