@@ -101,6 +101,29 @@ class TestALIndividual(unittest.TestCase):
                 {"She/her/hers": "she/her/hers"},
                 {"They/them/theirs": "they/them/theirs"},
             ]
+        if variable_name == "al_race_ethnicity_choices":
+            return [
+                {"American Indian or Alaska Native": "american_indian_alaska_native"},
+                {"Asian": "asian"},
+                {"White": "white"},
+                {"Other": "other"},
+                {"Prefer not to say": "prefer_not_to_say"},
+            ]
+        if variable_name == "al_income_range_choices":
+            return [
+                {"Under $25,000": "under_25k"},
+                {"$25,000 - $49,999": "25k_49k"},
+                {"$50,000 - $74,999": "50k_74k"},
+                {"Prefer not to say": "prefer_not_to_say"},
+            ]
+        if variable_name == "al_occupation_choices":
+            return [
+                {"Service": "service"},
+                {"Student": "student"},
+                {"Professional": "professional"},
+                {"Other": "other"},
+                {"Prefer not to say": "prefer_not_to_say"},
+            ]
         return da_value(variable_name, *args, **kwargs)
 
     def test_phone_numbers(self):
