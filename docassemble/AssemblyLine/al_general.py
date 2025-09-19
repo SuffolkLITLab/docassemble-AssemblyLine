@@ -1114,6 +1114,7 @@ class ALIndividual(Individual):
         maxlengths: Optional[Dict[str, int]] = None,
         suffix_choices: Optional[Union[List[str], Callable]] = None,
         title_options: Optional[Union[List[str], Callable]] = None,
+        required: Optional[Dict[str, bool]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generates suitable field prompts for a name based on the type of entity (person or business)
@@ -1133,6 +1134,7 @@ class ALIndividual(Individual):
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
             suffix_choices (Union[List[str], Callable], optional): A list of suffix options or a callable to generate suffix options, or overridden by value of global `al_name_suffixes`.
             title_options: (Union[List[str], Callable], optional): Deprecated parameter, use `title_choices` instead. If provided, it will be used to set the title choices.
+            required (Dict[str, bool], optional): A dictionary of field names and if they should be required. Default is None.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries where each dictionary contains field prompt details.
@@ -1196,6 +1198,17 @@ class ALIndividual(Individual):
             if show_if:
                 for field in fields:
                     field["show if"] = show_if
+
+            if maxlengths:
+                for field in fields:
+                    if field["field"] in maxlengths:
+                        field["maxlength"] = maxlengths[field["field"]]
+
+            if required:
+                for field in fields:
+                    if field["field"] in required:
+                        field["required"] = required[field["field"]]
+
             return fields
         elif person_or_business == "business":
             fields = [
@@ -1206,6 +1219,17 @@ class ALIndividual(Individual):
             ]
             if show_if:
                 fields[0]["show if"] = show_if
+
+            if maxlengths:
+                for field in fields:
+                    if field["field"] in maxlengths:
+                        field["maxlength"] = maxlengths[field["field"]]
+
+            if required:
+                for field in fields:
+                    if field["field"] in required:
+                        field["required"] = required[field["field"]]
+
             return fields
         else:
             # Note: the labels are template block objects: if they are keys,
@@ -1273,6 +1297,12 @@ class ALIndividual(Individual):
                 for field in fields:
                     if field["field"] in maxlengths:
                         field["maxlength"] = maxlengths[field["field"]]
+
+            if required:
+                for field in fields:
+                    if field["field"] in required:
+                        field["required"] = required[field["field"]]
+
             return fields
 
     def address_fields(
@@ -1324,6 +1354,7 @@ class ALIndividual(Individual):
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
         choices: Optional[Union[List[Dict[str, str]], Callable]] = None,
+        required: Optional[Dict[str, bool]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing gender information, including a
@@ -1334,6 +1365,7 @@ class ALIndividual(Individual):
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
             choices (Optional[Union[List[Dict[str, str]], Callable]]): A list of choices of genders to use in the prompts, or a callable that returns such a list. Default set of choices includes male, female, nonbinary, prefer-not-to-say, self-described, and unknown.
+            required (Dict[str, bool], optional): A dictionary of field names and if they should be required. Default is None.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for gender.
@@ -1377,13 +1409,18 @@ class ALIndividual(Individual):
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
 
+        if required:
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
+
         return fields
 
     def pronoun_fields(
         self,
         show_help=False,
         show_if: Union[str, Dict[str, str], None] = None,
-        required: bool = False,
+        required: Union[bool, Dict[str, bool]] = False,
         shuffle: bool = False,
         show_unknown: Optional[Union[Literal["guess"], bool]] = "guess",
         maxlengths: Optional[Dict[str, int]] = None,
@@ -1395,7 +1432,7 @@ class ALIndividual(Individual):
         Args:
             show_help (bool): Whether to show additional help text. Defaults to False.
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
-            required (bool): Whether the field is required. Defaults to False.
+            required (Union[bool, Dict[str, bool]]): Whether the field is required. Can be a boolean (applies to all fields) or a dictionary of field names and if they should be required. Defaults to False.
             shuffle (bool): Whether to shuffle the order of pronouns. Defaults to False.
             show_unknown (Union[Literal["guess"], bool]): Whether to show an "unknown" option. Can be "guess", True, or False. Defaults to "guess".
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
@@ -1429,7 +1466,7 @@ class ALIndividual(Individual):
                 "datatype": "checkboxes",
                 "choices": shuffled_choices + final_choices,
                 "none of the above": str(self.pronoun_prefer_not_to_say_label),
-                "required": required,
+                "required": required if isinstance(required, bool) else False,
             },
             self_described_input,
         ]
@@ -1443,6 +1480,12 @@ class ALIndividual(Individual):
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
+
+        # Handle dictionary-based required parameter
+        if isinstance(required, dict):
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
 
         return fields
 
@@ -1482,6 +1525,7 @@ class ALIndividual(Individual):
         style: str = "radio",
         show_if: Union[str, Dict[str, str], None] = None,
         maxlengths: Optional[Dict[str, int]] = None,
+        required: Optional[Dict[str, bool]] = None,
     ) -> List[Dict[str, str]]:
         """
         Generate fields for capturing language preferences.
@@ -1491,6 +1535,7 @@ class ALIndividual(Individual):
             style (str): The display style of choices. Defaults to "radio".
             show_if (Union[str, Dict[str, str], None]): Condition to determine if the field should be shown. Defaults to None.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
+            required (Dict[str, bool], optional): A dictionary of field names and if they should be required. Default is None.
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for language preferences.
@@ -1525,6 +1570,12 @@ class ALIndividual(Individual):
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
+
+        if required:
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
+
         return fields
 
     def language_name(self) -> str:

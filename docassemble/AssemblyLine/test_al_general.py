@@ -462,6 +462,119 @@ class TestALIndividual(unittest.TestCase):
         self.assertEqual(self.individual.name_short(), "Johnny's Sandwiches")
         self.assertEqual(str(self.individual), "Johnny's Sandwiches")
 
+    def test_name_fields_required(self):
+        """Test the required parameter for name_fields method"""
+        self.individual.instanceName = "test_individual"
+
+        # Test without required parameter - middle name should default to False
+        fields = self.individual.name_fields(person_or_business="person")
+        middle_field = None
+        for field in fields:
+            if "middle" in field["field"]:
+                middle_field = field
+                break
+        self.assertIsNotNone(middle_field)
+        self.assertEqual(middle_field["required"], False)
+
+        # Test with required parameter making middle name required
+        fields = self.individual.name_fields(
+            person_or_business="person", required={"test_individual.name.middle": True}
+        )
+        middle_field = None
+        for field in fields:
+            if "middle" in field["field"]:
+                middle_field = field
+                break
+        self.assertIsNotNone(middle_field)
+        self.assertEqual(middle_field["required"], True)
+
+        # Test business case with required parameter
+        fields = self.individual.name_fields(
+            person_or_business="business", required={"test_individual.name.first": True}
+        )
+        business_field = fields[0]
+        self.assertEqual(business_field["required"], True)
+
+    def test_gender_fields_required(self):
+        """Test the required parameter for gender_fields method"""
+        self.individual.instanceName = "test_individual"
+
+        # Test without required parameter
+        fields = self.individual.gender_fields()
+        gender_field = fields[0]
+        self.assertNotIn(
+            "required", gender_field
+        )  # Should not have required by default
+
+        # Test with required parameter
+        fields = self.individual.gender_fields(
+            required={"test_individual.gender": True}
+        )
+        gender_field = fields[0]
+        self.assertEqual(gender_field["required"], True)
+
+        # Test key not in required dict - should not change default
+        fields = self.individual.gender_fields(required={"other_field": True})
+        gender_field = fields[0]
+        self.assertNotIn("required", gender_field)
+
+    def test_pronoun_fields_required(self):
+        """Test the required parameter for pronoun_fields method (both bool and dict)"""
+        self.individual.instanceName = "test_individual"
+
+        # Test with boolean required parameter (existing behavior)
+        fields = self.individual.pronoun_fields(required=True)
+        pronoun_field = fields[0]
+        self.assertEqual(pronoun_field["required"], True)
+
+        # Test with boolean required parameter = False
+        fields = self.individual.pronoun_fields(required=False)
+        pronoun_field = fields[0]
+        self.assertEqual(pronoun_field["required"], False)
+
+        # Test with dictionary required parameter (new behavior)
+        fields = self.individual.pronoun_fields(
+            required={"test_individual.pronouns": True}
+        )
+        pronoun_field = fields[0]
+        self.assertEqual(pronoun_field["required"], True)
+
+        # Test with dictionary required parameter for different field
+        fields = self.individual.pronoun_fields(
+            required={"test_individual.pronouns_self_described": True}
+        )
+        pronoun_field = fields[0]
+        self_described_field = fields[1]
+        self.assertEqual(
+            pronoun_field["required"], False
+        )  # First field should still be False
+        self.assertEqual(self_described_field["required"], True)
+
+    def test_language_fields_required(self):
+        """Test the required parameter for language_fields method"""
+        self.individual.instanceName = "test_individual"
+
+        # Test without required parameter
+        fields = self.individual.language_fields()
+        language_field = fields[0]
+        self.assertNotIn(
+            "required", language_field
+        )  # Should not have required by default
+
+        # Test with required parameter
+        fields = self.individual.language_fields(
+            required={"test_individual.language": True}
+        )
+        language_field = fields[0]
+        self.assertEqual(language_field["required"], True)
+
+        # Test other language field
+        fields = self.individual.language_fields(
+            required={"test_individual.language_other": False}
+        )
+        other_field = fields[1]
+        self.assertEqual(other_field["required"], False)
+
     def test_familiar_with_preferred_name(self):
         """Test familiar() method with preferred_name set."""
         # Setup basic name
