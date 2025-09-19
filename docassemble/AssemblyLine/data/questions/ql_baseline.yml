@@ -1214,6 +1214,12 @@ fields:
     datatype: email
 ---
 id: attorney name and office
+comment: |
+  This question captures basic information about an attorney including
+  their name and the office, law firm, or organization they work for.
+  
+  This is the first of two screens for collecting attorney information.
+  The second screen (attorney id number) collects the attorney's bar number.
 question: |
   What is ${ attorneys[i] }'s name and organization?
 fields:
@@ -1231,6 +1237,12 @@ fields:
       where this attorney works. This field is optional.
 ---
 id: attorney id number
+comment: |
+  This question captures the attorney's bar number or ID number.
+  
+  This is the second of two screens for collecting attorney information.
+  The first screen (attorney name and office) collects the attorney's name
+  and organization information.
 question: |
   What is ${ attorneys[i] }'s ID or bar number?
 subquestion: |
