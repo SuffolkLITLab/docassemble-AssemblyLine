@@ -1498,7 +1498,7 @@ class ALIndividual(Individual):
             List[Dict[str, str]]: A list of dictionaries with field prompts for race and ethnicity.
 
         Note:
-            The default choices are defined in the `al_race_ethnicity_choices` variable in ql_baseline.yml 
+            The default choices are defined in the `al_race_ethnicity_choices` variable in ql_baseline.yml
             and can be customized by redefining this variable in your interview.
         """
         if not choices:
@@ -1523,7 +1523,9 @@ class ALIndividual(Individual):
         ]
 
         if show_help:
-            fields[0]["help"] = "You may select more than one category that applies to you."
+            fields[0][
+                "help"
+            ] = "You may select more than one category that applies to you."
         if show_if:
             fields[0]["show if"] = show_if
 
@@ -1561,7 +1563,7 @@ class ALIndividual(Individual):
             List[Dict[str, str]]: A list of dictionaries with field prompts for age range.
 
         Note:
-            The default choices are defined in the `al_age_range_choices` variable in ql_baseline.yml 
+            The default choices are defined in the `al_age_range_choices` variable in ql_baseline.yml
             and can be customized by redefining this variable in your interview.
         """
         if not choices:
@@ -1617,7 +1619,7 @@ class ALIndividual(Individual):
             List[Dict[str, str]]: A list of dictionaries with field prompts for income range.
 
         Note:
-            The default choices are defined in the `al_income_range_choices` variable in ql_baseline.yml 
+            The default choices are defined in the `al_income_range_choices` variable in ql_baseline.yml
             and can be customized by redefining this variable in your interview.
         """
         if not choices:
@@ -1635,7 +1637,9 @@ class ALIndividual(Individual):
         ]
 
         if show_help:
-            fields[0]["help"] = "Select the range that best describes your household's total income before taxes in the last 12 months."
+            fields[0][
+                "help"
+            ] = "Select the range that best describes your household's total income before taxes in the last 12 months."
         if show_if:
             fields[0]["show if"] = show_if
 
@@ -1673,7 +1677,7 @@ class ALIndividual(Individual):
             List[Dict[str, str]]: A list of dictionaries with field prompts for occupation.
 
         Note:
-            The default choices are defined in the `al_occupation_choices` variable in ql_baseline.yml 
+            The default choices are defined in the `al_occupation_choices` variable in ql_baseline.yml
             and can be customized by redefining this variable in your interview.
         """
         if not choices:
@@ -1698,7 +1702,9 @@ class ALIndividual(Individual):
         ]
 
         if show_help:
-            fields[0]["help"] = "Select the category that best describes your current work or situation."
+            fields[0][
+                "help"
+            ] = "Select the category that best describes your current work or situation."
         if show_if:
             fields[0]["show if"] = show_if
 
