@@ -1,7 +1,27 @@
 /*
- * given a docassemble event name, and text ID containing email address and whether
+ * Helper function to process multiple email addresses from a string
+ * Splits on comma or semicolon and trims whitespace
+ */
+function process_multiple_emails(email_string) {
+  if (!email_string || typeof email_string !== 'string') {
+    return email_string;
+  }
+  
+  // Split on comma or semicolon, trim whitespace, and filter out empty strings
+  var emails = email_string.split(/[,;]/).map(function(email) {
+    return email.trim();
+  }).filter(function(email) {
+    return email.length > 0;
+  });
+  
+  // Return single string if only one email, array if multiple
+  return emails.length === 1 ? emails[0] : emails;
+}
+
+/*
+ * given a docassemble event name, and text ID containing email address(es) and whether
  * or not user wants to send editable files, trigger docassemble event to
- * email an ALDocumentBundle
+ * email an ALDocumentBundle. Supports multiple email addresses separated by commas or semicolons.
  */
 function aldocument_send_action(event_name, wants_editable_id, email_id, template_name="", key="final", preferred_formats=null) {
   var editable = null;
@@ -18,7 +38,8 @@ function aldocument_send_action(event_name, wants_editable_id, email_id, templat
     }
   }
   
-  var email = $('#' + email_id)[0].value;
+  var email_raw = $('#' + email_id)[0].value;
+  var email = process_multiple_emails(email_raw);
   da_action_perform(event_name, {editable: editable, email: email, key:key, template_name: template_name, preferred_formats: final_formats});
 };
 
