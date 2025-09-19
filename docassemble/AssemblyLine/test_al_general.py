@@ -462,6 +462,22 @@ class TestALIndividual(unittest.TestCase):
         self.assertEqual(self.individual.name_short(), "Johnny's Sandwiches")
         self.assertEqual(str(self.individual), "Johnny's Sandwiches")
 
+    def test_attorney_attributes(self):
+        # Test that attorney attributes can be set and retrieved
+        self.individual.bar_number = "123456"
+        self.individual.office_name = "Legal Aid Society"
+        
+        self.assertEqual(self.individual.bar_number, "123456")
+        self.assertEqual(self.individual.office_name, "Legal Aid Society")
+        
+        # Test with empty values
+        attorney2 = ALIndividual()
+        attorney2.bar_number = ""
+        attorney2.office_name = ""
+        
+        self.assertEqual(attorney2.bar_number, "")
+        self.assertEqual(attorney2.office_name, "")
+
 
 class test_get_visible_al_nav_items(unittest.TestCase):
     def test_case_1(self):
