@@ -887,7 +887,8 @@ class ALIndividual(Individual):
 
     This class extends the Individual class and adds more tailored attributes and methods
     relevant for the assembly line project. Specifically, it has attributes for previous addresses,
-    other addresses, mailing addresses, previous names, aliases, and a preferred name.
+    other addresses, mailing addresses, previous names, aliases, a preferred name, and attorney-specific
+    information such as bar number and office name.
 
     Attributes:
         previous_addresses (ALAddressList): List of previous addresses.
@@ -897,6 +898,8 @@ class ALIndividual(Individual):
         previous_names (ALNameList): List of previous names.
         aliases (ALNameList): List of aliases.
         preferred_name (IndividualName): The preferred name.
+        bar_number (str): Attorney bar number or ID number.
+        office_name (str): Name of the attorney's office, law firm, or organization.
 
     Note:
         Objects as attributes should not be passed directly to the constructor due to
@@ -910,6 +913,8 @@ class ALIndividual(Individual):
     previous_names: ALNameList
     aliases: ALNameList
     preferred_name: IndividualName
+    bar_number: str
+    office_name: str
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.

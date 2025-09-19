@@ -1213,13 +1213,30 @@ fields:
   - Email: x.email
     datatype: email
 ---
+id: attorney name and office
+question: |
+  What is ${ attorneys[i] }'s name and organization?
+fields:
+  - First name: attorneys[i].name.first
+  - Middle name: attorneys[i].name.middle
+    required: False
+  - Last name: attorneys[i].name.last
+  - Suffix: attorneys[i].name.suffix
+    code: name_suffix()
+    required: False
+  - Office, law firm, or organization name: attorneys[i].office_name
+    required: False
+    help: |
+      Enter the name of the law firm, legal aid organization, or other office 
+      where this attorney works. This field is optional.
+---
 id: attorney id number
 question: |
   What is ${ attorneys[i] }'s ID or bar number?
 subquestion: |
   ${ collapse_template(help_what_is_attorney_id_template) }
 fields:
-  - Attorney number: attorneys[i].id_number
+  - Attorney number: attorneys[i].bar_number
     required: False
 ---
 template: help_what_is_attorney_id_template
