@@ -1,7 +1,7 @@
 import unittest
 from .al_general import ALIndividual, ALAddress, get_visible_al_nav_items
 from unittest.mock import Mock, patch
-from docassemble.base.util import DADict, DAAttributeError
+from docassemble.base.util import DADict, DAAttributeError, value as da_value
 
 
 class test_aladdress(unittest.TestCase):
@@ -80,6 +80,28 @@ class TestALIndividual(unittest.TestCase):
         self.individual.this_thread = self.this_thread
 
         self.individual.name.first = "John"
+
+        self._value_patcher = patch(
+            "docassemble.AssemblyLine.al_general.value",
+            side_effect=self._mock_value_with_defaults,
+        )
+        self._value_patcher.start()
+
+    def tearDown(self):
+        self._value_patcher.stop()
+
+    def _mock_value_with_defaults(self, variable_name, *args, **kwargs):
+        if variable_name == "al_name_suffixes":
+            return ["Jr.", "Sr."]
+        if variable_name == "al_name_titles":
+            return ["Mr.", "Ms."]
+        if variable_name == "al_pronoun_choices":
+            return [
+                {"He/him/his": "he/him/his"},
+                {"She/her/hers": "she/her/hers"},
+                {"They/them/theirs": "they/them/theirs"},
+            ]
+        return da_value(variable_name, *args, **kwargs)
 
     def test_phone_numbers(self):
         self.assertEqual(self.individual.phone_numbers(), "")
