@@ -162,7 +162,7 @@ subquestion: |
   This can take a few minutes.
 
   <div class="spinner-border text-primary d-flex justify-content-center" role="status">
-      <span class="sr-only">Making documents...</span>
+      <span class="sr-only visually-hidden">Making documents...</span>
   </div>
 event: al_download_waiting_screen
 reload: True
@@ -192,7 +192,7 @@ subquestion: |
   This can take a few minutes.
 
   <div class="spinner-border text-primary d-flex justify-content-center" role="status">
-      <span class="sr-only">Generating preview...</span>
+      <span class="sr-only visually-hidden">Generating preview...</span>
   </div>
 event: al_preview_waiting_screen
 reload: True

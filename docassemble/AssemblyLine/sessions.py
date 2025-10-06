@@ -842,13 +842,13 @@ def interview_list_html(
         table += f"""
         </td>
         <td>
-          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }"><i class="far fa-trash-alt" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only">{ delete_label }</span></a>
+          <a href="{ url_action(delete_action, filename=answer.get("filename"), session=answer.get("key")) }"><i class="far fa-trash-alt" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only visually-hidden">{ delete_label }</span></a>
           """
         if show_view_button:
             table += f"""
                 <a target="_blank" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">
                     <i class="far fa-eye" aria-hidden="true" title="{ view_label }"></i>
-                    <span class="sr-only">{ view_label }</span>
+                    <span class="sr-only visually-hidden">{ view_label }</span>
                 </a>
             """
         table += """
@@ -1133,7 +1133,7 @@ def session_list_html(
         <td class="al-progress-box">{ radial_progress(answer) }
         </td>
         <td>
-          <a class="al-sessions-action-rename" href="{ url_ask_rename }"><i class="fa-solid fa-tag" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only">{ rename_label }</span></a>
+          <a class="al-sessions-action-rename" href="{ url_ask_rename }"><i class="fa-solid fa-tag" aria-hidden="true" title="{ rename_label }"></i><span class="sr-only visually-hidden">{ rename_label }</span></a>
         """
         if (
             get_config("assembly line", {}).get("enable answer sets")
@@ -1141,11 +1141,11 @@ def session_list_html(
         ):
             table += f"""
           &nbsp;
-          <a class="al-sessions-actions-clone" href="{ url_ask_copy }"><i class="fa-regular fa-clone" aria-hidden="true" title="{clone_label}"></i><span class="sr-only">{ clone_label }</span></a>
+          <a class="al-sessions-actions-clone" href="{ url_ask_copy }"><i class="fa-regular fa-clone" aria-hidden="true" title="{clone_label}"></i><span class="sr-only visually-hidden">{ clone_label }</span></a>
           """
         table += f"""
           &nbsp;
-          <a href="{ url_ask_delete }" class="text-danger al-delete-session"><i class="far fa-trash-alt text-danger" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only">{ delete_label }</span></a>
+          <a href="{ url_ask_delete }" class="text-danger al-delete-session"><i class="far fa-trash-alt text-danger" title="{ delete_label }" aria-hidden="true"></i><span class="sr-only visually-hidden">{ delete_label }</span></a>
         </td>
         """
         table += "</tr>"
