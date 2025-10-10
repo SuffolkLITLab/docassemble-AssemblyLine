@@ -41,3 +41,16 @@ Scenario: Can enter all parts of contact info
   And I set the variable "users[0].mobile_number" to "617-555-5555"
   And I tap to continue
   Then I should see the phrase "All done!"
+
+@alql @ql4
+Scenario: Can enter demographic information
+  Given the max seconds for each step is 50
+  And I start the interview at "test_question_library"
+  Then I set the variable "which_to_test" to "demographics"
+  And I tap to continue
+  And I set the variable "users[0].race_ethnicity['white']" to "True"
+  And I set the variable "users[0].age_range" to "25_34"
+  And I set the variable "users[0].income_range" to "50k_74k"
+  And I set the variable "users[0].occupation" to "service"
+  And I tap to continue
+  Then I should see the phrase "All done!"
