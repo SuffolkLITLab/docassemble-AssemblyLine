@@ -803,12 +803,12 @@ class ALPeopleList(DAList):
             [person.familiar(**kwargs) for person in self], and_string=word("or")
         )
 
-    def short_list(self, limit: int, truncate_string: str = ", et. al.") -> str:
-        """Return a subset of the list, truncated with 'et. al.' if it exceeds a given limit.
+    def short_list(self, limit: int, truncate_string: str = ", et al.") -> str:
+        """Return a subset of the list, truncated with 'et al.' if it exceeds a given limit.
 
         Args:
             limit (int): The maximum number of items to display before truncating.
-            truncate_string (str, optional): The string to append when truncating. Defaults to ', et. al.'.
+            truncate_string (str, optional): The string to append when truncating. Defaults to ', et al.'.
 
         Returns:
             str: Formatted string of names, truncated if needed.
