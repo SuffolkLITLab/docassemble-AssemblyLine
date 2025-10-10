@@ -465,9 +465,19 @@ class TestALIndividual(unittest.TestCase):
     def test_name_fields_required(self):
         """Test the required parameter for name_fields method"""
         self.individual.instanceName = "test_individual"
+        self.individual.first_name_label = "First name"
+        self.individual.middle_name_label = "Middle name"
+        self.individual.last_name_label = "Last name"
+        self.individual.suffix_label = "Suffix"
+        self.individual.title_label = "Title"
+        self.individual.business_name_label = "Business name"
 
         # Test without required parameter - middle name should default to False
-        fields = self.individual.name_fields(person_or_business="person")
+        fields = self.individual.name_fields(
+            person_or_business="person",
+            title_choices=["a title"],
+            suffix_choices=["Jr.", "Sr."],
+        )
         middle_field = None
         for field in fields:
             if "middle" in field["field"]:
@@ -478,7 +488,10 @@ class TestALIndividual(unittest.TestCase):
 
         # Test with required parameter making middle name required
         fields = self.individual.name_fields(
-            person_or_business="person", required={"test_individual.name.middle": True}
+            person_or_business="person",
+            required={"test_individual.name.middle": True},
+            title_choices=["a title"],
+            suffix_choices=["Jr.", "Sr."],
         )
         middle_field = None
         for field in fields:
@@ -490,7 +503,10 @@ class TestALIndividual(unittest.TestCase):
 
         # Test business case with required parameter
         fields = self.individual.name_fields(
-            person_or_business="business", required={"test_individual.name.first": True}
+            person_or_business="business",
+            required={"test_individual.name.first": True},
+            title_choices=["a title"],
+            suffix_choices=["Jr.", "Sr."],
         )
         business_field = fields[0]
         self.assertEqual(business_field["required"], True)
@@ -498,6 +514,14 @@ class TestALIndividual(unittest.TestCase):
     def test_gender_fields_required(self):
         """Test the required parameter for gender_fields method"""
         self.individual.instanceName = "test_individual"
+        self.individual.gender_female_label = "Female"
+        self.individual.gender_male_label = "Female"
+        self.individual.gender_nonbinary_label = "Non-binary"
+        self.individual.gender_prefer_not_to_say_label = "Prefer not to say"
+        self.individual.gender_prefer_self_described_label = "Prefer self-described"
+        self.individual.gender_unknown_label = "Unknown"
+        self.individual.gender_self_described_label = "Self described"
+        self.individual.gender_label = "Gender"
 
         # Test without required parameter
         fields = self.individual.gender_fields()
@@ -521,38 +545,52 @@ class TestALIndividual(unittest.TestCase):
     def test_pronoun_fields_required(self):
         """Test the required parameter for pronoun_fields method (both bool and dict)"""
         self.individual.instanceName = "test_individual"
+        self.individual.pronoun_prefer_self_described_label = "Something else"
+        self.individual.pronoun_unknown_label = "Unknown"
+        self.individual.pronoun_self_described_label = "Self described pronouns"
+        self.individual.pronouns_label = "Self described pronouns"
+        self.individual.pronoun_prefer_not_to_say_label = "Prefer not to say"
 
         # Test with boolean required parameter (existing behavior)
-        fields = self.individual.pronoun_fields(required=True)
+        fields = self.individual.pronoun_fields(
+            required=True, choices=[{"They/them/theirs": "they/them/theirs"}]
+        )
         pronoun_field = fields[0]
         self.assertEqual(pronoun_field["required"], True)
 
         # Test with boolean required parameter = False
-        fields = self.individual.pronoun_fields(required=False)
+        fields = self.individual.pronoun_fields(
+            required=False, choices=[{"They/them/theirs": "they/them/theirs"}]
+        )
         pronoun_field = fields[0]
         self.assertEqual(pronoun_field["required"], False)
 
         # Test with dictionary required parameter (new behavior)
         fields = self.individual.pronoun_fields(
-            required={"test_individual.pronouns": True}
+            required={"test_individual.pronouns": True},
+            choices=[{"They/them/theirs": "they/them/theirs"}],
         )
         pronoun_field = fields[0]
         self.assertEqual(pronoun_field["required"], True)
 
         # Test with dictionary required parameter for different field
         fields = self.individual.pronoun_fields(
-            required={"test_individual.pronouns_self_described": True}
+            required={"test_individual.pronouns_self_described": True},
+            choices=[{"They/them/theirs": "they/them/theirs"}],
         )
         pronoun_field = fields[0]
         self_described_field = fields[1]
         self.assertEqual(
-            pronoun_field["required"], False
+            pronoun_field["required"],
+            False,
         )  # First field should still be False
         self.assertEqual(self_described_field["required"], True)
 
     def test_language_fields_required(self):
         """Test the required parameter for language_fields method"""
         self.individual.instanceName = "test_individual"
+        self.individual.language_other_label = "Other language"
+        self.individual.language_label = "Language"
 
         # Test without required parameter
         fields = self.individual.language_fields()
