@@ -1,0 +1,753 @@
+ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير موجود', (%s uncompressed): (%s
+    غير مضغوط), (Deleted): (محذوف), (New branch): (فرع جديد), (New file): (ملف جديد),
+  (Not a DAFile or DAFileList object): (ليس كائن DAFile أو DAFileList), '(Not a DAFile, DAFileList, or list object)': (ليس
+    DAFile أو DAFileList أو كائن قائمة), (Not a readable image file): (ملف صورة غير
+    قابل للقراءة), (Unable to display map): (غير قادر على عرض الخريطة), (Unable to extract images from PDF file): (غير
+    قادر على استخراج الصور من ملف PDF), '(embedded question, source code not available)': (سؤال
+    مضمن، كود المصدر غير متوفر), (no subject): (لا يوجد موضوع), (term definition): (تعريف
+    المصطلح), (using your email address) and change your password.: (باستخدام عنوان
+    بريدك الإلكتروني) وتغيير كلمة المرور الخاصة بك., ', are attached': ، يتم إرفاقها,
+  ', is already in use by someone else': ، قيد الاستخدام بالفعل من قبل شخص آخر, ', is attached': ،
+    مرفق, -- Do not link --: -- لا تربط --, .: ., 404 Not Found: 404 غير موجود, ? '<strong>This
+    is the only time you will be able to see your API key</strong>, so make sure to
+    make a note of it and keep it in a secure place.' : <strong>هذه هي المرة الوحيدة
+    التي ستتمكن فيها من رؤية مفتاح API الخاص بك</strong> ، لذا تأكد من تدوينه وحفظه
+    في مكان آمن., '?': ؟, A confirmation email has been sent to %(email)s with instructions to complete your registration.: لقد
+    تم إرسال بريد إلكتروني للتأكيد إلى %(email)s يتضمن التعليمات لإكمال التسجيل.,
+  'A new docassemble system version is available.  If you are using Docker, install a new Docker image.': يتوفر
+    إصدار جديد من نظام Docker. إذا كنت تستخدم Docker، وثبّت صورة Docker جديدة., A reset password email has been sent to '%(email)s'. Open that email and follow the instructions to reset your password.: تم
+    إرسال رسالة بريد إلكتروني لإعادة تعيين كلمة المرور إلى '%(email)s'. افتح هذه الرسالة
+    واتبع التعليمات لإعادة تعيين كلمة المرور., A user with that e-mail has already registered: لقد
+    قام المستخدم الذي لديه هذا البريد الإلكتروني بالتسجيل بالفعل, 'A valid SPDX identifier must be provided, e.g., MIT, GPL-3.0, Apache-2.0.': يجب
+    توفير معرف SPDX صالح، على سبيل المثال، MIT، GPL-3.0، Apache-2.0., API Keys: مفاتيح
+    API, API key: مفتاح API, API key copied to clipboard.: تم نسخ مفتاح API إلى الحافظة.,
+  API keys: مفاتيح API, Access organizational repositories: الوصول إلى مستودعات المنظمة,
+  Access shared repositories: الوصول إلى المستودعات المشتركة, Account did not exist.: الحساب
+    غير موجود., Account disabled: تم تعطيل الحساب, Action: فعل, Actions: الإجراءات,
+  Activate chat: تفعيل الدردشة, Active: نشيط, Active File: الملف النشط, Actual: فِعلي,
+  Add: يضيف, Add Email: إضافة بريد إلكتروني, Add Privilege: إضافة امتياز, Add User: إضافة
+    مستخدم, Add a New API Key: إضافة مفتاح API جديد, Add a New Project: إضافة مشروع
+    جديد, Add a new privilege: إضافة امتياز جديد, Add a user: إضافة مستخدم, Add an item: إضافة
+    عنصر, Add another: أضف آخر, Administrator: المسؤول, Administrator privilege: امتياز
+    المسؤول, Advocate privilege: امتياز المحامي, Afghanistan: أفغانستان, Albania: ألبانيا,
+  Algeria: الجزائر, All Playgrounds: جميع الملاعب, All of the above: كل ما سبق, Allowed sites: المواقع
+    المسموح بها, 'Already registered?': هل قمت بالتسجيل بالفعل؟, 'Already registered? Sign in.': هل
+    قمت بالتسجيل بالفعل؟ قم بتسجيل الدخول., American Samoa: ساموا الأمريكية, ? 'An
+    SSH key is already installed on your GitHub account. The existing SSH key will
+    not be replaced. Note that if you are connecting to GitHub from multiple docassemble
+    servers, each server needs to have a different appname in the Configuration. If
+    you have problems using GitHub, disable the integration and configure it again.'
+  : تم تثبيت مفتاح SSH بالفعل على حساب GitHub الخاص بك. لن يتم استبدال مفتاح SSH الحالي.
+    يُرجى ملاحظة أنه إذا كنت تتصل بـ GitHub من خوادم docassemble متعددة، فيجب أن يكون
+    لكل خادم اسم تطبيق مختلف في ملف التكوين. إذا واجهت مشاكل في استخدام GitHub، فعطّل
+    التكامل وأعد تكوينه., An e-mail address is required.: يجب أن يكون لديك عنوان بريد
+    إلكتروني., An uploaded JSON file: ملف JSON تم تحميله, Andorra: أندورا, Angola: أنغولا,
+  Anguilla: أنغيلا, Anonymous: مجهول, Answer here: الإجابة هنا, Antarctica: القارة
+    القطبية الجنوبية, Antigua and Barbuda: أنتيغوا وباربودا, App: برنامج, Apply: يتقدم,
+  'Are you sure that you want to delete this file?': هل أنت متأكد أنك تريد حذف هذا
+    الملف؟, 'Are you sure that you want to delete this package?': هل أنت متأكد أنك
+    تريد حذف هذه الحزمة؟, 'Are you sure that you want to delete this playground file?': هل
+    أنت متأكد أنك تريد حذف ملف الملعب هذا؟, 'Are you sure you want to delete all saved interviews?': هل
+    أنت متأكد أنك تريد حذف كافة المقابلات المحفوظة؟, 'Are you sure you want to delete this item?': هل
+    أنت متأكد أنك تريد حذف هذا العنصر؟, 'Are you sure you want to permanently delete this user''s account?': هل
+    أنت متأكد أنك تريد حذف حساب هذا المستخدم نهائيًا؟, Argentina: الأرجنتين, Armenia: أرمينيا,
+  Aruba: أروبا, At least one e-mail address must be listed: يجب إدراج عنوان بريد إلكتروني
+    واحد على الأقل, Attachment: مرفق, Attachments: المرفقات, Australia: أستراليا,
+  Austria: النمسا, Authentication: المصادقة, Authentication failed.: فشل المصادقة.,
+  Author E-mail: البريد الإلكتروني للمؤلف, Author Name: اسم المؤلف, Autocomplete: الإكمال
+    التلقائي, Available: متاح, Available Interviews: المقابلات المتاحة, Available for chat: متاح
+    للدردشة, Available interviews: المقابلات المتاحة, Azerbaijan: أذربيجان, Back: خلف,
+  Back to Playground: العودة إلى الملعب, Back to profile: العودة إلى الملف الشخصي,
+  Back to question: العودة إلى السؤال, Back to user list: العودة إلى قائمة المستخدمين,
+  Bad date: تاريخ سيء, Bad file format: تنسيق الملف سيئ, Bahamas: جزر البهاما, Bahrain: البحرين,
+  Bangladesh: بنغلاديش, Barbados: بربادوس, Belarus: بيلاروسيا, Belgium: بلجيكا, Belize: بليز,
+  Benin: بنين, Bermuda: برمودا, Bhutan: بوتان, Block: حاجز, 'Bolivia, Plurinational State of': بوليفيا،
+    دولة بوليفيا المتعددة القوميات, 'Bonaire, Sint Eustatius and Saba': بونير، سينت
+    أوستاتيوس وسابا, Bosnia and Herzegovina: البوسنة والهرسك, Botswana: بوتسوانا,
+  Bouvet Island: جزيرة بوفيت, Branch: فرع, Brazil: البرازيل, British Indian Ocean Territory: إقليم
+    المحيط الهندي البريطاني, Browse Other Playgrounds: تصفح الملاعب الأخرى, Brunei Darussalam: بروناي
+    دار السلام, Bulgaria: بلغاريا, Burkina Faso: بوركينا فاسو, Burundi: بوروندي, Cabo Verde: الرأس
+    الأخضر, Cambodia: كمبوديا, Cameroon: الكاميرون, Canada: كندا, Cancel: يلغي, Case No.: رقم
+    القضية, Cayman Islands: جزر كايمان, Central African Republic: جمهورية أفريقيا
+    الوسطى, Chad: تشاد, Change: يتغير, Change Password: تغيير كلمة المرور, Change password: تغيير
+    كلمة المرور, Change username: تغيير اسم المستخدم, Changed name of interview: تم
+    تغيير اسم المقابلة, Chat message you want to send: رسالة الدردشة التي تريد إرسالها,
+  'Check at least one option, or check “%s”': حدد خيارًا واحدًا على الأقل، أو حدد
+    &quot;%s&quot;, Check box: مربع الاختيار, Check if applicable: تحقق إذا كان ذلك
+    ينطبق, Chile: تشيلي, China: الصين, 'Choices (choose one):': 'الاختيارات (اختر
+    واحدة):', 'Choices:': 'الخيارات:', Christmas Island: جزيرة الكريسماس, Classes: الفصول
+    الدراسية, Clear: واضح, Click here to confirm your e-mail: انقر هنا لتأكيد بريدك
+    الإلكتروني, Click here to get help over the phone.: انقر هنا للحصول على المساعدة
+    عبر الهاتف., Click if you want the user to be able to call you.: انقر هنا إذا
+    كنت تريد أن يتمكن المستخدم من الاتصال بك., Click interview title to resume an interview you already started.: انقر
+    على عنوان المقابلة لاستئناف المقابلة التي بدأتها بالفعل., Click to change your status to available: انقر
+    هنا لتغيير حالتك إلى متاحة, Click to change your status to not available: انقر
+    هنا لتغيير حالتك إلى غير متاح, Click to try this interview: انقر لتجربة هذه المقابلة,
+  Close: يغلق, Cocos (Keeling) Islands: جزر كوكوس (كيلينغ), Colombia: كولومبيا, Commit: يقترف,
+  Commit message: رسالة الالتزام, Comoros: جزر القمر, Configuration: إعدادات, Configuration YAML: تكوين
+    YAML, Configuration not updated.: لم يتم تحديث التكوين., Configuration not updated.  There was a syntax error in the configuration YAML.: لم
+    يتم تحديث التكوين. حدث خطأ لغوي في ملف YAML الخاص بالتكوين., Configuration not updated.  There was an error.: لم
+    يتم تحديث التكوين. حدث خطأ., Configure: تكوين, Confirm your email: تأكيد بريدك
+    الإلكتروني, Confirmation Date: تاريخ التأكيد, Congo: الكونغو, 'Congo, The Democratic Republic of the': الكونغو،
+    جمهورية الكونغو الديمقراطية, Connect: يتصل, Connected to Google Drive: متصل بـ
+    Google Drive, Connected to OneDrive: متصل بـ OneDrive, Connected to server.: متصل
+    بالخادم., Continue: يكمل, Control: يتحكم, Convert to .md: تحويل إلى .md, Cook Islands: جزر
+    كوك, Copy API key: نسخ مفتاح API, 'Copy from here and paste into a YAML file, e.g., in the Sources folder of the Playground or the sources folder of a package.': انسخ
+    من هنا وألصق في ملف YAML، على سبيل المثال، في مجلد المصادر في Playground أو مجلد
+    المصادر في الحزمة., Costa Rica: كوستاريكا, Could not create new key: لم يتمكن
+    من إنشاء مفتاح جديد, Country Code: رمز الدولة, Country code: رمز الدولة, Create: يخلق,
+  Create Package: إنشاء الحزمة, Create a new file: إنشاء ملف جديد, Create a new interview: إنشاء
+    مقابلة جديدة, Create a new package: إنشاء حزمة جديدة, Create a new project: إنشاء
+    مشروع جديد, Create an interview with the wizard: إنشاء مقابلة مع المعالج, 'Created new Markdown file called ': 'تم
+    إنشاء ملف Markdown جديد يسمى ', Croatia: كرواتيا, Cuba: كوبا, Curaçao: كوراساو,
+  Current: حاضِر, Cyprus: قبرص, Czechia: جمهورية التشيك, Decorations: الزخارف, Default Playground: ملعب
+    افتراضي, Defined in: مُعرَّف في, Delete: يمسح, Delete Account: حذف الحساب, Delete All: حذف
+    الكل, Delete account and shared sessions: حذف الحساب والجلسات المشتركة, Delete account but keep shared sessions: حذف
+    الحساب ولكن الاحتفاظ بالجلسات المشتركة, Delete project: حذف المشروع, Delete this package from the Playground: حذف
+    هذه الحزمة من الملعب, 'Deleted file: ': 'الملف المحذوف: ', Deleted interview: مقابلة
+    محذوفة, Deleted interviews: المقابلات المحذوفة, Deleted package: الحزمة المحذوفة,
+  Denmark: الدنمارك, Dependencies: التبعيات, Description: وصف, Developer Access: وصول
+    المطور, Developer privilege: امتياز المطور, Disable: إبطال, Disable two-factor authentication: تعطيل
+    المصادقة الثنائية, Display the menu: عرض القائمة, Djibouti: جيبوتي, Do not stop your web browser.: لا
+    تتوقف عن تصفح الويب الخاص بك., Docassemble Office Add-in: الوظيفة الإضافية لـ
+    Docassemble Office, Docassemble Playground: ملعب دوكاسيمبل, Document: وثيقة, Documentation: التوثيق,
+  Dominica: دومينيكا, Dominican Republic: جمهورية الدومينيكان, Download: تحميل, Download All: تنزيل
+    الكل, Download Office add-in manifest file: تنزيل ملف بيان الوظيفة الإضافية لـ
+    Office, Download all documents as a ZIP file: تنزيل جميع المستندات كملف ZIP, Download all files: تنزيل
+    جميع الملفات, Download an interview phrase translation file: تنزيل ملف ترجمة عبارة
+    المقابلة, Download installed package: تنزيل الحزمة المثبتة, Download the current package: تنزيل
+    الحزمة الحالية, Download this document as a ZIP file: تنزيل هذا المستند كملف ZIP,
+  Download this file: تنزيل هذا الملف, Download this log file: تنزيل ملف السجل هذا,
+  Draft translation of system phrases: مسودة ترجمة عبارات النظام, Dropdown: اسقاط,
+  E-mail: بريد إلكتروني, E-mail address: عنوان البريد الإلكتروني, E-mail address is required: عنوان
+    البريد الإلكتروني مطلوب, E-mail addresses with this domain are not authorized to register for accounts on this system.: لا
+    يُسمح لعناوين البريد الإلكتروني التي تحمل هذا النطاق بالتسجيل للحصول على حسابات
+    على هذا النظام., E-mail is required: البريد الإلكتروني مطلوب, E-mail these documents: إرسال
+    هذه المستندات عبر البريد الإلكتروني, E-mail this document: إرسال هذه الوثيقة عبر
+    البريد الإلكتروني, E-mail was sent to: تم إرسال البريد الإلكتروني إلى, 'E.g., docassemble.demo:data/questions/questions.yml': 'على
+    سبيل المثال، docassemble.demo:data/questions/questions.yml', 'E.g., es, fr, it': على
+    سبيل المثال، es، fr، it, 'ERROR: you cannot insert a table into a .docx document': 'خطأ:
+    لا يمكنك إدراج جدول في مستند .docx', Ecuador: الإكوادور, Edit: يحرر, Edit API Key: تعديل
+    مفتاح API, Edit User Profile: تعديل ملف تعريف المستخدم, Edit another file: تعديل
+    ملف آخر, Edit another interview: تعديل مقابلة أخرى, Edit another package: تعديل
+    حزمة أخرى, Edit module files: تحرير ملفات الوحدة النمطية, Edit privileges: تحرير
+    الامتيازات, Edit source files: تحرير ملفات المصدر, Edit text files: تحرير ملفات
+    النصوص, Egypt: مصر, El Salvador: السلفادور, Email: بريد إلكتروني, Email Confirmation: تأكيد
+    البريد الإلكتروني, Email address is required: عنوان البريد الإلكتروني مطلوب, Email is required: البريد
+    الإلكتروني مطلوب, Embed test: اختبار التضمين, Enter: يدخل, ? 'Enter a URL of a
+    GitHub repository containing an extension package.  When you press Pull, the contents
+    of that repository will be copied into the Playground, overwriting any files with
+    the same names.  Or, put in the name of a PyPI package and it will do the same
+    with the package on PyPI.' : أدخل رابطًا لمستودع GitHub يحتوي على حزمة امتداد.
+    عند الضغط على زر &quot;سحب&quot;، سيتم نسخ محتويات هذا المستودع إلى Playground،
+    مع استبدال أي ملفات تحمل نفس الأسماء. أو أدخل اسم حزمة PyPI، وسيفعل الشيء نفسه
+    مع الحزمة على PyPI., Enter code: أدخل الرمز, Enter the name of the new project you want to create.: أدخل
+    اسم المشروع الجديد الذي تريد إنشاءه., 'Entering a different interview.  To go back to your previous interview, go to My Interviews on the menu.': الدخول
+    إلى مقابلة أخرى. للعودة إلى مقابلتك السابقة، انتقل إلى &quot;مقابلاتي&quot; في
+    القائمة., 'Entering a different interview.  To go back to your previous interview, log in to see a list of your interviews.': الدخول
+    إلى مقابلة أخرى. للعودة إلى مقابلتك السابقة، سجّل الدخول للاطلاع على قائمة مقابلاتك.,
+  Equatorial Guinea: غينيا الاستوائية, Erase existing data for each model before importing: مسح
+    البيانات الموجودة لكل نموذج قبل الاستيراد, Eritrea: إريتريا, Error: خطأ, Error reading JSON file from package.  File did not exist.: خطأ
+    في قراءة ملف JSON من الحزمة. الملف غير موجود., Error reading JSON file.  Not a valid JSON file.: خطأ
+    في قراءة ملف JSON. ملف JSON غير صالح., Error reading JSON file.  The JSON file needs to contain a dictionary at the root level.: حدث
+    خطأ أثناء قراءة ملف JSON. يجب أن يحتوي ملف JSON على قاموس على مستوى الجذر., 'Error: interview not found': 'خطأ:
+    لم يتم العثور على المقابلة', 'Error: interview not found and answers could not be decrypted': 'خطأ:
+    لم يتم العثور على المقابلة ولم يتم فك تشفير الإجابات', 'Error: menu item is not a Python dict with keys of url and label': 'خطأ:
+    عنصر القائمة ليس قاموس بايثون بمفاتيح عنوان URL والتسمية', 'Error: menu_items is not a Python list': 'خطأ:
+    menu_items ليست قائمة Python', 'Error: no fields could be found in the file': 'خطأ:
+    لم يتم العثور على أي حقول في الملف', Errors: الأخطاء, Estonia: إستونيا, Eswatini: إيسواتيني,
+  Ethiopia: أثيوبيا, Every Two Weeks: كل اسبوعين, Existing module files: ملفات الوحدة
+    النمطية الموجودة, Existing source files: ملفات المصدر الموجودة, Existing static files: الملفات
+    الثابتة الموجودة, Existing template files: ملفات القالب الموجودة, Exit: مخرج,
+  Failed to load report: فشل تحميل التقرير, Falkland Islands (Malvinas): جزر فوكلاند
+    (مالفيناس), Faroe Islands: جزر فارو, Field cannot contain HTML: لا يمكن أن يحتوي
+    الحقل على HTML, Fiji: فيجي, File: ملف, File Name: اسم الملف, File Text: نص الملف,
+  'File could not be converted: ': 'لم يتم تحويل الملف: ', File deleted.: تم حذف الملف.,
+  'File format not understood: ': 'تنسيق الملف غير مفهوم: ', File name: اسم الملف,
+  File not deleted.  There was an error.: لم يتم حذف الملف. حدث خطأ., 'File not found: ': 'لم
+    يتم العثور على الملف: ', File to upload: الملف للتحميل, Files: الملفات, Files to include: الملفات
+    المراد تضمينها, Filter For: مرشح ل, Filter by tag: تصفية حسب العلامة, Filter for: مرشح
+    ل, Finland: فنلندا, First Subdivision: القسم الفرعي الأول, First name: الاسم الأول,
+  First subdivision: التقسيم الفرعي الأول, Floor: أرضية, Folder: مجلد, Folders: المجلدات,
+  Forgot Password: هل نسيت كلمة السر, Forgot password: هل نسيت كلمة السر, 'Forgot your Password?': نسيت
+    كلمة السر؟, Formula: صيغة, France: فرنسا, French Guiana: غيانا الفرنسية, French Polynesia: بولينيزيا
+    الفرنسية, French Southern Territories: الأقاليم الجنوبية الفرنسية, From: من, Functions: الوظائف,
+  Gabon: الجابون, Gambia: غامبيا, Georgia: جورجيا, Germany: ألمانيا, Get help through live chat by clicking here.: احصل
+    على المساعدة عبر الدردشة المباشرة بالضغط هنا., Get list of fields from PDF/DOCX template: احصل
+    على قائمة الحقول من قالب PDF/DOCX, Get package: احصل على الحزمة, Get template: احصل
+    على القالب, Ghana: غانا, Gibraltar: جبل طارق, GitHub: جيثب, GitHub Branch: فرع
+    جيثب, GitHub Commit: التزام GitHub, GitHub Integration: تكامل GitHub, GitHub URL: رابط
+    جيثب, GitHub integration: تكامل GitHub, GitHub integration was successfully configured.: تم
+    تكوين تكامل GitHub بنجاح., GitHub integration was successfully disconnected.: تم
+    قطع تكامل GitHub بنجاح., Global: عالمي, Global models: النماذج العالمية, Go: يذهب,
+  Go back to the main Playground page: العودة إلى الصفحة الرئيسية للملعب, Go back to the previous question: العودة
+    إلى السؤال السابق, Google Drive: جوجل درايف, Google Drive Sync: مزامنة جوجل درايف,
+  Google Drive Test: اختبار جوجل درايف, Google Drive is not configured: لم يتم تكوين
+    Google Drive, Google Drive is not linked.: لم يتم ربط Google Drive., Google Drive synchronization: مزامنة
+    Google Drive, Greece: اليونان, Greenland: جرينلاند, Grenada: غرينادا, Guadeloupe: غوادلوب,
+  Guam: غوام, Guatemala: غواتيمالا, Guernsey: غيرنزي, Guinea: غينيا, Guinea-Bissau: غينيا
+    بيساو, Guyana: غيانا, Haiti: هايتي, Heard Island and McDonald Islands: جزيرة هيرد
+    وجزر ماكدونالد, Help: يساعد, Help is available: المساعدة متاحة, Help is available for this question: المساعدة
+    متاحة لهذا السؤال, Help with this question: مساعدة في هذا السؤال, Here is some content after the interview.: وهنا
+    بعض المحتوى بعد المقابلة., Here is some content before the interview.: وهنا بعض
+    المحتوى قبل المقابلة., Here is the start of a YAML file you can import with a 'words' directive in your Configuration.: هذه
+    هي بداية ملف YAML الذي يمكنك استيراده باستخدام التوجيه &quot;words&quot; في التكوين
+    الخاص بك., Here is your document.: وهنا مستندك., Hide context of example: إخفاء
+    سياق المثال, Hide entries that are already classified: إخفاء الإدخالات المصنفة
+    بالفعل, Hide import controls: إخفاء عناصر التحكم في الاستيراد, History: تاريخ,
+  Holy See (Vatican City State): الكرسي الرسولي (دولة مدينة الفاتيكان), Home Page: الصفحة
+    الرئيسية, Honduras: هندوراس, Hong Kong: هونغ كونغ, How question came to be asked: كيف
+    تم طرح السؤال, How this question came to be asked: كيف جاء هذا السؤال؟, 'How would you like the data to be imported?': كيف
+    تريد أن يتم استيراد البيانات؟, Hungary: هنغاريا, I: أنا, I am sorry.  The code you entered is invalid or expired.  Goodbye.: عذرًا.
+    الرمز الذي أدخلته غير صالح أو منتهي الصلاحية. مع السلامة., I do not understand what you mean by: لا
+    أفهم ماذا تقصد بـ, I don't know: لا أعرف, IP Address: عنوان IP, Iceland: أيسلندا,
+  'If no items are selected, user privileges will determine permissions of the API key.': إذا
+    لم يتم تحديد أي عناصر، فسوف تحدد امتيازات المستخدم أذونات مفتاح API., 'If you did not initiate this confirmation, you may safely ignore this email.': إذا
+    لم تقم أنت ببدء هذا التأكيد، فيمكنك تجاهل هذا البريد الإلكتروني بأمان., 'If you did not initiate this password change,': إذا
+    لم تكن أنت من بدأ تغيير كلمة المرور هذه،, 'If you did not initiate this password change, click the link below to reset it.': إذا
+    لم تقم أنت ببدء تغيير كلمة المرور هذه، فانقر فوق الرابط أدناه لإعادة تعيينها.,
+  'If you did not initiate this password reset, you may safely ignore this email.': إذا
+    لم تقم أنت ببدء عملية إعادة تعيين كلمة المرور هذه، فيمكنك تجاهل هذا البريد الإلكتروني
+    بأمان., 'If you did not initiate this registration, you may safely ignore this email.': إذا
+    لم تقم أنت ببدء هذا التسجيل، فيمكنك تجاهل هذا البريد الإلكتروني بأمان., 'If you did not initiate this username change, please': إذا
+    لم تكن أنت من بدأ تغيير اسم المستخدم هذا، فيرجى, 'If you did not initiate this username change, please sign in (using your email address) and change your password.': إذا
+    لم تكن أنت من بدأ تغيير اسم المستخدم هذا، فيرجى تسجيل الدخول (باستخدام عنوان بريدك
+    الإلكتروني) وتغيير كلمة المرور الخاصة بك., ? 'If you have a GitHub account, you
+    can turn on GitHub integration.  This will allow you to use GitHub as a version
+    control system for packages from inside the Playground.' : إذا كان لديك حساب GitHub،
+    يمكنك تفعيل تكامل GitHub. سيسمح لك هذا باستخدام GitHub كنظام للتحكم في إصدارات
+    الحزم من داخل Playground., 'If you initiated this confirmation, please click on the link below:': 'إذا
+    كنت أنت من بدأ هذا التأكيد، يرجى النقر على الرابط أدناه:', 'If you initiated this registration, please click on the link below to sign in to your existing account:': 'إذا
+    قمت ببدء هذا التسجيل، يرجى النقر فوق الرابط أدناه لتسجيل الدخول إلى حسابك الحالي:',
+  'If you initiated this registration, please click on the link below:': 'إذا كنت
+    أنت من بدأ هذا التسجيل، يرجى الضغط على الرابط أدناه:', 'If you initiated this registration, please visit the link below to sign in to your existing account:': 'إذا
+    قمت ببدء هذا التسجيل، يرجى زيارة الرابط أدناه لتسجيل الدخول إلى حسابك الحالي:',
+  'If you initiated this registration, please visit the link below:': 'إذا قمت ببدء
+    هذا التسجيل، يرجى زيارة الرابط أدناه:', 'If you initiated this request, please click on the link below:': 'إذا
+    كنت أنت من بدأ هذا الطلب، يرجى الضغط على الرابط أدناه:', Import: يستورد, Import method: طريقة
+    الاستيراد, Import training data from a JSON file: استيراد بيانات التدريب من ملف
+    JSON, Include DOCX and Markdown files for editing: تضمين ملفات DOCX و Markdown
+    للتحرير, Include DOCX file for editing: تضمين ملف DOCX للتحرير, Include DOCX files for editing: تضمين
+    ملفات DOCX للتحرير, Include Markdown file for editing: تضمين ملف Markdown للتحرير,
+  Include Markdown files for editing: تضمين ملفات Markdown للتحرير, Include RTF and DOCX files for editing: تضمين
+    ملفات RTF وDOCX للتحرير, Include RTF and Markdown files for editing: تضمين ملفات
+    RTF و Markdown للتحرير, Include RTF file for editing: تضمين ملف RTF للتحرير, Include RTF files for editing: تضمين
+    ملفات RTF للتحرير, Incorrect %(username_or_email)s and/or Password: '%(اسم المستخدم
+    أو البريد الإلكتروني) و/أو كلمة المرور غير صحيحة', Incorrect Email and/or Password: البريد
+    الإلكتروني و/أو كلمة المرور غير صحيحة, Incorrect Password: كلمة المرور غير صحيحة,
+  India: الهند, Indonesia: أندونيسيا, Information: معلومة, Information for the developer: معلومات
+    للمطور, Input: مدخل, Input box: مربع الإدخال, Input not processed because the page expired.: لم
+    تتم معالجة الإدخال بسبب انتهاء صلاحية الصفحة., Input not processed because the question changed.  Please continue.: لم
+    تتم معالجة الإدخال بسبب تغيير السؤال. يُرجى المتابعة., Input not processed.  Please try again.: لم
+    تتم معالجة الإدخال. يُرجى المحاولة مرة أخرى., Insert: إدراج, Install: ثَبَّتَ,
+  Install or update a package: تثبيت أو تحديث الحزمة, Install package on this server: تثبيت
+    الحزمة على هذا الخادم, Install package on this server also: قم بتثبيت الحزمة على
+    هذا الخادم أيضًا, Interview: مقابلة, Interview Progress: تقدم المقابلة, Interview answers cannot be decrypted: لا
+    يمكن فك تشفير إجابات المقابلة, Interview files: ملفات المقابلة, 'Interview:': 'مقابلة:',
+  Interviews: المقابلات, Invalid E-mail: بريد إلكتروني غير صالح, Invalid Email: بريد
+    إلكتروني غير صالح, Invalid Email address: عنوان البريد الإلكتروني غير صالح, Invalid action.: إجراء
+    غير صالح., Invalid confirmation token.: رمز التأكيد غير صالح., Invalid e-mail address: عنوان
+    البريد الإلكتروني غير صالح, Invalid interview: مقابلة غير صالحة, Invalid invitation token: رمز
+    دعوة غير صالح, Invalid phone number.: رقم الهاتف غير صالح., Invitation: دعوة,
+  Invitation has been sent.: لقد تم ارسال الدعوة., Invitations have been sent.: لقد
+    تم إرسال الدعوات., Invite: يدعو, Invite User: دعوة المستخدم, Invite a user: دعوة
+    مستخدم, Invite!: يدعو!, 'Iran, Islamic Republic of': إيران، الجمهورية الإسلامية,
+  Iraq: العراق, Ireland: أيرلندا, Isle of Man: جزيرة مان, Israel: إسرائيل, Italy: إيطاليا,
+  Items: أغراض, Items in the Playground other than interviews: العناصر الموجودة في
+    ساحة اللعب بخلاف المقابلات, Items in the training set: العناصر الموجودة في مجموعة
+    التدريب, JSON file: ملف JSON, Jamaica: جامايكا, Japan: اليابان, Jersey: جيرسي,
+  Jinja2 help template: قالب مساعدة Jinja2, Join: ينضم, Jordan: الأردن, Kazakhstan: كازاخستان,
+  Kenya: كينيا, Kiribati: كيريباتي, 'Korea, Republic of': جمهورية كوريا, Kuwait: الكويت,
+  Kyrgyzstan: قيرغيزستان, Language: لغة, Last name: اسم العائلة, Latvia: لاتفيا, Leave: يترك,
+  Lebanon: لبنان, Lesotho: ليسوتو, Liberia: ليبيريا, Libya: ليبيا, License: رخصة,
+  Liechtenstein: ليختنشتاين, Limited Permissions: أذونات محدودة, Link copied to clipboard.: تم
+    نسخ الرابط إلى الحافظة., Linked folder: المجلد المرتبط, Links: الروابط, List of ISO-639-1 language codes: قائمة
+    رموز لغة ISO-639-1, Listen: يستمع, Lithuania: ليتوانيا, Live chat: الدردشة المباشرة,
+  Live chat is available: الدردشة المباشرة متاحة, Loading . . .: تحميل . . ., 'Loading.  Please wait . . . ': 'جاري
+    التحميل. الرجاء الانتظار. ', Log: سجل, Logs: السجلات, Luxembourg: لوكسمبورغ, Macao: ماكاو,
+  Madagascar: مدغشقر, Malawi: ملاوي, Malaysia: ماليزيا, Maldives: جزر المالديف, Mali: مالي,
+  Malta: مالطا, Manage Emails: إدارة رسائل البريد الإلكتروني, Manage Projects: إدارة
+    المشاريع, Manage account: إدارة الحساب, Manually add a training item: إضافة عنصر
+    تدريب يدويًا, Markdown: تخفيض السعر, Marshall Islands: جزر مارشال, Martinique: مارتينيك,
+  Mauritania: موريتانيا, Mauritius: موريشيوس, Mayotte: مايوت, Menu: قائمة طعام, 'Menu:': 'قائمة
+    طعام:', Merge new data into existing data: دمج البيانات الجديدة في البيانات الموجودة,
+  Methods: طُرق, Mexico: المكسيك, 'Micronesia, Federated States of': ميكرونيزيا، ولايات
+    الاتحاد, Models: نماذج, Modules: الوحدات النمطية, Modules available in Playground: الوحدات
+    المتوفرة في Playground, Modules defined: الوحدات النمطية المحددة, 'Moldova, Republic of': جمهورية
+    مولدوفا, Monaco: موناكو, Mongolia: منغوليا, Monitor: شاشة, Montenegro: الجبل الأسود,
+  Montserrat: مونتسيرات, Morocco: المغرب, Move down: تحرك للأسفل, Mozambique: موزمبيق,
+  Multiselect box: مربع الاختيار المتعدد, Must be a two-letter code: يجب أن يكون رمزًا
+    مكونًا من حرفين, Must be a valid e-mail address: يجب أن يكون عنوان البريد الإلكتروني
+    صالحًا, Must be in E.164 format.  U.S. phone numbers begin with +1.: يجب أن يكون
+    بتنسيق E.164. تبدأ أرقام الهواتف في الولايات المتحدة بـ +1., My Interviews: مقابلاتي,
+  My Playground: ملعبي, Myanmar: ميانمار, Name: اسم, Name of new branch: اسم الفرع
+    الجديد, Name of new privilege: اسم الامتياز الجديد, Name of new privilege is required: اسم
+    الامتياز الجديد مطلوب, Names and questions: الأسماء والأسئلة, Namibia: ناميبيا,
+  Nauru: ناورو, Nepal: نيبال, Netherlands: هولندا, New API Key: مفتاح API الجديد,
+  New Caledonia: كاليدونيا الجديدة, New Name: الاسم الجديد, New Password: كلمة المرور
+    الجديدة, New Password and Retype Password did not match: كلمة المرور الجديدة وإعادة
+    كتابتها لم تتطابق كلمة المرور, New Password is required: مطلوب كلمة مرور جديدة,
+  New Username: اسم المستخدم الجديد, New Zealand: نيوزيلندا, New chat connection from: اتصال
+    دردشة جديد من, New chat message: رسالة دردشة جديدة, New conversation above: محادثة
+    جديدة أعلاه, New conversation below: محادثة جديدة أدناه, 'New here?  Register.': جديد
+    هنا؟ سجل الآن., 'New here? Register.': جديد هنا؟ سجل الآن., New message above: رسالة
+    جديدة أعلاه, New message below: رسالة جديدة أدناه, New project: مشروع جديد, Next: التالي,
+  Next will be: القادم سيكون, Nicaragua: نيكاراغوا, Nickname: كنية, Niger: النيجر,
+  Nigeria: نيجيريا, Niue: نيوي, No: لا, No access code was entered.: لم يتم إدخال
+    رمز الدخول., No administrators could be found.: لم يتم العثور على أي مسؤولين.,
+  No authentication: لا يوجد مصادقة, No data existed in training set.  JSON file not created.: لا
+    توجد بيانات موجودة في مجموعة التدريب. لم يتم إنشاء ملف JSON., No files have been uploaded yet.: لم
+    يتم تحميل أي ملفات بعد., No models were found.: لم يتم العثور على أي نماذج., None of the above: لا
+    شيء مما سبق, Norfolk Island: جزيرة نورفولك, North Macedonia: مقدونيا الشمالية,
+  Northern Mariana Islands: جزر ماريانا الشمالية, Norway: النرويج, Not Found: لم يتم
+    العثور عليه, Not authorized: غير مصرح به, Not available for chat: غير متاح للدردشة,
+  Note: ملحوظة, 'Note that if you connect to a Google Drive folder, you will disable your connection to OneDrive.': لاحظ
+    أنه إذا قمت بالاتصال بمجلد Google Drive، فسوف تقوم بتعطيل اتصالك بـ OneDrive.,
+  'Note that if you connect to a OneDrive folder, you will disable your connection to Google Drive.': لاحظ
+    أنه إذا قمت بالاتصال بمجلد OneDrive، فسوف تقوم بتعطيل اتصالك بـ Google Drive.,
+  ? Note that you can use a DOCX template file directly; 'fields' is only necessary
+    in the rare case when the variable names in your DOCX file do not correspond with
+    the variable names in your interview. : لاحظ أنه يمكنك استخدام ملف قالب DOCX مباشرةً؛
+    فـ &quot;الحقول&quot; ضرورية فقط في الحالات النادرة عندما لا تتوافق أسماء المتغيرات
+    في ملف DOCX مع أسماء المتغيرات في المقابلة الخاصة بك., 'Note: it is a best practice to tag every mandatory block with an id.': 'ملاحظة:
+    من الأفضل أن يتم وضع علامة على كل كتلة إلزامية باستخدام معرف.', 'Note: more than one block uses id': 'ملاحظة:
+    أكثر من كتلة تستخدم معرفًا', 'Note: only users with e-mail/password accounts can be given admin privileges.': 'ملاحظة:
+    يمكن فقط منح امتيازات المسؤول للمستخدمين الذين لديهم حسابات البريد الإلكتروني/كلمة
+    المرور.', OCR succeeded: نجح التعرف الضوئي على الحروف, Observation: ملاحظة, Observe: يراقب,
+  Office Add-in: الوظيفة الإضافية لـ Office, Old Password: كلمة المرور القديمة, Old Password is incorrect: كلمة
+    المرور القديمة غير صحيحة, Old Password is required: مطلوب كلمة المرور القديمة,
+  Oman: عُمان, One or more e-mail addresses (separated by newlines): عنوان بريد إلكتروني
+    واحد أو أكثر (مفصولة بأسطر جديدة), OneDrive: ون درايف, OneDrive is not configured: لم
+    يتم تكوين OneDrive, OneDrive is not linked.: لم يتم ربط OneDrive., OneDrive synchronization: مزامنة
+    OneDrive, Only the last 30 lines are shown.  Download the file to see the previous lines.: يتم
+    عرض آخر 30 سطرًا فقط. نزّل الملف لمشاهدة الأسطر السابقة., Open another log file: فتح
+    ملف سجل آخر, 'Or you can specify a:': 'أو يمكنك تحديد:', 'Or you can upload a:': 'أو
+    يمكنك تحميل:', Organization: منظمة, Original Name: الاسم الأصلي, Other settings: الإعدادات
+    الأخرى, Output Format: تنسيق الإخراج, Overrides: التجاوزات, PDF/DOCX File: ملف
+    PDF/DOCX, Package: طَرد, Package Management: إدارة الحزم, Package Name: اسم الحزمة,
+  Package Name is required: اسم الحزمة مطلوب, Package created: تم إنشاء الحزمة, Package did not exist: الحزمة
+    لم تكن موجودة, Package name: اسم الحزمة, Package name is required: اسم الحزمة
+    مطلوب, Package on PyPI: الحزمة على PyPI, Packages: الحزم, Pakistan: باكستان, Palau: بالاو,
+  'Palestine, State of': فلسطين، دولة, Panama: بنما, Papua New Guinea: بابوا غينيا
+    الجديدة, Paraguay: باراغواي, Password: كلمة المرور, Password and Retype Password did not match: كلمة
+    المرور وإعادة كتابتها لم تتطابق كلمة المرور, Password is required: كلمة المرور
+    مطلوبة, ? 'Password must be at least six characters long with at least one lowercase
+    letter, at least one uppercase letter, and at least one number.' : يجب أن تتكون
+    كلمة المرور من ستة أحرف على الأقل مع حرف صغير واحد على الأقل، وحرف كبير واحد على
+    الأقل، ورقم واحد على الأقل., 'Password must have at least 6 characters with one lowercase letter, one uppercase letter and one number': يجب
+    أن تحتوي كلمة المرور على 6 أحرف على الأقل مع حرف صغير واحد وحرف كبير واحد ورقم
+    واحد, Per Month: كل شهر, Per Week: في الأسبوع, Per Year: كل سنة, Peru: بيرو, Philippines: فيلبيني,
+  Phone help: مساعدة عبر الهاتف, Phone help is available: المساعدة عبر الهاتف متاحة,
+  Phone number: رقم التليفون, Pick actual value: اختر القيمة الفعلية, Pitcairn: بيتكيرن,
+  Plain text of sections: نص عادي للأقسام, Playground: ملعب, Playground Packages: باقات
+    الملاعب, Playground YAML: ملعب YAML, Playground not saved.  There was an error.: لم
+    يتم حفظ الملعب. حدث خطأ., Please choose a different e-mail address.: الرجاء اختيار
+    عنوان بريد إلكتروني آخر., 'Please enter a multiple of {0}.': 'الرجاء إدخال مضاعفات
+    {0}.', Please enter a valid phone number: الرجاء إدخال رقم هاتف صالح, Please enter a valid value.: الرجاء
+    إدخال قيمة صالحة., Please enter a whole number.: الرجاء إدخال عدد صحيح., 'Please enter the four digit code, followed by the pound sign.': الرجاء
+    إدخال الرمز المكون من أربعة أرقام، متبوعًا بعلامة الجنيه., Please enter the verification code from the text message we just sent you.: الرجاء
+    إدخال رمز التحقق من الرسالة النصية التي أرسلناها لك للتو., Please enter the verification code from your authentication app.: الرجاء
+    إدخال رمز التحقق من تطبيق المصادقة الخاص بك., Please log in to that account.: الرجاء
+    تسجيل الدخول إلى هذا الحساب., Please log in.: الرجاء تسجيل الدخول., Please select at least %s.: الرجاء
+    تحديد %s على الأقل., Please select exactly %s.: الرجاء تحديد %s بالضبط., Please select no more than %s.: الرجاء
+    تحديد ما لا يزيد عن %s., Please select one.: الرجاء اختيار واحد., 'Please send a video, or type skip.': من
+    فضلك أرسل مقطع فيديو، أو اكتب تخطي., Please send a video.: يرجى إرسال الفيديو.,
+  'Please send an audio clip, or type skip.': يرجى إرسال مقطع صوتي، أو كتابة تخطي.,
+  Please send an audio clip.: يرجى إرسال مقطع صوتي., 'Please send an image or file, or type skip.': من
+    فضلك أرسل صورة أو ملف أو اكتب تخطي., Please send an image or file.: يرجى إرسال
+    صورة أو ملف., 'Please send one or more images, or type skip.': من فضلك أرسل صورة
+    واحدة أو أكثر، أو اكتب &quot;تخطي&quot;., Please send one or more images.: يرجى
+    إرسال صورة واحدة أو أكثر., Please upload a file with a valid file format.: يرجى
+    تحميل ملف بتنسيق ملف صالح., Please wait . . .: انتظر من فضلك . . ., Please wait.: انتظر
+    من فضلك., Please wait.  File is being uploaded: الرجاء الانتظار. جاري تحميل الملف.,
+  Please wait.  Files are syncing.: يرجى الانتظار. جاري مزامنة الملفات., Please wait.  Interview will start when sync is complete.: يرجى
+    الانتظار. ستبدأ المقابلة عند اكتمال المزامنة., Please wait.  Packages are updating.  The screen will refresh when the process is complete.  This may take several minutes.: يرجى
+    الانتظار. جاري تحديث الحزم. سيتم تحديث الشاشة عند اكتمال العملية. قد يستغرق هذا
+    عدة دقائق., Please wait.  System is restarting.: يرجى الانتظار. يتم إعادة تشغيل
+    النظام., Poland: بولندا, Portugal: البرتغال, Possibly not defined: ربما لم يتم
+    تعريفه, Possibly not used: ربما لم يتم استخدامه, Prediction: تنبؤ, 'Press one of the following buttons:': 'اضغط
+    على أحد الأزرار التالية:', Press the Publish button to publish the package on PyPI.: اضغط
+    على زر النشر لنشر الحزمة على PyPI., Preview: معاينة, Privilege: امتياز, Privileges: الامتيازات,
+  Problem detected.: تم اكتشاف المشكلة., Profile: حساب تعريفي, Profile Page: صفحة
+    الملف الشخصي, Project: مشروع, Project name cannot begin with a number: لا يمكن
+    أن يبدأ اسم المشروع برقم, Project name is required: اسم المشروع مطلوب, Projects: المشاريع,
+  Publish: نشر, Publish on PyPI: نشر على PyPI, Publish on PyPI also: انشر على PyPI
+    أيضًا, Puerto Rico: بورتوريكو, Pull: يحذب, Pull GitHub or PyPI Package: سحب حزمة
+    GitHub أو PyPI, Pull a package from GitHub or PyPI into the Playground: سحب الحزمة
+    من GitHub أو PyPI إلى Playground, Push a commit to GitHub: ادفع التزامًا إلى GitHub,
+  Pushed commit to GitHub.: تم إرسال الالتزام إلى GitHub., PyPI: باي بي آي, PyPI Password: كلمة
+    مرور PyPI, PyPI Username: اسم مستخدم PyPI, PyPI package: حزمة PyPI, Python version %s: إصدار
+    بايثون %s, Qatar: قطر, Question: سؤال, README file: ملف README, Read this screen out loud: اقرأ
+    هذه الشاشة بصوت عالٍ, Readability of help text: سهولة قراءة نص المساعدة, Readability of question: سهولة
+    قراءة السؤال, Reason for needing developer account (optional): سبب الحاجة إلى
+    حساب مطور (اختياري), Reconfigure: إعادة التكوين, Referring URL: عنوان URL المرجعي,
+  Refresh: ينعش, Register: يسجل, Register for an account on: سجل للحصول على حساب على,
+  Register with Auth0: التسجيل مع Auth0, Register with Authentik: سجل مع Authentik,
+  Register with Azure: التسجيل في Azure, Register with Facebook: سجل باستخدام الفيسبوك,
+  Register with Google: سجل في جوجل, Register with Keycloak: سجل مع Keycloak, Register with Zitadel: سجل
+    مع Zitadel, Register with miniOrange: سجل مع miniOrange, Register with your mobile phone: سجل
+    باستخدام هاتفك المحمول, Registration attempt: محاولة التسجيل, Registration is invite only: التسجيل
+    للدعوة فقط, Remember me: تذكرنى, Remove: يزيل, Rename: إعادة التسمية, Rename project: إعادة
+    تسمية المشروع, Reorder by moving down: إعادة الترتيب عن طريق التحرك لأسفل, Reorder by moving up: إعادة
+    الترتيب عن طريق التحرك لأعلى, Replace each instance of Null with a quoted translation.: استبدل
+    كل مثيل لـ Null بترجمة مقتبسة., Request Developer Account: طلب حساب المطور, Resend Confirmation Email: إعادة
+    إرسال رسالة التأكيد, Resend email confirmation email: إعادة إرسال رسالة تأكيد
+    البريد الإلكتروني, Reset Password: إعادة تعيين كلمة المرور, Reset e-mail confirmation: إعادة
+    تعيين تأكيد البريد الإلكتروني, Reset password: إعادة تعيين كلمة المرور, Restart: إعادة
+    تشغيل, Restarting: إعادة التشغيل, Resume: استئناف, Resume an interview: استئناف
+    المقابلة, Retry: إعادة المحاولة, Return: يعود, Retype New Password: أعد كتابة
+    كلمة المرور الجديدة, Retype Password: أعد كتابة كلمة المرور, Role: دور, Romania: رومانيا,
+  Room: غرفة, Run: يجري, Running in other tab.: تشغيل في علامة تبويب أخرى., Russian Federation: الاتحاد
+    الروسي, Rwanda: رواندا, Réunion: جمع شمل, SMS: رسالة قصيرة, Saint Barthélemy: سان
+    بارتيليمي, 'Saint Helena, Ascension and Tristan da Cunha': سانت هيلينا وأسينسيون
+    وتريستان دا كونها, Saint Kitts and Nevis: سانت كيتس ونيفيس, Saint Lucia: سانت
+    لوسيا, Saint Martin (French part): سان مارتن (الجزء الفرنسي), Saint Pierre and Miquelon: سان
+    بيير وميكلون, Saint Vincent and the Grenadines: سانت فنسنت وجزر غرينادين, Samoa: ساموا,
+  San Marino: سان مارينو, Sao Tome and Principe: ساو تومي وبرينسيبي, Saudi Arabia: المملكة
+    العربية السعودية, Save: يحفظ, Save and Run: حفظ وتشغيل, Save changes: حفظ التغييرات,
+  Save your changes: احفظ التغييرات, Save your changes to the package information: احفظ
+    التغييرات التي أجريتها على معلومات الحزمة, Saved: أنقذ, Saved at: تم الحفظ في,
+  Scan: مسح ضوئي, Scan the barcode with your phone's authenticator app and enter the verification code.: قم
+    بمسح الرمز الشريطي باستخدام تطبيق المصادقة الخاص بهاتفك وأدخل رمز التحقق., Score: نتيجة,
+  Search: يبحث, Second Subdivision: القسم الفرعي الثاني, Second factor authentication: المصادقة
+    بالعامل الثاني, Second subdivision: القسم الفرعي الثاني, Section: قسم, Sections: الأقسام,
+  Security Method: طريقة الأمان, Select a package: اختر الباقة, Select a value between: حدد
+    قيمة بين, Select file: حدد الملف, Select one: اختر واحدا, Select the folder from your OneDrive that you want to be synchronized with the Playground.: حدد
+    المجلد من OneDrive الذي تريد مزامنته مع Playground., Select the project: حدد المشروع,
+  Select which files to include in the commit: حدد الملفات التي تريد تضمينها في الالتزام,
+  Select zero or more files: حدد صفرًا أو أكثر من الملفات, Select zero or more packages: حدد
+    صفرًا أو أكثر من الحزم, Select...: يختار..., Send: يرسل, Send Confirmation E-mail: إرسال
+    بريد إلكتروني للتأكيد, Send confirmation email: إرسال بريد إلكتروني للتأكيد, Send reset password email: إرسال
+    بريد إلكتروني لإعادة تعيين كلمة المرور, Senegal: السنغال, Serbia: صربيا, Server did not respond to request for update.: لم
+    يستجب الخادم لطلب التحديث., Sessions: الجلسات, Setup key: مفتاح الإعداد, Seychelles: سيشل,
+  Share: يشارك, Show all: إظهار الكل, Show attributes: إظهار السمات, Show context of example: إظهار
+    سياق المثال, Show entries that are already classified: إظهار الإدخالات المصنفة
+    بالفعل, Show import controls: إظهار عناصر التحكم في الاستيراد, Show report of names and associated questions: عرض
+    تقرير الأسماء والأسئلة المرتبطة بها, Show variables and values: إظهار المتغيرات
+    والقيم, 'Showing interviews tagged with:': 'عرض المقابلات الموسومة بـ:', Sierra Leone: سيراليون,
+  Sign In: تسجيل الدخول, Sign Out: تسجيل الخروج, Sign Your Name: قم بتوقيع اسمك, Sign in: تسجيل
+    الدخول, Sign in or sign up to save answers: سجل الدخول أو قم بالتسجيل لحفظ الإجابات,
+  Sign in to save answers: تسجيل الدخول لحفظ الإجابات, Sign in with Auth0: تسجيل الدخول
+    باستخدام Auth0, Sign in with Authentik: تسجيل الدخول باستخدام Authentik, Sign in with Azure: تسجيل
+    الدخول باستخدام Azure, Sign in with Facebook: تسجيل الدخول باستخدام الفيسبوك,
+  Sign in with Google: تسجيل الدخول باستخدام جوجل, Sign in with Keycloak: تسجيل الدخول
+    باستخدام Keycloak, Sign in with Zitadel: تسجيل الدخول باستخدام Zitadel, Sign in with miniOrange: تسجيل
+    الدخول باستخدام miniOrange, Sign in with your mobile phone: تسجيل الدخول باستخدام
+    هاتفك المحمول, Sign in.: تسجيل الدخول., Sign up: اشتراك, 'Since you changed a Python module, the server needs to restart in order to load your module.': نظرًا
+    لأنك قمت بتغيير وحدة Python، فيجب إعادة تشغيل الخادم حتى يتمكن من تحميل الوحدة
+    الخاصة بك., Since you did not type "delete my account" I did not delete your account.: بما
+    أنك لم تكتب &quot;حذف حسابي&quot; فأنا لم أحذف حسابك., 'Since you renamed a project, the server needs to restart in order to reload any modules.': نظرًا
+    لأنك قمت بإعادة تسمية المشروع، يتعين على الخادم إعادة التشغيل حتى يتمكن من إعادة
+    تحميل أي وحدات., 'Since you uploaded a Python module, the server needs to restart in order to load your module.': نظرًا
+    لأنك قمت بتحميل وحدة Python، فيجب إعادة تشغيل الخادم حتى يتمكن من تحميل الوحدة
+    الخاصة بك., Singapore: سنغافورة, Sint Maarten (Dutch part): سينت مارتن (الجزء
+    الهولندي), Slovakia: سلوفاكيا, Slovenia: سلوفينيا, Solomon Islands: جزر سليمان,
+  Somalia: الصومال, 'Sorry, no help is available for this question.': عذراً، لا توجد
+    مساعدة متاحة لهذا السؤال., 'Sorry, only .py files can be uploaded here.  To upload other types of files, use other Folders.': عذرًا،
+    يُمكن تحميل ملفات .py فقط هنا. لتحميل أنواع أخرى من الملفات، استخدم مجلدات أخرى.,
+  'Sorry, only YAML files can be uploaded here.  To upload other types of files, use the Folders.': عذرًا،
+    يُمكن تحميل ملفات YAML فقط هنا. لتحميل أنواع أخرى من الملفات، استخدم المجلدات.,
+  'Sorry, that package name does not exist in the playground': عذرا، اسم الحزمة هذه
+    غير موجود في ساحة اللعب, 'Sorry, that package name,': عذرا، اسم هذه الحزمة،, Source: مصدر,
+  Source Files: ملفات المصدر, Source code for question: الكود المصدر للسؤال, Source files: ملفات
+    المصدر, Sources: مصادر, South Africa: جنوب أفريقيا, South Georgia and the South Sandwich Islands: جورجيا
+    الجنوبية وجزر ساندويتش الجنوبية, South Sudan: جنوب السودان, Spain: إسبانيا, Special Page: صفحة
+    خاصة, Special variable: متغير خاص, Sri Lanka: سريلانكا, Started: بدأت, 'Starting a new interview.  To go back to your previous interview, go to My Interviews on the menu.': بدء
+    مقابلة جديدة. للعودة إلى مقابلتك السابقة، انتقل إلى &quot;مقابلاتي&quot; في القائمة.,
+  'Starting a new interview.  To go back to your previous interview, log in to see a list of your interviews.': بدء
+    مقابلة جديدة. للعودة إلى مقابلتك السابقة، سجّل الدخول للاطلاع على قائمة مقابلاتك.,
+  Static Files: الملفات الثابتة, Static files: الملفات الثابتة, Stop Controlling: توقف
+    عن التحكم, Stop Observing: توقف عن المراقبة, Submit: يُقدِّم, Sudan: السودان,
+  Suriname: سورينام, Svalbard and Jan Mayen: سفالبارد ويان ماين, Sweden: السويد, Switzerland: سويسرا,
+  Sync: المزامنة, Sync and Run: المزامنة والتشغيل, Sync with Google Drive: المزامنة
+    مع Google Drive, Sync with OneDrive: المزامنة مع OneDrive, Synchronizing: مزامنة,
+  Synchronizing with Google Drive: المزامنة مع Google Drive, Synchronizing with OneDrive: المزامنة
+    مع OneDrive, Syrian Arab Republic: الجمهورية العربية السورية, System: نظام, Tags: العلامات,
+  'Taiwan, Province of China': تايوان، مقاطعة الصين, Tajikistan: طاجيكستان, 'Tanzania, United Republic of': تنزانيا،
+    جمهورية الاتحاد, Telephone assistance: المساعدة الهاتفية, Template files: ملفات
+    القالب, Templates: القوالب, 'Terms used in this question:': 'المصطلحات المستخدمة
+    في هذا السؤال:', 'Terms used:': 'المصطلحات المستخدمة:', Test: امتحان, Thailand: تايلاند,
+  Thank you for registering: شكرا لك على التسجيل, Thank you for registering with: شكرا
+    لك على التسجيل معنا, That e-mail address is already taken.: لقد تم استخدام عنوان
+    البريد الإلكتروني هذا بالفعل., That package name is already in use by someone else.  Please change the name.: اسم
+    الحزمة هذا مستخدمٌ بالفعل من قِبل شخصٍ آخر. يُرجى تغيير الاسم., That screen is already being controlled by another operator: يتم
+    التحكم في هذه الشاشة بالفعل بواسطة مشغل آخر, The JSON file in the package: ملف
+    JSON في الحزمة, The Playground is synchronizing with Google Drive.: يتم مزامنة
+    الملعب مع Google Drive., The README.md file for the package: ملف README.md للحزمة,
+  The author is: المؤلف هو, The commit was saved locally at %s.: تم حفظ الالتزام محليًا
+    في %s., The configuration file was saved.: تم حفظ ملف التكوين., The current branch is %s and the current commit is %s.: الفرع
+    الحالي هو %s والالتزام الحالي هو %s., The current branch is %s.: الفرع الحالي
+    هو %s., The default project cannot be deleted.: لا يمكن حذف المشروع الافتراضي.,
+  'The document is available in the following formats:': 'الوثيقة متاحة بالتنسيقات
+    التالية:', The file was uploaded to the Templates folder.: تم تحميل الملف إلى
+    مجلد القوالب., The file you requested does not exist.: الملف الذي طلبته غير موجود.,
+  The following document has been created for you.: تم إنشاء المستند التالي لك., The following documents have been created for you.: لقد
+    تم إنشاء المستندات التالية لك., The following errors were detected in your Configuration.: تم
+    اكتشاف الأخطاء التالية في التكوين الخاص بك., The following overrides were applied.: تم
+    تطبيق التجاوزات التالية., The information was saved.: تم حفظ المعلومات., The key no longer exists: المفتاح
+    لم يعد موجودا, The key was deleted: تم حذف المفتاح, The link has expired.: لقد
+    انتهت صلاحية الرابط., The mapping was reset because the folder does not appear to exist anymore.: تم
+    إعادة تعيين الخريطة لأن المجلد لا يبدو موجودًا بعد الآن., The name must be filled in.: يجب
+    ملء الاسم., The new user has been created: تم إنشاء المستخدم الجديد, The operator is no longer controlling your screen.: لم
+    يعد المشغل يتحكم في شاشتك., The package information was saved.: تم حفظ معلومات
+    الحزمة., The package update did not report an error.  The logs are below.: لم
+    يُبلغ تحديث الحزمة عن أي خطأ. تجدون السجلات أدناه., The package update reported an error.  The logs are below.: أبلغ
+    تحديث الحزمة عن خطأ. تجدون السجلات أدناه., The package was unpacked into the Playground.: تم
+    تفريغ الحزمة داخل ساحة اللعب., The package you specified could not be downloaded from PyPI as a tar.gz file.: لم
+    يتمكن من تنزيل الحزمة التي حددتها من PyPI كملف tar.gz., The package you specified could not be downloaded from PyPI.: لم
+    يتمكن من تنزيل الحزمة التي حددتها من PyPI., The phone number is not in E.164 format (e.g. +12025551212): رقم
+    الهاتف ليس بصيغة E.164 (على سبيل المثال +12025551212), The previously selected OneDrive folder does not exist.: المجلد
+    OneDrive المحدد مسبقًا غير موجود., The previously selected OneDrive folder was deleted.: تم
+    حذف مجلد OneDrive المحدد مسبقًا., The privilege could not be added because it already exists.: لم
+    يكن من الممكن إضافة الامتياز لأنه موجود بالفعل., The privilege was added.: تمت
+    إضافة الامتياز., The project %s was deleted.: تم حذف المشروع %s., The project name %s is not available.: اسم
+    المشروع %s غير متوفر., The regular expression you provided could not be parsed.: لم
+    يتمكن من تحليل التعبيرات العادية التي قدمتها., The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.: لم
+    يتم العثور على عنوان URL المطلوب على الخادم. إذا أدخلته يدويًا، يُرجى التحقق من
+    صحة تهجئته والمحاولة مرة أخرى., The role could not be deleted.: لم يتمكن من حذف
+    الدور., The synchronization was not successful.: لم تتم المزامنة بنجاح., The synchronization was successful.: تمت
+    المزامنة بنجاح., The user account did not exit.: لم يتم الخروج من حساب المستخدم.,
+  The user account was deleted.: تم حذف حساب المستخدم., The user can call you.  Click to cancel.: يمكن
+    للمستخدم الاتصال بك. انقر للإلغاء., The user profile was not changed.: لم يتم
+    تغيير ملف تعريف المستخدم., The version on PyPI is: الإصدار الموجود على PyPI هو,
+  The zip file did not contain a docassemble add-on package.: لم يتضمن ملف zip حزمة
+    إضافية لـ docassemble., There are no active sessions.: لا توجد جلسات نشطة., 'There are unsaved changes.  Are you sure you wish to leave this page?': هناك
+    تغييرات غير محفوظة. هل أنت متأكد من رغبتك في مغادرة هذه الصفحة؟, There is already a username and password on this system with the e-mail address: يوجد
+    بالفعل اسم مستخدم وكلمة مرور على هذا النظام مع عنوان البريد الإلكتروني, There is already an account on the system with the e-mail address: يوجد
+    بالفعل حساب على النظام بعنوان البريد الإلكتروني, There was a problem connecting to GitHub. Please check your GitHub configuration and try again.: حدثت
+    مشكلة أثناء الاتصال بـ GitHub. يُرجى التحقق من إعدادات GitHub والمحاولة مرة أخرى.,
+  'There was a problem reading the YAML file you uploaded.  Are you sure it is a YAML file?  File was not saved.': حدثت
+    مشكلة أثناء قراءة ملف YAML الذي رفعته. هل أنت متأكد أنه ملف YAML؟ لم يتم حفظ الملف.,
+  There was a problem sending the text message.: حدثت مشكلة أثناء إرسال الرسالة النصية.,
+  There was a problem sending you a text message.  Please log in another way.: حدثت
+    مشكلة أثناء إرسال الرسالة النصية. يُرجى تسجيل الدخول بطريقة أخرى., There was a problem uploading the file.: حدثت
+    مشكلة أثناء تحميل الملف., There was an error updating the packages.: حدث خطأ أثناء
+    تحديث الحزم., There was an error with the synchronization.: حدث خطأ في المزامنة.,
+  There was an error.: لقد حدث خطأ., There was an error. Please contact the system administrator.: حدث
+    خطأ. يُرجى التواصل مع مسؤول النظام., Third Subdivision: القسم الثالث, Third subdivision: القسم
+    الثالث, This Email is already in use. Please try another one.: هذا البريد الإلكتروني
+    مستخدم بالفعل. يُرجى تجربة بريد آخر., This Username is already in use. Please try another one.: اسم
+    المستخدم هذا مستخدم بالفعل. يُرجى تجربة اسم آخر., This account uses two-factor authentication.: يستخدم
+    هذا الحساب المصادقة الثنائية., This field is required.: هذه الخانة مطلوبه., This image file does not exist: ملف
+    الصورة هذا غير موجود, This is my custom interview page.: هذه هي صفحتي المخصصة
+    للمقابلات., This package is: هذه الحزمة هي, This package is not yet published on PyPI.: لم
+    يتم نشر هذه الحزمة على PyPI بعد., This package is not yet published on your GitHub account.: لم
+    يتم نشر هذه الحزمة على حساب GitHub الخاص بك بعد., This package was originally pulled from: تم
+    سحب هذه الحزمة في الأصل من, Thumbnail image of document: صورة مصغرة للمستند, Time Zone: المنطقة
+    الزمنية, Timor-Leste: تيمور الشرقية, Title: عنوان, 'To reach an advocate who can assist you, call': للوصول
+    إلى محامٍ يمكنه مساعدتك، اتصل بـ, 'To read the question again, type question.': لقراءة
+    السؤال مرة أخرى، اكتب السؤال., 'To register for an account, please click on the link below.': للتسجيل
+    للحصول على حساب، الرجاء الضغط على الرابط أدناه., Toggle: تبديل, Togo: توغو, Tokelau: توكيلاو,
+  Token: الرمز المميز, Tonga: تونغا, Train: يدرب, Train machine learning models: تدريب
+    نماذج التعلم الآلي, Trainer privilege: امتياز المدرب, Training data were successfully imported.: تم
+    استيراد بيانات التدريب بنجاح., Translate: يترجم, Translate system phrases into another language: ترجمة
+    عبارات النظام إلى لغة أخرى, Trinidad and Tobago: ترينيداد وتوباغو, Tunisia: تونس,
+  Turkey: ديك رومى, Turkmenistan: تركمانستان, Turks and Caicos Islands: جزر تركس وكايكوس,
+  Turn off chat: إيقاف الدردشة, Tuvalu: توفالو, Twice Per Month: مرتين في الشهر, Two-factor authentication: المصادقة
+    الثنائية, Type: يكتب, Type "delete my account" here to confirm that you want to delete your account.: اكتب
+    &quot;حذف حسابي&quot; هنا للتأكيد على أنك تريد حذف حسابك., 'Type ? for additional assistance.': اكتب
+    ؟ للحصول على مساعدة إضافية., 'Type ? to see': اكتب ؟ لرؤية, Type Ctrl-space to autocomplete.: اكتب
+    Ctrl-space لإكمال التلقائي., 'Type [y]es or [n]o.': 'اكتب [y]es أو [n]o.', 'Type [y]es, [n]o, or [d]on''t know': 'اكتب
+    [نعم]، [لا]، أو [لا] أعرف', 'Type a currency value, or type skip.': اكتب قيمة
+    العملة، أو اكتب تخطي., Type a currency value.: اكتب قيمة العملة., 'Type a date and time, or type skip.': اكتب
+    التاريخ والوقت، أو اكتب تخطي., Type a date and time.: اكتب التاريخ والوقت., 'Type a date, or type skip.': اكتب
+    تاريخًا، أو اكتب تخطي., Type a date.: اكتب تاريخًا., 'Type a number, or type skip.': اكتب
+    رقمًا، أو اكتب &quot;تخطي&quot;., Type a number.: اكتب رقمًا., 'Type a time, or type skip.': اكتب
+    وقتًا، أو اكتب تخطي., Type a time.: اكتب الوقت., Type a value between: اكتب قيمة
+    بين, Type actual value: نوع القيمة الفعلية, 'Type an e-mail address, or type skip.': اكتب
+    عنوان البريد الإلكتروني، أو اكتب تخطي., Type an e-mail address.: اكتب عنوان البريد
+    الإلكتروني., Type ok to continue.: اكتب موافق للمتابعة., Type the: اكتب, Type x to sign your name electronically: اكتب
+    x للتوقيع باسمك إلكترونيًا, Type your message here.: اكتب رسالتك هنا., 'Type your selection(s), separated by commas, or type none.': اكتب
+    اختياراتك، مفصولة بفاصلات، أو لا تكتب أيًا منها., 'Type your selection(s), separated by commas.': اكتب
+    اختياراتك، مفصولة بفاصلات., 'Type your selection, or type skip to move on without selecting.': اكتب
+    اختيارك، أو اكتب &quot;تخطي&quot; للمتابعة دون تحديد., Type your selection.: اكتب
+    اختيارك, URL: عنوان URL, Uganda: أوغندا, Ukraine: أوكرانيا, Unable to determine IP address: غير
+    قادر على تحديد عنوان IP, Unable to determine if the package is published on PyPI.: غير
+    قادر على تحديد ما إذا كانت الحزمة منشورة على PyPI., Unable to determine if the package is published on your GitHub account.: غير
+    قادر على تحديد ما إذا كانت الحزمة منشورة على حساب GitHub الخاص بك., Unable to e-mail your documents to: غير
+    قادر على إرسال مستنداتك عبر البريد الإلكتروني إلى, Unable to find documents to e-mail.: غير
+    قادر على العثور على المستندات لإرسالها بالبريد الإلكتروني., Unable to locate interview session.  Starting a new session instead.: تعذر
+    تحديد مكان جلسة المقابلة. سأبدأ جلسة جديدة., Unable to read log file; please download.: غير
+    قادر على قراءة ملف السجل؛ يرجى التنزيل., Unable to retrieve interview session.  Starting a new session instead.: تعذر
+    استرداد جلسة المقابلة. سأبدأ جلسة جديدة., Unable to send e-mail to: غير قادر على
+    إرسال البريد الإلكتروني إلى, 'Unable to send e-mail.  Error was: ': 'تعذر إرسال
+    البريد الإلكتروني. الخطأ هو: ', Unable to send verification code.: غير قادر على
+    إرسال رمز التحقق., Unblock: إلغاء الحظر, Unclassified items in the training set: العناصر
+    غير المصنفة في مجموعة التدريب, Undefined names: أسماء غير محددة, Undelete: إلغاء
+    الحذف, Uninstall: إلغاء التثبيت, Unit: وحدة, United Arab Emirates: الإمارات العربية
+    المتحدة, United Kingdom: المملكة المتحدة, United States: الولايات المتحدة, United States Minor Outlying Islands: جزر
+    الولايات المتحدة الصغيرة النائية, Unknown: مجهول, Unnamed User: مستخدم غير مسمى,
+  Untitled: بدون عنوان, Update: تحديث, Update or uninstall an existing package: تحديث
+    أو إلغاء تثبيت حزمة موجودة, Updating: تحديث, Updating packages: تحديث الحزم, Upgrade: يرقي,
+  Upgrade docassemble: ترقية docassemble, Upload: رفع, Upload a Python module: تحميل
+    وحدة بايثون, Upload a YAML file to the Playground: تحميل ملف YAML إلى Playground,
+  Upload a package ZIP file to the Playground: تحميل ملف ZIP الخاص بالحزمة إلى Playground,
+  Upload a source file: تحميل ملف المصدر, Upload a static file: تحميل ملف ثابت, Upload a template file: تحميل
+    ملف قالب, Upload successful: تم التحميل بنجاح, Upload this .docx file to the Templates folder: قم
+    بتحميل هذا الملف .docx إلى مجلد القوالب, Uploaded %s to the Playground.: تم تحميل
+    %s إلى ساحة اللعب., Uruguay: أوروغواي, Use Package: استخدم الحزمة, Use a different server: استخدم
+    خادمًا مختلفًا, Used in: تستخدم في, User: مستخدم, User List: قائمة المستخدمين,
+  User Profile: ملف تعريف المستخدم, User profile: ملف تعريف المستخدم, Username: اسم
+    المستخدم, Username is required: اسم المستخدم مطلوب, 'Username may only contain letters, numbers, ''-'', ''.'' and ''_''': يجب
+    أن يحتوي اسم المستخدم فقط على أحرف وأرقام و'-' و'.' و'_', Username must be at least 3 characters long: يجب
+    أن يكون اسم المستخدم 3 أحرف على الأقل, Username or Email: اسم المستخدم أو البريد
+    الإلكتروني, Username/Email: اسم المستخدم/البريد الإلكتروني, Uses two-factor authentication: يستخدم
+    المصادقة الثنائية, Using Jinja2: استخدام Jinja2, Utilities: المرافق, Uzbekistan: أوزبكستان,
+  'Valid characters are: A-Z, a-z, 0-9': 'الأحرف الصالحة هي: AZ، az، 0-9', 'Valid characters are: A-Z, a-z, 0-9, hyphen': 'الأحرف
+    الصالحة هي: AZ، az، 0-9، واصلة', Vanuatu: فانواتو, Variables: المتغيرات, 'Venezuela, Bolivarian Republic of': فنزويلا،
+    جمهورية بوليفارية, Verification code: رمز التحقق, Verify: يؤكد, Verify your phone: التحقق
+    من هاتفك, Version: إصدار, Version number does not conform to PEP 440: رقم الإصدار
+    لا يتوافق مع PEP 440, Viet Nam: فيتنام, View documentation: عرض الوثائق, 'Virgin Islands, British': جزر
+    فيرجن البريطانية, 'Virgin Islands, U.S.': جزر فيرجن الأمريكية, 'WARNING!  If you press Delete, the contents of the %s project will be permanently deleted.': تحذير!
+    إذا ضغطت على زر الحذف، فسيتم حذف محتويات المشروع %s نهائيًا., Waiting: منتظر,
+  Wallis and Futuna: واليس وفوتونا, 'Warning: a file by that name already exists.  If you save, you will overwrite it.': 'تحذير:
+    يوجد ملف بهذا الاسم. إذا حفظته، فسيتم استبداله.', 'Warning: a package definition by that name already exists.  If you save, you will overwrite it.': 'تحذير:
+    يوجد تعريف حزمة بهذا الاسم. إذا حفظته، فسيتم استبداله.', We have received your password reset request.: لقد
+    تلقينا طلب إعادة تعيين كلمة المرور الخاصة بك., We just sent you a text message with a verification code.  Enter the verification code to proceed.: لقد
+    أرسلنا لك للتو رسالة نصية تحتوي على رمز التحقق. أدخل رمز التحقق للمتابعة., We were unable to submit your request.: لم
+    نتمكن من تقديم طلبك., Western Sahara: الصحراء الغربية, 'What file do you want to import?': ما
+    هو الملف الذي تريد استيراده؟, 'When you type inside Jinja2 brackets, auto-complete options will appear here.': عند
+    الكتابة داخل أقواس Jinja2، ستظهر خيارات الإكمال التلقائي هنا., Wizard: ساحر, 'Would you like to reconfigure two-factor authentication?': هل
+    ترغب في إعادة تكوين المصادقة الثنائية؟, Yemen: اليمن, Yes: نعم, 'You are available for the following roles: ': 'أنت
+    متاح للأدوار التالية: ', You are not allowed to access this interview.: لا يُسمح
+    لك بالوصول إلى هذه المقابلة., You are not authorized to access: أنت غير مخول بالوصول,
+  You are now set up with two factor authentication.: لقد تم إعدادك الآن باستخدام
+    المصادقة الثنائية., You are renaming the project called %s.: لقد قمت بإعادة تسمية
+    المشروع إلى %s., 'You can also follow this link: ': 'يمكنك أيضًا متابعة هذا الرابط: ',
+  ? 'You can divide up your Playground into multiple separate areas, apart from your
+    default Playground area.  Each Project has its own question files and Folders.'
+  : يمكنك تقسيم ساحة اللعب الخاصة بك إلى عدة مناطق منفصلة، بالإضافة إلى منطقة اللعب
+    الافتراضية. لكل مشروع ملفات أسئلة ومجلدات خاصة به., 'You can provide a:': 'يمكنك
+    تقديم:', You can type link1 to visit the link: يمكنك كتابة link1 لزيارة الرابط,
+  'You can type link1, etc. to visit a link': يمكنك كتابة link1 وما إلى ذلك لزيارة
+    الرابط, You can type menu1 to select the menu item: يمكنك كتابة menu1 لتحديد عنصر
+    القائمة, 'You can type menu1, etc. to select a menu item': يمكنك كتابة menu1 وما
+    إلى ذلك لتحديد عنصر القائمة, You can type question to read the question again.: يمكنك
+    كتابة السؤال لقراءته مرة أخرى., You can upload a file here: يمكنك تحميل الملف
+    هنا, You can use the Playground of another user who has admin or developer privileges.: بإمكانك
+    استخدام ساحة اللعب الخاصة بمستخدم آخر لديه امتيازات المسؤول أو المطور., You cannot log in this way.: لا
+    يمكنك تسجيل الدخول بهذه الطريقة., You cannot log in until your e-mail address has been confirmed.: لن
+    تتمكن من تسجيل الدخول حتى يتم تأكيد عنوان بريدك الإلكتروني., You cannot pull from GitHub and PyPI at the same time.  Please fill in one and leave the other blank.: لا
+    يمكنك السحب من GitHub وPyPI في الوقت نفسه. يُرجى ملء أحدهما وترك الآخر فارغًا.,
+  You cannot rename the default Playground project: لا يمكنك إعادة تسمية مشروع Playground
+    الافتراضي, You cannot take away your own admin privilege.: لا يمكنك إزالة امتيازات
+    المسؤول الخاصة بك., You cannot type more than %s characters.: لا يمكنك كتابة أكثر
+    من %s حرفًا., You do not have any API keys yet.: ليس لديك أي مفاتيح API حتى الآن.,
+  You do not have permission to access '%(url)s'.: ليس لديك الإذن بالوصول إلى '%(url)s'.,
+  You do not have permission to install this package.: ليس لديك الإذن لتثبيت هذه الحزمة.,
+  You do not have sufficient privileges to edit this user.: ليس لديك الصلاحيات الكافية
+    لتحرير هذا المستخدم., You have been invited to join: لقد تمت دعوتك للانضمام, You have made too many login attempts.: لقد
+    قمت بالعديد من محاولات تسجيل الدخول., You have registered successfully.: لقد قمت
+    بالتسجيل بنجاح., You have signed in successfully.: لقد قمت بتسجيل الدخول بنجاح.,
+  You have signed out successfully.: لقد قمت بتسجيل الخروج بنجاح., You must attach a file.: يجب
+    عليك إرفاق الملف., You must be signed in to access '%(url)s'.: يجب عليك تسجيل
+    الدخول للوصول إلى '%(url)s'., You must confirm your email to access '%(url)s'.: يجب
+    عليك تأكيد بريدك الإلكتروني للوصول إلى '%(url)s'., You must provide a file.: يجب
+    عليك تقديم ملف., You must provide a language: يجب عليك توفير اللغة, You must provide an interview filename: يجب
+    عليك تقديم اسم ملف المقابلة, You must select an option.: يجب عليك تحديد خيار.,
+  You must sign your name to continue.: يجب عليك التوقيع باسمك للاستمرار., You must type at least %s characters.: يجب
+    عليك كتابة ما لا يقل عن %s حرفًا., You need to be logged in to access this interview.: يجب
+    عليك تسجيل الدخول للوصول إلى هذه المقابلة., You need to enter a complete e-mail address.: يجب
+    عليك إدخال عنوان البريد الإلكتروني الكامل., You need to enter a date and time between %s and %s.: يجب
+    عليك إدخال التاريخ والوقت بين %s و%s., You need to enter a date and time on or after %s.: يجب
+    عليك إدخال التاريخ والوقت في أو بعد %s., You need to enter a date and time on or before %s.: يجب
+    عليك إدخال التاريخ والوقت في أو قبل %s., You need to enter a date between %s and %s.: يجب
+    عليك إدخال تاريخ بين %s و %s., You need to enter a date on or after %s.: يجب عليك
+    إدخال تاريخ في أو بعد %s., You need to enter a date on or before %s.: يجب عليك
+    إدخال تاريخ في أو قبل %s., You need to enter a number that is at least %s.: يجب
+    عليك إدخال رقم لا يقل عن %s., You need to enter a number that is at most %s.: يجب
+    عليك إدخال رقم لا يزيد عن %s., You need to enter a number.: يجب عليك إدخال رقم.,
+  You need to enter a time at or after %s.: يجب عليك إدخال الوقت عند أو بعد %s., You need to enter a time at or before %s.: يجب
+    عليك إدخال الوقت عند أو قبل %s., You need to enter a time between %s and %s.: يجب
+    عليك إدخال وقت بين %s و %s., You need to enter a valid date and time.: يجب عليك
+    إدخال تاريخ ووقت صالحين., You need to enter a valid date.: يجب عليك إدخال تاريخ
+    صالح., You need to enter a valid number.: يجب عليك إدخال رقم صالح., You need to enter a valid time.: يجب
+    عليك إدخال وقت صالح., You need to enter a valid value.: يجب عليك إدخال قيمة صالحة.,
+  You need to increment the version before publishing to PyPI.: يجب عليك زيادة الإصدار
+    قبل النشر على PyPI., You need to log in before you can access: يجب عليك تسجيل
+    الدخول قبل أن تتمكن من الوصول, You need to log in with Auth0.: يجب عليك تسجيل
+    الدخول باستخدام Auth0., You need to log in with Authentik.: يجب عليك تسجيل الدخول
+    باستخدام Authentik., You need to log in with Azure.: يجب عليك تسجيل الدخول باستخدام
+    Azure., You need to log in with Facebook.: يجب عليك تسجيل الدخول باستخدام الفيسبوك.,
+  You need to log in with Google.: يجب عليك تسجيل الدخول باستخدام جوجل., You need to log in with Keycloak.: يجب
+    عليك تسجيل الدخول باستخدام Keycloak., You need to select one or type in a new value.: يجب
+    عليك تحديد قيمة واحدة أو كتابة قيمة جديدة., You need to select one.: يجب عليك
+    اختيار واحد., 'You need to supply a Git URL, upload a file, or supply the name of a package on PyPI.': يتعين
+    عليك توفير عنوان URL لـ Git، أو تحميل ملف، أو توفير اسم الحزمة على PyPI., You need to type in a name for the file: يجب
+    عليك كتابة اسم للملف, You need to type in a name for the interview: يجب عليك كتابة
+    اسم للمقابلة, You will need to confirm your email next.: سوف تحتاج إلى تأكيد بريدك
+    الإلكتروني بعد ذلك., You will need to confirm your email to start using: سوف تحتاج
+    إلى تأكيد بريدك الإلكتروني لبدء الاستخدام, ? 'Your GitHub integration is currently
+    turned on.  Below, you can change which repositories docassemble can access.  You
+    can disable GitHub integration if you no longer wish to use it.' : تم تفعيل تكامل
+    GitHub لديك حاليًا. يمكنك أدناه تغيير المستودعات التي يمكن لـ docassemble الوصول
+    إليها. يمكنك تعطيل تكامل GitHub إذا لم تعد ترغب في استخدامه., Your GitHub settings were saved.: تم
+    حفظ إعدادات GitHub الخاصة بك., Your IP address is: عنوان IP الخاص بك هو, Your Playground is connected to your Google Drive.: تم
+    ربط ملعبك بـ Google Drive., Your Playground is connected to your OneDrive.: تم
+    ربط ملعبك بـ OneDrive الخاص بك., 'Your account already has two-factor authentication enabled.  Would you like to reconfigure or disable two-factor authentication?': تم
+    تفعيل المصادقة الثنائية في حسابك. هل ترغب في إعادة ضبطها أو تعطيلها؟, Your account has been disabled.: لقد
+    تم تعطيل حسابك., Your account has not been enabled.: لم يتم تفعيل حسابك., Your account no longer uses two-factor authentication.: لم
+    يعد حسابك يستخدم المصادقة الثنائية., Your browser session has expired and you have been signed out.  You will not be able to save your work.  Please log in again.: انتهت
+    صلاحية جلسة المتصفح لديك وتم تسجيل خروجك. لن تتمكن من حفظ عملك. يُرجى تسجيل الدخول
+    مرة أخرى., Your confirmation token has expired.: لقد انتهت صلاحية رمز التأكيد
+    الخاص بك., Your docassemble server: خادم docassemble الخاص بك, Your document is attached.: تم
+    إرفاق مستندك., 'Your document, ': 'مستندك ', 'Your document, %s, is attached.': تم
+    إرفاق مستندك، %s., Your documents are attached.: تم إرفاق مستنداتك., Your documents will be e-mailed to: سيتم
+    إرسال مستنداتك عبر البريد الإلكتروني إلى, 'Your documents, ': 'مستنداتك ', 'Your documents, %s, are attached.': تم
+    إرفاق مستنداتك، %s., Your e-mail address: عنوان بريدك  الإلكتروني, Your email address: عنوان
+    بريدك  الإلكتروني, ? Your email address has not yet been confirmed. Check your
+    email Inbox and Spam folders for the confirmation email or <a href="%(url)s">Re-send
+    confirmation email</a>. : لم يتم تأكيد عنوان بريدك الإلكتروني بعد. تحقق من صندوق
+    الوارد والبريد العشوائي بحثًا عن رسالة التأكيد، أو <a href="%(url)s">أعد إرسالها</a>
+    ., Your email has been confirmed.: لقد تم تأكيد بريدك الإلكتروني., Your file upload is larger than the server can accept. Please reduce the size of your file upload.: حجم
+    ملفك المرفوع أكبر مما يستوعبه الخادم. يُرجى تقليل حجم ملفك المرفوع., Your information was saved.: لقد
+    تم حفظ معلوماتك., 'Your new API key, known internally as <strong>%s</strong>, is:<br />%s<br />': 'مفتاح
+    API الجديد الخاص بك، والمعروف داخليًا باسم <strong>%s</strong> ، هو:<br /> %s<br
+    />', Your password has been changed: لقد تم تغيير كلمة المرور الخاصة بك, Your password has been changed successfully.: لقد
+    تم تغيير كلمة المرور الخاصة بك بنجاح., Your password has been changed.: لقد تم
+    تغيير كلمة المرور الخاصة بك., Your password has been reset successfully.: لقد
+    تم إعادة تعيين كلمة المرور الخاصة بك بنجاح., Your password is insecure and needs to be changed: كلمة
+    المرور الخاصة بك غير آمنة ويجب تغييرها, 'Your phone #': رقم هاتفك, Your request was submitted.: لقد
+    تم تقديم طلبك., Your reset password token has expired.: انتهت صلاحية رمز إعادة
+    تعيين كلمة المرور الخاصة بك., Your reset password token is invalid.: رمز إعادة
+    تعيين كلمة المرور الخاص بك غير صالح., Your screen is being controlled by an operator.: يتم
+    التحكم في شاشتك بواسطة مشغل., 'Your status: ': 'حالتك: ', Your username has been changed: لقد
+    تم تغيير اسم المستخدم الخاص بك, Your username has been changed to '%(username)s'.: لقد
+    تم تغيير اسم المستخدم الخاص بك إلى '%(username)s'., Your username has been changed.: لقد
+    تم تغيير اسم المستخدم الخاص بك., Your verification code is: رمز التحقق الخاص بك
+    هو, Your verification code is invalid or expired.  Please try again.: رمز التحقق
+    الخاص بك غير صالح أو منتهي الصلاحية. يُرجى المحاولة مرة أخرى., Your verification code was invalid or expired.: رمز
+    التحقق الخاص بك غير صالح أو منتهي الصلاحية., Your verification code was invalid.: رمز
+    التحقق الخاص بك غير صالح., Your verification code was missing or expired: رمز
+    التحقق الخاص بك مفقود أو منتهي الصلاحية, Your version is: نسختك هي, Zambia: زامبيا,
+  Zimbabwe: زيمبابوي, Zip File: ملف مضغوط, a GitHub repository: مستودع GitHub, am I: هل
+    انا, and: و, and enter the code: وأدخل الرمز, anonymous visitor: زائر مجهول, are we: هل
+    نحن, are you: أنت, back: خلف, blank message: رسالة فارغة, breadcrumb: فتات الخبز,
+  click here to reset it: انقر هنا لإعادة تعيينه, could not connect to Google Drive: تعذر
+    الاتصال بـ Google Drive, could not connect to OneDrive: تعذر الاتصال بـ OneDrive,
+  day: يوم, defined by: تم تعريفه بواسطة, definitions of words: تعريفات الكلمات, delete my account: حذف
+    حسابي, 'e.g., *example.com': على سبيل المثال، *example.com, 'e.g., 56.33.114.49': على
+    سبيل المثال، 56.33.114.49, exit: مخرج, f: ف, 'false': خطأ شنيع, for debugging PDF output: لتصحيح
+    أخطاء إخراج PDF, for downloading: للتحميل, for editing; requires Microsoft Word or compatible application: للتحرير؛
+    يتطلب Microsoft Word أو تطبيق متوافق, 'for editing; requires Microsoft Word, Wordpad, or similar application': للتحرير؛
+    يتطلب Microsoft Word أو Wordpad أو تطبيق مماثل, for printing; requires Adobe Reader or similar application: للطباعة؛
+    يتطلب Adobe Reader أو تطبيق مماثل, from: من, he: هو, her: ها, herself: نفسها,
+  him: له, himself: نفسه, hour: ساعة, icon: رمز, in mako: في ماكو, in the: في, interview answers cannot be decrypted: لا
+    يمكن فك تشفير إجابات المقابلة, is not a valid date and time.: ليس تاريخًا ووقتًا
+    صالحًا., is not a valid date.: ليس تاريخًا صالحًا., is not a valid number.: ليس
+    رقمًا صالحًا., is not a valid time.: ليس وقتا صالحا., is not a whole number.: ليس
+    عددًا صحيحًا., is not within the range.: ليس ضمن النطاق., it: هو - هي, itself: نفسها,
+  link: وصلة, me: أنا, means the name is located in this file: يعني أن الاسم موجود
+    في هذا الملف, 'means the name may be located in a file included by reference, such as:': 'يعني
+    أن الاسم قد يكون موجودًا في ملف مضمن بالإشارة، مثل:', mentioned in: مذكور في,
+  menu: قائمة طعام, menu items: عناصر القائمة, minute: دقيقة, month: شهر, myself: نفسي,
+  n: ن, n/a: غير متوفر, no: لا, none: لا أحد, offline: غير متصل, ok: نعم, operator: المشغل,
+  operators: المشغلين, or: أو, or type skip to leave blank.: أو اكتب &quot;تخطي&quot;
+    لتركه فارغًا., other user: مستخدم آخر, other users: مستخدمين آخرين, ourselves: أنفسنا,
+  pages: الصفحات, pip log: سجل النقطة, published on GitHub: نُشر على GitHub, published on PyPI: نُشر
+    على PyPI, question: سؤال, quit: يترك, remaining on disk: المتبقي على القرص, second: ثانية,
+  she: هي, sign in: تسجيل الدخول, skip: يتخطى, something: شئ ما, system: نظام, t: ت,
+  them: هم, themself: أنفسهم, themselves: أنفسهم, they: هم, to proceed.: للمتابعة.,
+  'true': حقيقي, unavailable: غير متاح, us: نحن, v.: فعل, was saved at: تم حفظه في,
+  we: نحن, x: س, y: ي, year: سنة, yes: نعم, you: أنت, yourself: نفسك, yourselves: أنفسكم,
+  Åland Islands: جزر آلاند}

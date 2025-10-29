@@ -1,0 +1,841 @@
+ne: {'%(username_or_email)s does not exist': '%(username_or_email)s अवस्थित छैन।',
+  (%s uncompressed): (%s अनकम्प्रेस गरिएको), (Deleted): (मेटाइयो), (New branch): (नयाँ
+    शाखा), (New file): (नयाँ फाइल), (Not a DAFile or DAFileList object): (DAFile वा
+    DAFileList वस्तु होइन), '(Not a DAFile, DAFileList, or list object)': '(DAFile,
+    DAFileList, वा सूची वस्तु होइन)', (Not a readable image file): (पठनीय छवि फाइल
+    होइन), (Unable to display map): (नक्सा प्रदर्शन गर्न असमर्थ), (Unable to extract images from PDF file): (पीडीएफ
+    फाइलबाट छविहरू निकाल्न असमर्थ), '(embedded question, source code not available)': '(एम्बेडेड
+    प्रश्न, स्रोत कोड उपलब्ध छैन)', (no subject): (विषय छैन), (term definition): (शब्द
+    परिभाषा), (using your email address) and change your password.: (तपाईंको इमेल
+    ठेगाना प्रयोग गरेर) र आफ्नो पासवर्ड परिवर्तन गर्नुहोस्।, ', are attached': ',
+    संलग्न छन्', ', is already in use by someone else': ', पहिले नै अरू कसैद्वारा
+    प्रयोगमा छ', ', is attached': ', संलग्न छ', -- Do not link --: -- लिङ्क नगर्नुहोस्
+    --, .: ।, 404 Not Found: ४०४ भेटिएन, ? '<strong>This is the only time you will
+    be able to see your API key</strong>, so make sure to make a note of it and keep
+    it in a secure place.' : '<strong>यो एक मात्र समय हो जब तपाईं आफ्नो API कुञ्जी
+    हेर्न सक्षम हुनुहुनेछ</strong> , त्यसैले यसलाई नोट गर्नुहोस् र सुरक्षित स्थानमा
+    राख्नुहोस्।', '?': '?', A confirmation email has been sent to %(email)s with instructions to complete your registration.: तपाईंको
+    दर्ता पूरा गर्न निर्देशनहरू सहितको पुष्टिकरण इमेल %(email)s मा पठाइएको छ।, 'A new docassemble system version is available.  If you are using Docker, install a new Docker image.': 'नयाँ
+    डकएसेम्बल प्रणाली संस्करण उपलब्ध छ। यदि तपाईं डकर प्रयोग गर्दै हुनुहुन्छ भने,
+    नयाँ डकर छवि स्थापना गर्नुहोस्।', A reset password email has been sent to '%(email)s'. Open that email and follow the instructions to reset your password.: '''%(email)s''
+    मा पासवर्ड रिसेट गर्ने इमेल पठाइएको छ। त्यो इमेल खोल्नुहोस् र आफ्नो पासवर्ड रिसेट
+    गर्न निर्देशनहरू पालना गर्नुहोस्।', A user with that e-mail has already registered: त्यो
+    इमेल भएको प्रयोगकर्ता पहिले नै दर्ता भइसकेको छ।, 'A valid SPDX identifier must be provided, e.g., MIT, GPL-3.0, Apache-2.0.': 'एउटा
+    मान्य SPDX पहिचानकर्ता प्रदान गर्नुपर्छ, जस्तै, MIT, GPL-3.0, Apache-2.0।', API Keys: API
+    कुञ्जीहरू, API key: API कुञ्जी, API key copied to clipboard.: API कुञ्जी क्लिपबोर्डमा
+    प्रतिलिपि गरियो।, API keys: API कुञ्जीहरू, Access organizational repositories: संगठनात्मक
+    भण्डारहरू पहुँच गर्नुहोस्, Access shared repositories: साझा भण्डारहरू पहुँच गर्नुहोस्,
+  Account did not exist.: खाता अवस्थित थिएन।, Account disabled: खाता असक्षम पारियो,
+  Action: एक्सन, Actions: कार्यहरू, Activate chat: च्याट सक्रिय गर्नुहोस्, Active: सक्रिय,
+  Active File: सक्रिय फाइल, Actual: वास्तविक, Add: थप्नुहोस्, Add Email: इमेल थप्नुहोस्,
+  Add Privilege: विशेषाधिकार थप्नुहोस्, Add User: प्रयोगकर्ता थप्नुहोस्, Add a New API Key: नयाँ
+    API कुञ्जी थप्नुहोस्, Add a New Project: नयाँ परियोजना थप्नुहोस्, Add a new privilege: नयाँ
+    विशेषाधिकार थप्नुहोस्, Add a user: प्रयोगकर्ता थप्नुहोस्, Add an item: एउटा वस्तु
+    थप्नुहोस्, Add another: अर्को थप्नुहोस्, Administrator: प्रशासक, Administrator privilege: प्रशासक
+    विशेषाधिकार, Advocate privilege: वकालत विशेषाधिकार, Afghanistan: अफगानिस्तान,
+  Albania: अल्बानिया, Algeria: अल्जेरिया, All Playgrounds: सबै खेल मैदानहरू, All of the above: माथिका
+    सबै, Allowed sites: अनुमति दिइएका साइटहरू, 'Already registered?': 'पहिले नै दर्ता
+    गरिएको छ?', 'Already registered? Sign in.': 'पहिले नै दर्ता भइसक्नुभयो? साइन इन
+    गर्नुहोस्।', American Samoa: अमेरिकी सामोआ, ? 'An SSH key is already installed
+    on your GitHub account. The existing SSH key will not be replaced. Note that if
+    you are connecting to GitHub from multiple docassemble servers, each server needs
+    to have a different appname in the Configuration. If you have problems using GitHub,
+    disable the integration and configure it again.' : 'तपाईंको GitHub खातामा पहिले
+    नै SSH कुञ्जी स्थापना गरिएको छ। अवस्थित SSH कुञ्जी प्रतिस्थापन गरिने छैन। ध्यान
+    दिनुहोस् कि यदि तपाईं धेरै docassemble सर्भरहरूबाट GitHub मा जडान गर्दै हुनुहुन्छ
+    भने, प्रत्येक सर्भरको कन्फिगरेसनमा फरक एपनाम हुनु आवश्यक छ। यदि तपाईंलाई GitHub
+    प्रयोग गर्न समस्या भइरहेको छ भने, एकीकरण असक्षम पार्नुहोस् र यसलाई फेरि कन्फिगर
+    गर्नुहोस्।', An e-mail address is required.: इमेल ठेगाना आवश्यक छ।, An uploaded JSON file: अपलोड
+    गरिएको JSON फाइल, Andorra: एन्डोरा, Angola: अंगोला, Anguilla: एङ्गुइला, Anonymous: बेनामी,
+  Answer here: यहाँ उत्तर दिनुहोस्, Antarctica: अन्टार्कटिका, Antigua and Barbuda: एन्टिगुआ
+    र बारबुडा, App: एप, Apply: निवेदन गर्नु, 'Are you sure that you want to delete this file?': 'के
+    तपाईं यो फाइल मेटाउन निश्चित हुनुहुन्छ?', 'Are you sure that you want to delete this package?': 'के
+    तपाईं यो प्याकेज मेटाउन निश्चित हुनुहुन्छ?', 'Are you sure that you want to delete this playground file?': 'के
+    तपाईं यो खेल मैदान फाइल मेटाउन निश्चित हुनुहुन्छ?', 'Are you sure you want to delete all saved interviews?': 'के
+    तपाईं सुरक्षित गरिएका सबै अन्तर्वार्ताहरू मेटाउन चाहनुहुन्छ?', 'Are you sure you want to delete this item?': 'के
+    तपाईं यो वस्तु मेटाउन निश्चित हुनुहुन्छ?', 'Are you sure you want to permanently delete this user''s account?': 'के
+    तपाईं यस प्रयोगकर्ताको खाता स्थायी रूपमा मेटाउन चाहनुहुन्छ?', Argentina: अर्जेन्टिना,
+  Armenia: आर्मेनिया, Aruba: अरुबा, At least one e-mail address must be listed: कम्तिमा
+    एउटा इमेल ठेगाना सूचीबद्ध हुनुपर्छ।, Attachment: संलग्नक, Attachments: संलग्नकहरू,
+  Australia: अष्ट्रेलिया, Austria: अस्ट्रिया, Authentication: प्रमाणीकरण, Authentication failed.: प्रमाणीकरण
+    असफल भयो।, Author E-mail: लेखक इमेल, Author Name: लेखकको नाम, Autocomplete: स्वतः
+    पूर्ण, Available: उपलब्ध छ, Available Interviews: उपलब्ध अन्तर्वार्ताहरू, Available for chat: च्याटको
+    लागि उपलब्ध छ, Available interviews: उपलब्ध अन्तर्वार्ताहरू, Azerbaijan: अजरबैजान,
+  Back: पछाडि, Back to Playground: खेल मैदानमा फर्कनुहोस्, Back to profile: प्रोफाइलमा
+    फर्कनुहोस्, Back to question: प्रश्नमा फर्कनुहोस्, Back to user list: प्रयोगकर्ता
+    सूचीमा फर्कनुहोस्, Bad date: खराब मिति, Bad file format: खराब फाइल ढाँचा, Bahamas: बहामास,
+  Bahrain: बहराइन, Bangladesh: बंगलादेश, Barbados: बार्बाडोस, Belarus: बेलारुस, Belgium: बेल्जियम,
+  Belize: बेलिज, Benin: बेनिन, Bermuda: बर्मुडा, Bhutan: भुटान, Block: ब्लक गर्नुहोस्,
+  'Bolivia, Plurinational State of': 'बोलिभिया, बहुराष्ट्रिय राज्य', 'Bonaire, Sint Eustatius and Saba': 'बोनेयर,
+    सिन्ट युस्टेटियस र साबा', Bosnia and Herzegovina: बोस्निया र हर्जगोभिना, Botswana: बोत्स्वाना,
+  Bouvet Island: बुभेट टापु, Branch: शाखा, Brazil: ब्राजिल, British Indian Ocean Territory: ब्रिटिश
+    हिन्द महासागर क्षेत्र, Browse Other Playgrounds: अन्य खेल मैदानहरू ब्राउज गर्नुहोस्,
+  Brunei Darussalam: ब्रुनाई दारुस्सलाम, Bulgaria: बुल्गेरिया, Burkina Faso: बुर्किना
+    फासो, Burundi: बुरुन्डी, Cabo Verde: काबो भर्डे, Cambodia: कम्बोडिया, Cameroon: क्यामरुन,
+  Canada: क्यानडा, Cancel: रद्द गर्नुहोस्, Case No.: मुद्दा नं., Cayman Islands: केम्यान
+    टापुहरू, Central African Republic: मध्य अफ्रिकी गणतन्त्र, Chad: चाड, Change: परिवर्तन
+    गर्नुहोस्, Change Password: पासवर्ड परिवर्तन गर्नुहोस्, Change password: पासवर्ड
+    परिवर्तन गर्नुहोस्, Change username: प्रयोगकर्ता नाम परिवर्तन गर्नुहोस्, Changed name of interview: अन्तर्वार्ताको
+    नाम परिवर्तन गरियो, Chat message you want to send: तपाईंले पठाउन चाहनुभएको च्याट
+    सन्देश, 'Check at least one option, or check “%s”': 'कम्तिमा एउटा विकल्प जाँच
+    गर्नुहोस्, वा &quot;%s&quot; जाँच गर्नुहोस्।', Check box: चेक बक्स, Check if applicable: लागू
+    हुन्छ कि हुँदैन जाँच गर्नुहोस्, Chile: चिली, China: चीन, 'Choices (choose one):': 'विकल्पहरू
+    (एउटा छान्नुहोस्):', 'Choices:': 'विकल्पहरू:', Christmas Island: क्रिसमस टापु,
+  Classes: कक्षाहरू, Clear: खाली गर्नुहोस्, Click here to confirm your e-mail: आफ्नो
+    इमेल पुष्टि गर्न यहाँ क्लिक गर्नुहोस्।, Click here to get help over the phone.: फोन
+    मार्फत मद्दत प्राप्त गर्न यहाँ क्लिक गर्नुहोस्।, Click if you want the user to be able to call you.: यदि
+    तपाईं प्रयोगकर्ताले तपाईंलाई कल गर्न सक्षम होस् भन्ने चाहनुहुन्छ भने क्लिक गर्नुहोस्।,
+  Click interview title to resume an interview you already started.: तपाईंले पहिले
+    नै सुरु गर्नुभएको अन्तर्वार्ता पुनः सुरु गर्न अन्तर्वार्ता शीर्षकमा क्लिक गर्नुहोस्।,
+  Click to change your status to available: आफ्नो स्थिति उपलब्धमा परिवर्तन गर्न क्लिक
+    गर्नुहोस्, Click to change your status to not available: आफ्नो स्थिति उपलब्ध छैन
+    मा परिवर्तन गर्न क्लिक गर्नुहोस्, Click to try this interview: यो अन्तर्वार्ता
+    हेर्न क्लिक गर्नुहोस्, Close: बन्द गर्नुहोस्, Cocos (Keeling) Islands: कोकोस (किलिङ)
+    टापुहरू, Colombia: कोलम्बिया, Commit: प्रतिबद्ध गर्नुहोस्, Commit message: सन्देश
+    पठाउनुहोस्, Comoros: कोमोरोस, Configuration: कन्फिगरेसन, Configuration YAML: YAML
+    कन्फिगरेसन, Configuration not updated.: कन्फिगरेसन अद्यावधिक गरिएको छैन।, Configuration not updated.  There was a syntax error in the configuration YAML.: कन्फिगरेसन
+    अद्यावधिक गरिएको छैन। YAML कन्फिगरेसनमा वाक्य रचना त्रुटि थियो।, Configuration not updated.  There was an error.: कन्फिगरेसन
+    अद्यावधिक गरिएको छैन। एउटा त्रुटि भयो।, Configure: कन्फिगर गर्नुहोस्, Confirm your email: आफ्नो
+    इमेल पुष्टि गर्नुहोस्, Confirmation Date: पुष्टिकरण मिति, Congo: कंगो, 'Congo, The Democratic Republic of the': 'कंगो,
+    प्रजातान्त्रिक गणतन्त्र', Connect: जडान गर्नुहोस्, Connected to Google Drive: गुगल
+    ड्राइभमा जडान गरियो, Connected to OneDrive: OneDrive मा जडान गरियो, Connected to server.: सर्भरमा
+    जडान भयो।, Continue: जारी राख्नुहोस्, Control: नियन्त्रण, Convert to .md: .md
+    मा रूपान्तरण गर्नुहोस्, Cook Islands: कुक टापुहरू, Copy API key: API कुञ्जी प्रतिलिपि
+    गर्नुहोस्, 'Copy from here and paste into a YAML file, e.g., in the Sources folder of the Playground or the sources folder of a package.': 'यहाँबाट
+    प्रतिलिपि गर्नुहोस् र YAML फाइलमा टाँस्नुहोस्, जस्तै, प्लेग्राउन्डको स्रोत फोल्डरमा
+    वा प्याकेजको स्रोत फोल्डरमा।', Costa Rica: कोस्टारिका, Could not create new key: नयाँ
+    कुञ्जी सिर्जना गर्न सकिएन, Country Code: देशको कोड, Country code: देशको कोड, Create: सिर्जना
+    गर्नुहोस्, Create Package: प्याकेज सिर्जना गर्नुहोस्, Create a new file: नयाँ
+    फाइल सिर्जना गर्नुहोस्, Create a new interview: नयाँ अन्तर्वार्ता सिर्जना गर्नुहोस्,
+  Create a new package: नयाँ प्याकेज सिर्जना गर्नुहोस्, Create a new project: नयाँ
+    परियोजना सिर्जना गर्नुहोस्, Create an interview with the wizard: विजार्डसँग अन्तर्वार्ता
+    सिर्जना गर्नुहोस्, 'Created new Markdown file called ': 'नयाँ मार्कडाउन फाइल सिर्जना
+    गरियो जसलाई भनिन्छ ', Croatia: क्रोएसिया, Cuba: क्युबा, Curaçao: कुराकाओ, Current: हालको,
+  Cyprus: साइप्रस, Czechia: चेकिया, Decorations: सजावटहरू, Default Playground: पूर्वनिर्धारित
+    खेल मैदान, Defined in: मा परिभाषित, Delete: मेटाउनुहोस्, Delete Account: खाता
+    मेटाउनुहोस्, Delete All: सबै मेटाउनुहोस्, Delete account and shared sessions: खाता
+    र साझा सत्रहरू मेटाउनुहोस्, Delete account but keep shared sessions: खाता मेटाउनुहोस्
+    तर साझा सत्रहरू राख्नुहोस्, Delete project: परियोजना मेटाउनुहोस्, Delete this package from the Playground: प्लेग्राउन्डबाट
+    यो प्याकेज मेटाउनुहोस्, 'Deleted file: ': 'मेटाइएको फाइल: ', Deleted interview: अन्तर्वार्ता
+    मेटाइयो, Deleted interviews: मेटाइएका अन्तर्वार्ताहरू, Deleted package: मेटाइएको
+    प्याकेज, Denmark: डेनमार्क, Dependencies: निर्भरताहरू, Description: विवरण, Developer Access: विकासकर्ता
+    पहुँच, Developer privilege: विकासकर्ता विशेषाधिकार, Disable: असक्षम पार्नुहोस्,
+  Disable two-factor authentication: दुई-कारक प्रमाणीकरण असक्षम गर्नुहोस्, Display the menu: मेनु
+    प्रदर्शन गर्नुहोस्, Djibouti: जिबुटी, Do not stop your web browser.: आफ्नो वेब
+    ब्राउजर नरोक्नुहोस्।, Docassemble Office Add-in: डकएसेम्बल अफिस एड-इन, Docassemble Playground: डकएसेम्बल
+    खेल मैदान, Document: कागजात, Documentation: कागजात, Dominica: डोमिनिका, Dominican Republic: डोमिनिकन
+    गणतन्त्र, Download: डाउनलोड गर्नुहोस्, Download All: सबै डाउनलोड गर्नुहोस्, Download Office add-in manifest file: अफिस
+    एड-इन म्यानिफेस्ट फाइल डाउनलोड गर्नुहोस्, Download all documents as a ZIP file: सबै
+    कागजातहरू ZIP फाइलको रूपमा डाउनलोड गर्नुहोस्।, Download all files: सबै फाइलहरू
+    डाउनलोड गर्नुहोस्, Download an interview phrase translation file: अन्तर्वार्ता
+    वाक्यांश अनुवाद फाइल डाउनलोड गर्नुहोस्, Download installed package: स्थापित प्याकेज
+    डाउनलोड गर्नुहोस्, Download the current package: हालको प्याकेज डाउनलोड गर्नुहोस्,
+  Download this document as a ZIP file: यो कागजातलाई ZIP फाइलको रूपमा डाउनलोड गर्नुहोस्।,
+  Download this file: यो फाइल डाउनलोड गर्नुहोस्, Download this log file: यो लग फाइल
+    डाउनलोड गर्नुहोस्, Draft translation of system phrases: प्रणाली वाक्यांशहरूको
+    मस्यौदा अनुवाद, Dropdown: ड्रपडाउन, E-mail: इमेल, E-mail address: इमेल ठेगाना,
+  E-mail address is required: इमेल ठेगाना आवश्यक छ।, E-mail addresses with this domain are not authorized to register for accounts on this system.: यस
+    डोमेन भएका इमेल ठेगानाहरूलाई यस प्रणालीमा खाताहरू दर्ता गर्न अधिकार दिइएको छैन।,
+  E-mail is required: इमेल आवश्यक छ, E-mail these documents: यी कागजातहरू इमेल गर्नुहोस्,
+  E-mail this document: यो कागजात इमेल गर्नुहोस्, E-mail was sent to: इमेल पठाइएको
+    थियो, 'E.g., docassemble.demo:data/questions/questions.yml': 'जस्तै, docassemble.demo:data/questions/questions.yml',
+  'E.g., es, fr, it': 'जस्तै, es, fr, यो', 'ERROR: you cannot insert a table into a .docx document': 'त्रुटि:
+    तपाईं .docx कागजातमा तालिका घुसाउन सक्नुहुन्न।', Ecuador: इक्वेडर, Edit: सम्पादन
+    गर्नुहोस्, Edit API Key: API कुञ्जी सम्पादन गर्नुहोस्, Edit User Profile: प्रयोगकर्ता
+    प्रोफाइल सम्पादन गर्नुहोस्, Edit another file: अर्को फाइल सम्पादन गर्नुहोस्, Edit another interview: अर्को
+    अन्तर्वार्ता सम्पादन गर्नुहोस्, Edit another package: अर्को प्याकेज सम्पादन गर्नुहोस्,
+  Edit module files: मोड्युल फाइलहरू सम्पादन गर्नुहोस्, Edit privileges: विशेषाधिकारहरू
+    सम्पादन गर्नुहोस्, Edit source files: स्रोत फाइलहरू सम्पादन गर्नुहोस्, Edit text files: पाठ
+    फाइलहरू सम्पादन गर्नुहोस्, Egypt: इजिप्ट, El Salvador: एल साल्भाडोर, Email: इमेल,
+  Email Confirmation: इमेल पुष्टिकरण, Email address is required: इमेल ठेगाना आवश्यक
+    छ।, Email is required: इमेल आवश्यक छ, Embed test: इम्बेड परीक्षण, Enter: प्रविष्ट
+    गर्नुहोस्, ? 'Enter a URL of a GitHub repository containing an extension package.  When
+    you press Pull, the contents of that repository will be copied into the Playground,
+    overwriting any files with the same names.  Or, put in the name of a PyPI package
+    and it will do the same with the package on PyPI.' : 'एक्सटेन्सन प्याकेज भएको
+    GitHub रिपोजिटरीको URL प्रविष्ट गर्नुहोस्। जब तपाईंले Pull थिच्नुहुन्छ, त्यो रिपोजिटरीको
+    सामग्री प्लेग्राउन्डमा प्रतिलिपि हुनेछ, उही नाम भएका कुनै पनि फाइलहरूलाई अधिलेखन
+    गर्नेछ। वा, PyPI प्याकेजको नाम राख्नुहोस् र यसले PyPI मा प्याकेजसँग पनि त्यस्तै
+    गर्नेछ।', Enter code: कोड प्रविष्ट गर्नुहोस्, Enter the name of the new project you want to create.: तपाईंले
+    सिर्जना गर्न चाहनुभएको नयाँ परियोजनाको नाम प्रविष्ट गर्नुहोस्।, 'Entering a different interview.  To go back to your previous interview, go to My Interviews on the menu.': 'फरक
+    अन्तर्वार्तामा प्रवेश गर्दै। आफ्नो अघिल्लो अन्तर्वार्तामा फर्कन, मेनुमा रहेको
+    मेरो अन्तर्वार्तामा जानुहोस्।', 'Entering a different interview.  To go back to your previous interview, log in to see a list of your interviews.': 'फरक
+    अन्तर्वार्तामा प्रवेश गर्दै। आफ्नो अघिल्लो अन्तर्वार्तामा फर्कन, आफ्नो अन्तर्वार्ताको
+    सूची हेर्न लग इन गर्नुहोस्।', Equatorial Guinea: इक्वेटोरियल गिनी, Erase existing data for each model before importing: आयात
+    गर्नु अघि प्रत्येक मोडेलको अवस्थित डेटा मेटाउनुहोस्, Eritrea: इरिट्रिया, Error: त्रुटि,
+  Error reading JSON file from package.  File did not exist.: प्याकेजबाट JSON फाइल
+    पढ्ने क्रममा त्रुटि भयो। फाइल अवस्थित थिएन।, Error reading JSON file.  Not a valid JSON file.: JSON
+    फाइल पढ्ने क्रममा त्रुटि भयो। मान्य JSON फाइल होइन।, Error reading JSON file.  The JSON file needs to contain a dictionary at the root level.: JSON
+    फाइल पढ्ने क्रममा त्रुटि भयो। JSON फाइलमा मूल स्तरमा शब्दकोश हुनु आवश्यक छ।, 'Error: interview not found': 'त्रुटि:
+    अन्तर्वार्ता भेटिएन', 'Error: interview not found and answers could not be decrypted': 'त्रुटि:
+    अन्तर्वार्ता भेटिएन र उत्तरहरू डिक्रिप्ट गर्न सकिएन', 'Error: menu item is not a Python dict with keys of url and label': 'त्रुटि:
+    मेनु वस्तु url र लेबलको कुञ्जी भएको पाइथन डिक्ट होइन।', 'Error: menu_items is not a Python list': 'त्रुटि:
+    menu_items पाइथन सूची होइन।', 'Error: no fields could be found in the file': 'त्रुटि:
+    फाइलमा कुनै पनि क्षेत्रहरू फेला पार्न सकिएन।', Errors: त्रुटिहरू, Estonia: इस्टोनिया,
+  Eswatini: इस्वातिनी, Ethiopia: इथियोपिया, Every Two Weeks: प्रत्येक दुई हप्तामा,
+  Existing module files: अवस्थित मोड्युल फाइलहरू, Existing source files: अवस्थित स्रोत
+    फाइलहरू, Existing static files: अवस्थित स्थिर फाइलहरू, Existing template files: अवस्थित
+    टेम्प्लेट फाइलहरू, Exit: बाहिर निस्कनुहोस्, Failed to load report: रिपोर्ट लोड
+    गर्न असफल भयो, Falkland Islands (Malvinas): फकल्याण्ड टापुहरू (माल्भिनास), Faroe Islands: फारो
+    टापुहरू, Field cannot contain HTML: फिल्डमा HTML समावेश हुन सक्दैन।, Fiji: फिजी,
+  File: फाइल, File Name: फाइलको नाम, File Text: फाइल पाठ, 'File could not be converted: ': 'फाइल
+    रूपान्तरण गर्न सकिएन: ', File deleted.: फाइल मेटाइयो।, 'File format not understood: ': 'फाइल
+    ढाँचा बुझिएन: ', File name: फाइलको नाम, File not deleted.  There was an error.: फाइल
+    मेटिएको छैन। एउटा त्रुटि भयो।, 'File not found: ': 'फाइल फेला परेन: ', File to upload: अपलोड
+    गर्नुपर्ने फाइल, Files: फाइलहरू, Files to include: समावेश गर्नुपर्ने फाइलहरू,
+  Filter For: फिल्टरको लागि, Filter by tag: ट्याग अनुसार फिल्टर गर्नुहोस्, Filter for: को
+    लागि फिल्टर गर्नुहोस्, Finland: फिनल्याण्ड, First Subdivision: पहिलो उपविभाजन,
+  First name: पहिलो नाम, First subdivision: पहिलो उपविभाजन, Floor: भुइँ, Folder: फोल्डर,
+  Folders: फोल्डरहरू, Forgot Password: पासवर्ड बिर्सनुभयो, Forgot password: पासवर्ड
+    भुल्नु भयो, 'Forgot your Password?': 'आफ्नो पासवर्ड बिर्सनुभयो?', Formula: सूत्र,
+  France: फ्रान्स, French Guiana: फ्रेन्च गुयाना, French Polynesia: फ्रेन्च पोलिनेसिया,
+  French Southern Territories: फ्रान्सेली दक्षिणी क्षेत्रहरू, From: बाट, Functions: कार्यहरू,
+  Gabon: गाबोन, Gambia: गाम्बिया, Georgia: जर्जिया, Germany: जर्मनी, Get help through live chat by clicking here.: यहाँ
+    क्लिक गरेर लाइभ च्याट मार्फत मद्दत प्राप्त गर्नुहोस्।, Get list of fields from PDF/DOCX template: PDF/DOCX
+    टेम्प्लेटबाट फिल्डहरूको सूची प्राप्त गर्नुहोस्, Get package: प्याकेज प्राप्त गर्नुहोस्,
+  Get template: टेम्प्लेट प्राप्त गर्नुहोस्, Ghana: घाना, Gibraltar: जिब्राल्टर, GitHub: गिटहब,
+  GitHub Branch: GitHub शाखा, GitHub Commit: GitHub कमिट, GitHub Integration: GitHub
+    एकीकरण, GitHub URL: गिटहब युआरएल, GitHub integration: GitHub एकीकरण, GitHub integration was successfully configured.: GitHub
+    एकीकरण सफलतापूर्वक कन्फिगर गरियो।, GitHub integration was successfully disconnected.: GitHub
+    एकीकरण सफलतापूर्वक विच्छेद भयो।, Global: विश्वव्यापी, Global models: विश्वव्यापी
+    मोडेलहरू, Go: जानुहोस्, Go back to the main Playground page: मुख्य खेल मैदान पृष्ठमा
+    फर्कनुहोस्।, Go back to the previous question: अघिल्लो प्रश्नमा फर्कनुहोस्, Google Drive: गुगल
+    ड्राइभ, Google Drive Sync: गुगल ड्राइभ सिंक, Google Drive Test: गुगल ड्राइभ परीक्षण,
+  Google Drive is not configured: गुगल ड्राइभ कन्फिगर गरिएको छैन।, Google Drive is not linked.: गुगल
+    ड्राइभ लिङ्क गरिएको छैन।, Google Drive synchronization: गुगल ड्राइभ सिङ्क्रोनाइजेसन,
+  Greece: ग्रीस, Greenland: ग्रीनल्याण्ड, Grenada: ग्रेनाडा, Guadeloupe: ग्वाडेलोप,
+  Guam: गुआम, Guatemala: ग्वाटेमाला, Guernsey: ग्वेर्नसे, Guinea: गिनी, Guinea-Bissau: गिनी-बिसाउ,
+  Guyana: गुयाना, Haiti: हैटी, Heard Island and McDonald Islands: हर्ड टापु र म्याकडोनाल्ड
+    टापुहरू, Help: मद्दत, Help is available: मद्दत उपलब्ध छ।, Help is available for this question: यस
+    प्रश्नको लागि मद्दत उपलब्ध छ।, Help with this question: यो प्रश्नमा मद्दत गर्नुहोस्,
+  Here is some content after the interview.: अन्तर्वार्ता पछिको केही सामग्री यहाँ
+    छ।, Here is some content before the interview.: अन्तर्वार्ता अघिको केही सामग्री
+    यहाँ छ।, Here is the start of a YAML file you can import with a 'words' directive in your Configuration.: यहाँ
+    तपाईंको कन्फिगरेसनमा 'शब्दहरू' निर्देशनको साथ आयात गर्न सकिने YAML फाइलको सुरुवात
+    छ।, Here is your document.: यहाँ तपाईंको कागजात छ।, Hide context of example: उदाहरणको
+    सन्दर्भ लुकाउनुहोस्, Hide entries that are already classified: पहिले नै वर्गीकृत
+    गरिएका प्रविष्टिहरू लुकाउनुहोस्, Hide import controls: आयात नियन्त्रणहरू लुकाउनुहोस्,
+  History: इतिहास, Holy See (Vatican City State): होली सी (भ्याटिकन सिटी राज्य), Home Page: गृह
+    पृष्ठ, Honduras: होन्डुरस, Hong Kong: हङकङ, How question came to be asked: कसरी
+    प्रश्न सोध्न थालियो, How this question came to be asked: यो प्रश्न कसरी सोधियो,
+  'How would you like the data to be imported?': 'तपाईं डेटा कसरी आयात गर्न चाहनुहुन्छ?',
+  Hungary: हंगेरी, I: म, I am sorry.  The code you entered is invalid or expired.  Goodbye.: माफ
+    गर्नुहोस्। तपाईंले प्रविष्ट गर्नुभएको कोड अमान्य छ वा म्याद सकिएको छ। अलविदा।,
+  I do not understand what you mean by: तपाईंले भन्न खोज्नुभएको कुरा मलाई बुझिएन।,
+  I don't know: मलाई थाहा छैन, IP Address: IP ठेगाना, Iceland: आइसल्याण्ड, 'If no items are selected, user privileges will determine permissions of the API key.': 'यदि
+    कुनै पनि वस्तुहरू चयन गरिएको छैन भने, प्रयोगकर्ता विशेषाधिकारहरूले API कुञ्जीको
+    अनुमतिहरू निर्धारण गर्नेछ।', 'If you did not initiate this confirmation, you may safely ignore this email.': 'यदि
+    तपाईंले यो पुष्टिकरण सुरु गर्नुभएको छैन भने, तपाईं यो इमेललाई सुरक्षित रूपमा बेवास्ता
+    गर्न सक्नुहुन्छ।', 'If you did not initiate this password change,': 'यदि तपाईंले
+    यो पासवर्ड परिवर्तन सुरु गर्नुभएको छैन भने,', 'If you did not initiate this password change, click the link below to reset it.': 'यदि
+    तपाईंले यो पासवर्ड परिवर्तन सुरु गर्नुभएको छैन भने, यसलाई रिसेट गर्न तलको लिङ्कमा
+    क्लिक गर्नुहोस्।', 'If you did not initiate this password reset, you may safely ignore this email.': 'यदि
+    तपाईंले यो पासवर्ड रिसेट सुरु गर्नुभएको छैन भने, तपाईं यो इमेललाई सुरक्षित रूपमा
+    बेवास्ता गर्न सक्नुहुन्छ।', 'If you did not initiate this registration, you may safely ignore this email.': 'यदि
+    तपाईंले यो दर्ता सुरु गर्नुभएको छैन भने, तपाईं यो इमेललाई सुरक्षित रूपमा बेवास्ता
+    गर्न सक्नुहुन्छ।', 'If you did not initiate this username change, please': 'यदि
+    तपाईंले यो प्रयोगकर्ता नाम परिवर्तन सुरु गर्नुभएको छैन भने, कृपया', 'If you did not initiate this username change, please sign in (using your email address) and change your password.': 'यदि
+    तपाईंले यो प्रयोगकर्ता नाम परिवर्तन सुरु गर्नुभएको छैन भने, कृपया साइन इन गर्नुहोस्
+    (आफ्नो इमेल ठेगाना प्रयोग गरेर) र आफ्नो पासवर्ड परिवर्तन गर्नुहोस्।', ? 'If you
+    have a GitHub account, you can turn on GitHub integration.  This will allow you
+    to use GitHub as a version control system for packages from inside the Playground.'
+  : 'यदि तपाईंसँग GitHub खाता छ भने, तपाईं GitHub एकीकरण सक्रिय गर्न सक्नुहुन्छ। यसले
+    तपाईंलाई प्लेग्राउन्ड भित्रबाट प्याकेजहरूको लागि संस्करण नियन्त्रण प्रणालीको रूपमा
+    GitHub प्रयोग गर्न अनुमति दिनेछ।', 'If you initiated this confirmation, please click on the link below:': 'यदि
+    तपाईंले यो पुष्टिकरण सुरु गर्नुभएको हो भने, कृपया तलको लिङ्कमा क्लिक गर्नुहोस्:',
+  'If you initiated this registration, please click on the link below to sign in to your existing account:': 'यदि
+    तपाईंले यो दर्ता सुरु गर्नुभएको हो भने, कृपया आफ्नो अवस्थित खातामा साइन इन गर्न
+    तलको लिङ्कमा क्लिक गर्नुहोस्:', 'If you initiated this registration, please click on the link below:': 'यदि
+    तपाईंले यो दर्ता सुरु गर्नुभएको हो भने, कृपया तलको लिङ्कमा क्लिक गर्नुहोस्:',
+  'If you initiated this registration, please visit the link below to sign in to your existing account:': 'यदि
+    तपाईंले यो दर्ता सुरु गर्नुभएको हो भने, कृपया आफ्नो अवस्थित खातामा साइन इन गर्न
+    तलको लिङ्कमा जानुहोस्:', 'If you initiated this registration, please visit the link below:': 'यदि
+    तपाईंले यो दर्ता सुरु गर्नुभएको हो भने, कृपया तलको लिङ्कमा जानुहोस्:', 'If you initiated this request, please click on the link below:': 'यदि
+    तपाईंले यो अनुरोध सुरु गर्नुभएको हो भने, कृपया तलको लिङ्कमा क्लिक गर्नुहोस्:',
+  Import: आयात गर्नुहोस्, Import method: आयात विधि, Import training data from a JSON file: JSON
+    फाइलबाट तालिम डेटा आयात गर्नुहोस्, Include DOCX and Markdown files for editing: सम्पादनको
+    लागि DOCX र Markdown फाइलहरू समावेश गर्नुहोस्, Include DOCX file for editing: सम्पादनको
+    लागि DOCX फाइल समावेश गर्नुहोस्, Include DOCX files for editing: सम्पादनको लागि
+    DOCX फाइलहरू समावेश गर्नुहोस्, Include Markdown file for editing: सम्पादनको लागि
+    मार्कडाउन फाइल समावेश गर्नुहोस्, Include Markdown files for editing: सम्पादनको
+    लागि मार्कडाउन फाइलहरू समावेश गर्नुहोस्, Include RTF and DOCX files for editing: सम्पादनको
+    लागि RTF र DOCX फाइलहरू समावेश गर्नुहोस्, Include RTF and Markdown files for editing: सम्पादनको
+    लागि RTF र मार्कडाउन फाइलहरू समावेश गर्नुहोस्, Include RTF file for editing: सम्पादनको
+    लागि RTF फाइल समावेश गर्नुहोस्, Include RTF files for editing: सम्पादनको लागि
+    RTF फाइलहरू समावेश गर्नुहोस्, Incorrect %(username_or_email)s and/or Password: गलत
+    %(username_or_email)s र/वा पासवर्ड, Incorrect Email and/or Password: गलत इमेल
+    र/वा पासवर्ड, Incorrect Password: गलत पासवर्ड, India: भारत, Indonesia: इन्डोनेसिया,
+  Information: जानकारी, Information for the developer: विकासकर्ताको लागि जानकारी,
+  Input: इनपुट, Input box: इनपुट बक्स, Input not processed because the page expired.: पृष्ठको
+    म्याद सकिएको हुनाले इनपुट प्रशोधन गरिएन।, Input not processed because the question changed.  Please continue.: प्रश्न
+    परिवर्तन भएकोले इनपुट प्रशोधन गरिएको छैन। कृपया जारी राख्नुहोस्।, Input not processed.  Please try again.: इनपुट
+    प्रशोधन गरिएको छैन। कृपया फेरि प्रयास गर्नुहोस्।, Insert: घुसाउनुहोस्, Install: इन्स्टल
+    गर्नुहोस्, Install or update a package: प्याकेज स्थापना वा अद्यावधिक गर्नुहोस्,
+  Install package on this server: यस सर्भरमा प्याकेज स्थापना गर्नुहोस्, Install package on this server also: यस
+    सर्भरमा पनि प्याकेज स्थापना गर्नुहोस्, Interview: अन्तर्वार्ता, Interview Progress: अन्तर्वार्ताको
+    प्रगति, Interview answers cannot be decrypted: अन्तर्वार्ताका उत्तरहरू डिक्रिप्ट
+    गर्न सकिँदैन, Interview files: अन्तर्वार्ता फाइलहरू, 'Interview:': 'अन्तर्वार्ता:',
+  Interviews: अन्तर्वार्ताहरू, Invalid E-mail: अमान्य इमेल, Invalid Email: अमान्य
+    इमेल, Invalid Email address: अमान्य इमेल ठेगाना, Invalid action.: अमान्य कार्य।,
+  Invalid confirmation token.: अमान्य पुष्टिकरण टोकन।, Invalid e-mail address: अमान्य
+    इमेल ठेगाना, Invalid interview: अमान्य अन्तर्वार्ता, Invalid invitation token: अमान्य
+    निमन्त्रणा टोकन, Invalid phone number.: अमान्य फोन नम्बर।, Invitation: निमन्त्रणा,
+  Invitation has been sent.: निमन्त्रणा पठाइएको छ।, Invitations have been sent.: निमन्त्रणा
+    पठाइएको छ।, Invite: आमन्त्रित गर्नुहोस्, Invite User: प्रयोगकर्तालाई आमन्त्रित
+    गर्नुहोस्, Invite a user: प्रयोगकर्तालाई आमन्त्रित गर्नुहोस्, Invite!: आमन्त्रित
+    गर्नुहोस्!, 'Iran, Islamic Republic of': 'इरान, इस्लामिक गणतन्त्र', Iraq: इराक,
+  Ireland: आयरल्याण्ड, Isle of Man: आइल अफ म्यान, Israel: इजरायल, Italy: इटाली, Items: वस्तुहरू,
+  Items in the Playground other than interviews: अन्तर्वार्ता बाहेक खेल मैदानमा रहेका
+    वस्तुहरू, Items in the training set: तालिम सेटमा रहेका वस्तुहरू, JSON file: JSON
+    फाइल, Jamaica: जमैका, Japan: जापान, Jersey: जर्सी, Jinja2 help template: Jinja2
+    मद्दत टेम्प्लेट, Join: सामेल हुनुहोस्, Jordan: जोर्डन, Kazakhstan: काजाकिस्तान,
+  Kenya: केन्या, Kiribati: किरिबाटी, 'Korea, Republic of': 'कोरिया, गणतन्त्र', Kuwait: कुवेत,
+  Kyrgyzstan: किर्गिस्तान, Language: भाषा, Last name: थर, Latvia: लाट्भिया, Leave: छोड्नुहोस्,
+  Lebanon: लेबनान, Lesotho: लेसोथो, Liberia: लाइबेरिया, Libya: लिबिया, License: लाइसेन्स,
+  Liechtenstein: लिक्टेनस्टाइन, Limited Permissions: सीमित अनुमतिहरू, Link copied to clipboard.: लिङ्क
+    क्लिपबोर्डमा प्रतिलिपि गरियो।, Linked folder: लिङ्क गरिएको फोल्डर, Links: लिङ्कहरू,
+  List of ISO-639-1 language codes: ISO-639-1 भाषा कोडहरूको सूची, Listen: सुन्नुहोस्,
+  Lithuania: लिथुआनिया, Live chat: लाइभ च्याट, Live chat is available: लाइभ च्याट
+    उपलब्ध छ, Loading . . .: लोड हुँदै..., 'Loading.  Please wait . . . ': 'लोड हुँदै।
+    कृपया पर्खनुहोस्... ', Log: लग, Logs: लगहरू, Luxembourg: लक्जमबर्ग, Macao: मकाउ,
+  Madagascar: माडागास्कर, Malawi: मलावी, Malaysia: मलेसिया, Maldives: माल्दिभ्स, Mali: माली,
+  Malta: माल्टा, Manage Emails: इमेलहरू व्यवस्थापन गर्नुहोस्, Manage Projects: परियोजनाहरू
+    व्यवस्थापन गर्नुहोस्, Manage account: खाता व्यवस्थापन गर्नुहोस्, Manually add a training item: म्यानुअल
+    रूपमा तालिम वस्तु थप्नुहोस्, Markdown: मार्कडाउन, Marshall Islands: मार्शल टापुहरू,
+  Martinique: मार्टिनिक, Mauritania: मौरिटानिया, Mauritius: मौरिसस, Mayotte: मायोट,
+  Menu: मेनु, 'Menu:': 'मेनु:', Merge new data into existing data: नयाँ डेटा अवस्थित
+    डेटामा मर्ज गर्नुहोस्, Methods: विधिहरू, Mexico: मेक्सिको, 'Micronesia, Federated States of': 'माइक्रोनेसिया,
+    संघीय राज्यहरू', Models: मोडेलहरू, Modules: मोड्युलहरू, Modules available in Playground: खेल
+    मैदानमा उपलब्ध मोड्युलहरू, Modules defined: मोड्युलहरू परिभाषित गरियो, 'Moldova, Republic of': 'मोल्डोभा,
+    गणतन्त्र', Monaco: मोनाको, Mongolia: मङ्गोलिया, Monitor: मनिटर, Montenegro: मोन्टेनेग्रो,
+  Montserrat: मोन्टसेराट, Morocco: मोरक्को, Move down: तल सार्नुहोस्, Mozambique: मोजाम्बिक,
+  Multiselect box: बहुचयन बाकस, Must be a two-letter code: दुई-अक्षरको कोड हुनुपर्छ,
+  Must be a valid e-mail address: मान्य इमेल ठेगाना हुनुपर्छ।, Must be in E.164 format.  U.S. phone numbers begin with +1.: E.164
+    ढाँचामा हुनुपर्छ। अमेरिकी फोन नम्बरहरू +१ बाट सुरु हुन्छन्।, My Interviews: मेरा
+    अन्तर्वार्ताहरू, My Playground: मेरो खेल मैदान, Myanmar: म्यानमार, Name: नाम,
+  Name of new branch: नयाँ शाखाको नाम, Name of new privilege: नयाँ विशेषाधिकारको नाम,
+  Name of new privilege is required: नयाँ विशेषाधिकारको नाम आवश्यक छ, Names and questions: नाम
+    र प्रश्नहरू, Namibia: नामिबिया, Nauru: नाउरु, Nepal: नेपाल, Netherlands: नेदरल्याण्ड्स,
+  New API Key: नयाँ API कुञ्जी, New Caledonia: नयाँ क्यालेडोनिया, New Name: नयाँ नाम,
+  New Password: नयाँ पासवर्ड, New Password and Retype Password did not match: 'नयाँ
+    पासवर्ड र पुन: टाइप पासवर्ड मेल खाएन।', New Password is required: नयाँ पासवर्ड
+    आवश्यक छ, New Username: नयाँ प्रयोगकर्ता नाम, New Zealand: न्युजिल्याण्ड, New chat connection from: बाट
+    नयाँ च्याट जडान, New chat message: नयाँ च्याट सन्देश, New conversation above: माथि
+    नयाँ कुराकानी, New conversation below: तल नयाँ कुराकानी छ, 'New here?  Register.': 'नयाँ
+    हुनुहुन्छ? दर्ता गर्नुहोस्।', 'New here? Register.': 'नयाँ हुनुहुन्छ? दर्ता गर्नुहोस्।',
+  New message above: माथि नयाँ सन्देश, New message below: तल नयाँ सन्देश छ, New project: नयाँ
+    परियोजना, Next: अर्को, Next will be: अर्को हुनेछ, Nicaragua: निकारागुआ, Nickname: उपनाम,
+  Niger: नाइजर, Nigeria: नाइजेरिया, Niue: नियु, No: होइन, No access code was entered.: कुनै
+    पहुँच कोड प्रविष्ट गरिएको थिएन।, No administrators could be found.: कुनै पनि प्रशासक
+    फेला पार्न सकिएन।, No authentication: प्रमाणीकरण छैन, No data existed in training set.  JSON file not created.: तालिम
+    सेटमा कुनै डेटा अवस्थित थिएन। JSON फाइल सिर्जना गरिएको छैन।, No files have been uploaded yet.: अहिलेसम्म
+    कुनै पनि फाइल अपलोड गरिएको छैन।, No models were found.: कुनै मोडेल भेटिएन।, None of the above: माथिका
+    कुनै पनि होइनन्, Norfolk Island: नोर्फोक टापु, North Macedonia: उत्तरी म्यासेडोनिया,
+  Northern Mariana Islands: उत्तरी मारियाना टापुहरू, Norway: नर्वे, Not Found: भेटिएन,
+  Not authorized: अधिकृत छैन, Not available for chat: च्याटको लागि उपलब्ध छैन, Note: नोट,
+  'Note that if you connect to a Google Drive folder, you will disable your connection to OneDrive.': 'ध्यान
+    दिनुहोस् कि यदि तपाईंले गुगल ड्राइभ फोल्डरमा जडान गर्नुभयो भने, तपाईंले OneDrive
+    मा आफ्नो जडान असक्षम पार्नुहुनेछ।', 'Note that if you connect to a OneDrive folder, you will disable your connection to Google Drive.': 'ध्यान
+    दिनुहोस् कि यदि तपाईंले OneDrive फोल्डरमा जडान गर्नुभयो भने, तपाईंले Google ड्राइभमा
+    आफ्नो जडान असक्षम पार्नुहुनेछ।', ? Note that you can use a DOCX template file
+    directly; 'fields' is only necessary in the rare case when the variable names
+    in your DOCX file do not correspond with the variable names in your interview.
+  : ध्यान दिनुहोस् कि तपाईंले DOCX टेम्प्लेट फाइल सिधै प्रयोग गर्न सक्नुहुन्छ; 'fields'
+    केवल दुर्लभ अवस्थामा मात्र आवश्यक हुन्छ जब तपाईंको DOCX फाइलमा रहेका चर नामहरू
+    तपाईंको अन्तर्वार्तामा रहेका चर नामहरूसँग मेल खाँदैनन्।, 'Note: it is a best practice to tag every mandatory block with an id.': 'नोट:
+    प्रत्येक अनिवार्य ब्लकलाई id ले ट्याग गर्नु उत्तम अभ्यास हो।', 'Note: more than one block uses id': 'नोट:
+    एक भन्दा बढी ब्लकले id प्रयोग गर्दछ', 'Note: only users with e-mail/password accounts can be given admin privileges.': 'नोट:
+    इ-मेल/पासवर्ड खाता भएका प्रयोगकर्ताहरूलाई मात्र व्यवस्थापक विशेषाधिकार दिन सकिन्छ।',
+  OCR succeeded: OCR सफल भयो, Observation: अवलोकन, Observe: अवलोकन गर्नुहोस्, Office Add-in: कार्यालय
+    एड-इन, Old Password: पुरानो पासवर्ड, Old Password is incorrect: पुरानो पासवर्ड
+    गलत छ।, Old Password is required: पुरानो पासवर्ड आवश्यक छ, Oman: ओमान, One or more e-mail addresses (separated by newlines): एक
+    वा बढी इमेल ठेगानाहरू (नयाँ लाइनहरूद्वारा छुट्याइएको), OneDrive: OneDrive का थप
+    वस्तुहरू, OneDrive is not configured: OneDrive कन्फिगर गरिएको छैन।, OneDrive is not linked.: OneDrive
+    लिङ्क गरिएको छैन।, OneDrive synchronization: OneDrive सिङ्क्रोनाइजेसन, Only the last 30 lines are shown.  Download the file to see the previous lines.: अन्तिम
+    ३० लाइनहरू मात्र देखाइएका छन्। अघिल्ला लाइनहरू हेर्न फाइल डाउनलोड गर्नुहोस्।,
+  Open another log file: अर्को लग फाइल खोल्नुहोस्, 'Or you can specify a:': 'अथवा
+    तपाईं एउटा निर्दिष्ट गर्न सक्नुहुन्छ:', 'Or you can upload a:': 'अथवा तपाईं अपलोड
+    गर्न सक्नुहुन्छ:', Organization: संगठन, Original Name: मूल नाम, Other settings: अन्य
+    सेटिङहरू, Output Format: आउटपुट ढाँचा, Overrides: ओभरराइड गर्छ, PDF/DOCX File: PDF/DOCX
+    फाइल, Package: प्याकेज, Package Management: प्याकेज व्यवस्थापन, Package Name: प्याकेजको
+    नाम, Package Name is required: प्याकेजको नाम आवश्यक छ, Package created: प्याकेज
+    सिर्जना गरियो, Package did not exist: प्याकेज अवस्थित थिएन।, Package name: प्याकेजको
+    नाम, Package name is required: प्याकेजको नाम आवश्यक छ, Package on PyPI: PyPI मा
+    प्याकेज, Packages: प्याकेजहरू, Pakistan: पाकिस्तान, Palau: पलाउ, 'Palestine, State of': 'प्यालेस्टाइन,
+    राज्य', Panama: पानामा, Papua New Guinea: पपुवा न्यु गिनी, Paraguay: पाराग्वे,
+  Password: पासवर्ड, Password and Retype Password did not match: 'पासवर्ड र पुन: टाइप
+    पासवर्ड मिलेन।', Password is required: पासवर्ड आवश्यक छ, ? 'Password must be at
+    least six characters long with at least one lowercase letter, at least one uppercase
+    letter, and at least one number.' : 'पासवर्ड कम्तिमा छ वर्ण लामो हुनुपर्छ जसमा
+    कम्तिमा एउटा सानो अक्षर, कम्तिमा एउटा ठूलो अक्षर र कम्तिमा एउटा संख्या हुनुपर्छ।',
+  'Password must have at least 6 characters with one lowercase letter, one uppercase letter and one number': 'पासवर्डमा
+    कम्तीमा ६ अक्षरहरू हुनुपर्छ जसमा एउटा सानो अक्षर, एउटा ठूलो अक्षर र एउटा संख्या
+    हुनुपर्छ।', Per Month: प्रति महिना, Per Week: प्रति हप्ता, Per Year: प्रति वर्ष,
+  Peru: पेरु, Philippines: फिलिपिन्स, Phone help: फोन मद्दत, Phone help is available: फोनबाट
+    सहयोग उपलब्ध छ, Phone number: फोन नम्बर, Pick actual value: वास्तविक मान छान्नुहोस्,
+  Pitcairn: पिटकेर्न, Plain text of sections: खण्डहरूको सादा पाठ, Playground: खेल
+    मैदान, Playground Packages: खेल मैदान प्याकेजहरू, Playground YAML: खेल मैदान YAML,
+  Playground not saved.  There was an error.: खेल मैदान सुरक्षित गरिएको छैन। एउटा
+    त्रुटि भयो।, Please choose a different e-mail address.: कृपया फरक इमेल ठेगाना
+    छनौट गर्नुहोस्।, 'Please enter a multiple of {0}.': 'कृपया {0} को गुणन प्रविष्ट
+    गर्नुहोस्।', Please enter a valid phone number: कृपया मान्य फोन नम्बर प्रविष्ट
+    गर्नुहोस्।, Please enter a valid value.: कृपया मान्य मान प्रविष्ट गर्नुहोस्।,
+  Please enter a whole number.: कृपया पूर्ण संख्या प्रविष्ट गर्नुहोस्।, 'Please enter the four digit code, followed by the pound sign.': 'कृपया
+    चार अंकको कोड प्रविष्ट गर्नुहोस्, त्यसपछि पाउन्ड चिन्ह राख्नुहोस्।', Please enter the verification code from the text message we just sent you.: हामीले
+    भर्खरै पठाएको टेक्स्ट म्यासेजबाट प्रमाणीकरण कोड प्रविष्ट गर्नुहोस्।, Please enter the verification code from your authentication app.: कृपया
+    आफ्नो प्रमाणीकरण एपबाट प्रमाणीकरण कोड प्रविष्ट गर्नुहोस्।, Please log in to that account.: कृपया
+    त्यो खातामा लग इन गर्नुहोस्।, Please log in.: कृपया लग इन गर्नुहोस्।, Please select at least %s.: कृपया
+    कम्तिमा %s चयन गर्नुहोस्।, Please select exactly %s.: कृपया ठ्याक्कै %s चयन गर्नुहोस्।,
+  Please select no more than %s.: कृपया %s भन्दा बढी चयन नगर्नुहोस्।, Please select one.: कृपया
+    एउटा छान्नुहोस्।, 'Please send a video, or type skip.': 'कृपया भिडियो पठाउनुहोस्,
+    वा स्किप टाइप गर्नुहोस्।', Please send a video.: कृपया भिडियो पठाउनुहोस्।, 'Please send an audio clip, or type skip.': 'कृपया
+    अडियो क्लिप पठाउनुहोस्, वा स्किप टाइप गर्नुहोस्।', Please send an audio clip.: कृपया
+    अडियो क्लिप पठाउनुहोस्।, 'Please send an image or file, or type skip.': 'कृपया
+    एउटा छवि वा फाइल पठाउनुहोस्, वा स्किप टाइप गर्नुहोस्।', Please send an image or file.: कृपया
+    एउटा तस्बिर वा फाइल पठाउनुहोस्।, 'Please send one or more images, or type skip.': 'कृपया
+    एक वा बढी तस्बिरहरू पठाउनुहोस्, वा स्किप टाइप गर्नुहोस्।', Please send one or more images.: कृपया
+    एक वा बढी तस्बिरहरू पठाउनुहोस्।, Please upload a file with a valid file format.: कृपया
+    मान्य फाइल ढाँचा भएको फाइल अपलोड गर्नुहोस्।, Please wait . . .: कृपया पर्खनुहोस्...,
+  Please wait.: कृपया पर्खनुहोस्।, Please wait.  File is being uploaded: कृपया पर्खनुहोस्।
+    फाइल अपलोड हुँदैछ।, Please wait.  Files are syncing.: कृपया पर्खनुहोस्। फाइलहरू
+    सिंक हुँदैछन्।, Please wait.  Interview will start when sync is complete.: कृपया
+    पर्खनुहोस्। सिंक पूरा भएपछि अन्तर्वार्ता सुरु हुनेछ।, Please wait.  Packages are updating.  The screen will refresh when the process is complete.  This may take several minutes.: कृपया
+    पर्खनुहोस्। प्याकेजहरू अद्यावधिक हुँदैछन्। प्रक्रिया पूरा भएपछि स्क्रिन रिफ्रेस
+    हुनेछ। यसमा धेरै मिनेट लाग्न सक्छ।, Please wait.  System is restarting.: 'कृपया
+    पर्खनुहोस्। प्रणाली पुन: सुरु हुँदैछ।', Poland: पोल्याण्ड, Portugal: पोर्चुगल,
+  Possibly not defined: सम्भवतः परिभाषित गरिएको छैन, Possibly not used: सम्भवतः प्रयोग
+    नगरिएको, Prediction: भविष्यवाणी, 'Press one of the following buttons:': 'निम्न
+    बटनहरू मध्ये एउटा थिच्नुहोस्:', Press the Publish button to publish the package on PyPI.: PyPI
+    मा प्याकेज प्रकाशित गर्न प्रकाशित बटन थिच्नुहोस्।, Preview: पूर्वावलोकन, Privilege: विशेषाधिकार,
+  Privileges: विशेषाधिकारहरू, Problem detected.: समस्या पत्ता लाग्यो।, Profile: प्रोफाइल,
+  Profile Page: प्रोफाइल पृष्ठ, Project: परियोजना, Project name cannot begin with a number: परियोजनाको
+    नाम नम्बरबाट सुरु हुन सक्दैन।, Project name is required: परियोजनाको नाम आवश्यक
+    छ, Projects: परियोजनाहरू, Publish: प्रकाशित गर्नुहोस्, Publish on PyPI: PyPI मा
+    प्रकाशित गर्नुहोस्, Publish on PyPI also: PyPI मा पनि प्रकाशित गर्नुहोस्, Puerto Rico: प्यूर्टो
+    रिको, Pull: तान्नुहोस्, Pull GitHub or PyPI Package: GitHub वा PyPI प्याकेज तान्नुहोस्,
+  Pull a package from GitHub or PyPI into the Playground: GitHub वा PyPI बाट प्याकेजलाई
+    प्लेग्राउन्डमा तान्नुहोस्, Push a commit to GitHub: GitHub मा प्रतिबद्धता पुश
+    गर्नुहोस्, Pushed commit to GitHub.: GitHub मा कमिट पुश गरियो।, PyPI: PyPIComment,
+  PyPI Password: PyPI पासवर्ड, PyPI Username: PyPI प्रयोगकर्ता नाम, PyPI package: PyPI
+    प्याकेज, Python version %s: पाइथन संस्करण %s, Qatar: कतार, Question: प्रश्न, README file: README
+    फाइल, Read this screen out loud: यो स्क्रिन ठूलो स्वरमा पढ्नुहोस्, Readability of help text: मद्दत
+    पाठको पठनीयता, Readability of question: प्रश्नको पठनीयता, Reason for needing developer account (optional): विकासकर्ता
+    खाता आवश्यक पर्ने कारण (वैकल्पिक), Reconfigure: 'पुन: कन्फिगर गर्नुहोस्', Referring URL: सन्दर्भ
+    URL, Refresh: रिफ्रेस गर्नुहोस्, Register: दर्ता गर्नुहोस्, Register for an account on: खाताको
+    लागि दर्ता गर्नुहोस्, Register with Auth0: Auth0 मा दर्ता गर्नुहोस्, Register with Authentik: Authentik
+    मा दर्ता गर्नुहोस्, Register with Azure: Azure मा दर्ता गर्नुहोस्, Register with Facebook: फेसबुकमा
+    दर्ता गर्नुहोस्, Register with Google: गुगलमा दर्ता गर्नुहोस्, Register with Keycloak: Keycloak
+    मा दर्ता गर्नुहोस्, Register with Zitadel: Zitadel मा दर्ता गर्नुहोस्, Register with miniOrange: miniOrange
+    मा दर्ता गर्नुहोस्, Register with your mobile phone: आफ्नो मोबाइल फोनबाट दर्ता
+    गर्नुहोस्, Registration attempt: दर्ता प्रयास, Registration is invite only: दर्ता
+    आमन्त्रित मात्र हो, Remember me: मलाई सम्झनुहोस्, Remove: हटाउनुहोस्, Rename: 'पुन:
+    नामाकरण गर्नुहोस्', Rename project: परियोजनाको नाम बदल्नुहोस्, Reorder by moving down: 'तल
+    सारेर पुन: क्रमबद्ध गर्नुहोस्', Reorder by moving up: 'माथि सारेर पुन: क्रमबद्ध
+    गर्नुहोस्', Replace each instance of Null with a quoted translation.: Null को
+    प्रत्येक उदाहरणलाई उद्धृत अनुवादले बदल्नुहोस्।, Request Developer Account: विकासकर्ता
+    खाता अनुरोध गर्नुहोस्, Resend Confirmation Email: 'पुष्टिकरण इमेल पुन: पठाउनुहोस्',
+  Resend email confirmation email: 'इमेल पुष्टिकरण इमेल पुन: पठाउनुहोस्', Reset Password: पासवर्ड
+    रिसेट गर्नुहोस्, Reset e-mail confirmation: इमेल पुष्टिकरण रिसेट गर्नुहोस्, Reset password: पासवर्ड
+    रिसेट गर्नुहोस्, Restart: पुनः सुरु गर्नुहोस्, Restarting: 'पुन: सुरु गर्दै',
+Resume: जारी राख्नुहोस्, Resume an interview: अन्तर्वार्ता जारी राख्नुहोस्,
+  Retry: 'पुन: प्रयास गर्नुहोस्', Return: फर्कनुहोस्, Retype New Password: 'नयाँ पासवर्ड
+    पुन: टाइप गर्नुहोस्', Retype Password: 'पासवर्ड पुन: टाइप गर्नुहोस्', Role: भूमिका,
+  Romania: रोमानिया, Room: कोठा, Run: दौडनुहोस्, Running in other tab.: अर्को ट्याबमा
+    चलिरहेको छ।, Russian Federation: रूसी संघ, Rwanda: रुवाण्डा, Réunion: रियुनियन,
+  SMS: एसएमएस, Saint Barthélemy: सेन्ट बार्थेलेमी, 'Saint Helena, Ascension and Tristan da Cunha': 'सेन्ट
+    हेलेना, एसेन्सन र ट्रिस्टन दा कुन्हा', Saint Kitts and Nevis: सेन्ट किट्स र नेभिस,
+  Saint Lucia: सेन्ट लुसिया, Saint Martin (French part): सेन्ट मार्टिन (फ्रान्सेली
+    भाग), Saint Pierre and Miquelon: सेन्ट पियरे र मिकेलोन, Saint Vincent and the Grenadines: सेन्ट
+    भिन्सेन्ट र ग्रेनाडाइन्स, Samoa: सामोआ, San Marino: सान मारिनो, Sao Tome and Principe: साओ
+    टोम र प्रिन्सिपे, Saudi Arabia: साउदी अरेबिया, Save: बचत गर्नुहोस्, Save and Run: बचत
+    गर्नुहोस् र चलाउनुहोस्, Save changes: परिवर्तनहरू बचत गर्नुहोस्, Save your changes: आफ्ना
+    परिवर्तनहरू बचत गर्नुहोस्, Save your changes to the package information: प्याकेज
+    जानकारीमा आफ्ना परिवर्तनहरू बचत गर्नुहोस्।, Saved: सुरक्षित गरियो, Saved at: 'बचत
+    गरिएको समय:', Scan: स्क्यान गर्नुहोस्, Scan the barcode with your phone's authenticator app and enter the verification code.: आफ्नो
+    फोनको प्रमाणक एप प्रयोग गरी बारकोड स्क्यान गर्नुहोस् र प्रमाणिकरण कोड प्रविष्ट
+    गर्नुहोस्।, Score: स्कोर, Search: खोज्नुहोस्, Second Subdivision: दोस्रो उपविभाजन,
+  Second factor authentication: दोस्रो कारक प्रमाणीकरण, Second subdivision: दोस्रो
+    उपविभाजन, Section: खण्ड, Sections: खण्डहरू, Security Method: सुरक्षा विधि, Select a package: प्याकेज
+    चयन गर्नुहोस्, Select a value between: बीचमा मान चयन गर्नुहोस्, Select file: फाइल
+    चयन गर्नुहोस्, Select one: एउटा छान्नुहोस्, Select the folder from your OneDrive that you want to be synchronized with the Playground.: आफ्नो
+    OneDrive बाट त्यो फोल्डर चयन गर्नुहोस् जुन तपाईं प्लेग्राउन्डसँग सिङ्क्रोनाइज
+    गर्न चाहनुहुन्छ।, Select the project: परियोजना चयन गर्नुहोस्, Select which files to include in the commit: कमिटमा
+    कुन फाइलहरू समावेश गर्ने भनेर चयन गर्नुहोस्, Select zero or more files: शून्य
+    वा सोभन्दा बढी फाइलहरू चयन गर्नुहोस्, Select zero or more packages: शून्य वा बढी
+    प्याकेजहरू चयन गर्नुहोस्, Select...: छान्नुहोस्..., Send: पठाउनुहोस्, Send Confirmation E-mail: पुष्टिकरण
+    इमेल पठाउनुहोस्, Send confirmation email: पुष्टिकरण इमेल पठाउनुहोस्, Send reset password email: पासवर्ड
+    रिसेट गर्ने इमेल पठाउनुहोस्, Senegal: सेनेगल, Serbia: सर्बिया, Server did not respond to request for update.: अपडेटको
+    लागि गरिएको अनुरोधको सर्भरले जवाफ दिएन।, Sessions: सत्रहरू, Setup key: सेटअप कुञ्जी,
+  Seychelles: सेशेल्स, Share: शेयर गर्नुहोस्, Show all: सबै देखाउनुहोस्, Show attributes: विशेषताहरू
+    देखाउनुहोस्, Show context of example: उदाहरणको सन्दर्भ देखाउनुहोस्, Show entries that are already classified: पहिले
+    नै वर्गीकृत गरिएका प्रविष्टिहरू देखाउनुहोस्, Show import controls: आयात नियन्त्रणहरू
+    देखाउनुहोस्, Show report of names and associated questions: नाम र सम्बन्धित प्रश्नहरूको
+    रिपोर्ट देखाउनुहोस्, Show variables and values: चर र मानहरू देखाउनुहोस्, 'Showing interviews tagged with:': 'निम्नसँग
+    ट्याग गरिएका अन्तर्वार्ताहरू देखाउँदै:', Sierra Leone: सियरा लियोन, Sign In: साइन
+    इन गर्नुहोस्, Sign Out: साइन आउट गर्नुहोस्, Sign Your Name: आफ्नो नाममा हस्ताक्षर
+    गर्नुहोस्, Sign in: नेप्बेमा साइन-इन गर्नुहोस्, Sign in or sign up to save answers: उत्तरहरू
+    सुरक्षित गर्न साइन इन गर्नुहोस् वा साइन अप गर्नुहोस्, Sign in to save answers: उत्तरहरू
+    सुरक्षित गर्न साइन इन गर्नुहोस्, Sign in with Auth0: Auth0 मार्फत साइन इन गर्नुहोस्,
+  Sign in with Authentik: Authentik मार्फत साइन इन गर्नुहोस्, Sign in with Azure: Azure
+    मार्फत साइन इन गर्नुहोस्, Sign in with Facebook: फेसबुकमा साइन इन गर्नुहोस्, Sign in with Google: गुगल
+    मार्फत साइन इन गर्नुहोस्, Sign in with Keycloak: Keycloak मार्फत साइन इन गर्नुहोस्,
+  Sign in with Zitadel: Zitadel मार्फत साइन इन गर्नुहोस्, Sign in with miniOrange: miniOrange
+    मार्फत साइन इन गर्नुहोस्, Sign in with your mobile phone: आफ्नो मोबाइल फोनबाट
+    साइन इन गर्नुहोस्, Sign in.: साइन इन गर्नुहोस्।, Sign up: साइन अप गर्नुहोस्, 'Since you changed a Python module, the server needs to restart in order to load your module.': 'तपाईंले
+    पाइथन मोड्युल परिवर्तन गर्नुभएको हुनाले, तपाईंको मोड्युल लोड गर्न सर्भर पुन: सुरु
+    गर्न आवश्यक छ।', Since you did not type "delete my account" I did not delete your account.: तपाईंले
+    &quot;मेरो खाता मेटाउनुहोस्&quot; टाइप नगर्नुभएकोले मैले तपाईंको खाता मेटाइन।,
+  'Since you renamed a project, the server needs to restart in order to reload any modules.': 'तपाईंले
+    परियोजनाको नाम परिवर्तन गर्नुभएको हुनाले, कुनै पनि मोड्युलहरू पुन: लोड गर्न सर्भर
+    पुन: सुरु गर्न आवश्यक छ।', 'Since you uploaded a Python module, the server needs to restart in order to load your module.': 'तपाईंले
+    पाइथन मोड्युल अपलोड गर्नुभएको हुनाले, तपाईंको मोड्युल लोड गर्न सर्भर पुन: सुरु
+    गर्न आवश्यक छ।', Singapore: सिंगापुर, Sint Maarten (Dutch part): सिन्ट मार्टिन
+    (डच भाग), Slovakia: स्लोभाकिया, Slovenia: स्लोभेनिया, Solomon Islands: सोलोमन
+    टापुहरू, Somalia: सोमालिया, 'Sorry, no help is available for this question.': 'माफ
+    गर्नुहोस्, यस प्रश्नको लागि कुनै मद्दत उपलब्ध छैन।', 'Sorry, only .py files can be uploaded here.  To upload other types of files, use other Folders.': 'माफ
+    गर्नुहोस्, यहाँ .py फाइलहरू मात्र अपलोड गर्न सकिन्छ। अन्य प्रकारका फाइलहरू अपलोड
+    गर्न, अन्य फोल्डरहरू प्रयोग गर्नुहोस्।', 'Sorry, only YAML files can be uploaded here.  To upload other types of files, use the Folders.': 'माफ
+    गर्नुहोस्, यहाँ YAML फाइलहरू मात्र अपलोड गर्न सकिन्छ। अन्य प्रकारका फाइलहरू अपलोड
+    गर्न, फोल्डरहरू प्रयोग गर्नुहोस्।', 'Sorry, that package name does not exist in the playground': 'माफ
+    गर्नुहोस्, त्यो प्याकेजको नाम खेल मैदानमा अवस्थित छैन।', 'Sorry, that package name,': 'माफ
+    गर्नुहोस्, त्यो प्याकेजको नाम,', Source: स्रोत, Source Files: स्रोत फाइलहरू, Source code for question: प्रश्नको
+    स्रोत कोड, Source files: स्रोत फाइलहरू, Sources: स्रोतहरू, South Africa: दक्षिण
+    अफ्रिका, South Georgia and the South Sandwich Islands: दक्षिण जर्जिया र दक्षिण
+    स्यान्डविच टापुहरू, South Sudan: दक्षिण सुडान, Spain: स्पेन, Special Page: विशेष
+    पृष्ठ, Special variable: विशेष चर, Sri Lanka: श्रीलंका, Started: सुरु भयो, 'Starting a new interview.  To go back to your previous interview, go to My Interviews on the menu.': 'नयाँ
+    अन्तर्वार्ता सुरु गर्दै। आफ्नो अघिल्लो अन्तर्वार्तामा फर्कन, मेनुमा रहेको मेरो
+    अन्तर्वार्तामा जानुहोस्।', 'Starting a new interview.  To go back to your previous interview, log in to see a list of your interviews.': 'नयाँ
+    अन्तर्वार्ता सुरु गर्दै। आफ्नो अघिल्लो अन्तर्वार्तामा फर्कन, आफ्नो अन्तर्वार्ताको
+    सूची हेर्न लग इन गर्नुहोस्।', Static Files: स्थिर फाइलहरू, Static files: स्थिर
+    फाइलहरू, Stop Controlling: नियन्त्रण गर्न रोक्नुहोस्, Stop Observing: अवलोकन गर्न
+    रोक्नुहोस्, Submit: पेश गर्नुहोस्, Sudan: सुडान, Suriname: सुरिनाम, Svalbard and Jan Mayen: स्वालबार्ड
+    र जान मायेन, Sweden: स्वीडेन, Switzerland: स्विट्जरल्याण्ड, Sync: सिङ्क गर्नुहोस्,
+  Sync and Run: सिङ्क र चलाउनुहोस्, Sync with Google Drive: गुगल ड्राइभसँग सिंक गर्नुहोस्,
+  Sync with OneDrive: OneDrive सँग सिङ्क गर्नुहोस्, Synchronizing: सिङ्क्रोनाइज गर्दै,
+  Synchronizing with Google Drive: गुगल ड्राइभसँग सिङ्क्रोनाइज गर्दै, Synchronizing with OneDrive: OneDrive
+    सँग सिङ्क्रोनाइज गर्दै, Syrian Arab Republic: सिरियाली अरब गणराज्य, System: प्रणाली,
+  Tags: ट्यागहरू, 'Taiwan, Province of China': 'ताइवान, चीनको प्रान्त', Tajikistan: ताजिकिस्तान,
+  'Tanzania, United Republic of': 'तान्जानिया, संयुक्त गणराज्य', Telephone assistance: टेलिफोन
+    सहायता, Template files: टेम्प्लेट फाइलहरू, Templates: टेम्प्लेटहरू, 'Terms used in this question:': 'यस
+    प्रश्नमा प्रयोग गरिएका शब्दहरू:', 'Terms used:': 'प्रयोग गरिएका शब्दहरू:', Test: परीक्षण,
+  Thailand: थाइल्याण्ड, Thank you for registering: दर्ता गर्नुभएकोमा धन्यवाद, Thank you for registering with: दर्ता
+    गर्नुभएकोमा धन्यवाद, That e-mail address is already taken.: त्यो इमेल ठेगाना पहिले
+    नै लिइएको छ।, That package name is already in use by someone else.  Please change the name.: त्यो
+    प्याकेजको नाम पहिले नै अरू कसैले प्रयोग गरिरहेको छ। कृपया नाम परिवर्तन गर्नुहोस्।,
+  That screen is already being controlled by another operator: त्यो स्क्रिन पहिले
+    नै अर्को अपरेटरद्वारा नियन्त्रित भइरहेको छ।, The JSON file in the package: प्याकेजमा
+    रहेको JSON फाइल, The Playground is synchronizing with Google Drive.: प्लेग्राउन्ड
+    गुगल ड्राइभसँग सिङ्क्रोनाइज हुँदैछ।, The README.md file for the package: प्याकेजको
+    लागि README.md फाइल, The author is: लेखक हुन्, The commit was saved locally at %s.: कमिटलाई
+    स्थानीय रूपमा %s मा सुरक्षित गरिएको थियो।, The configuration file was saved.: कन्फिगरेसन
+    फाइल बचत गरिएको थियो।, The current branch is %s and the current commit is %s.: हालको
+    शाखा %s हो र हालको कमिट %s हो।, The current branch is %s.: हालको शाखा %s हो।,
+  The default project cannot be deleted.: पूर्वनिर्धारित परियोजना मेटाउन सकिँदैन।,
+  'The document is available in the following formats:': 'यो कागजात निम्न ढाँचाहरूमा
+    उपलब्ध छ:', The file was uploaded to the Templates folder.: फाइल टेम्प्लेट फोल्डरमा
+    अपलोड गरिएको थियो।, The file you requested does not exist.: तपाईंले अनुरोध गर्नुभएको
+    फाइल अवस्थित छैन।, The following document has been created for you.: तपाईंको लागि
+    निम्न कागजात सिर्जना गरिएको छ।, The following documents have been created for you.: तपाईंको
+    लागि निम्न कागजातहरू सिर्जना गरिएका छन्।, The following errors were detected in your Configuration.: तपाईंको
+    कन्फिगरेसनमा निम्न त्रुटिहरू पत्ता लागे।, The following overrides were applied.: निम्न
+    ओभरराइडहरू लागू गरियो।, The information was saved.: जानकारी सुरक्षित गरिएको थियो।,
+  The key no longer exists: त्यो साँचो अब अवस्थित छैन।, The key was deleted: कुञ्जी
+    मेटाइयो।, The link has expired.: लिङ्कको म्याद सकिएको छ।, The mapping was reset because the folder does not appear to exist anymore.: फोल्डर
+    अब अवस्थित नभएकोले म्यापिङ रिसेट गरियो।, The name must be filled in.: नाम भर्नु
+    पर्छ।, The new user has been created: नयाँ प्रयोगकर्ता सिर्जना गरिएको छ।, The operator is no longer controlling your screen.: अपरेटरले
+    अब तपाईंको स्क्रिन नियन्त्रण गरिरहेको छैन।, The package information was saved.: प्याकेज
+    जानकारी सुरक्षित गरिएको थियो।, The package update did not report an error.  The logs are below.: प्याकेज
+    अद्यावधिकले त्रुटि रिपोर्ट गरेन। लगहरू तल छन्।, The package update reported an error.  The logs are below.: प्याकेज
+    अद्यावधिकले त्रुटि रिपोर्ट गर्‍यो। लगहरू तल छन्।, The package was unpacked into the Playground.: प्याकेजलाई
+    खेल मैदानमा खोलियो।, The package you specified could not be downloaded from PyPI as a tar.gz file.: तपाईंले
+    निर्दिष्ट गर्नुभएको प्याकेज PyPI बाट tar.gz फाइलको रूपमा डाउनलोड गर्न सकिएन।,
+  The package you specified could not be downloaded from PyPI.: तपाईंले निर्दिष्ट
+    गर्नुभएको प्याकेज PyPI बाट डाउनलोड गर्न सकिएन।, The phone number is not in E.164 format (e.g. +12025551212): फोन
+    नम्बर E.164 ढाँचामा छैन (जस्तै +१२०२५५५१२१२), The previously selected OneDrive folder does not exist.: पहिले
+    चयन गरिएको OneDrive फोल्डर अवस्थित छैन।, The previously selected OneDrive folder was deleted.: पहिले
+    चयन गरिएको OneDrive फोल्डर मेटाइएको थियो।, The privilege could not be added because it already exists.: यो
+    विशेषाधिकार पहिले नै अवस्थित भएकोले यसलाई थप्न सकिएन।, The privilege was added.: विशेषाधिकार
+    थपियो।, The project %s was deleted.: परियोजना %s मेटाइयो।, The project name %s is not available.: परियोजना
+    नाम %s उपलब्ध छैन।, The regular expression you provided could not be parsed.: तपाईंले
+    प्रदान गर्नुभएको नियमित अभिव्यक्ति पार्स गर्न सकिएन।, The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.: अनुरोध
+    गरिएको URL सर्भरमा फेला परेन। यदि तपाईंले URL म्यानुअल रूपमा प्रविष्ट गर्नुभएको
+    हो भने कृपया आफ्नो हिज्जे जाँच गर्नुहोस् र फेरि प्रयास गर्नुहोस्।, The role could not be deleted.: भूमिका
+    मेटाउन सकिएन।, The synchronization was not successful.: सिङ्क्रोनाइजेसन सफल भएन।,
+  The synchronization was successful.: सिङ्क्रोनाइजेसन सफल भयो।, The user account did not exit.: प्रयोगकर्ता
+    खाता बाहिर निस्किएन।, The user account was deleted.: प्रयोगकर्ता खाता मेटाइयो।,
+  The user can call you.  Click to cancel.: प्रयोगकर्ताले तपाईंलाई कल गर्न सक्छ। रद्द
+    गर्न क्लिक गर्नुहोस्।, The user profile was not changed.: प्रयोगकर्ता प्रोफाइल
+    परिवर्तन गरिएको थिएन।, The version on PyPI is: PyPI मा रहेको संस्करण हो, The zip file did not contain a docassemble add-on package.: जिप
+    फाइलमा डकासेम्बल एड-अन प्याकेज थिएन।, There are no active sessions.: कुनै पनि
+    सक्रिय सत्रहरू छैनन्।, 'There are unsaved changes.  Are you sure you wish to leave this page?': 'परिवर्तनहरू
+    सुरक्षित गरिएका छैनन्। के तपाईं यो पृष्ठ छोड्न चाहनुहुन्छ?', There is already a username and password on this system with the e-mail address: यस
+    प्रणालीमा पहिले नै इमेल ठेगाना सहितको प्रयोगकर्ता नाम र पासवर्ड छ।, There is already an account on the system with the e-mail address: प्रणालीमा
+    पहिले नै इमेल ठेगाना भएको खाता छ।, There was a problem connecting to GitHub. Please check your GitHub configuration and try again.: GitHub
+    मा जडान गर्दा समस्या भयो। कृपया आफ्नो GitHub कन्फिगरेसन जाँच गर्नुहोस् र फेरि
+    प्रयास गर्नुहोस्।, 'There was a problem reading the YAML file you uploaded.  Are you sure it is a YAML file?  File was not saved.': 'तपाईंले
+    अपलोड गर्नुभएको YAML फाइल पढ्नमा समस्या भयो। के तपाईं निश्चित हुनुहुन्छ कि यो
+    YAML फाइल हो? फाइल सुरक्षित गरिएको थिएन।', There was a problem sending the text message.: टेक्स्ट
+    म्यासेज पठाउन समस्या भयो।, There was a problem sending you a text message.  Please log in another way.: तपाईंलाई
+    टेक्स्ट म्यासेज पठाउन समस्या भयो। कृपया अर्को तरिकाले लग इन गर्नुहोस्।, There was a problem uploading the file.: फाइल
+    अपलोड गर्दा समस्या भयो।, There was an error updating the packages.: प्याकेजहरू
+    अद्यावधिक गर्दा त्रुटि भयो।, There was an error with the synchronization.: सिङ्क्रोनाइजेसनमा
+    त्रुटि भयो।, There was an error.: एउटा त्रुटि भयो।, There was an error. Please contact the system administrator.: एउटा
+    त्रुटि भयो। कृपया प्रणाली प्रशासकलाई सम्पर्क गर्नुहोस्।, Third Subdivision: तेस्रो
+    उपविभाजन, Third subdivision: तेस्रो उपविभाजन, This Email is already in use. Please try another one.: यो
+    इमेल पहिले नै प्रयोगमा छ। कृपया अर्को प्रयास गर्नुहोस्।, This Username is already in use. Please try another one.: यो
+    प्रयोगकर्ता नाम पहिले नै प्रयोगमा छ। कृपया अर्को प्रयास गर्नुहोस्।, This account uses two-factor authentication.: यो
+    खाताले दुई-कारक प्रमाणीकरण प्रयोग गर्दछ।, This field is required.: यो क्षेत्र
+    आवश्यक छ।, This image file does not exist: यो छवि फाइल अवस्थित छैन।, This is my custom interview page.: यो
+    मेरो अनुकूलित अन्तर्वार्ता पृष्ठ हो।, This package is: यो प्याकेज हो, This package is not yet published on PyPI.: यो
+    प्याकेज अझै PyPI मा प्रकाशित भएको छैन।, This package is not yet published on your GitHub account.: यो
+    प्याकेज अझै तपाईंको GitHub खातामा प्रकाशित भएको छैन।, This package was originally pulled from: यो
+    प्याकेज मूल रूपमा यहाँबाट तानिएको थियो, Thumbnail image of document: कागजातको
+    थम्बनेल छवि, Time Zone: समय क्षेत्र, Timor-Leste: टिमोर-लेस्टे, Title: शीर्षक,
+  'To reach an advocate who can assist you, call': 'तपाईंलाई सहयोग गर्न सक्ने अधिवक्तालाई
+    सम्पर्क गर्न, कल गर्नुहोस्', 'To read the question again, type question.': 'प्रश्न
+    फेरि पढ्न, प्रश्न टाइप गर्नुहोस्।', 'To register for an account, please click on the link below.': 'खाता
+    दर्ता गर्न, कृपया तलको लिङ्कमा क्लिक गर्नुहोस्।', Toggle: टगल गर्नुहोस्, Togo: टोगो,
+  Tokelau: टोकेलाउ, Token: टोकन, Tonga: टोंगा, Train: रेल, Train machine learning models: मेसिन
+    लर्निङ मोडेलहरू तालिम दिनुहोस्, Trainer privilege: प्रशिक्षकको विशेषाधिकार, Training data were successfully imported.: तालिम
+    डेटा सफलतापूर्वक आयात गरियो।, Translate: अनुवाद गर्नुहोस्, Translate system phrases into another language: प्रणाली
+    वाक्यांशहरूलाई अर्को भाषामा अनुवाद गर्नुहोस्, Trinidad and Tobago: त्रिनिदाद र
+    टोबागो, Tunisia: ट्युनिसिया, Turkey: टर्की, Turkmenistan: तुर्कमेनिस्तान, Turks and Caicos Islands: टर्क्स
+    र काइकोस टापुहरू, Turn off chat: च्याट अफ गर्नुहोस्, Tuvalu: टुभालु, Twice Per Month: महिनामा
+    दुई पटक, Two-factor authentication: दुई-कारक प्रमाणीकरण, Type: प्रकारहरू, Type "delete my account" here to confirm that you want to delete your account.: आफ्नो
+    खाता मेटाउन चाहनुहुन्छ भनेर पुष्टि गर्न यहाँ &quot;मेरो खाता मेटाउनुहोस्&quot;
+    टाइप गर्नुहोस्।, 'Type ? for additional assistance.': 'थप सहयोगको लागि ? टाइप
+    गर्नुहोस्।', 'Type ? to see': 'हेर्नको लागि? टाइप गर्नुहोस्', Type Ctrl-space to autocomplete.: स्वतः
+    पूरा गर्न Ctrl-space टाइप गर्नुहोस्।, 'Type [y]es or [n]o.': '[y]es वा [n]o टाइप
+    गर्नुहोस्।', 'Type [y]es, [n]o, or [d]on''t know': '[y]es, [n]o, वा [d]थाहा छैन
+    टाइप गर्नुहोस्', 'Type a currency value, or type skip.': 'मुद्रा मान टाइप गर्नुहोस्,
+    वा स्किप टाइप गर्नुहोस्।', Type a currency value.: मुद्रा मान टाइप गर्नुहोस्।,
+  'Type a date and time, or type skip.': 'मिति र समय टाइप गर्नुहोस्, वा स्किप टाइप
+    गर्नुहोस्।', Type a date and time.: मिति र समय टाइप गर्नुहोस्।, 'Type a date, or type skip.': 'मिति
+    टाइप गर्नुहोस्, वा स्किप टाइप गर्नुहोस्।', Type a date.: मिति टाइप गर्नुहोस्।,
+  'Type a number, or type skip.': 'नम्बर टाइप गर्नुहोस्, वा स्किप टाइप गर्नुहोस्।',
+  Type a number.: नम्बर टाइप गर्नुहोस्।, 'Type a time, or type skip.': 'समय टाइप गर्नुहोस्,
+    वा स्किप टाइप गर्नुहोस्।', Type a time.: समय टाइप गर्नुहोस्।, Type a value between: बीचमा
+    मान टाइप गर्नुहोस्, Type actual value: वास्तविक मान टाइप गर्नुहोस्, 'Type an e-mail address, or type skip.': 'इमेल
+    ठेगाना टाइप गर्नुहोस्, वा स्किप टाइप गर्नुहोस्।', Type an e-mail address.: इमेल
+    ठेगाना टाइप गर्नुहोस्।, Type ok to continue.: जारी राख्न ठीक छ टाइप गर्नुहोस्।,
+  Type the: टाइप गर्नुहोस्, Type x to sign your name electronically: इलेक्ट्रोनिक
+    रूपमा आफ्नो नाम हस्ताक्षर गर्न x टाइप गर्नुहोस्।, Type your message here.: आफ्नो
+    सन्देश यहाँ टाइप गर्नुहोस्।, 'Type your selection(s), separated by commas, or type none.': 'अल्पविरामद्वारा
+    छुट्याएर आफ्नो चयन(हरू) टाइप गर्नुहोस्, वा कुनै पनि टाइप नगर्नुहोस्।', 'Type your selection(s), separated by commas.': अल्पविरामद्वारा
+    छुट्याएर आफ्नो चयन(हरू) टाइप गर्नुहोस्।, 'Type your selection, or type skip to move on without selecting.': 'चयन
+    नगरी अगाडि बढ्नको लागि आफ्नो चयन टाइप गर्नुहोस्, वा छोड्नुहोस् टाइप गर्नुहोस्।',
+  Type your selection.: आफ्नो चयन टाइप गर्नुहोस्।, URL: URL, Uganda: युगान्डा, Ukraine: युक्रेन,
+  Unable to determine IP address: IP ठेगाना निर्धारण गर्न असमर्थ, Unable to determine if the package is published on PyPI.: प्याकेज
+    PyPI मा प्रकाशित भएको छ कि छैन भनेर निर्धारण गर्न असमर्थ।, Unable to determine if the package is published on your GitHub account.: तपाईंको
+    GitHub खातामा प्याकेज प्रकाशित भएको छ कि छैन भनेर निर्धारण गर्न असमर्थ।, Unable to e-mail your documents to: तपाईंको
+    कागजातहरू इमेल गर्न असमर्थ, Unable to find documents to e-mail.: इमेलमा पठाउन
+    कागजातहरू फेला पार्न सकिएन।, Unable to locate interview session.  Starting a new session instead.: अन्तर्वार्ता
+    सत्र पत्ता लगाउन सकिएन। बरु नयाँ सत्र सुरु गर्दै।, Unable to read log file; please download.: लग
+    फाइल पढ्न सकिएन; कृपया डाउनलोड गर्नुहोस्।, Unable to retrieve interview session.  Starting a new session instead.: अन्तर्वार्ता
+    सत्र प्राप्त गर्न सकिएन। बरु नयाँ सत्र सुरु गर्दै।, Unable to send e-mail to: इमेल
+    पठाउन असमर्थ, 'Unable to send e-mail.  Error was: ': 'इमेल पठाउन सकिएन। त्रुटि
+    थियो: ', Unable to send verification code.: प्रमाणीकरण कोड पठाउन सकिएन।, Unblock: अनब्लक
+    गर्नुहोस्, Unclassified items in the training set: तालिम सेटमा वर्गीकृत नगरिएका
+    वस्तुहरू, Undefined names: अपरिभाषित नामहरू, Undelete: मेटाउनबाट हटाउनुहोस्, Uninstall: स्थापना
+    रद्द गर्नुहोस्, Unit: एकाइ, United Arab Emirates: संयुक्त अरब इमिरेट्स, United Kingdom: संयुक्त
+    अधिराज्य, United States: संयुक्त राज्य अमेरिका, United States Minor Outlying Islands: संयुक्त
+    राज्य अमेरिका माइनर आउटलाइङ टापुहरू, Unknown: अज्ञात, Unnamed User: नाम नभएको
+    प्रयोगकर्ता, Untitled: शीर्षकविहीन, Update: अपडेट गर्नुहोस्, Update or uninstall an existing package: अवस्थित
+    प्याकेज अपडेट वा अनइन्स्टल गर्नुहोस्, Updating: अद्यावधिक गर्दै, Updating packages: प्याकेजहरू
+    अद्यावधिक गर्दै, Upgrade: स्तरवृद्धि गर्नुहोस्, Upgrade docassemble: कागजातअनुक्रमणअपग्रेडगर्नुहोस्,
+  Upload: अपलोड गर्नुहोस्, Upload a Python module: पाइथन मोड्युल अपलोड गर्नुहोस्,
+  Upload a YAML file to the Playground: प्लेग्राउन्डमा YAML फाइल अपलोड गर्नुहोस्,
+  Upload a package ZIP file to the Playground: प्लेग्राउन्डमा प्याकेजको ZIP फाइल अपलोड
+    गर्नुहोस्, Upload a source file: स्रोत फाइल अपलोड गर्नुहोस्, Upload a static file: स्थिर
+    फाइल अपलोड गर्नुहोस्, Upload a template file: टेम्प्लेट फाइल अपलोड गर्नुहोस्,
+  Upload successful: अपलोड सफल भयो, Upload this .docx file to the Templates folder: यो
+    .docx फाइल टेम्प्लेट फोल्डरमा अपलोड गर्नुहोस्।, Uploaded %s to the Playground.: खेल
+    मैदानमा %s अपलोड गरियो।, Uruguay: उरुग्वे, Use Package: प्याकेज प्रयोग गर्नुहोस्,
+  Use a different server: फरक सर्भर प्रयोग गर्नुहोस्, Used in: मा प्रयोग गरिएको, User: प्रयोगकर्ता,
+  User List: प्रयोगकर्ता सूची, User Profile: प्रयोगकर्ता प्रोफाइल, User profile: प्रयोगकर्ता
+    प्रोफाइल, Username: प्रयोगकर्ता नाम, Username is required: प्रयोगकर्ता नाम आवश्यक
+    छ, 'Username may only contain letters, numbers, ''-'', ''.'' and ''_''': 'प्रयोगकर्ता
+    नाममा अक्षर, संख्या, ''-'', ''.'' र ''_'' मात्र हुन सक्छ।', Username must be at least 3 characters long: प्रयोगकर्ता
+    नाम कम्तिमा ३ वर्ण लामो हुनुपर्छ।, Username or Email: प्रयोगकर्ता नाम वा इमेल,
+  Username/Email: प्रयोगकर्ता नाम/इमेल, Uses two-factor authentication: दुई-कारक प्रमाणीकरण
+    प्रयोग गर्दछ, Using Jinja2: Jinja2 प्रयोग गर्दै, Utilities: उपयोगिताहरू, Uzbekistan: उज्बेकिस्तान,
+  'Valid characters are: A-Z, a-z, 0-9': 'मान्य वर्णहरू हुन्: AZ, az, 0-9', 'Valid characters are: A-Z, a-z, 0-9, hyphen': 'मान्य
+    वर्णहरू हुन्: AZ, az, 0-9, हाइफन', Vanuatu: भानुआटु, Variables: चरहरू, 'Venezuela, Bolivarian Republic of': 'भेनेजुएला,
+    बोलिभेरियन गणराज्य', Verification code: प्रमाणीकरण कोड, Verify: प्रमाणित गर्नुहोस्,
+  Verify your phone: आफ्नो फोन प्रमाणित गर्नुहोस्, Version: संस्करण, Version number does not conform to PEP 440: संस्करण
+    नम्बर PEP ४४० अनुरूप छैन।, Viet Nam: भियतनाम, View documentation: कागजात हेर्नुहोस्,
+  'Virgin Islands, British': 'भर्जिन टापुहरू, बेलायत', 'Virgin Islands, U.S.': 'भर्जिन
+    टापुहरू, अमेरिका', 'WARNING!  If you press Delete, the contents of the %s project will be permanently deleted.': 'चेतावनी!
+    यदि तपाईंले Delete थिच्नुभयो भने, %s परियोजनाको सामग्री स्थायी रूपमा मेटिनेछ।',
+  Waiting: पर्खँदै, Wallis and Futuna: वालिस र फुटुना, 'Warning: a file by that name already exists.  If you save, you will overwrite it.': 'चेतावनी:
+    त्यो नामको फाइल पहिले नै अवस्थित छ। यदि तपाईंले बचत गर्नुभयो भने, तपाईंले यसलाई
+    अधिलेखन गर्नुहुनेछ।', 'Warning: a package definition by that name already exists.  If you save, you will overwrite it.': 'चेतावनी:
+    त्यो नामको प्याकेज परिभाषा पहिले नै अवस्थित छ। यदि तपाईंले बचत गर्नुभयो भने, तपाईंले
+    यसलाई अधिलेखन गर्नुहुनेछ।', We have received your password reset request.: हामीले
+    तपाईंको पासवर्ड रिसेट अनुरोध प्राप्त गरेका छौं।, We just sent you a text message with a verification code.  Enter the verification code to proceed.: हामीले
+    भर्खरै तपाईंलाई प्रमाणीकरण कोड सहितको टेक्स्ट म्यासेज पठायौं। अगाडि बढ्नको लागि
+    प्रमाणीकरण कोड प्रविष्ट गर्नुहोस्।, We were unable to submit your request.: हामीले
+    तपाईंको अनुरोध पेश गर्न सकेनौं।, Western Sahara: पश्चिमी सहारा, 'What file do you want to import?': 'तपाईं
+    कुन फाइल आयात गर्न चाहनुहुन्छ?', 'When you type inside Jinja2 brackets, auto-complete options will appear here.': 'जब
+    तपाईंले Jinja2 कोष्ठक भित्र टाइप गर्नुहुन्छ, यहाँ स्वत: पूर्ण विकल्पहरू देखा पर्नेछन्।',
+  Wizard: विजार्ड, 'Would you like to reconfigure two-factor authentication?': 'के
+    तपाईं दुई-कारक प्रमाणीकरण पुन: कन्फिगर गर्न चाहनुहुन्छ?', Yemen: यमन, Yes: हो,
+  'You are available for the following roles: ': 'तपाईं निम्न भूमिकाहरूको लागि उपलब्ध
+    हुनुहुन्छ: ', You are not allowed to access this interview.: तपाईंलाई यो अन्तर्वार्तामा
+    पहुँच गर्न अनुमति छैन।, You are not authorized to access: तपाईंलाई पहुँच गर्न
+    अनुमति छैन, You are now set up with two factor authentication.: अब तपाईं दुई कारक
+    प्रमाणीकरणको साथ सेट अप हुनुहुन्छ।, You are renaming the project called %s.: तपाईंले
+    %s नामक परियोजनाको नाम परिवर्तन गर्दै हुनुहुन्छ।, 'You can also follow this link: ': 'तपाईं
+    यो लिङ्क पनि पछ्याउन सक्नुहुन्छ: ', ? 'You can divide up your Playground into
+    multiple separate areas, apart from your default Playground area.  Each Project
+    has its own question files and Folders.' : तपाईंले आफ्नो पूर्वनिर्धारित खेल मैदान
+    क्षेत्र बाहेक आफ्नो खेल मैदानलाई धेरै छुट्टाछुट्टै क्षेत्रहरूमा विभाजन गर्न सक्नुहुन्छ।
+    प्रत्येक परियोजनाको आफ्नै प्रश्न फाइलहरू र फोल्डरहरू हुन्छन्।, 'You can provide a:': 'तपाईंले
+    निम्न प्रदान गर्न सक्नुहुन्छ:', You can type link1 to visit the link: लिङ्कमा
+    जानको लागि तपाईंले लिङ्क१ टाइप गर्न सक्नुहुन्छ।, 'You can type link1, etc. to visit a link': लिङ्कमा
+    जानको लागि तपाईंले लिङ्क१ आदि टाइप गर्न सक्नुहुन्छ।, You can type menu1 to select the menu item: मेनु
+    वस्तु चयन गर्न तपाईंले menu1 टाइप गर्न सक्नुहुन्छ।, 'You can type menu1, etc. to select a menu item': 'मेनु
+    वस्तु चयन गर्न तपाईंले menu1, आदि टाइप गर्न सक्नुहुन्छ।', You can type question to read the question again.: तपाईं
+    प्रश्न फेरि पढ्नको लागि प्रश्न टाइप गर्न सक्नुहुन्छ।, You can upload a file here: तपाईं
+    यहाँ फाइल अपलोड गर्न सक्नुहुन्छ।, You can use the Playground of another user who has admin or developer privileges.: तपाईं
+    व्यवस्थापक वा विकासकर्ता विशेषाधिकार भएको अर्को प्रयोगकर्ताको खेल मैदान प्रयोग
+    गर्न सक्नुहुन्छ।, You cannot log in this way.: तपाईं यसरी लग इन गर्न सक्नुहुन्न।,
+  You cannot log in until your e-mail address has been confirmed.: तपाईंको इमेल ठेगाना
+    पुष्टि नभएसम्म तपाईं लग इन गर्न सक्नुहुन्न।, You cannot pull from GitHub and PyPI at the same time.  Please fill in one and leave the other blank.: तपाईं
+    GitHub र PyPI बाट एकै समयमा तान्न सक्नुहुन्न। कृपया एउटा भर्नुहोस् र अर्को खाली
+    छोड्नुहोस्।, You cannot rename the default Playground project: तपाईंले पूर्वनिर्धारित
+    प्लेग्राउन्ड परियोजनाको नाम परिवर्तन गर्न सक्नुहुन्न।, You cannot take away your own admin privilege.: तपाईंले
+    आफ्नो व्यवस्थापकीय विशेषाधिकार खोस्न सक्नुहुन्न।, You cannot type more than %s characters.: तपाईंले
+    %s भन्दा बढी वर्णहरू टाइप गर्न सक्नुहुन्न।, You do not have any API keys yet.: तपाईंसँग
+    अहिलेसम्म कुनै पनि API कुञ्जीहरू छैनन्।, You do not have permission to access '%(url)s'.: तपाईंलाई
+    '%(url)s' पहुँच गर्ने अनुमति छैन।, You do not have permission to install this package.: तपाईंलाई
+    यो प्याकेज स्थापना गर्ने अनुमति छैन।, You do not have sufficient privileges to edit this user.: तपाईंसँग
+    यो प्रयोगकर्ता सम्पादन गर्न पर्याप्त विशेषाधिकार छैन।, You have been invited to join: तपाईंलाई
+    सामेल हुन आमन्त्रित गरिएको छ।, You have made too many login attempts.: तपाईंले
+    धेरै पटक लगइन प्रयास गर्नुभएको छ।, You have registered successfully.: तपाईंले
+    सफलतापूर्वक दर्ता गर्नुभयो।, You have signed in successfully.: तपाईंले सफलतापूर्वक
+    साइन इन गर्नुभएको छ।, You have signed out successfully.: तपाईंले सफलतापूर्वक साइन
+    आउट गर्नुभयो।, You must attach a file.: तपाईंले फाइल संलग्न गर्नुपर्छ।, You must be signed in to access '%(url)s'.: '''%(url)s''
+    पहुँच गर्न तपाईं साइन इन हुनुपर्छ।', You must confirm your email to access '%(url)s'.: '''%(url)s''
+    पहुँच गर्न तपाईंले आफ्नो इमेल पुष्टि गर्नुपर्छ।', You must provide a file.: तपाईंले
+    फाइल प्रदान गर्नुपर्छ।, You must provide a language: तपाईंले भाषा प्रदान गर्नुपर्छ,
+  You must provide an interview filename: तपाईंले अन्तर्वार्ताको फाइलनाम प्रदान गर्नुपर्छ।,
+  You must select an option.: तपाईंले एउटा विकल्प छान्नुपर्छ।, You must sign your name to continue.: जारी
+    राख्न तपाईंले आफ्नो नाममा हस्ताक्षर गर्नुपर्छ।, You must type at least %s characters.: तपाईंले
+    कम्तिमा %s वर्णहरू टाइप गर्नुपर्छ।, You need to be logged in to access this interview.: यो
+    अन्तर्वार्तामा पहुँच गर्न तपाईं लग इन हुन आवश्यक छ।, You need to enter a complete e-mail address.: तपाईंले
+    पूरा इमेल ठेगाना प्रविष्ट गर्न आवश्यक छ।, You need to enter a date and time between %s and %s.: तपाईंले
+    %s र %s बीचको मिति र समय प्रविष्ट गर्न आवश्यक छ।, You need to enter a date and time on or after %s.: तपाईंले
+    %s मा वा पछिको मिति र समय प्रविष्ट गर्नुपर्नेछ।, You need to enter a date and time on or before %s.: तपाईंले
+    %s मा वा त्यसभन्दा अगाडिको मिति र समय प्रविष्ट गर्नुपर्नेछ।, You need to enter a date between %s and %s.: तपाईंले
+    %s र %s बीचको मिति प्रविष्ट गर्नुपर्नेछ।, You need to enter a date on or after %s.: तपाईंले
+    %s मा वा पछिको मिति प्रविष्ट गर्नुपर्नेछ।, You need to enter a date on or before %s.: तपाईंले
+    %s मा वा त्यसभन्दा अगाडिको मिति प्रविष्ट गर्नुपर्नेछ।, You need to enter a number that is at least %s.: तपाईंले
+    कम्तिमा %s भएको संख्या प्रविष्ट गर्नुपर्नेछ।, You need to enter a number that is at most %s.: तपाईंले
+    बढीमा %s भएको संख्या प्रविष्ट गर्नुपर्नेछ।, You need to enter a number.: तपाईंले
+    नम्बर प्रविष्ट गर्नुपर्नेछ।, You need to enter a time at or after %s.: तपाईंले
+    %s मा वा पछिको समय प्रविष्ट गर्नुपर्नेछ।, You need to enter a time at or before %s.: तपाईंले
+    %s मा वा त्यसभन्दा अगाडिको समय प्रविष्ट गर्नुपर्नेछ।, You need to enter a time between %s and %s.: तपाईंले
+    %s र %s बीचको समय प्रविष्ट गर्न आवश्यक छ।, You need to enter a valid date and time.: तपाईंले
+    मान्य मिति र समय प्रविष्ट गर्न आवश्यक छ।, You need to enter a valid date.: तपाईंले
+    मान्य मिति प्रविष्ट गर्न आवश्यक छ।, You need to enter a valid number.: तपाईंले
+    मान्य नम्बर प्रविष्ट गर्नुपर्नेछ।, You need to enter a valid time.: तपाईंले मान्य
+    समय प्रविष्ट गर्न आवश्यक छ।, You need to enter a valid value.: तपाईंले मान्य मान
+    प्रविष्ट गर्न आवश्यक छ।, You need to increment the version before publishing to PyPI.: PyPI
+    मा प्रकाशन गर्नु अघि तपाईंले संस्करण बढाउनु पर्छ।, You need to log in before you can access: पहुँच
+    गर्न सक्नु अघि तपाईंले लग इन गर्नु पर्छ, You need to log in with Auth0.: तपाईंले
+    Auth0 मार्फत लग इन गर्न आवश्यक छ।, You need to log in with Authentik.: तपाईंले
+    Authentik मार्फत लग इन गर्नुपर्नेछ।, You need to log in with Azure.: तपाईंले Azure
+    मार्फत लग इन गर्नुपर्नेछ।, You need to log in with Facebook.: तपाईंले फेसबुक मार्फत
+    लग इन गर्नुपर्नेछ।, You need to log in with Google.: तपाईंले गुगल मार्फत लग इन
+    गर्नुपर्नेछ।, You need to log in with Keycloak.: तपाईंले Keycloak मार्फत लग इन
+    गर्नुपर्नेछ।, You need to select one or type in a new value.: तपाईंले एउटा चयन
+    गर्नुपर्नेछ वा नयाँ मान टाइप गर्नुपर्नेछ।, You need to select one.: तपाईंले एउटा
+    छान्नु पर्छ।, 'You need to supply a Git URL, upload a file, or supply the name of a package on PyPI.': 'तपाईंले
+    PyPI मा Git URL, फाइल अपलोड, वा प्याकेजको नाम प्रदान गर्न आवश्यक छ।', You need to type in a name for the file: तपाईंले
+    फाइलको लागि नाम टाइप गर्नुपर्नेछ।, You need to type in a name for the interview: अन्तर्वार्ताको
+    लागि तपाईंले नाम टाइप गर्नुपर्नेछ।, You will need to confirm your email next.: अर्को
+    तपाईंले आफ्नो इमेल पुष्टि गर्नुपर्नेछ।, You will need to confirm your email to start using: प्रयोग
+    सुरु गर्न तपाईंले आफ्नो इमेल पुष्टि गर्नुपर्नेछ, ? 'Your GitHub integration is
+    currently turned on.  Below, you can change which repositories docassemble can
+    access.  You can disable GitHub integration if you no longer wish to use it.'
+  : 'तपाईंको GitHub एकीकरण हाल सक्रिय छ। तल, तपाईं कुन रिपोजिटरीहरू docassemble ले
+    पहुँच गर्न सक्छ भनेर परिवर्तन गर्न सक्नुहुन्छ। यदि तपाईं अब यसलाई प्रयोग गर्न
+    चाहनुहुन्न भने तपाईं GitHub एकीकरणलाई असक्षम पार्न सक्नुहुन्छ।', Your GitHub settings were saved.: तपाईंको
+    GitHub सेटिङहरू सुरक्षित गरियो।, Your IP address is: तपाईंको IP ठेगाना हो, Your Playground is connected to your Google Drive.: तपाईंको
+    खेल मैदान तपाईंको गुगल ड्राइभमा जोडिएको छ।, Your Playground is connected to your OneDrive.: तपाईंको
+    खेल मैदान तपाईंको OneDrive मा जडान गरिएको छ।, 'Your account already has two-factor authentication enabled.  Would you like to reconfigure or disable two-factor authentication?': 'तपाईंको
+    खातामा पहिले नै दुई-कारक प्रमाणीकरण सक्षम पारिएको छ। के तपाईं दुई-कारक प्रमाणीकरण
+    पुन: कन्फिगर वा असक्षम गर्न चाहनुहुन्छ?', Your account has been disabled.: तपाईंको
+    खाता असक्षम पारिएको छ।, Your account has not been enabled.: तपाईंको खाता सक्षम
+    पारिएको छैन।, Your account no longer uses two-factor authentication.: तपाईंको
+    खाताले अब दुई-कारक प्रमाणीकरण प्रयोग गर्दैन।, Your browser session has expired and you have been signed out.  You will not be able to save your work.  Please log in again.: तपाईंको
+    ब्राउजर सत्रको म्याद सकिएको छ र तपाईं साइन आउट हुनुभएको छ। तपाईं आफ्नो काम सुरक्षित
+    गर्न सक्षम हुनुहुने छैन। कृपया फेरि लग इन गर्नुहोस्।, Your confirmation token has expired.: तपाईंको
+    पुष्टिकरण टोकनको म्याद सकिएको छ।, Your docassemble server: तपाईंको डकुमेन्ट एसेम्बल
+    सर्भर, Your document is attached.: तपाईंको कागजात संलग्न छ।, 'Your document, ': 'तपाईंको
+    कागजात, ', 'Your document, %s, is attached.': 'तपाईंको कागजात, %s, संलग्न गरिएको
+    छ।', Your documents are attached.: तपाईंका कागजातहरू संलग्न छन्।, Your documents will be e-mailed to: तपाईंका
+    कागजातहरू निम्न ठेगानामा इमेल गरिनेछन्, 'Your documents, ': 'तपाईंका कागजातहरू, ',
+  'Your documents, %s, are attached.': 'तपाईंका कागजातहरू, %s, संलग्न छन्।', Your e-mail address: तपाईंको
+    इमेल ठेगाना, Your email address: तपाईंको इमेल ठेगाना, ? Your email address has
+    not yet been confirmed. Check your email Inbox and Spam folders for the confirmation
+    email or <a href="%(url)s">Re-send confirmation email</a>. : 'तपाईंको इमेल ठेगाना
+    अझै पुष्टि भएको छैन। पुष्टिकरण इमेलको लागि आफ्नो इमेल इनबक्स र स्पाम फोल्डरहरू
+    जाँच गर्नुहोस् वा <a href="%(url)s">पुष्टिकरण इमेल पुन: पठाउनुहोस्</a> ।', Your email has been confirmed.: तपाईंको
+    इमेल पुष्टि भएको छ।, Your file upload is larger than the server can accept. Please reduce the size of your file upload.: तपाईंको
+    फाइल अपलोड सर्भरले स्वीकार गर्न सक्ने भन्दा ठूलो छ। कृपया तपाईंको फाइल अपलोडको
+    आकार घटाउनुहोस्।, Your information was saved.: तपाईंको जानकारी सुरक्षित गरिएको
+    छ।, 'Your new API key, known internally as <strong>%s</strong>, is:<br />%s<br />': 'तपाईंको
+    नयाँ API कुञ्जी, जुन आन्तरिक रूपमा <strong>%s</strong> को रूपमा चिनिन्छ, यो हो:<br
+    /> %s<br />', Your password has been changed: तपाईंको पासवर्ड परिवर्तन गरिएको
+    छ।, Your password has been changed successfully.: तपाईंको पासवर्ड सफलतापूर्वक
+    परिवर्तन गरिएको छ।, Your password has been changed.: तपाईंको पासवर्ड परिवर्तन
+    गरिएको छ।, Your password has been reset successfully.: तपाईंको पासवर्ड सफलतापूर्वक
+    रिसेट गरिएको छ।, Your password is insecure and needs to be changed: तपाईंको पासवर्ड
+    असुरक्षित छ र परिवर्तन गर्न आवश्यक छ।, 'Your phone #': तपाईंको फोन नम्बर, Your request was submitted.: तपाईंको
+    अनुरोध पेश गरियो।, Your reset password token has expired.: तपाईंको रिसेट पासवर्ड
+    टोकनको म्याद सकिएको छ।, Your reset password token is invalid.: तपाईंको रिसेट पासवर्ड
+    टोकन अमान्य छ।, Your screen is being controlled by an operator.: तपाईंको स्क्रिन
+    एक अपरेटरद्वारा नियन्त्रित भइरहेको छ।, 'Your status: ': 'तपाईंको स्थिति: ', Your username has been changed: तपाईंको
+    प्रयोगकर्ता नाम परिवर्तन गरिएको छ।, Your username has been changed to '%(username)s'.: तपाईंको
+    प्रयोगकर्ता नाम '%(username)s' मा परिवर्तन गरिएको छ।, Your username has been changed.: तपाईंको
+    प्रयोगकर्ता नाम परिवर्तन गरिएको छ।, Your verification code is: तपाईंको प्रमाणिकरण
+    कोड यो हो, Your verification code is invalid or expired.  Please try again.: तपाईंको
+    प्रमाणिकरण कोड अमान्य छ वा म्याद सकिएको छ। कृपया फेरि प्रयास गर्नुहोस्।, Your verification code was invalid or expired.: तपाईंको
+    प्रमाणिकरण कोड अमान्य वा म्याद सकिएको थियो।, Your verification code was invalid.: तपाईंको
+    प्रमाणिकरण कोड अमान्य थियो।, Your verification code was missing or expired: तपाईंको
+    प्रमाणीकरण कोड हराइरहेको थियो वा म्याद सकिएको थियो।, Your version is: तपाईंको
+    संस्करण हो, Zambia: जाम्बिया, Zimbabwe: जिम्बाब्वे, Zip File: जिप फाइल, a GitHub repository: GitHub
+    भण्डार, am I: 'के म?', and: र, and enter the code: र कोड प्रविष्ट गर्नुहोस्, anonymous visitor: बेनामी
+    आगन्तुक, are we: 'के हामी?', are you: के तिमी, back: पछाडि, blank message: खाली
+    सन्देश, breadcrumb: ब्रेडक्रम्ब, click here to reset it: यसलाई रिसेट गर्न यहाँ
+    क्लिक गर्नुहोस्।, could not connect to Google Drive: गुगल ड्राइभमा जडान गर्न सकिएन,
+  could not connect to OneDrive: OneDrive मा जडान गर्न सकिएन, day: दिन, defined by: द्वारा
+    परिभाषित, definitions of words: शब्दहरूको परिभाषा, delete my account: मेरो खाता
+    मेटाउनुहोस्, 'e.g., *example.com': 'जस्तै, *example.com', 'e.g., 56.33.114.49': 'जस्तै,
+    ५६.३३.११४.४९', exit: बाहिर निस्कनुहोस्, f: च, 'false': झूटो, for debugging PDF output: PDF
+    आउटपुट डिबग गर्नको लागि, for downloading: डाउनलोड गर्नको लागि, for editing; requires Microsoft Word or compatible application: सम्पादनको
+    लागि; माइक्रोसफ्ट वर्ड वा उपयुक्त अनुप्रयोग आवश्यक पर्दछ।, 'for editing; requires Microsoft Word, Wordpad, or similar application': 'सम्पादनको
+    लागि; माइक्रोसफ्ट वर्ड, वर्डप्याड, वा समान अनुप्रयोग आवश्यक पर्दछ।', for printing; requires Adobe Reader or similar application: मुद्रणको
+    लागि; Adobe Reader वा समान अनुप्रयोग आवश्यक पर्दछ।, from: बाट, he: उनी, her: उनको,
+  herself: उनी आफैं, him: उसलाई, himself: आफैं, hour: घण्टा, icon: आइकन, in mako: माकोमा,
+  in the: मा, interview answers cannot be decrypted: अन्तर्वार्ताका उत्तरहरू डिक्रिप्ट
+    गर्न सकिँदैन, is not a valid date and time.: मान्य मिति र समय होइन।, is not a valid date.: मान्य
+    मिति होइन।, is not a valid number.: मान्य संख्या होइन।, is not a valid time.: मान्य
+    समय होइन।, is not a whole number.: पूर्ण संख्या होइन।, is not within the range.: दायरा
+    भित्र छैन।, it: यो, itself: आफैँ, link: लिङ्क, me: म, means the name is located in this file: यसको
+    अर्थ नाम यस फाइलमा अवस्थित छ।, 'means the name may be located in a file included by reference, such as:': 'यसको
+    अर्थ नाम सन्दर्भद्वारा समावेश गरिएको फाइलमा अवस्थित हुन सक्छ, जस्तै:', mentioned in: मा
+    उल्लेख गरिएको, menu: मेनु, menu items: मेनु वस्तुहरू, minute: मिनेट, month: महिना,
+  myself: म आफैं, n: र, n/a: लागू हुँदैन, no: होइन, none: कुनै पनि होइन, offline: अफलाइन,
+  ok: ठीक छ, operator: अपरेटर, operators: अपरेटरहरू, or: वा, or type skip to leave blank.: वा
+    खाली छोड्न skip टाइप गर्नुहोस्।, other user: अन्य प्रयोगकर्ता, other users: अन्य
+    प्रयोगकर्ताहरू, ourselves: हामी आफैं, pages: पृष्ठहरू, pip log: पिप लग, published on GitHub: GitHub
+    मा प्रकाशित, published on PyPI: PyPI मा प्रकाशित, question: प्रश्न, quit: छोड्नु,
+  remaining on disk: डिस्कमा बाँकी, second: दोस्रो, she: उनी, sign in: साइन इन गर्नुहोस्,
+  skip: छोड्नुहोस्, something: केहि, system: प्रणाली, t: ट, them: तिनीहरूलाई, themself: आफैं,
+  themselves: आफैं, they: तिनीहरू, to proceed.: अगाडि बढ्न।, 'true': सत्य, unavailable: उपलब्ध
+    छैन, us: हामीलाई, v.: वि., was saved at: मा सुरक्षित गरिएको थियो, we: हामी, x: x,
+  y: र, year: वर्ष, yes: हो, you: तिमी, yourself: आफैँ, yourselves: आफैं, Åland Islands: अलान्ड
+    टापुहरू}
