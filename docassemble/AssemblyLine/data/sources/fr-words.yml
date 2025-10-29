@@ -1,0 +1,878 @@
+fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''existe
+    pas', (%s uncompressed): (%s non compressé), (Deleted): (Supprimé), (New branch): (Nouvelle
+    succursale), (New file): (Nouveau fichier), (Not a DAFile or DAFileList object): (Ce
+    n'est pas un objet DAFile ou DAFileList), '(Not a DAFile, DAFileList, or list object)': '(Ce
+    n''est pas un objet DAFile, DAFileList ou liste)', (Not a readable image file): (Fichier
+    image illisible), (Unable to display map): (Carte introuvable), (Unable to extract images from PDF file): (Impossible
+    d'extraire les images du fichier PDF), '(embedded question, source code not available)': '(Question
+    intégrée, code source non disponible)', (no subject): (pas de sujet), (term definition): (définition
+    du terme), (using your email address) and change your password.: (en utilisant
+    votre adresse e-mail) et changez votre mot de passe., ', are attached': ', sont
+    attachés', ', is already in use by someone else': ', est déjà utilisé par quelqu''un
+    d''autre', ', is attached': ', est attaché', -- Do not link --: -- Ne pas lier
+    --, .: ., 404 Not Found: 404 non trouvé, ? '<strong>This is the only time you
+    will be able to see your API key</strong>, so make sure to make a note of it and
+    keep it in a secure place.' : '<strong>C’est la seule fois où vous pourrez voir
+    votre clé API</strong> , alors assurez-vous de la noter et de la conserver en
+    lieu sûr.', '?': '?', A confirmation email has been sent to %(email)s with instructions to complete your registration.: Un
+    courriel de confirmation a été envoyé à %(email)s avec les instructions pour finaliser
+    votre inscription., 'A new docassemble system version is available.  If you are using Docker, install a new Docker image.': 'Une
+    nouvelle version du système docassemble est disponible. Si vous utilisez Docker,
+    installez une nouvelle image Docker.', A reset password email has been sent to '%(email)s'. Open that email and follow the instructions to reset your password.: Un
+    courriel de réinitialisation de mot de passe a été envoyé à %(email)s. Ouvrez
+    ce courriel et suivez les instructions pour réinitialiser votre mot de passe.,
+  A user with that e-mail has already registered: Un utilisateur possédant cette adresse
+    e-mail s'est déjà inscrit., 'A valid SPDX identifier must be provided, e.g., MIT, GPL-3.0, Apache-2.0.': 'Un
+    identifiant SPDX valide doit être fourni, par exemple MIT, GPL-3.0, Apache-2.0.',
+  API Keys: Clés API, API key: Clé API, API key copied to clipboard.: Clé API copiée
+    dans le presse-papiers., API keys: Clés API, Access organizational repositories: Accéder
+    aux référentiels organisationnels, Access shared repositories: Accéder aux référentiels
+    partagés, Account did not exist.: Ce compte n'existait pas., Account disabled: Compte
+    désactivé, Action: Action, Actions: Actes, Activate chat: Activer le chat, Active: Actif,
+  Active File: Fichier actif, Actual: Réel, Add: Ajouter, Add Email: Ajouter un e-mail,
+  Add Privilege: Ajouter un privilège, Add User: Ajouter un utilisateur, Add a New API Key: Ajouter
+    une nouvelle clé API, Add a New Project: Ajouter un nouveau projet, Add a new privilege: Ajouter
+    un nouveau privilège, Add a user: Ajouter un utilisateur, Add an item: Ajouter
+    un élément, Add another: Ajouter un autre, Administrator: Administrateur, Administrator privilege: privilèges
+    d'administrateur, Advocate privilege: Privilège de l'avocat, Afghanistan: Afghanistan,
+  Albania: Albanie, Algeria: Algérie, All Playgrounds: Toutes les aires de jeux, All of the above: Tout
+    ce qui précède, Allowed sites: Sites autorisés, 'Already registered?': 'Déjà inscrit?',
+  'Already registered? Sign in.': 'Déjà inscrit ? Connectez-vous.', American Samoa: Samoa
+    américaines, ? 'An SSH key is already installed on your GitHub account. The existing
+    SSH key will not be replaced. Note that if you are connecting to GitHub from multiple
+    docassemble servers, each server needs to have a different appname in the Configuration.
+    If you have problems using GitHub, disable the integration and configure it again.'
+  : 'Une clé SSH est déjà installée sur votre compte GitHub. Cette clé ne sera pas
+    remplacée. Veuillez noter que si vous vous connectez à GitHub depuis plusieurs
+    serveurs DocAssemble, chaque serveur doit avoir un nom d''application différent
+    dans sa configuration. En cas de problème avec GitHub, désactivez l''intégration
+    et reconfigurez-la.', An e-mail address is required.: Une adresse e-mail est requise.,
+  An uploaded JSON file: Un fichier JSON téléchargé, Andorra: Andorre, Angola: Angola,
+  Anguilla: Anguilla, Anonymous: Anonyme, Answer here: Répondez ici, Antarctica: Antarctique,
+  Antigua and Barbuda: Antigua-et-Barbuda, App: Application, Apply: Appliquer, 'Are you sure that you want to delete this file?': 'Êtes-vous
+    sûr de vouloir supprimer ce fichier ?', 'Are you sure that you want to delete this package?': 'Êtes-vous
+    sûr de vouloir supprimer ce paquet ?', 'Are you sure that you want to delete this playground file?': 'Êtes-vous
+    sûr de vouloir supprimer ce fichier de test ?', 'Are you sure you want to delete all saved interviews?': 'Êtes-vous
+    sûr de vouloir supprimer tous les entretiens enregistrés ?', 'Are you sure you want to delete this item?': 'Êtes-vous
+    sûr de vouloir supprimer cet élément ?', 'Are you sure you want to permanently delete this user''s account?': 'Êtes-vous
+    sûr de vouloir supprimer définitivement le compte de cet utilisateur ?', Argentina: Argentine,
+  Armenia: Arménie, Aruba: Aruba, At least one e-mail address must be listed: Au moins
+    une adresse électronique doit être indiquée., Attachment: Pièce jointe, Attachments: Pièces
+    jointes, Australia: Australie, Austria: Autriche, Authentication: Authentification,
+  Authentication failed.: L'authentification a échoué., Author E-mail: Courriel de
+    l'auteur, Author Name: Nom de l'auteur, Autocomplete: Saisie semi-automatique,
+  Available: Disponible, Available Interviews: Entretiens disponibles, Available for chat: Disponible
+    pour discuter, Available interviews: Entretiens disponibles, Azerbaijan: Azerbaïdjan,
+  Back: Dos, Back to Playground: Retour à l'aire de jeux, Back to profile: Retour
+    au profil, Back to question: Retour à la question, Back to user list: Retour à
+    la liste des utilisateurs, Bad date: Mauvais rendez-vous, Bad file format: Format
+    de fichier incorrect, Bahamas: Bahamas, Bahrain: Bahreïn, Bangladesh: Bangladesh,
+  Barbados: Barbade, Belarus: Biélorussie, Belgium: Belgique, Belize: Belize, Benin: Bénin,
+  Bermuda: Bermudes, Bhutan: Bhoutan, Block: Bloc, 'Bolivia, Plurinational State of': 'Bolivie,
+    État plurinational de', 'Bonaire, Sint Eustatius and Saba': 'Bonaire, Saint-Eustache
+    et Saba', Bosnia and Herzegovina: Bosnie-Herzégovine, Botswana: Botswana, Bouvet Island: Île
+    Bouvet, Branch: Bifurquer, Brazil: Brésil, British Indian Ocean Territory: Territoire
+    britannique de l'océan Indien, Browse Other Playgrounds: Découvrez d'autres aires
+    de jeux, Brunei Darussalam: Brunéi Darussalam, Bulgaria: Bulgarie, Burkina Faso: Burkina
+    Faso, Burundi: Burundi, Cabo Verde: Cabo Verde, Cambodia: Cambodge, Cameroon: Cameroun,
+  Canada: Canada, Cancel: Annuler, Case No.: Numéro de dossier, Cayman Islands: Îles
+    Caïmans, Central African Republic: République centrafricaine, Chad: Chad, Change: Changement,
+  Change Password: Changer le mot de passe, Change password: Changer le mot de passe,
+  Change username: Changer le nom d'utilisateur, Changed name of interview: Nom de
+    l'entretien modifié, Chat message you want to send: Message de chat que vous souhaitez
+    envoyer, 'Check at least one option, or check “%s”': 'Cochez au moins une option,
+    ou cochez « %s ».', Check box: Cocher la case, Check if applicable: Cochez la
+    case si applicable, Chile: Chili, China: Chine, 'Choices (choose one):': 'Choix
+    (choisissez-en un) :', 'Choices:': 'Choix:', Christmas Island: L'île Christmas,
+  Classes: Cours, Clear: Clair, Click here to confirm your e-mail: Cliquez ici pour
+    confirmer votre courriel, Click here to get help over the phone.: Cliquez ici
+    pour obtenir de l'aide par téléphone., Click if you want the user to be able to call you.: Cochez
+    cette case si vous souhaitez que l'utilisateur puisse vous appeler., Click interview title to resume an interview you already started.: Cliquez
+    sur le titre de l'entretien pour reprendre un entretien que vous avez déjà commencé.,
+  Click to change your status to available: Cliquez ici pour changer votre statut
+    en « disponible »., Click to change your status to not available: Cliquez pour
+    changer votre statut en « Non disponible »., Click to try this interview: Cliquez
+    ici pour tenter cet entretien, Close: Fermer, Cocos (Keeling) Islands: Îles Cocos
+    (Keeling), Colombia: Colombie, Commit: Commettre, Commit message: Message de validation,
+  Comoros: Comores, Configuration: Configuration, Configuration YAML: Configuration
+    YAML, Configuration not updated.: Configuration non mise à jour., Configuration not updated.  There was a syntax error in the configuration YAML.: Configuration
+    non mise à jour. Une erreur de syntaxe s'est produite dans le fichier YAML de
+    configuration., Configuration not updated.  There was an error.: Configuration
+    non mise à jour. Une erreur s'est produite., Configure: Configure, Confirm your email: Confirmez
+    votre email, Confirmation Date: Date de confirmation, Congo: Congo, 'Congo, The Democratic Republic of the': 'Congo,
+    République démocratique du', Connect: Connecter, Connected to Google Drive: Connecté
+    à Google Drive, Connected to OneDrive: Connecté à OneDrive, Connected to server.: Connecté
+    au serveur., Continue: Continuer, Control: Contrôle, Convert to .md: Convertir
+    en .md, Cook Islands: Îles Cook, Copy API key: Copier la clé API, 'Copy from here and paste into a YAML file, e.g., in the Sources folder of the Playground or the sources folder of a package.': 'Copiez
+    le code ci-dessus et collez-le dans un fichier YAML, par exemple dans le dossier
+    Sources du Playground ou dans le dossier sources d''un package.', Costa Rica: Costa
+    Rica, Could not create new key: Impossible de créer une nouvelle clé, Country Code: Code
+    du pays, Country code: Code du pays, Create: Créer, Create Package: Créer un package,
+  Create a new file: Créer un nouveau fichier, Create a new interview: Créer un nouvel
+    entretien, Create a new package: Créer un nouveau paquet, Create a new project: Créer
+    un nouveau projet, Create an interview with the wizard: Créez une interview avec
+    le magicien, 'Created new Markdown file called ': 'Création d''un nouveau fichier
+    Markdown appelé ', Croatia: Croatie, Cuba: Cuba, Curaçao: Curaçao, Current: Actuel,
+  Cyprus: Chypre, Czechia: Tchéquie, Decorations: Décorations, Default Playground: Terrain
+    de jeu par défaut, Defined in: Défini dans, Delete: Supprimer, Delete Account: Supprimer
+    le compte, Delete All: Supprimer tout, Delete account and shared sessions: Supprimer
+    le compte et les sessions partagées, Delete account but keep shared sessions: Supprimer
+    le compte mais conserver les sessions partagées, Delete project: Supprimer le
+    projet, Delete this package from the Playground: Supprimez ce paquet de l'espace
+    de jeu., 'Deleted file: ': 'Fichier supprimé : ', Deleted interview: Interview
+    supprimée, Deleted interviews: Interviews supprimées, Deleted package: Paquet
+    supprimé, Denmark: Danemark, Dependencies: Dépendances, Description: Description,
+  Developer Access: Accès développeur, Developer privilege: Privilège de développeur,
+  Disable: Désactiver, Disable two-factor authentication: Désactiver l'authentification
+    à deux facteurs, Display the menu: Afficher le menu, Djibouti: Djibouti, Do not stop your web browser.: Ne
+    fermez pas votre navigateur web., Docassemble Office Add-in: Module complémentaire
+    Docassemble pour Office, Docassemble Playground: Terrain de jeu Docassemble, Document: Document,
+  Documentation: Documentation, Dominica: Dominique, Dominican Republic: République
+    dominicaine, Download: Télécharger, Download All: Télécharger tout, Download Office add-in manifest file: Télécharger
+    le fichier manifeste du complément Office, Download all documents as a ZIP file: Télécharger
+    tous les documents sous forme de fichier ZIP, Download all files: Télécharger
+    tous les fichiers, Download an interview phrase translation file: Télécharger
+    un fichier de traduction de phrases d'entretien, Download installed package: Télécharger
+    le package installé, Download the current package: Téléchargez le package actuel,
+  Download this document as a ZIP file: Téléchargez ce document sous forme de fichier
+    ZIP, Download this file: Télécharger ce fichier, Download this log file: Télécharger
+    ce fichier journal, Draft translation of system phrases: Projet de traduction
+    des phrases système, Dropdown: Dérouler, E-mail: E-mail, E-mail address: Adresse
+    email, E-mail address is required: Une adresse e-mail est requise., E-mail addresses with this domain are not authorized to register for accounts on this system.: Les
+    adresses électroniques de ce domaine ne sont pas autorisées à créer de comptes
+    sur ce système., E-mail is required: L'adresse e-mail est requise., E-mail these documents: Envoyez
+    ces documents par courriel, E-mail this document: Envoyez ce document par courriel.,
+  E-mail was sent to: Un courriel a été envoyé à, 'E.g., docassemble.demo:data/questions/questions.yml': 'Par
+    exemple, docassemble.demo:data/questions/questions.yml', 'E.g., es, fr, it': 'Par
+    exemple, es, fr, il', 'ERROR: you cannot insert a table into a .docx document': 'ERREUR :
+    impossible d’insérer un tableau dans un document .docx', Ecuador: Équateur, Edit: Modifier,
+  Edit API Key: Modifier la clé API, Edit User Profile: Modifier le profil utilisateur,
+  Edit another file: Modifier un autre fichier, Edit another interview: Modifier une
+    autre interview, Edit another package: Modifier un autre paquet, Edit module files: Modifier
+    les fichiers du module, Edit privileges: privilèges de modification, Edit source files: Modifier
+    les fichiers sources, Edit text files: Modifier les fichiers texte, Egypt: Egypte,
+  El Salvador: Le Salvador, Email: E-mail, Email Confirmation: Confirmation par e-mail,
+  Email address is required: Une adresse e-mail est requise., Email is required: L'e-mail
+    est obligatoire, Embed test: Test d'intégration, Enter: Entrer, ? 'Enter a URL
+    of a GitHub repository containing an extension package.  When you press Pull,
+    the contents of that repository will be copied into the Playground, overwriting
+    any files with the same names.  Or, put in the name of a PyPI package and it will
+    do the same with the package on PyPI.' : 'Saisissez l''URL d''un dépôt GitHub
+    contenant un paquet d''extension. En cliquant sur « Extraire », le contenu de
+    ce dépôt sera copié dans l''environnement de test, en remplaçant les fichiers
+    portant le même nom. Vous pouvez également saisir le nom d''un paquet PyPI ; la
+    même opération sera effectuée avec le paquet disponible sur PyPI.', Enter code: Entrez
+    le code, Enter the name of the new project you want to create.: Saisissez le nom
+    du nouveau projet que vous souhaitez créer., 'Entering a different interview.  To go back to your previous interview, go to My Interviews on the menu.': 'Vous
+    allez accéder à un autre entretien. Pour revenir à votre entretien précédent,
+    rendez-vous dans la section « Mes entretiens » du menu.', 'Entering a different interview.  To go back to your previous interview, log in to see a list of your interviews.': 'Vous
+    allez passer un autre entretien. Pour revenir à votre entretien précédent, connectez-vous
+    afin de consulter la liste de vos entretiens.', Equatorial Guinea: Guinée équatoriale,
+  Erase existing data for each model before importing: Effacez les données existantes
+    pour chaque modèle avant l'importation., Eritrea: Érythrée, Error: Erreur, Error reading JSON file from package.  File did not exist.: Erreur
+    lors de la lecture du fichier JSON du package. Le fichier n'existait pas., Error reading JSON file.  Not a valid JSON file.: Erreur
+    de lecture du fichier JSON. Fichier JSON invalide., Error reading JSON file.  The JSON file needs to contain a dictionary at the root level.: Erreur
+    de lecture du fichier JSON. Le fichier JSON doit contenir un dictionnaire à la
+    racine., 'Error: interview not found': 'Erreur : entretien introuvable', 'Error: interview not found and answers could not be decrypted': 'Erreur :
+    entretien introuvable et réponses impossibles à décrypter.', 'Error: menu item is not a Python dict with keys of url and label': 'Erreur :
+    l’élément de menu n’est pas un dictionnaire Python avec les clés url et label',
+  'Error: menu_items is not a Python list': 'Erreur : menu_items n’est pas une liste
+    Python', 'Error: no fields could be found in the file': 'Erreur : aucun champ
+    n''a été trouvé dans le fichier', Errors: Erreurs, Estonia: Estonie, Eswatini: Eswatini,
+  Ethiopia: Ethiopie, Every Two Weeks: Toutes les deux semaines, Existing module files: Fichiers
+    de module existants, Existing source files: Fichiers sources existants, Existing static files: Fichiers
+    statiques existants, Existing template files: Fichiers modèles existants, Exit: Sortie,
+  Failed to load report: Échec du chargement du rapport, Falkland Islands (Malvinas): Îles
+    Falkland (Malouines), Faroe Islands: Îles Féroé, Field cannot contain HTML: Ce
+    champ ne peut pas contenir de HTML, Fiji: Fidji, File: Déposer, File Name: Nom
+    de fichier, File Text: Texte du fichier, 'File could not be converted: ': 'Le
+    fichier n''a pas pu être converti : ', File deleted.: Fichier supprimé., 'File format not understood: ': 'Format
+    de fichier non reconnu : ', File name: Nom de fichier, File not deleted.  There was an error.: Fichier
+    non supprimé. Une erreur s'est produite., 'File not found: ': 'Fichier introuvable: ',
+  File to upload: Fichier à télécharger, Files: Fichiers, Files to include: Fichiers
+    à inclure, Filter For: Filtrer pour, Filter by tag: Filtrer par tag, Filter for: Filtrer
+    pour, Finland: Finlande, First Subdivision: Première subdivision, First name: Prénom,
+  First subdivision: Première subdivision, Floor: Sol, Folder: Dossier, Folders: Dossiers,
+  Forgot Password: Mot de passe oublié, Forgot password: Mot de passe oublié, 'Forgot your Password?': 'Mot
+    de passe oublié?', Formula: Formule, France: France, French Guiana: Guyane française,
+  French Polynesia: Polynésie française, French Southern Territories: Territoires
+    méridionaux français, From: Depuis, Functions: Fonctions, Gabon: Gabon, Gambia: Gambie,
+  Georgia: Géorgie, Germany: Allemagne, Get help through live chat by clicking here.: Obtenez
+    de l'aide par chat en direct en cliquant ici., Get list of fields from PDF/DOCX template: Obtenir
+    la liste des champs à partir d'un modèle PDF/DOCX, Get package: Recevoir le colis,
+  Get template: Obtenir le modèle, Ghana: Ghana, Gibraltar: Gibraltar, GitHub: GitHub,
+  GitHub Branch: Branche GitHub, GitHub Commit: Commit GitHub, GitHub Integration: Intégration
+    GitHub, GitHub URL: URL GitHub, GitHub integration: Intégration GitHub, GitHub integration was successfully configured.: L'intégration
+    GitHub a été configurée avec succès., GitHub integration was successfully disconnected.: L'intégration
+    GitHub a été déconnectée avec succès., Global: Mondial, Global models: Modèles
+    globaux, Go: Aller, Go back to the main Playground page: Retour à la page principale
+    de l'aire de jeux, Go back to the previous question: Revenir à la question précédente,
+  Google Drive: Google Drive, Google Drive Sync: Synchronisation avec Google Drive,
+  Google Drive Test: Test de Google Drive, Google Drive is not configured: Google
+    Drive n'est pas configuré, Google Drive is not linked.: Google Drive n'est pas
+    connecté., Google Drive synchronization: Synchronisation avec Google Drive, Greece: Grèce,
+  Greenland: Groenland, Grenada: Grenade, Guadeloupe: Guadeloupe, Guam: Guam, Guatemala: Guatemala,
+  Guernsey: Guernesey, Guinea: Guinée, Guinea-Bissau: Guinée-Bissau, Guyana: Guyane,
+  Haiti: Haïti, Heard Island and McDonald Islands: Île Heard et îles McDonald, Help: Aide,
+  Help is available: De l'aide est disponible, Help is available for this question: Une
+    aide est disponible pour cette question., Help with this question: Aidez-moi à
+    répondre à cette question, Here is some content after the interview.: Voici du
+    contenu supplémentaire après l'interview., Here is some content before the interview.: Voici
+    quelques éléments de contenu avant l'entretien., Here is the start of a YAML file you can import with a 'words' directive in your Configuration.: Voici
+    le début d'un fichier YAML que vous pouvez importer avec une directive « words
+    » dans votre configuration., Here is your document.: Voici votre document., Hide context of example: Masquer
+    le contexte de l'exemple, Hide entries that are already classified: Masquer les
+    entrées déjà classées, Hide import controls: Masquer les contrôles d'importation,
+  History: Histoire, Holy See (Vatican City State): Saint-Siège (État de la Cité du
+    Vatican), Home Page: Page d'accueil, Honduras: Honduras, Hong Kong: Hong Kong,
+  How question came to be asked: 'Comment la question a-t-elle été posée ?', How this question came to be asked: 'Comment
+    cette question a-t-elle pu être posée ?', 'How would you like the data to be imported?': 'Comment
+    souhaitez-vous que les données soient importées ?', Hungary: Hongrie, I: je, I am sorry.  The code you entered is invalid or expired.  Goodbye.: Désolé.
+    Le code que vous avez saisi est invalide ou a expiré. Au revoir., I do not understand what you mean by: Je
+    ne comprends pas ce que vous voulez dire par, I don't know: Je ne sais pas, IP Address: Adresse
+    IP, Iceland: Islande, 'If no items are selected, user privileges will determine permissions of the API key.': 'Si
+    aucun élément n''est sélectionné, les privilèges de l''utilisateur détermineront
+    les autorisations de la clé API.', 'If you did not initiate this confirmation, you may safely ignore this email.': 'Si
+    vous n''avez pas initié cette confirmation, vous pouvez ignorer ce courriel sans
+    problème.', 'If you did not initiate this password change,': 'Si vous n''avez
+    pas initié ce changement de mot de passe,', 'If you did not initiate this password change, click the link below to reset it.': 'Si
+    vous n''avez pas initié ce changement de mot de passe, cliquez sur le lien ci-dessous
+    pour le réinitialiser.', 'If you did not initiate this password reset, you may safely ignore this email.': 'Si
+    vous n''avez pas initié cette réinitialisation de mot de passe, vous pouvez ignorer
+    ce courriel sans risque.', 'If you did not initiate this registration, you may safely ignore this email.': 'Si
+    vous n''êtes pas à l''origine de cette inscription, vous pouvez ignorer ce courriel
+    sans problème.', 'If you did not initiate this username change, please': 'Si vous
+    n''avez pas initié ce changement de nom d''utilisateur, veuillez', 'If you did not initiate this username change, please sign in (using your email address) and change your password.': 'Si
+    vous n''avez pas initié ce changement de nom d''utilisateur, veuillez vous connecter
+    (en utilisant votre adresse e-mail) et modifier votre mot de passe.', ? 'If you
+    have a GitHub account, you can turn on GitHub integration.  This will allow you
+    to use GitHub as a version control system for packages from inside the Playground.'
+  : 'Si vous possédez un compte GitHub, vous pouvez activer l''intégration GitHub.
+    Cela vous permettra d''utiliser GitHub comme système de contrôle de version pour
+    les packages directement depuis l''environnement de test.', 'If you initiated this confirmation, please click on the link below:': 'Si
+    vous avez initié cette confirmation, veuillez cliquer sur le lien ci-dessous :',
+  'If you initiated this registration, please click on the link below to sign in to your existing account:': 'Si
+    vous avez initié cette inscription, veuillez cliquer sur le lien ci-dessous pour
+    vous connecter à votre compte existant :', 'If you initiated this registration, please click on the link below:': 'Si
+    vous avez initié cette inscription, veuillez cliquer sur le lien ci-dessous :',
+  'If you initiated this registration, please visit the link below to sign in to your existing account:': 'Si
+    vous avez initié cette inscription, veuillez cliquer sur le lien ci-dessous pour
+    vous connecter à votre compte existant :', 'If you initiated this registration, please visit the link below:': 'Si
+    vous avez initié cette inscription, veuillez cliquer sur le lien ci-dessous :',
+  'If you initiated this request, please click on the link below:': 'Si vous êtes
+    à l''origine de cette demande, veuillez cliquer sur le lien ci-dessous :', Import: Importer,
+  Import method: Méthode d'importation, Import training data from a JSON file: Importer
+    les données d'entraînement à partir d'un fichier JSON, Include DOCX and Markdown files for editing: Inclure
+    les fichiers DOCX et Markdown pour la modification, Include DOCX file for editing: Inclure
+    le fichier DOCX pour la modification, Include DOCX files for editing: Inclure
+    les fichiers DOCX pour la modification, Include Markdown file for editing: Inclure
+    le fichier Markdown pour l'édition, Include Markdown files for editing: Inclure
+    les fichiers Markdown pour l'édition, Include RTF and DOCX files for editing: Inclure
+    les fichiers RTF et DOCX pour l'édition, Include RTF and Markdown files for editing: Inclure
+    les fichiers RTF et Markdown pour l'édition, Include RTF file for editing: Inclure
+    le fichier RTF pour la modification, Include RTF files for editing: Inclure les
+    fichiers RTF pour l'édition, Incorrect %(username_or_email)s and/or Password: Nom
+    d'utilisateur ou adresse e-mail incorrects et/ou mot de passe, Incorrect Email and/or Password: Adresse
+    e-mail et/ou mot de passe incorrects, Incorrect Password: Mot de passe incorrect,
+  India: Inde, Indonesia: Indonésie, Information: Information, Information for the developer: Informations
+    destinées au développeur, Input: Saisir, Input box: boîte de saisie, Input not processed because the page expired.: Les
+    données saisies n'ont pas été traitées car la page a expiré., Input not processed because the question changed.  Please continue.: Votre
+    demande n'a pas pu être traitée car la question a changé. Veuillez continuer.,
+  Input not processed.  Please try again.: Données non traitées. Veuillez réessayer.,
+  Insert: Insérer, Install: Installer, Install or update a package: Installer ou mettre
+    à jour un paquet, Install package on this server: Installez le package sur ce
+    serveur, Install package on this server also: Installez également le package sur
+    ce serveur., Interview: Entretien, Interview Progress: Progression de l'entretien,
+  Interview answers cannot be decrypted: Les réponses à l'entretien ne peuvent pas
+    être décryptées., Interview files: Dossiers d'entretien, 'Interview:': 'Entretien:',
+  Interviews: Entretiens, Invalid E-mail: E-mail invalide, Invalid Email: E-mail invalide,
+  Invalid Email address: Adresse e-mail invalide, Invalid action.: Action invalide.,
+  Invalid confirmation token.: Jeton de confirmation invalide., Invalid e-mail address: Adresse
+    e-mail invalide, Invalid interview: Entretien invalide, Invalid invitation token: Jeton
+    d'invitation invalide, Invalid phone number.: Numéro de téléphone invalide., Invitation: Invitation,
+  Invitation has been sent.: L'invitation a été envoyée., Invitations have been sent.: Les
+    invitations ont été envoyées., Invite: Inviter, Invite User: Inviter un utilisateur,
+  Invite a user: Inviter un utilisateur, Invite!: Inviter!, 'Iran, Islamic Republic of': 'Iran,
+    République islamique d''', Iraq: Irak, Ireland: Irlande, Isle of Man: Île de Man,
+  Israel: Israël, Italy: Italie, Items: Articles, Items in the Playground other than interviews: Éléments
+    de l'aire de jeux autres que les interviews, Items in the training set: Éléments
+    de l'ensemble d'entraînement, JSON file: fichier JSON, Jamaica: Jamaïque, Japan: Japon,
+  Jersey: Jersey, Jinja2 help template: Modèle d'aide Jinja2, Join: Rejoindre, Jordan: Jordanie,
+  Kazakhstan: Kazakhstan, Kenya: Kenya, Kiribati: Kiribati, 'Korea, Republic of': République
+    de Corée, Kuwait: Koweit, Kyrgyzstan: Kirghizistan, Language: Langue, Last name: Nom
+    de famille, Latvia: Lettonie, Leave: Partir, Lebanon: Liban, Lesotho: Lesotho,
+  Liberia: Libéria, Libya: Libye, License: Licence, Liechtenstein: Liechtenstein,
+  Limited Permissions: Autorisations limitées, Link copied to clipboard.: Lien copié
+    dans le presse-papiers., Linked folder: Dossier lié, Links: Links, List of ISO-639-1 language codes: Liste
+    des codes de langue ISO-639-1, Listen: Écouter, Lithuania: Lituanie, Live chat: Chat
+    en direct, Live chat is available: Le chat en direct est disponible, Loading . . .: Chargement
+    . . ., 'Loading.  Please wait . . . ': 'Chargement en cours. Veuillez patienter... ',
+  Log: Enregistrer, Logs: Journaux, Luxembourg: Luxembourg, Macao: Macao, Madagascar: Madagascar,
+  Malawi: Malawi, Malaysia: Malaisie, Maldives: Maldives, Mali: Mali, Malta: Malte,
+  Manage Emails: Gérer les e-mails, Manage Projects: Gérer des projets, Manage account: Gérer
+    le compte, Manually add a training item: Ajouter manuellement un élément de formation,
+  Markdown: Réduction, Marshall Islands: Îles Marshall, Martinique: Martinique, Mauritania: Mauritanie,
+  Mauritius: Maurice, Mayotte: Mayotte, Menu: Menu, 'Menu:': 'Menu:', Merge new data into existing data: Fusionner
+    les nouvelles données avec les données existantes, Methods: Méthodes, Mexico: Mexique,
+  'Micronesia, Federated States of': 'Micronésie, États fédérés de', Models: Modèles,
+  Modules: Modules, Modules available in Playground: Modules disponibles dans Playground,
+  Modules defined: Modules définis, 'Moldova, Republic of': 'Moldavie, République
+    de', Monaco: Monaco, Mongolia: Mongolie, Monitor: Moniteur, Montenegro: Monténégro,
+  Montserrat: Montserrat, Morocco: Maroc, Move down: Descendre, Mozambique: Mozambique,
+  Multiselect box: boîte à sélection multiple, Must be a two-letter code: Doit être
+    un code à deux lettres, Must be a valid e-mail address: Doit être une adresse
+    e-mail valide, Must be in E.164 format.  U.S. phone numbers begin with +1.: Doit
+    être au format E.164. Les numéros de téléphone américains commencent par +1.,
+  My Interviews: Mes entretiens, My Playground: Mon terrain de jeu, Myanmar: Birmanie,
+  Name: Nom, Name of new branch: Nom de la nouvelle succursale, Name of new privilege: Nom
+    du nouveau privilège, Name of new privilege is required: Le nom du nouveau privilège
+    est requis., Names and questions: Noms et questions, Namibia: Namibie, Nauru: Nauru,
+  Nepal: Népal, Netherlands: Pays-Bas, New API Key: Nouvelle clé API, New Caledonia: Nouvelle-Calédonie,
+  New Name: Nouveau nom, New Password: Nouveau mot de passe, New Password and Retype Password did not match: Le
+    nouveau mot de passe et la confirmation du mot de passe ne correspondent pas.,
+  New Password is required: Un nouveau mot de passe est requis, New Username: Nouveau
+    nom d'utilisateur, New Zealand: Nouvelle-Zélande, New chat connection from: Nouvelle
+    connexion de chat depuis, New chat message: Nouveau message de chat, New conversation above: Nouvelle
+    conversation ci-dessus, New conversation below: Nouvelle conversation ci-dessous,
+  'New here?  Register.': 'Nouveau ici ? Inscrivez-vous.', 'New here? Register.': 'Nouveau
+    ici ? Inscrivez-vous.', New message above: Nouveau message ci-dessus, New message below: Nouveau
+    message ci-dessous, New project: Nouveau projet, Next: Suivant, Next will be: Le
+    prochain sera, Nicaragua: Nicaragua, Nickname: Surnom, Niger: Niger, Nigeria: Nigeria,
+  Niue: Niue, No: Non, No access code was entered.: Aucun code d'accès n'a été saisi.,
+  No administrators could be found.: Aucun administrateur n'a pu être trouvé., No authentication: Aucune
+    authentification, No data existed in training set.  JSON file not created.: Aucune
+    donnée n'a été trouvée dans l'ensemble d'entraînement. Le fichier JSON n'a pas
+    été créé., No files have been uploaded yet.: Aucun fichier n'a encore été téléchargé.,
+  No models were found.: Aucun modèle n'a été trouvé., None of the above: Aucune des
+    réponses ci-dessus, Norfolk Island: Île Norfolk, North Macedonia: Macédoine du
+    Nord, Northern Mariana Islands: Îles Mariannes du Nord, Norway: Norvège, Not Found: Introuvable,
+  Not authorized: Non autorisé, Not available for chat: Non disponible pour discuter,
+  Note: Note, 'Note that if you connect to a Google Drive folder, you will disable your connection to OneDrive.': 'Notez
+    que si vous vous connectez à un dossier Google Drive, votre connexion à OneDrive
+    sera désactivée.', 'Note that if you connect to a OneDrive folder, you will disable your connection to Google Drive.': 'Notez
+    que si vous vous connectez à un dossier OneDrive, votre connexion à Google Drive
+    sera désactivée.', ? Note that you can use a DOCX template file directly; 'fields'
+    is only necessary in the rare case when the variable names in your DOCX file do
+    not correspond with the variable names in your interview. : Notez que vous pouvez
+    utiliser directement un fichier modèle DOCX ; le paramètre « fields » n’est nécessaire
+    que dans le rare cas où les noms de variables de votre fichier DOCX ne correspondent
+    pas aux noms de variables de votre entretien., 'Note: it is a best practice to tag every mandatory block with an id.': 'Remarque
+    : il est recommandé d''attribuer un identifiant à chaque bloc obligatoire.', 'Note: more than one block uses id': 'Remarque
+    : plusieurs blocs utilisent le même identifiant', 'Note: only users with e-mail/password accounts can be given admin privileges.': 'Remarque
+    : seuls les utilisateurs disposant d''un compte e-mail/mot de passe peuvent se
+    voir attribuer des privilèges d''administrateur.', OCR succeeded: La reconnaissance
+    optique de caractères (OCR) a réussi, Observation: Observation, Observe: Observer,
+  Office Add-in: Complément Office, Old Password: Ancien mot de passe, Old Password is incorrect: L'ancien
+    mot de passe est incorrect., Old Password is required: L'ancien mot de passe est
+    requis., Oman: Oman, One or more e-mail addresses (separated by newlines): Une
+    ou plusieurs adresses e-mail (séparées par des sauts de ligne), OneDrive: OneDrive,
+  OneDrive is not configured: OneDrive n'est pas configuré, OneDrive is not linked.: OneDrive
+    n'est pas lié., OneDrive synchronization: Synchronisation OneDrive, Only the last 30 lines are shown.  Download the file to see the previous lines.: Seules
+    les 30 dernières lignes sont affichées. Téléchargez le fichier pour voir les lignes
+    précédentes., Open another log file: Ouvrir un autre fichier journal, 'Or you can specify a:': 'Ou
+    vous pouvez spécifier un :', 'Or you can upload a:': 'Ou vous pouvez télécharger
+    un :', Organization: Organisation, Original Name: Nom d'origine, Other settings: Autres
+    paramètres, Output Format: Format de sortie, Overrides: Remplacements, PDF/DOCX File: Fichier
+    PDF/DOCX, Package: Emballer, Package Management: Gestion des paquets, Package Name: Nom
+    du paquet, Package Name is required: Le nom du paquet est requis., Package created: Paquet
+    créé, Package did not exist: Le paquet n'existait pas., Package name: Nom du package,
+  Package name is required: Le nom du paquet est requis., Package on PyPI: Paquet
+    disponible sur PyPI, Packages: Paquets, Pakistan: Pakistan, Palau: Palaos, 'Palestine, State of': 'Palestine,
+    État de', Panama: Panama, Papua New Guinea: Papouasie-Nouvelle-Guinée, Paraguay: Paraguay,
+  Password: Mot de passe, Password and Retype Password did not match: Le mot de passe
+    et la confirmation du mot de passe ne correspondent pas., Password is required: Le
+    mot de passe est requis, ? 'Password must be at least six characters long with
+    at least one lowercase letter, at least one uppercase letter, and at least one
+    number.' : 'Le mot de passe doit comporter au moins six caractères, dont au moins
+    une lettre minuscule, au moins une lettre majuscule et au moins un chiffre.',
+  'Password must have at least 6 characters with one lowercase letter, one uppercase letter and one number': 'Le
+    mot de passe doit comporter au moins 6 caractères, dont une lettre minuscule,
+    une lettre majuscule et un chiffre.', Per Month: Par mois, Per Week: Par semaine,
+  Per Year: Par année, Peru: Pérou, Philippines: Philippines, Phone help: Assistance
+    téléphonique, Phone help is available: Une assistance téléphonique est disponible.,
+  Phone number: Numéro de téléphone, Pick actual value: Choisissez la valeur réelle,
+  Pitcairn: Pitcairn, Plain text of sections: Texte brut des sections, Playground: Aire
+    de jeux, Playground Packages: Forfaits d'aires de jeux, Playground YAML: YAML
+    de l'aire de jeux, Playground not saved.  There was an error.: Terrain de jeu
+    non enregistré. Une erreur s'est produite., Please choose a different e-mail address.: Veuillez
+    choisir une autre adresse e-mail., 'Please enter a multiple of {0}.': 'Veuillez
+    saisir un multiple de {0}.', Please enter a valid phone number: Veuillez entrer
+    un numéro de téléphone valide, Please enter a valid value.: Veuillez saisir une
+    valeur valide., Please enter a whole number.: Veuillez saisir un nombre entier.,
+  'Please enter the four digit code, followed by the pound sign.': 'Veuillez saisir
+    le code à quatre chiffres, suivi du symbole dièse (#).', Please enter the verification code from the text message we just sent you.: Veuillez
+    saisir le code de vérification figurant dans le SMS que nous venons de vous envoyer.,
+  Please enter the verification code from your authentication app.: Veuillez saisir
+    le code de vérification de votre application d'authentification., Please log in to that account.: Veuillez
+    vous connecter à ce compte., Please log in.: Veuillez vous connecter., Please select at least %s.: Veuillez
+    sélectionner au moins %s., Please select exactly %s.: Veuillez sélectionner exactement
+    %s., Please select no more than %s.: Veuillez sélectionner au maximum %s., Please select one.: Veuillez
+    en sélectionner une., 'Please send a video, or type skip.': Veuillez envoyer une
+    vidéo ou tapez « skip »., Please send a video.: Veuillez envoyer une vidéo., 'Please send an audio clip, or type skip.': Veuillez
+    envoyer un clip audio ou tapez « skip »., Please send an audio clip.: Veuillez
+    envoyer un enregistrement audio., 'Please send an image or file, or type skip.': 'Veuillez
+    envoyer une image ou un fichier, ou tapez « skip ».', Please send an image or file.: Veuillez
+    envoyer une image ou un fichier., 'Please send one or more images, or type skip.': 'Veuillez
+    envoyer une ou plusieurs images, ou tapez « skip ».', Please send one or more images.: Veuillez
+    envoyer une ou plusieurs images., Please upload a file with a valid file format.: Veuillez
+    téléverser un fichier dans un format valide., Please wait . . .: 'S''il vous plaît,
+    attendez . . .', Please wait.: 'S''il vous plaît, attendez.', Please wait.  File is being uploaded: Veuillez
+    patienter. Le fichier est en cours de chargement., Please wait.  Files are syncing.: Veuillez
+    patienter. Les fichiers sont en cours de synchronisation., Please wait.  Interview will start when sync is complete.: Veuillez
+    patienter. L'entretien commencera une fois la synchronisation terminée., Please wait.  Packages are updating.  The screen will refresh when the process is complete.  This may take several minutes.: Veuillez
+    patienter. Les paquets sont en cours de mise à jour. L'écran se rafraîchira une
+    fois le processus terminé. Cela peut prendre plusieurs minutes., Please wait.  System is restarting.: Veuillez
+    patienter. Le système redémarre., Poland: Pologne, Portugal: Portugal, Possibly not defined: Peut-être
+    non défini, Possibly not used: Peut-être pas utilisé, Prediction: Prédiction,
+  'Press one of the following buttons:': 'Appuyez sur l''un des boutons suivants :',
+  Press the Publish button to publish the package on PyPI.: Cliquez sur le bouton
+    Publier pour publier le paquet sur PyPI., Preview: Aperçu, Privilege: Privilège,
+  Privileges: privilèges, Problem detected.: Problème détecté., Profile: Profil, Profile Page: Page
+    de profil, Project: Projet, Project name cannot begin with a number: Le nom du
+    projet ne peut pas commencer par un chiffre., Project name is required: Le nom
+    du projet est requis., Projects: Projets, Publish: Publier, Publish on PyPI: Publier
+    sur PyPI, Publish on PyPI also: Publier également sur PyPI, Puerto Rico: Porto
+    Rico, Pull: Tirer, Pull GitHub or PyPI Package: Récupérer le package GitHub ou
+    PyPI, Pull a package from GitHub or PyPI into the Playground: Importez un paquet
+    depuis GitHub ou PyPI dans l'espace de jeu., Push a commit to GitHub: Envoyer
+    un commit sur GitHub, Pushed commit to GitHub.: Commit envoyé sur GitHub., PyPI: PyPI,
+  PyPI Password: Mot de passe PyPI, PyPI Username: Nom d'utilisateur PyPI, PyPI package: package
+    PyPI, Python version %s: Version Python %s, Qatar: Qatar, Question: Question,
+  README file: fichier README, Read this screen out loud: Lisez ce texte à voix haute.,
+  Readability of help text: Lisibilité du texte d'aide, Readability of question: Lisibilité
+    de la question, Reason for needing developer account (optional): Raison pour laquelle
+    un compte développeur est nécessaire (facultatif), Reconfigure: Reconfigurer,
+  Referring URL: URL de référence, Refresh: Rafraîchir, Register: Registre, Register for an account on: Inscrivez-vous
+    pour un compte sur, Register with Auth0: Inscrivez-vous avec Auth0, Register with Authentik: Inscrivez-vous
+    avec Authentik, Register with Azure: Inscrivez-vous auprès d'Azure, Register with Facebook: Inscrivez-vous
+    avec Facebook, Register with Google: Inscrivez-vous sur Google, Register with Keycloak: Inscrivez-vous
+    auprès de Keycloak, Register with Zitadel: Inscrivez-vous auprès de Zitadel, Register with miniOrange: Inscrivez-vous
+    auprès de miniOrange, Register with your mobile phone: Inscrivez-vous avec votre
+    téléphone portable, Registration attempt: tentative d'inscription, Registration is invite only: L'inscription
+    se fait uniquement sur invitation., Remember me: Souviens-toi de moi, Remove: Retirer,
+  Rename: Rebaptiser, Rename project: Renommer le projet, Reorder by moving down: Réorganiser
+    en descendant, Reorder by moving up: Réorganiser en remontant, Replace each instance of Null with a quoted translation.: Remplacez
+    chaque occurrence de Null par une traduction entre guillemets., Request Developer Account: Demander
+    un compte développeur, Resend Confirmation Email: Renvoyer l'e-mail de confirmation,
+  Resend email confirmation email: Renvoyer l'e-mail de confirmation, Reset Password: Réinitialiser
+    le mot de passe, Reset e-mail confirmation: Réinitialiser la confirmation par
+    e-mail, Reset password: Réinitialiser le mot de passe, Restart: Redémarrage, Restarting: Redémarrage,
+  Resume: Reanudar, Resume an interview: Reprendre un entretien, Retry: Réessayer, Return: Retour,
+  Retype New Password: Retapez le nouveau mot de passe, Retype Password: Retaper le
+    mot de passe, Role: Rôle, Romania: Roumanie, Room: Chambre, Run: Courir, Running in other tab.: Exécution
+    dans un autre onglet., Russian Federation: Fédération de Russie, Rwanda: Rwanda,
+  Réunion: Réunion, SMS: SMS, Saint Barthélemy: Saint-Barthélemy, 'Saint Helena, Ascension and Tristan da Cunha': 'Sainte-Hélène,
+    Ascension et Tristan da Cunha', Saint Kitts and Nevis: Saint-Kitts-et-Nevis, Saint Lucia: Sainte-Lucie,
+  Saint Martin (French part): Saint-Martin (partie française), Saint Pierre and Miquelon: Saint-Pierre-et-Miquelon,
+  Saint Vincent and the Grenadines: Saint-Vincent-et-les-Grenadines, Samoa: Samoa,
+  San Marino: Saint-Marin, Sao Tome and Principe: Sao Tomé-et-Principe, Saudi Arabia: Arabie
+    Saoudite, Save: Sauvegarder, Save and Run: Sauvegarder et exécuter, Save changes: Enregistrer
+    les modifications, Save your changes: Enregistrez vos modifications, Save your changes to the package information: Enregistrez
+    vos modifications apportées aux informations du colis, Saved: Enregistré, Saved at: Enregistré
+    à, Scan: Balayage, Scan the barcode with your phone's authenticator app and enter the verification code.: Scannez
+    le code-barres avec l'application d'authentification de votre téléphone et saisissez
+    le code de vérification., Score: Score, Search: Recherche, Second Subdivision: Deuxième
+    subdivision, Second factor authentication: Authentification à deux facteurs, Second subdivision: Deuxième
+    subdivision, Section: Section, Sections: Sections, Security Method: Méthode de
+    sécurité, Select a package: Sélectionnez un forfait, Select a value between: Sélectionnez
+    une valeur entre, Select file: Sélectionner le fichier, Select one: Sélectionnez-en
+    un, Select the folder from your OneDrive that you want to be synchronized with the Playground.: Sélectionnez
+    le dossier de votre OneDrive que vous souhaitez synchroniser avec Playground.,
+  Select the project: Sélectionnez le projet, Select which files to include in the commit: Sélectionnez
+    les fichiers à inclure dans le commit, Select zero or more files: Sélectionnez
+    zéro ou plusieurs fichiers, Select zero or more packages: Sélectionnez zéro ou
+    plusieurs forfaits, Select...: Sélectionner..., Send: Envoyer, Send Confirmation E-mail: Envoyer
+    un e-mail de confirmation, Send confirmation email: Envoyer un e-mail de confirmation,
+  Send reset password email: Envoyer un e-mail de réinitialisation du mot de passe,
+  Senegal: Sénégal, Serbia: Serbie, Server did not respond to request for update.: Le
+    serveur n'a pas répondu à la demande de mise à jour., Sessions: Séances, Setup key: Clé
+    de configuration, Seychelles: Seychelles, Share: Partager, Show all: Tout afficher,
+  Show attributes: Afficher les attributs, Show context of example: Afficher le contexte
+    de l'exemple, Show entries that are already classified: Afficher les entrées déjà
+    classées, Show import controls: Afficher les contrôles d'importation, Show report of names and associated questions: Afficher
+    le rapport des noms et des questions associées, Show variables and values: Afficher
+    les variables et les valeurs, 'Showing interviews tagged with:': 'Affichage des
+    interviews étiquetées avec :', Sierra Leone: Sierra Leone, Sign In: Se connecter,
+  Sign Out: Se déconnecter, Sign Your Name: Signez votre nom, Sign in: Se connecter,
+  Sign in or sign up to save answers: Connectez-vous ou inscrivez-vous pour sauvegarder
+    vos réponses., Sign in to save answers: Connectez-vous pour sauvegarder vos réponses.,
+  Sign in with Auth0: Se connecter avec Auth0, Sign in with Authentik: Connectez-vous
+    avec Authentik, Sign in with Azure: Se connecter avec Azure, Sign in with Facebook: Se
+    connecter avec Facebook, Sign in with Google: Connectez-vous avec Google, Sign in with Keycloak: Se
+    connecter avec Keycloak, Sign in with Zitadel: Connectez-vous avec Zitadel, Sign in with miniOrange: Connectez-vous
+    avec miniOrange, Sign in with your mobile phone: Connectez-vous avec votre téléphone
+    portable, Sign in.: Se connecter., Sign up: S'inscrire, 'Since you changed a Python module, the server needs to restart in order to load your module.': 'Comme
+    vous avez modifié un module Python, le serveur doit redémarrer afin de charger
+    votre module.', Since you did not type "delete my account" I did not delete your account.: 'Comme
+    vous n''avez pas écrit « supprimer mon compte », je n''ai pas supprimé votre compte.',
+  'Since you renamed a project, the server needs to restart in order to reload any modules.': 'Comme
+    vous avez renommé un projet, le serveur doit redémarrer afin de recharger les
+    modules.', 'Since you uploaded a Python module, the server needs to restart in order to load your module.': 'Puisque
+    vous avez téléchargé un module Python, le serveur doit redémarrer afin de charger
+    votre module.', Singapore: Singapour, Sint Maarten (Dutch part): Sint Maarten
+    (partie néerlandaise), Slovakia: Slovaquie, Slovenia: Slovénie, Solomon Islands: Îles
+    Salomon, Somalia: Somalie, 'Sorry, no help is available for this question.': 'Désolé,
+    aucune aide n''est disponible pour cette question.', 'Sorry, only .py files can be uploaded here.  To upload other types of files, use other Folders.': 'Désolé,
+    seuls les fichiers .py peuvent être téléchargés ici. Pour télécharger d''autres
+    types de fichiers, veuillez utiliser d''autres dossiers.', 'Sorry, only YAML files can be uploaded here.  To upload other types of files, use the Folders.': 'Désolé,
+    seuls les fichiers YAML peuvent être téléchargés ici. Pour télécharger d''autres
+    types de fichiers, veuillez utiliser la section « Dossiers ».', 'Sorry, that package name does not exist in the playground': 'Désolé,
+    ce nom de package n''existe pas dans l''environnement de test.', 'Sorry, that package name,': 'Désolé,
+    ce nom de paquet,', Source: Source, Source Files: Fichiers sources, Source code for question: Code
+    source pour la question, Source files: Fichiers sources, Sources: Sources, South Africa: Afrique
+    du Sud, South Georgia and the South Sandwich Islands: Géorgie du Sud et les îles
+    Sandwich du Sud, South Sudan: Soudan du Sud, Spain: Espagne, Special Page: Page
+    spéciale, Special variable: Variable spéciale, Sri Lanka: Sri Lanka, Started: Commencé,
+  'Starting a new interview.  To go back to your previous interview, go to My Interviews on the menu.': 'Vous
+    commencez un nouvel entretien. Pour revenir à votre entretien précédent, rendez-vous
+    dans la section « Mes entretiens » du menu.', 'Starting a new interview.  To go back to your previous interview, log in to see a list of your interviews.': 'Vous
+    commencez un nouvel entretien. Pour consulter votre entretien précédent, connectez-vous
+    afin de voir la liste de vos entretiens.', Static Files: Fichiers statiques, Static files: Fichiers
+    statiques, Stop Controlling: Arrêtez de contrôler, Stop Observing: Cessez d'observer,
+  Submit: Soumettre, Sudan: Soudan, Suriname: Suriname, Svalbard and Jan Mayen: Svalbard
+    et Jan Mayen, Sweden: Suède, Switzerland: Suisse, Sync: Synchronisation, Sync and Run: Synchroniser
+    et exécuter, Sync with Google Drive: Synchroniser avec Google Drive, Sync with OneDrive: Synchronisation
+    avec OneDrive, Synchronizing: Synchronisation, Synchronizing with Google Drive: Synchronisation
+    avec Google Drive, Synchronizing with OneDrive: Synchronisation avec OneDrive,
+  Syrian Arab Republic: République arabe syrienne, System: Système, Tags: Mots-clés,
+  'Taiwan, Province of China': 'Taïwan, province de Chine', Tajikistan: Tadjikistan,
+  'Tanzania, United Republic of': 'Tanzanie, République-Unie de', Telephone assistance: Assistance
+    téléphonique, Template files: Fichiers modèles, Templates: Modèles, 'Terms used in this question:': 'Termes
+    utilisés dans cette question :', 'Terms used:': 'Termes utilisés :', Test: Test,
+  Thailand: Thaïlande, Thank you for registering: Merci de vous être inscrit(e).,
+  Thank you for registering with: Merci de vous être inscrit(e) auprès de, That e-mail address is already taken.: Cette
+    adresse e-mail est déjà utilisée., That package name is already in use by someone else.  Please change the name.: Ce
+    nom de paquet est déjà utilisé par quelqu'un d'autre. Veuillez le modifier., That screen is already being controlled by another operator: Cet
+    écran est déjà contrôlé par un autre opérateur., The JSON file in the package: Le
+    fichier JSON dans le package, The Playground is synchronizing with Google Drive.: L'aire
+    de jeux se synchronise avec Google Drive., The README.md file for the package: Le
+    fichier README.md du package, The author is: L'auteur est, The commit was saved locally at %s.: La
+    modification a été enregistrée localement à l'emplacement %s., The configuration file was saved.: Le
+    fichier de configuration a été enregistré., The current branch is %s and the current commit is %s.: La
+    branche actuelle est %s et le commit actuel est %s., The current branch is %s.: La
+    branche actuelle est %s., The default project cannot be deleted.: Le projet par
+    défaut ne peut pas être supprimé., 'The document is available in the following formats:': 'Le
+    document est disponible dans les formats suivants :', The file was uploaded to the Templates folder.: Le
+    fichier a été téléchargé dans le dossier Modèles., The file you requested does not exist.: Le
+    fichier que vous avez demandé n'existe pas., The following document has been created for you.: Le
+    document suivant a été créé pour vous., The following documents have been created for you.: Les
+    documents suivants ont été créés pour vous., The following errors were detected in your Configuration.: Les
+    erreurs suivantes ont été détectées dans votre configuration., The following overrides were applied.: Les
+    modifications suivantes ont été appliquées., The information was saved.: Les informations
+    ont été enregistrées., The key no longer exists: La clé n'existe plus., The key was deleted: La
+    clé a été supprimée., The link has expired.: Le lien a expiré., The mapping was reset because the folder does not appear to exist anymore.: Le
+    mappage a été réinitialisé car le dossier semble ne plus exister., The name must be filled in.: Le
+    nom doit être renseigné., The new user has been created: Le nouvel utilisateur
+    a été créé., The operator is no longer controlling your screen.: L'opérateur ne
+    contrôle plus votre écran., The package information was saved.: Les informations
+    relatives au colis ont été enregistrées., The package update did not report an error.  The logs are below.: La
+    mise à jour du package n'a signalé aucune erreur. Les journaux sont ci-dessous.,
+  The package update reported an error.  The logs are below.: La mise à jour du package
+    a signalé une erreur. Les journaux sont ci-dessous., The package was unpacked into the Playground.: Le
+    colis a été déballé dans l'aire de jeux., The package you specified could not be downloaded from PyPI as a tar.gz file.: Le
+    paquet que vous avez spécifié n'a pas pu être téléchargé depuis PyPI au format
+    tar.gz., The package you specified could not be downloaded from PyPI.: Le paquet
+    que vous avez spécifié n'a pas pu être téléchargé depuis PyPI., The phone number is not in E.164 format (e.g. +12025551212): Le
+    numéro de téléphone n'est pas au format E.164 (par exemple +12025551212)., The previously selected OneDrive folder does not exist.: Le
+    dossier OneDrive précédemment sélectionné n'existe pas., The previously selected OneDrive folder was deleted.: Le
+    dossier OneDrive précédemment sélectionné a été supprimé., The privilege could not be added because it already exists.: Ce
+    privilège n'a pas pu être ajouté car il existe déjà., The privilege was added.: Ce
+    privilège a été ajouté., The project %s was deleted.: Le projet %s a été supprimé.,
+  The project name %s is not available.: Le nom du projet %s n'est pas disponible.,
+  The regular expression you provided could not be parsed.: L'expression régulière
+    que vous avez fournie n'a pas pu être analysée., The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.: 'L''URL
+    demandée est introuvable sur le serveur. Si vous l''avez saisie manuellement,
+    veuillez vérifier l''orthographe et réessayer.', The role could not be deleted.: Le
+    rôle n'a pas pu être supprimé., The synchronization was not successful.: La synchronisation
+    a échoué., The synchronization was successful.: La synchronisation a réussi.,
+  The user account did not exit.: Le compte utilisateur n'a pas été fermé., The user account was deleted.: Le
+    compte utilisateur a été supprimé., The user can call you.  Click to cancel.: L'utilisateur
+    peut vous appeler. Cliquez pour annuler., The user profile was not changed.: Le
+    profil utilisateur n'a pas été modifié., The version on PyPI is: La version sur
+    PyPI est, The zip file did not contain a docassemble add-on package.: Le fichier
+    zip ne contenait pas de module complémentaire DocAssemble., There are no active sessions.: Aucune
+    session active n'est en cours., 'There are unsaved changes.  Are you sure you wish to leave this page?': 'Des
+    modifications n''ont pas été enregistrées. Voulez-vous vraiment quitter cette
+    page ?', There is already a username and password on this system with the e-mail address: Un
+    nom d'utilisateur et un mot de passe associés à l'adresse e-mail sont déjà enregistrés
+    sur ce système., There is already an account on the system with the e-mail address: Il
+    existe déjà un compte sur le système avec cette adresse e-mail., There was a problem connecting to GitHub. Please check your GitHub configuration and try again.: Un
+    problème est survenu lors de la connexion à GitHub. Veuillez vérifier votre configuration
+    GitHub et réessayer., 'There was a problem reading the YAML file you uploaded.  Are you sure it is a YAML file?  File was not saved.': 'Impossible
+    de lire le fichier YAML que vous avez téléchargé. Êtes-vous sûr qu''il s''agit
+    bien d''un fichier YAML ? Le fichier n''a pas été enregistré.', There was a problem sending the text message.: Un
+    problème est survenu lors de l'envoi du SMS., There was a problem sending you a text message.  Please log in another way.: Un
+    problème est survenu lors de l'envoi de ce SMS. Veuillez vous connecter autrement.,
+  There was a problem uploading the file.: Un problème est survenu lors du chargement
+    du fichier., There was an error updating the packages.: Une erreur s'est produite
+    lors de la mise à jour des paquets., There was an error with the synchronization.: Une
+    erreur s'est produite lors de la synchronisation., There was an error.: Il y a
+    eu une erreur., There was an error. Please contact the system administrator.: Une
+    erreur s'est produite. Veuillez contacter l'administrateur système., Third Subdivision: Troisième
+    subdivision, Third subdivision: Troisième subdivision, This Email is already in use. Please try another one.: Cette
+    adresse e-mail est déjà utilisée. Veuillez en choisir une autre., This Username is already in use. Please try another one.: Ce
+    nom d'utilisateur est déjà utilisé. Veuillez en choisir un autre., This account uses two-factor authentication.: Ce
+    compte utilise l'authentification à deux facteurs., This field is required.: Ce
+    champ est obligatoire., This image file does not exist: Ce fichier image n'existe
+    pas., This is my custom interview page.: Voici ma page d'entretien personnalisée.,
+  This package is: Ce paquet est, This package is not yet published on PyPI.: Ce paquet
+    n'est pas encore publié sur PyPI., This package is not yet published on your GitHub account.: Ce
+    package n'est pas encore publié sur votre compte GitHub., This package was originally pulled from: Ce
+    paquet a été initialement retiré de, Thumbnail image of document: Image miniature
+    du document, Time Zone: Fuseau horaire, Timor-Leste: Timor-Leste, Title: Titre,
+  'To reach an advocate who can assist you, call': 'Pour joindre un défenseur qui
+    pourra vous aider, appelez', 'To read the question again, type question.': 'Pour
+    relire la question, tapez question.', 'To register for an account, please click on the link below.': 'Pour
+    créer un compte, veuillez cliquer sur le lien ci-dessous.', Toggle: Basculer,
+  Togo: Aller, Tokelau: Tokélaou, Token: Jeton, Tonga: Tonga, Train: Former, Train machine learning models: Entraîner
+    des modèles d'apprentissage automatique, Trainer privilege: Privilège d'entraîneur,
+  Training data were successfully imported.: Les données d'entraînement ont été importées
+    avec succès., Translate: Traduire, Translate system phrases into another language: Traduire
+    les phrases système dans une autre langue, Trinidad and Tobago: Trinité-et-Tobago,
+  Tunisia: Tunisie, Turkey: Turquie, Turkmenistan: Turkménistan, Turks and Caicos Islands: Îles
+    Turques-et-Caïques, Turn off chat: Désactiver le chat, Tuvalu: Tuvalu, Twice Per Month: Deux
+    fois par mois, Two-factor authentication: Authentification à deux facteurs, Type: Taper,
+  Type "delete my account" here to confirm that you want to delete your account.: Tapez
+    « supprimer mon compte » ici pour confirmer que vous souhaitez supprimer votre
+    compte., 'Type ? for additional assistance.': 'Tapez ? pour obtenir de l''aide
+    supplémentaire.', 'Type ? to see': 'Tapez ? pour afficher', Type Ctrl-space to autocomplete.: Appuyez
+    sur Ctrl+espace pour activer la saisie semi-automatique., 'Type [y]es or [n]o.': 'Tapez
+    [y]ou ou [n]on.', 'Type [y]es, [n]o, or [d]on''t know': 'Tapez [oui], [non] ou
+    [je]ne sais pas', 'Type a currency value, or type skip.': Saisissez une valeur
+    monétaire ou saisissez « skip »., Type a currency value.: Saisissez une valeur
+    monétaire., 'Type a date and time, or type skip.': 'Saisissez une date et une
+    heure, ou saisissez « skip ».', Type a date and time.: Saisissez une date et une
+    heure., 'Type a date, or type skip.': Saisissez une date ou saisissez « skip ».,
+  Type a date.: Saisissez une date., 'Type a number, or type skip.': Saisissez un
+    nombre ou saisissez « skip »., Type a number.: Saisissez un nombre., 'Type a time, or type skip.': Saisissez
+    une heure ou saisissez « skip »., Type a time.: Saisissez une heure., Type a value between: Saisissez
+    une valeur entre, Type actual value: Saisissez la valeur réelle, 'Type an e-mail address, or type skip.': Saisissez
+    une adresse e-mail ou tapez « ignorer »., Type an e-mail address.: Saisissez une
+    adresse e-mail., Type ok to continue.: Tapez ok pour continuer., Type the: Tapez
+    le, Type x to sign your name electronically: Tapez x pour signer électroniquement,
+  Type your message here.: Saisissez votre message ici., 'Type your selection(s), separated by commas, or type none.': 'Saisissez
+    votre ou vos sélections, séparées par des virgules, ou ne saisissez rien.', 'Type your selection(s), separated by commas.': 'Saisissez
+    votre/vos sélection(s), séparées par des virgules.', 'Type your selection, or type skip to move on without selecting.': 'Saisissez
+    votre sélection, ou tapez « skip » pour passer à l''étape suivante sans sélectionner.',
+  Type your selection.: Saisissez votre sélection., URL: URL, Uganda: Ouganda, Ukraine: Ukraine,
+  Unable to determine IP address: Impossible de déterminer l'adresse IP, Unable to determine if the package is published on PyPI.: Impossible
+    de déterminer si le paquet est publié sur PyPI., Unable to determine if the package is published on your GitHub account.: Impossible
+    de déterminer si le package est publié sur votre compte GitHub., Unable to e-mail your documents to: Impossible
+    d'envoyer vos documents par courriel à, Unable to find documents to e-mail.: Impossible
+    de trouver les documents à envoyer par courriel., Unable to locate interview session.  Starting a new session instead.: Impossible
+    de localiser la session d'entretien. Nouvelle session en cours., Unable to read log file; please download.: Impossible
+    de lire le fichier journal ; veuillez le télécharger., Unable to retrieve interview session.  Starting a new session instead.: Impossible
+    de récupérer la session d'entretien. Nouvelle session en cours., Unable to send e-mail to: Impossible
+    d'envoyer un e-mail à, 'Unable to send e-mail.  Error was: ': 'Impossible d''envoyer
+    le courriel. Erreur : ', Unable to send verification code.: Impossible d'envoyer
+    le code de vérification., Unblock: Débloquer, Unclassified items in the training set: Éléments
+    non classés dans l'ensemble d'entraînement, Undefined names: Noms non définis,
+  Undelete: Annuler la suppression, Uninstall: Désinstaller, Unit: Unité, United Arab Emirates: Émirats
+    arabes unis, United Kingdom: Royaume-Uni, United States: États-Unis, United States Minor Outlying Islands: Îles
+    mineures éloignées des États-Unis, Unknown: Inconnu, Unnamed User: Utilisateur
+    anonyme, Untitled: Sans titre, Update: Mise à jour, Update or uninstall an existing package: Mettre
+    à jour ou désinstaller un package existant, Updating: Mise à jour, Updating packages: Mise
+    à jour des paquets, Upgrade: Mise à niveau, Upgrade docassemble: Mise à niveau
+    de docassemble, Upload: Télécharger, Upload a Python module: Téléverser un module
+    Python, Upload a YAML file to the Playground: Téléversez un fichier YAML dans
+    l'espace de jeu., Upload a package ZIP file to the Playground: Téléversez un fichier
+    ZIP de package sur l'espace de jeu., Upload a source file: Téléverser un fichier
+    source, Upload a static file: Téléverser un fichier statique, Upload a template file: Téléverser
+    un fichier modèle, Upload successful: Téléchargement réussi, Upload this .docx file to the Templates folder: Téléversez
+    ce fichier .docx dans le dossier Modèles, Uploaded %s to the Playground.: '%s
+    a été téléchargé sur le terrain de jeu.', Uruguay: Uruguay, Use Package: Utiliser
+    le paquet, Use a different server: Utilisez un autre serveur, Used in: Utilisé
+    dans, User: Utilisateur, User List: Liste des utilisateurs, User Profile: Profil
+    utilisateur, User profile: Profil utilisateur, Username: Nom d'utilisateur, Username is required: Un
+    nom d'utilisateur est requis., 'Username may only contain letters, numbers, ''-'', ''.'' and ''_''': 'Le
+    nom d''utilisateur ne peut contenir que des lettres, des chiffres, le signe «
+    - », le point et le tiret bas.', Username must be at least 3 characters long: Le
+    nom d'utilisateur doit comporter au moins 3 caractères., Username or Email: Nom
+    d'utilisateur ou adresse e-mail, Username/Email: Nom d'utilisateur/Adresse e-mail,
+  Uses two-factor authentication: Utilise l'authentification à deux facteurs, Using Jinja2: Utilisation
+    de Jinja2, Utilities: Services publics, Uzbekistan: Ouzbékistan, 'Valid characters are: A-Z, a-z, 0-9': 'Les
+    caractères valides sont : AZ, az, 0-9', 'Valid characters are: A-Z, a-z, 0-9, hyphen': 'Les
+    caractères valides sont : AZ, az, 0-9, trait d''union', Vanuatu: Vanuatu, Variables: Variables,
+  'Venezuela, Bolivarian Republic of': 'Venezuela, République bolivarienne du', Verification code: Le
+    code de vérification, Verify: Vérifier, Verify your phone: Vérifiez votre téléphone,
+  Version: Version, Version number does not conform to PEP 440: Le numéro de version
+    n'est pas conforme à la norme PEP 440., Viet Nam: Vietnam, View documentation: Voir
+    la documentation, 'Virgin Islands, British': Îles Vierges britanniques, 'Virgin Islands, U.S.': Îles
+    Vierges américaines, 'WARNING!  If you press Delete, the contents of the %s project will be permanently deleted.': 'ATTENTION
+    ! Si vous appuyez sur Supprimer, le contenu du projet %s sera définitivement supprimé.',
+  Waiting: En attendant, Wallis and Futuna: Wallis-et-Futuna, 'Warning: a file by that name already exists.  If you save, you will overwrite it.': 'Attention :
+    un fichier portant ce nom existe déjà. Si vous enregistrez, il sera écrasé.',
+  'Warning: a package definition by that name already exists.  If you save, you will overwrite it.': 'Attention :
+    une définition de package portant ce nom existe déjà. Si vous enregistrez, elle
+    sera écrasée.', We have received your password reset request.: Nous avons bien
+    reçu votre demande de réinitialisation de mot de passe., We just sent you a text message with a verification code.  Enter the verification code to proceed.: Nous
+    venons de vous envoyer un SMS contenant un code de vérification. Veuillez saisir
+    ce code pour continuer., We were unable to submit your request.: Nous n'avons
+    pas pu soumettre votre demande., Western Sahara: Sahara occidental, 'What file do you want to import?': 'Quel
+    fichier souhaitez-vous importer ?', 'When you type inside Jinja2 brackets, auto-complete options will appear here.': 'Lorsque
+    vous saisissez du texte entre les crochets Jinja2, des options de saisie automatique
+    s''affichent ici.', Wizard: Magicien, 'Would you like to reconfigure two-factor authentication?': 'Souhaitez-vous
+    reconfigurer l''authentification à deux facteurs ?', Yemen: Yémen, Yes: Oui, 'You are available for the following roles: ': 'Vous
+    êtes disponible pour les rôles suivants : ', You are not allowed to access this interview.: Vous
+    n'êtes pas autorisé à accéder à cet entretien., You are not authorized to access: Vous
+    n'êtes pas autorisé à accéder, You are now set up with two factor authentication.: L'authentification
+    à deux facteurs est maintenant configurée., You are renaming the project called %s.: Vous
+    renommez le projet appelé %s., 'You can also follow this link: ': 'Vous pouvez
+    également suivre ce lien : ', ? 'You can divide up your Playground into multiple
+    separate areas, apart from your default Playground area.  Each Project has its
+    own question files and Folders.' : 'Vous pouvez diviser votre espace de jeu en
+    plusieurs zones distinctes, en plus de votre zone de jeu par défaut. Chaque projet
+    possède ses propres fichiers de questions et dossiers.', 'You can provide a:': 'Vous
+    pouvez fournir un :', You can type link1 to visit the link: Vous pouvez saisir
+    link1 pour accéder au lien, 'You can type link1, etc. to visit a link': 'Vous
+    pouvez saisir link1, etc. pour accéder à un lien', You can type menu1 to select the menu item: Vous
+    pouvez saisir menu1 pour sélectionner l'élément de menu, 'You can type menu1, etc. to select a menu item': 'Vous
+    pouvez saisir menu1, etc. pour sélectionner un élément de menu', You can type question to read the question again.: Vous
+    pouvez saisir « question » pour relire la question., You can upload a file here: Vous
+    pouvez télécharger un fichier ici, You can use the Playground of another user who has admin or developer privileges.: Vous
+    pouvez utiliser l'espace de jeu d'un autre utilisateur disposant de privilèges
+    d'administrateur ou de développeur., You cannot log in this way.: Vous ne pouvez
+    pas vous connecter de cette manière., You cannot log in until your e-mail address has been confirmed.: Vous
+    ne pourrez pas vous connecter tant que votre adresse e-mail n'aura pas été confirmée.,
+  You cannot pull from GitHub and PyPI at the same time.  Please fill in one and leave the other blank.: Vous
+    ne pouvez pas récupérer des données depuis GitHub et PyPI simultanément. Veuillez
+    remplir un seul champ et laisser l'autre vide., You cannot rename the default Playground project: Vous
+    ne pouvez pas renommer le projet Playground par défaut, You cannot take away your own admin privilege.: Vous
+    ne pouvez pas vous retirer vos propres privilèges d'administrateur., You cannot type more than %s characters.: Vous
+    ne pouvez pas saisir plus de %s caractères., You do not have any API keys yet.: Vous
+    ne possédez pas encore de clés API., You do not have permission to access '%(url)s'.: Vous
+    n'êtes pas autorisé à accéder à '%(url)s'., You do not have permission to install this package.: Vous
+    n'êtes pas autorisé à installer ce paquet., You do not have sufficient privileges to edit this user.: Vous
+    ne disposez pas des privilèges suffisants pour modifier ce compte utilisateur.,
+  You have been invited to join: Vous avez été invité à rejoindre, You have made too many login attempts.: Vous
+    avez effectué trop de tentatives de connexion., You have registered successfully.: Votre
+    inscription a réussi., You have signed in successfully.: Vous vous êtes connecté
+    avec succès., You have signed out successfully.: Vous vous êtes déconnecté avec
+    succès., You must attach a file.: Vous devez joindre un fichier., You must be signed in to access '%(url)s'.: Vous
+    devez être connecté pour accéder à '%(url)s'., You must confirm your email to access '%(url)s'.: Vous
+    devez confirmer votre adresse e-mail pour accéder à '%(url)s'., You must provide a file.: Vous
+    devez fournir un fichier., You must provide a language: Vous devez indiquer une
+    langue, You must provide an interview filename: Vous devez fournir un nom de fichier
+    d'entretien, You must select an option.: Vous devez sélectionner une option.,
+  You must sign your name to continue.: Vous devez signer pour continuer., You must type at least %s characters.: Vous
+    devez saisir au moins %s caractères., You need to be logged in to access this interview.: Vous
+    devez être connecté pour accéder à cet entretien., You need to enter a complete e-mail address.: Vous
+    devez saisir une adresse e-mail complète., You need to enter a date and time between %s and %s.: Vous
+    devez saisir une date et une heure comprises entre %s et %s., You need to enter a date and time on or after %s.: Vous
+    devez saisir une date et une heure à partir du %s., You need to enter a date and time on or before %s.: Vous
+    devez saisir une date et une heure au plus tard le %s., You need to enter a date between %s and %s.: Vous
+    devez saisir une date comprise entre %s et %s., You need to enter a date on or after %s.: Vous
+    devez saisir une date égale ou postérieure au %s., You need to enter a date on or before %s.: Vous
+    devez saisir une date au plus tard le %s., You need to enter a number that is at least %s.: Vous
+    devez saisir un nombre qui soit au moins égal à %s., You need to enter a number that is at most %s.: Vous
+    devez saisir un nombre qui ne dépasse pas %s., You need to enter a number.: Vous
+    devez saisir un nombre., You need to enter a time at or after %s.: Vous devez
+    saisir une heure à partir de %s., You need to enter a time at or before %s.: Vous
+    devez saisir une heure égale ou antérieure à %s., You need to enter a time between %s and %s.: Vous
+    devez saisir une heure comprise entre %s et %s., You need to enter a valid date and time.: Vous
+    devez saisir une date et une heure valides., You need to enter a valid date.: Vous
+    devez saisir une date valide., You need to enter a valid number.: Vous devez saisir
+    un numéro valide., You need to enter a valid time.: Vous devez saisir une heure
+    valide., You need to enter a valid value.: Vous devez saisir une valeur valide.,
+  You need to increment the version before publishing to PyPI.: Vous devez incrémenter
+    la version avant de publier sur PyPI., You need to log in before you can access: Vous
+    devez vous connecter avant de pouvoir accéder, You need to log in with Auth0.: Vous
+    devez vous connecter avec Auth0., You need to log in with Authentik.: Vous devez
+    vous connecter avec Authentik., You need to log in with Azure.: Vous devez vous
+    connecter avec Azure., You need to log in with Facebook.: Vous devez vous connecter
+    avec Facebook., You need to log in with Google.: Vous devez vous connecter avec
+    Google., You need to log in with Keycloak.: Vous devez vous connecter avec Keycloak.,
+  You need to select one or type in a new value.: Vous devez en sélectionner une ou
+    saisir une nouvelle valeur., You need to select one.: Vous devez en sélectionner
+    un., 'You need to supply a Git URL, upload a file, or supply the name of a package on PyPI.': 'Vous
+    devez fournir une URL Git, télécharger un fichier ou indiquer le nom d''un paquet
+    sur PyPI.', You need to type in a name for the file: Vous devez saisir un nom
+    pour le fichier., You need to type in a name for the interview: Vous devez saisir
+    un nom pour l'entretien., You will need to confirm your email next.: Vous devrez
+    ensuite confirmer votre adresse e-mail., You will need to confirm your email to start using: Vous
+    devrez confirmer votre adresse e-mail pour commencer à l'utiliser., ? 'Your GitHub
+    integration is currently turned on.  Below, you can change which repositories
+    docassemble can access.  You can disable GitHub integration if you no longer wish
+    to use it.' : L'intégration GitHub est actuellement activée. Vous pouvez modifier
+    ci-dessous les dépôts auxquels docassemble peut accéder. Vous pouvez désactiver
+    l'intégration GitHub si vous ne souhaitez plus l'utiliser., Your GitHub settings were saved.: Vos
+    paramètres GitHub ont été enregistrés., Your IP address is: Votre adresse IP est,
+  Your Playground is connected to your Google Drive.: Votre espace de jeu est connecté
+    à votre Google Drive., Your Playground is connected to your OneDrive.: Votre espace
+    de jeu est connecté à votre OneDrive., 'Your account already has two-factor authentication enabled.  Would you like to reconfigure or disable two-factor authentication?': 'L''authentification
+    à deux facteurs est déjà activée sur votre compte. Souhaitez-vous la reconfigurer
+    ou la désactiver ?', Your account has been disabled.: Votre compte a été désactivé.,
+  Your account has not been enabled.: Votre compte n'a pas été activé., Your account no longer uses two-factor authentication.: Votre
+    compte n'utilise plus l'authentification à deux facteurs., Your browser session has expired and you have been signed out.  You will not be able to save your work.  Please log in again.: Votre
+    session de navigation a expiré et vous avez été déconnecté. Vous ne pourrez pas
+    enregistrer votre travail. Veuillez vous reconnecter., Your confirmation token has expired.: Votre
+    jeton de confirmation a expiré., Your docassemble server: Votre serveur DocAssemble,
+  Your document is attached.: Votre document est joint., 'Your document, ': 'Votre
+    document, ', 'Your document, %s, is attached.': 'Votre document, %s, est joint.',
+  Your documents are attached.: Vos documents sont joints., Your documents will be e-mailed to: Vos
+    documents seront envoyés par courriel à, 'Your documents, ': 'Vos documents, ',
+  'Your documents, %s, are attached.': 'Vos documents, %s, sont joints.', Your e-mail address: Votre
+    adresse e-mail, Your email address: Votre adresse e-mail, ? Your email address
+    has not yet been confirmed. Check your email Inbox and Spam folders for the confirmation
+    email or <a href="%(url)s">Re-send confirmation email</a>. : Votre adresse courriel
+    n'a pas encore été confirmée. Veuillez vérifier votre boîte de réception et vos
+    courriers indésirables pour trouver le courriel de confirmation ou <a href="%(url)s">demandez
+    le renvoi du courriel de confirmation</a> ., Your email has been confirmed.: Votre
+    email a été confirmé., Your file upload is larger than the server can accept. Please reduce the size of your file upload.: Le
+    fichier que vous avez téléchargé est trop volumineux pour que le serveur puisse
+    l'accepter. Veuillez réduire sa taille., Your information was saved.: Vos informations
+    ont été enregistrées., 'Your new API key, known internally as <strong>%s</strong>, is:<br />%s<br />': 'Votre
+    nouvelle clé API, connue en interne sous le nom de <strong>%s</strong> , est :<br
+    /> %s<br />', Your password has been changed: Votre mot de passe a été modifié.,
+  Your password has been changed successfully.: Votre mot de passe a été modifié avec
+    succès., Your password has been changed.: Votre mot de passe a été modifié., Your password has been reset successfully.: Votre
+    mot de passe a été réinitialisé avec succès., Your password is insecure and needs to be changed: Votre
+    mot de passe est non sécurisé et doit être changé., 'Your phone #': Votre numéro
+    de téléphone, Your request was submitted.: Votre demande a été soumise., Your reset password token has expired.: Votre
+    jeton de réinitialisation de mot de passe a expiré., Your reset password token is invalid.: Votre
+    jeton de réinitialisation de mot de passe est invalide., Your screen is being controlled by an operator.: Votre
+    écran est contrôlé par un opérateur., 'Your status: ': 'Votre statut : ', Your username has been changed: Votre
+    nom d'utilisateur a été modifié., Your username has been changed to '%(username)s'.: Votre
+    nom d'utilisateur a été modifié en '%(nom_utilisateur)s'., Your username has been changed.: Votre
+    nom d'utilisateur a été modifié., Your verification code is: Votre code de vérification
+    est, Your verification code is invalid or expired.  Please try again.: Votre code
+    de vérification est invalide ou a expiré. Veuillez réessayer., Your verification code was invalid or expired.: Votre
+    code de vérification n'est pas valide ou a expiré., Your verification code was invalid.: Votre
+    code de vérification était invalide., Your verification code was missing or expired: Votre
+    code de vérification est manquant ou a expiré., Your version is: Votre version
+    est, Zambia: Zambie, Zimbabwe: Zimbabwe, Zip File: Fichier zip, a GitHub repository: un
+    dépôt GitHub, am I: suis-je, and: et, and enter the code: et saisissez le code,
+  anonymous visitor: visiteur anonyme, are we: sommes-nous, are you: es-tu, back: dos,
+  blank message: message vide, breadcrumb: fil d'Ariane, click here to reset it: cliquez
+    ici pour le réinitialiser, could not connect to Google Drive: Impossible de se
+    connecter à Google Drive, could not connect to OneDrive: Impossible de se connecter
+    à OneDrive, day: jour, defined by: défini par, definitions of words: définitions
+    de mots, delete my account: supprimer mon compte, 'e.g., *example.com': 'par exemple,
+    *exemple.com', 'e.g., 56.33.114.49': 'par exemple, 56.33.114.49', exit: sortie,
+  f: f, 'false': FAUX, for debugging PDF output: pour le débogage de la sortie PDF,
+  for downloading: pour télécharger, for editing; requires Microsoft Word or compatible application: pour
+    la modification ; nécessite Microsoft Word ou une application compatible., 'for editing; requires Microsoft Word, Wordpad, or similar application': 'pour
+    la modification ; nécessite Microsoft Word, Wordpad ou une application similaire',
+  for printing; requires Adobe Reader or similar application: pour l'impression ;
+    nécessite Adobe Reader ou une application similaire, from: depuis, he: il, her: son,
+  herself: se, him: lui, himself: se, hour: heure, icon: icône, in mako: à Mako, in the: dans
+    le, interview answers cannot be decrypted: Les réponses à l'entretien ne peuvent
+    pas être décryptées., is not a valid date and time.: La date et l'heure ne sont
+    pas valides., is not a valid date.: n'est pas une date valide., is not a valid number.: n'est
+    pas un numéro valide., is not a valid time.: n'est pas une heure valide., is not a whole number.: n'est
+    pas un nombre entier., is not within the range.: n'est pas dans la plage., it: il,
+  itself: lui-même, link: lien, me: moi, means the name is located in this file: signifie
+    que le nom se trouve dans ce fichier, 'means the name may be located in a file included by reference, such as:': 'signifie
+    que le nom peut se trouver dans un fichier inclus par référence, tel que :', mentioned in: mentionné
+    dans, menu: menu, menu items: éléments du menu, minute: minute, month: mois, myself: moi-même,
+  n: n, n/a: n / A, no: Non, none: aucun, offline: hors ligne, ok: d'accord, operator: opérateur,
+  operators: opérateurs, or: ou, or type skip to leave blank.: ou tapez « skip » pour
+    laisser vide., other user: autre utilisateur, other users: autres utilisateurs,
+  ourselves: nous-mêmes, pages: pages, pip log: journal pip, published on GitHub: publié
+    sur GitHub, published on PyPI: publié sur PyPI, question: question, quit: quitter,
+  remaining on disk: restant sur le disque, second: deuxième, she: elle, sign in: se
+    connecter, skip: sauter, something: quelque chose, system: système, t: t, them: eux,
+  themself: eux-mêmes, themselves: eux-mêmes, they: ils, to proceed.: pour continuer.,
+  'true': vrai, unavailable: indisponible, us: nous, v.: v., was saved at: a été sauvé
+    à, we: nous, x: x, y: et, year: année, yes: Oui, you: toi, yourself: toi-même,
+  yourselves: vous-mêmes, Åland Islands: Îles Åland}
