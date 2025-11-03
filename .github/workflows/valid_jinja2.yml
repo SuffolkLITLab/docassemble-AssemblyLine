@@ -1,0 +1,11 @@
+name: Valid Jinja2
+on:
+  push:
+    branches:
+      - "**"
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: SuffolkLITLab/ALActions/valid_jinja2@main
