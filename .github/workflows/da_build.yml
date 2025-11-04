@@ -1,0 +1,12 @@
+name: DA Build
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: SuffolkLITLab/ALActions/da_build@main

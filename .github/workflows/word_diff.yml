@@ -1,0 +1,9 @@
+name: Word Diff
+on:
+  pull_request:
+jobs:
+  diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: SuffolkLITLab/ALActions/word_diff@main
