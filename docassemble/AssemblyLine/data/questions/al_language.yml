@@ -26,6 +26,7 @@ initial: True
 code: |
   if enable_al_language:
     set_language(al_user_language)
+  process_action()
 ---
 code: |
   if enable_al_language:
