@@ -2188,10 +2188,10 @@ class ALIndividual(Individual):
 
         In order, it will try to use:
 
-        * just the first name
-        * the first name and suffix
-        * the first and middle name
-        * the first and last name
+        * just the preferred name (if set) or first name
+        * the preferred/first name and suffix
+        * the preferred/first and middle name
+        * the preferred/first and last name
         * the full name
         * the default value, e.g., "the minor", if provided
         * the full name
@@ -2221,33 +2221,42 @@ class ALIndividual(Individual):
         if unique_names is None:
             unique_names = []
 
+        # Use preferred_name.first if it exists and is non-empty, otherwise use name.first
+        first_name_to_use = self.name.first
+        if (
+            hasattr(self, "preferred_name")
+            and hasattr(self.preferred_name, "first")
+            and self.preferred_name.first
+        ):
+            first_name_to_use = self.preferred_name.first
+
         first_name_candidates = [person.familiar() for person in unique_names]
-        if self.name.first not in first_name_candidates:
-            return self.name.first
+        if first_name_to_use not in first_name_candidates:
+            return first_name_to_use
 
         first_name_and_suffix_candidates = [
             f"{person.familiar()} {person.name.suffix if hasattr(person.name, 'suffix') else ''}"
             for person in unique_names
         ]
         if (
-            f"{self.name.first} {self.name.suffix if hasattr(self.name, 'suffix') else ''}"
+            f"{first_name_to_use} {self.name.suffix if hasattr(self.name, 'suffix') else ''}"
             not in first_name_and_suffix_candidates
         ):
             if hasattr(self.name, "suffix") and self.name.suffix:
-                return f"{self.name.first} {self.name.suffix if hasattr(self.name, 'suffix') else ''}"
-            return self.name.first
+                return f"{first_name_to_use} {self.name.suffix if hasattr(self.name, 'suffix') else ''}"
+            return first_name_to_use
 
         first_and_middle_candidates = [
             f"{person.name.first} {person.name.middle if hasattr(person.name, 'middle') and person.name.middle else ''}"
             for person in unique_names
         ]
         if (
-            f"{self.name.first} {self.name.middle if hasattr(self.name, 'middle') and self.name.middle else ''}"
+            f"{first_name_to_use} {self.name.middle if hasattr(self.name, 'middle') and self.name.middle else ''}"
             not in first_and_middle_candidates
         ):
             if hasattr(self.name, "middle") and self.name.middle:
-                return f"{self.name.first} {self.name.middle}"
-            return self.name.first
+                return f"{first_name_to_use} {self.name.middle}"
+            return first_name_to_use
 
         first_and_last_candidates = [
             (
