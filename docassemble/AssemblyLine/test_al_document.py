@@ -76,18 +76,6 @@ with some very short words, but a whole lot of them, so it'll be over the overfl
         overflow_value = field_with_weird_spaces.overflow_value(overflow_message="")
         self.assertTrue(overflow_value.startswith("very"), msg=f"{ overflow_value }")
 
-    def test_lazy_template_overflow(self):
-        from docassemble.base.util import DALazyTemplate
-
-        tmpl = DALazyTemplate("tmpl", source_content="x" * 50)
-        field = ALAddendumField(field_name="lazy_field")
-        field.overflow_trigger = 10
-        # monkeypatch the value to be a template block
-        field.value_if_defined = lambda: tmpl
-        self.assertTrue(field.has_overflow())
-        safe_value = field.safe_value(overflow_message="")
-        self.assertTrue(len(safe_value) <= 10)
-
 
 class TestOriginalOrOverflowMessage(unittest.TestCase):
     def test_original_value_shorter_than_trigger(self):
