@@ -79,7 +79,7 @@ with some very short words, but a whole lot of them, so it'll be over the overfl
     def test_lazy_template_overflow(self):
         from docassemble.base.util import DALazyTemplate
 
-        tmpl = DALazyTemplate(content="x" * 50)
+        tmpl = DALazyTemplate(source_content="x" * 50)
         field = ALAddendumField(field_name="lazy_field")
         field.overflow_trigger = 10
         # monkeypatch the value to be a template block
