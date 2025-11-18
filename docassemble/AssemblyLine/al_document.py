@@ -12,6 +12,7 @@ from docassemble.base.util import (
     DAFile,
     DAFileCollection,
     DAFileList,
+    DALazyTemplate,
     defined,
     pdf_concatenate,
     zip_file,
@@ -315,6 +316,9 @@ class ALAddendumField(DAObject):
 
         # If trigger is not a boolean value, overflow value is the value that starts at the end of the safe value.
         original_value = self.value_if_defined()
+        # Ensure a DALazyTemplate is rendered to a string for downstream string ops
+        if isinstance(original_value, DALazyTemplate):
+            original_value = str(original_value)
         safe_text = self.safe_value(
             overflow_message=overflow_message,
             input_width=input_width,
@@ -409,6 +413,9 @@ class ALAddendumField(DAObject):
             val = _original_value
         else:
             val = self.value_if_defined()
+        # If this is a template block, render it now so comparisons work correctly
+        if isinstance(val, DALazyTemplate):
+            val = str(val)
 
         return (
             self.safe_value(
@@ -508,6 +515,11 @@ class ALAddendumField(DAObject):
             value = _original_value
         else:
             value = self.value_if_defined()
+
+        # Convert template blocks to strings for purposes of evaluating overflow
+        if isinstance(value, DALazyTemplate):
+            value = str(value)
+
         if (
             isinstance(value, str)
             and len(value) <= self.overflow_trigger
