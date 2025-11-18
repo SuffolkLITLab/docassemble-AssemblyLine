@@ -146,10 +146,7 @@ def safeattr(object: Any, key: str) -> str:
     """
     try:
         if isinstance(object, dict) or isinstance(object, DADict):
-            val = object.get(key, "")
-            if isinstance(val, DALazyTemplate):
-                return str(val)
-            return str(val)
+            return str(object.get(key, ""))
         elif isinstance(object, DAObject):
             # `location` is not an attribute people usually want shown in the table of people's attributes
             if key == "location" and isinstance(object, Address):
