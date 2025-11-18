@@ -156,10 +156,7 @@ def safeattr(object: Any, key: str) -> str:
                     object.location, LatitudeLongitude
                 ):
                     return ""
-            val = getattr(object, key)
-            if isinstance(val, DALazyTemplate):
-                return str(val)
-            return str(val)
+            return str(getattr(object, key))
         else:
             return ""
     except:
