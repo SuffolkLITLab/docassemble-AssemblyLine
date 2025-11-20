@@ -1,3 +1,5 @@
+# do not pre-load
+
 import unittest
 from .al_general import ALIndividual, ALAddress, get_visible_al_nav_items
 from unittest.mock import Mock, patch
