@@ -2594,3 +2594,19 @@ data:
   - Sgt.
   - Fr.
   - Sr.
+---
+generic object: ALDocumentBundle
+template: x.view_label
+content: "View"
+---
+generic object: ALDocumentBundle
+template: x.download_label
+content: "Download"
+---
+generic object: ALDocumentBundle
+template: x.send_label
+content: "Send"
+---
+generic object: ALDocumentBundle
+template: x.send_button_to_label
+content: "Send"

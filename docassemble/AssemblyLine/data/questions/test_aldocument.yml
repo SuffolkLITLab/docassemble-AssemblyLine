@@ -1,6 +1,9 @@
 ---
 include:
-  - al_package.yml
+  - assembly_line.yml
+---
+code: |
+  al_interview_languages = ["en", "es", "ht", "pt"]
 ---
 metadata:
   title: |

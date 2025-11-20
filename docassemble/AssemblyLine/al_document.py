@@ -29,6 +29,7 @@ from docassemble.base.util import (
     DAStaticFile,
     alpha,
     showifdef,
+    word,
 )
 from docassemble.base.pdfa import pdf_to_pdfa
 from textwrap import wrap
@@ -2008,11 +2009,11 @@ class ALDocumentBundle(DAList):
         refresh: bool = True,
         pdfa: bool = False,
         include_zip: bool = True,
-        view_label="View",
+        view_label: Optional[str] = None,
         view_icon: str = "eye",
-        download_label: str = "Download",
+        download_label: Optional[str] = None,
         download_icon: str = "download",
-        send_label: str = "Send",
+        send_label: Optional[str] = None,
         send_icon: str = "envelope",
         zip_label: Optional[str] = None,
         zip_icon: str = "file-archive",
@@ -2035,11 +2036,11 @@ class ALDocumentBundle(DAList):
             refresh (bool): Flag to reconsider the 'enabled' attribute, default is True.
             pdfa (bool): Flag to return documents in PDF/A format, default is False.
             include_zip (bool): Flag to include a zip option, default is True.
-            view_label (str): Label for the 'view' button, default is "View".
+            view_label (str): Label for the 'view' button, default is self.view_label or "View".
             view_icon (str): Icon for the 'view' button, default is "eye".
-            download_label (str): Label for the 'download' button, default is "Download".
+            download_label (str): Label for the 'download' button, default is self.download_label or "Download".
             download_icon (str): Icon for the 'download' button, default is "download".
-            send_label (str): Label for the 'send' button. Default is "Send".
+            send_label (str): Label for the 'send' button. Default is self.send_label or "Send".
             send_icon (str): Fontawesome icon for the 'send' button. Default is "envelope".
             zip_label (Optional[str]): Label for the zip option. If not provided, uses the generic template for `self.zip_label` ("Download all").
             zip_icon (str): Icon for the zip option, default is "file-archive".
@@ -2056,11 +2057,14 @@ class ALDocumentBundle(DAList):
         Returns:
             str: HTML representation of a table with documents and their associated actions.
         """
-        if not hasattr(self, "_cached_zip_label"):
-            self._cached_zip_label = str(self.zip_label)
+        if not view_label:
+            view_label = self.view_label or word("View")
 
-        if not hasattr(self, "_cached_full_pdf_label"):
-            self._cached_full_pdf_label = str(self.full_pdf_label)
+        if not download_label:
+            download_label = self.download_label or word("Download")
+
+        if not send_label:
+            send_label = self.send_label or word("Send")
 
         if zip_format is None:
             zip_format = format
@@ -2135,7 +2139,7 @@ class ALDocumentBundle(DAList):
         # Add a zip file row if included
         if include_zip and bundled_zip:
             if not zip_label:
-                zip_label = self._cached_zip_label
+                zip_label = str(self.zip_label)
             filename_root = os.path.splitext(str(self.filename))[0]
             zip_button = action_button_html(
                 bundled_zip.url_for(
@@ -2154,7 +2158,7 @@ class ALDocumentBundle(DAList):
 
         if include_full_pdf and bundled_pdf:
             if not full_pdf_label:
-                full_pdf_label = self._cached_full_pdf_label
+                full_pdf_label = str(self.full_pdf_label)
             filename_root = os.path.splitext(str(self.filename))[0]
             full_pdf_button = action_button_html(
                 bundled_pdf.url_for(
@@ -2251,11 +2255,16 @@ class ALDocumentBundle(DAList):
         return html
 
     def send_email_table_row(
-        self, key: str = "final", send_label: str = "Send", send_icon: str = "envelope"
+        self,
+        key: str = "final",
+        send_label: Optional[str] = None,
+        send_icon: str = "envelope",
     ) -> str:
         """
         Generate HTML doc table row for an input box and button that allows
         someone to send the bundle to the specified email address.
+
+        This should normally only be called by download_list_html.
 
         Args:
             key (str): A key used to identify which version of the ALDocument to send. Defaults to "final".
@@ -2265,14 +2274,12 @@ class ALDocumentBundle(DAList):
         Returns:
             str: The generated HTML string for the table row.
         """
+        if not send_label:
+            send_label = self.send_label or word("Send")
+
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
-        if not hasattr(self, "_cached_get_email_copy"):
-            self._cached_get_email_copy = str(self.get_email_copy)
-        if not hasattr(self, "_cached_include_editable_documents"):
-            self._cached_include_editable_documents = str(
-                self.include_editable_documents
-            )
+
         name = html_safe_str(self.instanceName) + random_suffix()
         al_wants_editable_input_id = "_ignore_al_wants_editable_" + name
         al_email_input_id = "_ignore_al_doc_email_" + name
@@ -2310,7 +2317,7 @@ class ALDocumentBundle(DAList):
         email: str,
         editable: Optional[bool] = None,
         template_name: str = "",
-        label: str = "Send",
+        label: Optional[str] = None,
         icon: str = "envelope",
         color: str = "primary",
         key: str = "final",
@@ -2334,10 +2341,11 @@ class ALDocumentBundle(DAList):
         Returns:
             str: The generated HTML string for the button.
         """
+        if label is None:
+            label = self.send_label or word("Send")
+
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
-        if not hasattr(self, "_cached_get_email_copy"):
-            self._cached_get_email_copy = str(self.get_email_copy)
         name = html_safe_str(self.instanceName) + random_suffix()
         al_send_button_id = "al_send_email_to_button_" + name
 
@@ -2404,12 +2412,6 @@ class ALDocumentBundle(DAList):
         """
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
-        if not hasattr(self, "_cached_get_email_copy"):
-            self._cached_get_email_copy = str(self.get_email_copy)
-        if not hasattr(self, "_cached_include_editable_documents"):
-            self._cached_include_editable_documents = str(
-                self.include_editable_documents
-            )
 
         if isinstance(preferred_formats, str):
             preferred_formats = [preferred_formats]
@@ -2443,7 +2445,7 @@ class ALDocumentBundle(DAList):
         # Container of whole email section with header
         return_str = f"""
   <fieldset class="al_send_bundle al_send_section_alone {html_safe_str(self.instanceName)}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
-    <legend class="h4 al_doc_email_header">{self._cached_get_email_copy}</legend> 
+    <legend class="h4 al_doc_email_header">{str(self.get_email_copy)}</legend> 
     """
         # "Editable" checkbox
         if (
@@ -2456,7 +2458,7 @@ class ALDocumentBundle(DAList):
     <div class="form-check-container">
       <div class="form-check">
         <input class="form-check-input al_wants_editable" type="checkbox" id="{al_wants_editable_input_id}">
-        <label class="al_wants_editable form-check-label" for="{al_wants_editable_input_id}">{self._cached_include_editable_documents}
+        <label class="al_wants_editable form-check-label" for="{al_wants_editable_input_id}">{str(self.include_editable_documents)}
         </label>
       </div>
     </div>
