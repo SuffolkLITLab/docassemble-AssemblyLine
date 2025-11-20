@@ -2596,17 +2596,17 @@ data:
   - Sr.
 ---
 generic object: ALDocumentBundle
-variable name: x.view_label
-data: "View"
+template: x.view_label
+content: "View"
 ---
 generic object: ALDocumentBundle
-variable name: x.download_label
-data: "Download"
+template: x.download_label
+content: "Download"
 ---
 generic object: ALDocumentBundle
-variable name: x.send_label
-data: "Send"
+template: x.send_label
+content: "Send"
 ---
 generic object: ALDocumentBundle
-variable name: x.send_button_to_label
-data: "Send"
+template: x.send_button_to_label
+content: "Send"
