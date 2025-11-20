@@ -2059,10 +2059,10 @@ class ALDocumentBundle(DAList):
         """
         if not view_label:
             view_label = self.view_label or word("View")
-        
+
         if not download_label:
             download_label = self.download_label or word("Download")
-        
+
         if not send_label:
             send_label = self.send_label or word("Send")
 
@@ -2255,7 +2255,10 @@ class ALDocumentBundle(DAList):
         return html
 
     def send_email_table_row(
-        self, key: str = "final", send_label: Optional[str] = None, send_icon: str = "envelope"
+        self,
+        key: str = "final",
+        send_label: Optional[str] = None,
+        send_icon: str = "envelope",
     ) -> str:
         """
         Generate HTML doc table row for an input box and button that allows
@@ -2340,7 +2343,7 @@ class ALDocumentBundle(DAList):
         """
         if label is None:
             label = self.send_label or word("Send")
-            
+
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
         name = html_safe_str(self.instanceName) + random_suffix()
