@@ -1,3 +1,34 @@
+[build-system]
+requires = [
+    "setuptools==80.9.0",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "docassemble.AssemblyLine"
+version = "4.2.0"
+description = "Quickly go from a paper court form to a runnable, guided, step-by-step web application powered by Docassemble. Swap out branding and pre-built questions to meet your needs."
+readme = "README.md"
+authors = [
+    { name="Suffolk Legal Innovation and Technology Lab", email="litlab@suffolk.edu" },
+]
+dependencies = [
+    "docassemble.ALToolbox>=0.12.0",
+    "docassemble.GitHubFeedbackForm>=0.4.1.1",
+]
+license="MIT"
+license-files = [
+    "LICENSE"
+]
+
+[project.urls]
+Homepage = "https://courtformsonline.org"
+
+[tool.setuptools.packages.find]
+where = [
+    ".",
+]
+
 [tool.black]
 extend-exclude = '(__init__.py|setup.py)'
 
