@@ -1,3 +1,4 @@
+build/
 tests/chromedriver
 *DS_Store*
 node_modules*
