@@ -2057,12 +2057,6 @@ class ALDocumentBundle(DAList):
         Returns:
             str: HTML representation of a table with documents and their associated actions.
         """
-        if not hasattr(self, "_cached_zip_label"):
-            self._cached_zip_label = str(self.zip_label)
-
-        if not hasattr(self, "_cached_full_pdf_label"):
-            self._cached_full_pdf_label = str(self.full_pdf_label)
-
         if not view_label:
             view_label = self.view_label or word("View")
         
@@ -2145,7 +2139,7 @@ class ALDocumentBundle(DAList):
         # Add a zip file row if included
         if include_zip and bundled_zip:
             if not zip_label:
-                zip_label = self._cached_zip_label
+                zip_label = str(self.zip_label)
             filename_root = os.path.splitext(str(self.filename))[0]
             zip_button = action_button_html(
                 bundled_zip.url_for(
@@ -2164,7 +2158,7 @@ class ALDocumentBundle(DAList):
 
         if include_full_pdf and bundled_pdf:
             if not full_pdf_label:
-                full_pdf_label = self._cached_full_pdf_label
+                full_pdf_label = str(self.full_pdf_label)
             filename_root = os.path.splitext(str(self.filename))[0]
             full_pdf_button = action_button_html(
                 bundled_pdf.url_for(
@@ -2282,12 +2276,7 @@ class ALDocumentBundle(DAList):
 
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
-        if not hasattr(self, "_cached_get_email_copy"):
-            self._cached_get_email_copy = str(self.get_email_copy)
-        if not hasattr(self, "_cached_include_editable_documents"):
-            self._cached_include_editable_documents = str(
-                self.include_editable_documents
-            )
+
         name = html_safe_str(self.instanceName) + random_suffix()
         al_wants_editable_input_id = "_ignore_al_wants_editable_" + name
         al_email_input_id = "_ignore_al_doc_email_" + name
@@ -2354,8 +2343,6 @@ class ALDocumentBundle(DAList):
             
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
-        if not hasattr(self, "_cached_get_email_copy"):
-            self._cached_get_email_copy = str(self.get_email_copy)
         name = html_safe_str(self.instanceName) + random_suffix()
         al_send_button_id = "al_send_email_to_button_" + name
 
@@ -2422,12 +2409,6 @@ class ALDocumentBundle(DAList):
         """
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
-        if not hasattr(self, "_cached_get_email_copy"):
-            self._cached_get_email_copy = str(self.get_email_copy)
-        if not hasattr(self, "_cached_include_editable_documents"):
-            self._cached_include_editable_documents = str(
-                self.include_editable_documents
-            )
 
         if isinstance(preferred_formats, str):
             preferred_formats = [preferred_formats]
@@ -2461,7 +2442,7 @@ class ALDocumentBundle(DAList):
         # Container of whole email section with header
         return_str = f"""
   <fieldset class="al_send_bundle al_send_section_alone {html_safe_str(self.instanceName)}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
-    <legend class="h4 al_doc_email_header">{self._cached_get_email_copy}</legend> 
+    <legend class="h4 al_doc_email_header">{str(self.get_email_copy)}</legend> 
     """
         # "Editable" checkbox
         if (
@@ -2474,7 +2455,7 @@ class ALDocumentBundle(DAList):
     <div class="form-check-container">
       <div class="form-check">
         <input class="form-check-input al_wants_editable" type="checkbox" id="{al_wants_editable_input_id}">
-        <label class="al_wants_editable form-check-label" for="{al_wants_editable_input_id}">{self._cached_include_editable_documents}
+        <label class="al_wants_editable form-check-label" for="{al_wants_editable_input_id}">{str(self.include_editable_documents)}
         </label>
       </div>
     </div>
