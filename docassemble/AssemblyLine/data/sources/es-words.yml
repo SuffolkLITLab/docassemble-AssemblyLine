@@ -113,7 +113,7 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
     un nuevo proyecto, Create an interview with the wizard: Crea una entrevista con
     el mago, 'Created new Markdown file called ': Creado nuevo archivo de Markdown
     llamado, Croatia: Croacia, Cuba: Cuba, Curaçao: Curazao, Current: Corriente, Cyprus: Chipre,
-  Czechia: Chequia, Decorations: Decoraciones, Default Playground: Patio de juegos
+  Czechia: Chequia, Day: Día, Decorations: Decoraciones, Default Playground: Patio de juegos
     predeterminado, Defined in: Definido en, Delete: Borrar, Delete Account: Eliminar
     cuenta, Delete All: Eliminar todo, Delete account and shared sessions: Eliminar
     cuenta y sesiones compartidas, Delete account but keep shared sessions: Eliminar
@@ -311,7 +311,7 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
     nuevos datos con los datos existentes, Methods: Los metodos, Mexico: México, 'Micronesia, Federated States of': 'Micronesia,
     Estados Federados de', Models: Modelos, Modules: Módulos, Modules available in Playground: Módulos
     disponibles en Playground, Modules defined: Modulos definidos, 'Moldova, Republic of': 'Moldavia,
-    República de', Monaco: Mónaco, Mongolia: Mongolia, Monitor: Monitor, Montenegro: Montenegro,
+    República de', Monaco: Mónaco, Mongolia: Mongolia, Monitor: Monitor, Montenegro: Montenegro, Month: Mes,
   Montserrat: Montserrat, Morocco: Marruecos, Move down: Mover hacia abajo, Mozambique: Mozambique,
   Multiselect box: cuadro de selección múltiple, Must be a two-letter code: Debe ser
     un código de dos letras, Must be a valid e-mail address: Debe ser una dirección
@@ -699,7 +699,7 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
     archivo desea importar?', 'When you type inside Jinja2 brackets, auto-complete options will appear here.': 'Cuando
     escribas dentro de los corchetes Jinja2, aparecerán aquí las opciones de autocompletar.',
   Wizard: Mago, 'Would you like to reconfigure two-factor authentication?': '¿Te gustaría
-    reconfigurar la autenticación de dos factores?', Yemen: Yemen, Yes: Sí, 'You are available for the following roles: ': 'Estás
+    reconfigurar la autenticación de dos factores?', Year: Año, Yemen: Yemen, Yes: Sí, 'You are available for the following roles: ': 'Estás
     disponible para los siguientes puestos: ', You are not allowed to access this interview.: No
     tienes permiso para acceder a esta entrevista., You are not authorized to access: No
     estás autorizado para acceder, You are now set up with two factor authentication.: Ahora
