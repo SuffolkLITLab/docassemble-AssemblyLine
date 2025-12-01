@@ -379,38 +379,39 @@ def get_saved_interview_list(
     filenames_to_exclude.extend([current_filename, filename_to_exclude])
 
     query_draft = """
-        SELECT DISTINCT ON (userdict.key) userdict.indexno
-            ,userdict.filename as filename
-            ,num_keys
-            ,userdictkeys.user_id as user_id
-            ,userdict.modtime as modtime
-            ,userdict.key as key
-            ,jsonstorage.data->'auto_title' as auto_title
-            ,jsonstorage.data->'title' as title
-            ,jsonstorage.data->'description' as description
-            ,jsonstorage.data->'steps' as steps
-            ,jsonstorage.data->'progress' as progress
-            ,jsonstorage.data->'original_interview_filename' as original_interview_filename
-            ,jsonstorage.data->'answer_count' as answer_count
-            ,jsonstorage.data as data
-        FROM userdict 
-        NATURAL JOIN 
-        (
-        SELECT  key
-                ,MAX(modtime) AS modtime
-                ,COUNT(key)   AS num_keys
-        FROM userdict
-        GROUP BY  key
-        ) mostrecent
-        LEFT JOIN userdictkeys
-        ON userdictkeys.key = userdict.key
-        LEFT JOIN jsonstorage
-        ON userdict.key = jsonstorage.key AND (jsonstorage.tags = :metadata)
-        WHERE (userdictkeys.user_id = :user_id or :user_id is null)
-        AND (userdict.filename = :filename OR :filename is null)
-        AND (userdict.filename NOT IN :filenames_to_exclude)
-        AND (NOT :exclude_newly_started_sessions OR num_keys > 1)
-        """
+        SELECT * FROM (
+            SELECT DISTINCT ON (userdict.key) userdict.indexno
+                ,userdict.filename as filename
+                ,num_keys
+                ,userdictkeys.user_id as user_id
+                ,userdict.modtime as modtime
+                ,userdict.key as key
+                ,jsonstorage.data->'auto_title' as auto_title
+                ,jsonstorage.data->'title' as title
+                ,jsonstorage.data->'description' as description
+                ,jsonstorage.data->'steps' as steps
+                ,jsonstorage.data->'progress' as progress
+                ,jsonstorage.data->'original_interview_filename' as original_interview_filename
+                ,jsonstorage.data->'answer_count' as answer_count
+                ,jsonstorage.data as data
+            FROM userdict 
+            NATURAL JOIN 
+            (
+            SELECT  key
+                    ,MAX(modtime) AS modtime
+                    ,COUNT(key)   AS num_keys
+            FROM userdict
+            GROUP BY  key
+            ) mostrecent
+            LEFT JOIN userdictkeys
+            ON userdictkeys.key = userdict.key
+            LEFT JOIN jsonstorage
+            ON userdict.key = jsonstorage.key AND (jsonstorage.tags = :metadata)
+            WHERE (userdictkeys.user_id = :user_id or :user_id is null)
+            AND (userdict.filename = :filename OR :filename is null)
+            AND (userdict.filename NOT IN :filenames_to_exclude)
+            AND (NOT :exclude_newly_started_sessions OR num_keys > 1)
+            """
     if packages_to_exclude:
         query_draft += (
             """
@@ -424,7 +425,9 @@ def get_saved_interview_list(
         """
         )
     query_draft += """
-        ORDER BY modtime desc 
+            ORDER BY userdict.key, modtime DESC
+        ) AS unique_sessions
+        ORDER BY modtime DESC
         LIMIT :limit
         OFFSET :offset;
     """
@@ -589,27 +592,30 @@ def find_matching_sessions(
 
     get_sessions_query = text(
         f"""
-        SELECT DISTINCT ON (userdict.key) userdict.indexno,
-                userdict.filename as filename,
-                num_keys,
-                userdictkeys.user_id as user_id,
-                userdict.modtime as modtime,
-                userdict.key as key,
-                {', '.join(f"jsonstorage.data->>{repr(column)} as {column}" for column in metadata_column_names)},
-                jsonstorage.data as data
-        FROM userdict 
-        NATURAL JOIN (
-            SELECT key, MAX(modtime) AS modtime, COUNT(key) AS num_keys
-            FROM userdict
-            GROUP BY key
-        ) mostrecent
-        LEFT JOIN userdictkeys ON userdictkeys.key = userdict.key
-        LEFT JOIN jsonstorage ON userdict.key = jsonstorage.key AND (jsonstorage.tags = :metadata)
-        WHERE (userdictkeys.user_id = :user_id OR :user_id is NULL)
-          AND {filename_condition}
-          AND (userdict.filename NOT IN :filenames_to_exclude)
-          AND (NOT :exclude_newly_started_sessions OR num_keys > 1)
-          AND ({metadata_search_conditions})
+        SELECT * FROM (
+            SELECT DISTINCT ON (userdict.key) userdict.indexno,
+                    userdict.filename as filename,
+                    num_keys,
+                    userdictkeys.user_id as user_id,
+                    userdict.modtime as modtime,
+                    userdict.key as key,
+                    {', '.join(f"jsonstorage.data->>{repr(column)} as {column}" for column in metadata_column_names)},
+                    jsonstorage.data as data
+            FROM userdict 
+            NATURAL JOIN (
+                SELECT key, MAX(modtime) AS modtime, COUNT(key) AS num_keys
+                FROM userdict
+                GROUP BY key
+            ) mostrecent
+            LEFT JOIN userdictkeys ON userdictkeys.key = userdict.key
+            LEFT JOIN jsonstorage ON userdict.key = jsonstorage.key AND (jsonstorage.tags = :metadata)
+            WHERE (userdictkeys.user_id = :user_id OR :user_id is NULL)
+              AND {filename_condition}
+              AND (userdict.filename NOT IN :filenames_to_exclude)
+              AND (NOT :exclude_newly_started_sessions OR num_keys > 1)
+              AND ({metadata_search_conditions})
+            ORDER BY userdict.key, modtime DESC
+        ) AS unique_sessions
         ORDER BY modtime DESC
         LIMIT :limit OFFSET :offset;
         """
