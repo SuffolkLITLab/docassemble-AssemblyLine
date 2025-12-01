@@ -2880,7 +2880,7 @@ class ALExhibitList(DAList):
         auto_label (bool): If True, automatically numbers exhibits for cover page and table of contents. Defaults to True.
         auto_labeler (Callable): An optional function or lambda to transform the exhibit's index to a label.
                                  Uses A..Z labels by default.
-        auto_ocr (bool): If True, automatically starts OCR processing for uploaded exhibits. Defaults to True.
+        auto_ocr (bool): If True, automatically starts OCR processing for uploaded exhibits. Defaults to False.
     """
 
     def init(self, *pargs, **kwargs) -> None:
