@@ -379,7 +379,7 @@ def get_saved_interview_list(
     filenames_to_exclude.extend([current_filename, filename_to_exclude])
 
     query_draft = """
-        SELECT userdict.indexno
+        SELECT DISTINCT ON (userdict.key) userdict.indexno
             ,userdict.filename as filename
             ,num_keys
             ,userdictkeys.user_id as user_id
@@ -589,7 +589,7 @@ def find_matching_sessions(
 
     get_sessions_query = text(
         f"""
-        SELECT  userdict.indexno,
+        SELECT DISTINCT ON (userdict.key) userdict.indexno,
                 userdict.filename as filename,
                 num_keys,
                 userdictkeys.user_id as user_id,
