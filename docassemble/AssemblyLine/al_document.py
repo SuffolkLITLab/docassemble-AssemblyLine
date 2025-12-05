@@ -2058,13 +2058,13 @@ class ALDocumentBundle(DAList):
             str: HTML representation of a table with documents and their associated actions.
         """
         if not view_label:
-            view_label = self.view_label or word("View")
+            view_label = str(self.view_label) or word("View")
 
         if not download_label:
-            download_label = self.download_label or word("Download")
+            download_label = str(self.download_label) or word("Download")
 
         if not send_label:
-            send_label = self.send_label or word("Send")
+            send_label = str(self.send_label) or word("Send")
 
         if zip_format is None:
             zip_format = format
@@ -2275,7 +2275,7 @@ class ALDocumentBundle(DAList):
             str: The generated HTML string for the table row.
         """
         if not send_label:
-            send_label = self.send_label or word("Send")
+            send_label = str(self.send_label) or word("Send")
 
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
@@ -2342,7 +2342,7 @@ class ALDocumentBundle(DAList):
             str: The generated HTML string for the button.
         """
         if label is None:
-            label = self.send_label or word("Send")
+            label = str(self.send_label) or word("Send")
 
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
