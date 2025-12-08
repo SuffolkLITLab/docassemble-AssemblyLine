@@ -518,6 +518,7 @@ def find_matching_sessions(
         List[Dict[str, Any]]: A list of saved sessions for the specified filename that match the search keyword and metadata filters
 
     Example:
+    ```python
         matching_sessions = find_matching_sessions(
             "smith",
             user_id="all",
@@ -529,9 +530,8 @@ def find_matching_sessions(
             }
         )
 
-    Example:
         {"owner": ("samantha", "ILIKE", None), "age": (30, ">=", "int"), "status": ("%complete%", "LIKE", None)}
-
+    ```
     """
     if not metadata_column_names:
         metadata_column_names = {"title", "auto_title", "description"}
