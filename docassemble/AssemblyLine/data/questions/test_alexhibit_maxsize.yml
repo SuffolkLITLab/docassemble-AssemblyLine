@@ -10,7 +10,7 @@ objects:
   - exhibits_bundle_defaults_1: ALDocumentBundle.using(elements=[exhibit_doc_defaults_1], filename="exhibits_bundle_defaults", title="Exhibits with defaults")
 ---
 objects:
-  - exhibit_doc_defaults_1: ALExhibitDocument.using(title="Exhibits doc defaults", filename="exhibits_doc_defaults", maximum_size=1*1024*1024 )
+  - exhibit_doc_defaults_1: ALExhibitDocument.using(title="Exhibits doc defaults", filename="exhibits_doc_defaults", maximum_size=3*1024*1024, maximum_size_per_doc=1*1024*1024)
 ---
 id: gather_main
 event: gather_main
