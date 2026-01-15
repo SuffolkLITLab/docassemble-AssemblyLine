@@ -36,6 +36,9 @@ extend-exclude = '(__init__.py|setup.py)'
 check-property-returns = false
 check-overridden = false
 check-class = true
+disable = [
+    "SIG305"
+]
 
 [tool.mypy]
 # global options

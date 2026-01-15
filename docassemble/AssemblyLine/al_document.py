@@ -2877,6 +2877,7 @@ class ALExhibitList(DAList):
 
     Attributes:
         maximum_size (int): The maximum allowed size in bytes of the entire document.
+        maximum_size_per_doc (int): The maximum allowed size in bytes per document in the list
         auto_label (bool): If True, automatically numbers exhibits for cover page and table of contents. Defaults to True.
         auto_labeler (Callable): An optional function or lambda to transform the exhibit's index to a label.
                                  Uses A..Z labels by default.
@@ -3075,6 +3076,7 @@ class ALExhibitDocument(ALDocument):
     auto_ocr: bool
     bates_prefix: str
     maximum_size: int
+    maximum_size_per_doc: int
     suffix_to_append: str
     exhibits: ALExhibitList
     table_of_contents: DAFile
@@ -3099,8 +3101,13 @@ class ALExhibitDocument(ALDocument):
         else:
             self.include_exhibit_cover_pages = True
             self.exhibits.include_exhibit_cover_pages = True
+        if hasattr(self, "maximum_size_per_doc"):
+            self.exhibits.maximum_size_per_doc = self.maximum_size_per_doc
         if hasattr(self, "maximum_size"):
             self.exhibits.maximum_size = self.maximum_size
+            if not hasattr(self, "maximum_size_per_doc"):
+                self.maximum_size_per_doc = self.maximum_size
+                self.exhibits.maximum_size_per_doc = self.maximum_size
         if hasattr(self, "include_table_of_contents"):
             self.exhibits.include_table_of_contents = self.include_table_of_contents
         else:

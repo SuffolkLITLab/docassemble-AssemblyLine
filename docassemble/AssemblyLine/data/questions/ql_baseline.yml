@@ -1882,6 +1882,9 @@ validation code: |
     if hasattr(x, 'maximum_size'):
       if full_size > x.maximum_size:
         validation_error(f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}")
+    if hasattr(x, 'maximum_size_per_doc'):
+      if full_size > x.maximum_size_per_doc:
+        validation_error(f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}")
     try:
       pdf_concatenate(x[0].pages)
     except:
@@ -1910,6 +1913,9 @@ fields:
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   this_doc_size = sum(a_page.size_in_bytes() for a_page in x[i].pages)
+  if hasattr(x, 'maximum_size_per_doc'):
+    if this_doc_size > x.maximum_size_per_doc:
+      validation_error(f"This document should be smaller than {humanize.naturalsize(x.maximum_size_per_doc)}")
   if this_doc_size > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
   if hasattr(x, 'maximum_size'):
@@ -1930,9 +1936,19 @@ question: |
 subquestion: |
   You have uploaded ${ x[i].pages.num_pages() } pages so far.
 
+  <% current_doc_size = sum(ap.size_in_bytes() for ap in x[i].pages.complete_elements()) %>  
+  % if hasattr(x, 'maximum_size_per_doc'):
+  This document must be smaller than ${ humanize.naturalsize(x.maximum_size_per_doc) }.
+  % if not hasattr(x, 'maximum_size') or x.maximum_size_per_doc - current_doc_size < x.maximum_size - x.size_in_bytes() - current_doc_size:
+  You can upload ${ humanize.naturalsize(x.maximum_size_per_doc - current_doc_size) } more.
+  % else:
+  You can upload ${ humanize.naturalsize(x.maximum_size - x.size_in_bytes() - current_doc_size) } more.
+  % endif
+  % endif
+
   % if hasattr(x, 'maximum_size'):
   The total size of all exhibits must be less than ${ humanize.naturalsize(x.maximum_size) }.
-  You can upload ${ humanize.naturalsize(x.maximum_size - x.size_in_bytes() - sum(ap.size_in_bytes() for ap in x[i].pages.complete_elements()))} more.
+  You can upload ${ humanize.naturalsize(x.maximum_size - x.size_in_bytes() - current_doc_size) } more.
   % endif
 
   ${ collapse_template(x[i].in_progress_template )}
@@ -1968,11 +1984,16 @@ fields:
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   page_size = x[i].pages[j].size_in_bytes()
+  this_doc_size = sum(a_page.size_in_bytes() for a_page in x[i].pages.complete_elements()) + page_size
+  log(f"length of completed elements: {len(x[i].pages.complete_elements())}")
+  if hasattr(x, 'maximum_size_per_doc'):
+    if this_doc_size > x.maximum_size_per_doc:
+      suggested_size = x.maximum_size_per_doc - (this_doc_size - page_size)
+      validation_error(f"This document must be smaller than {humanize.naturalsize(x.maximum_size_per_doc) }. Upload a file smaller than {humanize.naturalsize(suggested_size)}.")
+      
   if page_size > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
   if hasattr(x, 'maximum_size'):
-    # this_doc_size already includes `page_size`
-    this_doc_size = sum(a_page.size_in_bytes() for a_page in x[i].pages.complete_elements())
     full_size = x.size_in_bytes() + this_doc_size
     if full_size > x.maximum_size:
       suggested_size = x.maximum_size - (full_size - page_size)
