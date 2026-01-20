@@ -41,7 +41,6 @@ from typing import Tuple
 import secrets
 import string
 
-
 __all__ = [
     "ALAddendumField",
     "ALAddendumFieldDict",
