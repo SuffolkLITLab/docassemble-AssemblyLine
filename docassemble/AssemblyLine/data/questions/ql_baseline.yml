@@ -1929,6 +1929,10 @@ validation code: |
     validation_error("Unable to convert this file. Please upload a new one.")
   x[i].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
 ---
+# Only necessary to ignore playground "undefined names" warning
+objects:
+  - current_doc_size: DAEmpty()
+---
 generic object: ALExhibitList
 id: exhibit i has additional pages
 question: |
