@@ -35,7 +35,7 @@ https://suffolklitlab.org/docassemble-AssemblyLine-documentation/
 
 ## Menu-driven installation
 
-The recommended installation method is with the [guided installation script](https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/installation).
+The recommended installation method is with the [guided installation script](https://assemblyline.suffolklitlab.org/docs/get_started/installation).
 
 ## Manual installation
 
@@ -135,3 +135,4 @@ code: |
 # Changelog
 
 See [CHANGELOG.MD](https://github.com/SuffolkLITLab/docassemble-AssemblyLine/blob/main/CHANGELOG.md)
+
