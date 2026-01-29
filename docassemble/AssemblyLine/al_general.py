@@ -1,5 +1,6 @@
 from copy import deepcopy
 from typing import Callable, Dict, List, Literal, Union, Optional, Any
+from docassemble.base.functions import this_thread
 from docassemble.base.util import (
     Address,
     as_datetime,
@@ -28,7 +29,6 @@ from docassemble.base.util import (
     states_list,
     subdivision_type,
     their,
-    this_thread,
     url_action,
     validation_error,
     value,
