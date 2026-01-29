@@ -1,6 +1,5 @@
 from copy import deepcopy
 from typing import Callable, Dict, List, Literal, Union, Optional, Any
-from docassemble.base.functions import this_thread
 from docassemble.base.util import (
     Address,
     as_datetime,
@@ -38,6 +37,7 @@ from docassemble.base.util import (
     value,
 )
 from docassemble.ALToolbox.misc import fa_icon
+import docassemble.base.functions
 import random
 import re
 import pycountry
@@ -374,7 +374,7 @@ class ALAddress(Address):
         Returns:
             str: The one-line formatted address.
         """
-        if this_thread.evaluation_context == "docx":
+        if docassemble.base.functions.this_thread.evaluation_context == "docx":
             line_breaker = '</w:t><w:br/><w:t xml:space="preserve">'
         else:
             line_breaker = " [NEWLINE] "
@@ -1701,7 +1701,7 @@ class ALIndividual(Individual):
         Returns:
             str: The formatted address block.
         """
-        if this_thread.evaluation_context == "docx":
+        if docassemble.base.functions.this_thread.evaluation_context == "docx":
             if isinstance(self.address, ALAddress):
                 return self.address.block(
                     language=language,
@@ -1778,7 +1778,7 @@ class ALIndividual(Individual):
             else:
                 pronouns = self.pronouns
 
-        if self == this_thread.global_vars.user:
+        if self == docassemble.base.functions.this_thread.global_vars.user:
             output = word("you", **kwargs)
         elif hasattr(self, "pronouns") and self.pronouns:
             pronouns_to_use = []
@@ -1876,7 +1876,7 @@ class ALIndividual(Individual):
         else:
             default = self.name_full()
 
-        if self == this_thread.global_vars.user and (
+        if self == docassemble.base.functions.this_thread.global_vars.user and (
             "thirdperson" not in kwargs or not kwargs["thirdperson"]
         ):
             output = your(target, **kwargs)
@@ -1963,7 +1963,7 @@ class ALIndividual(Individual):
             else:
                 pronouns = self.pronouns
 
-        if self == this_thread.global_vars.user:
+        if self == docassemble.base.functions.this_thread.global_vars.user:
             output = word("you", **kwargs)
         elif hasattr(self, "pronouns") and self.pronouns:
             pronouns_to_use = []
@@ -2042,7 +2042,7 @@ class ALIndividual(Individual):
             if person == "2p":
                 return word("yourselves")
 
-        if self == this_thread.global_vars.user:
+        if self == docassemble.base.functions.this_thread.global_vars.user:
             output = word("yourself", **kwargs)
 
         if "default" in kwargs:
@@ -2058,7 +2058,7 @@ class ALIndividual(Individual):
         else:
             pronouns = None
 
-        if self == this_thread.global_vars.user:
+        if self == docassemble.base.functions.this_thread.global_vars.user:
             output = word("yourself", **kwargs)
         elif hasattr(self, "pronouns") and self.pronouns:
             pronouns_to_use = []
