@@ -443,6 +443,9 @@ question: |
 fields:
   - Birthdate: x.birthdate
     datatype: BirthDate
+    alMonthLabel: ${ word('Month') }
+    alDayLabel: ${ word('Day') }
+    alYearLabel: ${ word('Year') }
 ---
 id: user i's address
 question: |

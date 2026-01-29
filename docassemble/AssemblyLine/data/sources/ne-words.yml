@@ -111,7 +111,7 @@ ne: {'%(username_or_email)s does not exist': '%(username_or_email)s अवस्
     परियोजना सिर्जना गर्नुहोस्, Create an interview with the wizard: विजार्डसँग अन्तर्वार्ता
     सिर्जना गर्नुहोस्, 'Created new Markdown file called ': 'नयाँ मार्कडाउन फाइल सिर्जना
     गरियो जसलाई भनिन्छ ', Croatia: क्रोएसिया, Cuba: क्युबा, Curaçao: कुराकाओ, Current: हालको,
-  Cyprus: साइप्रस, Czechia: चेकिया, Decorations: सजावटहरू, Default Playground: पूर्वनिर्धारित
+  Cyprus: साइप्रस, Czechia: चेकिया, Day: दिन, Decorations: सजावटहरू, Default Playground: पूर्वनिर्धारित
     खेल मैदान, Defined in: मा परिभाषित, Delete: मेटाउनुहोस्, Delete Account: खाता
     मेटाउनुहोस्, Delete All: सबै मेटाउनुहोस्, Delete account and shared sessions: खाता
     र साझा सत्रहरू मेटाउनुहोस्, Delete account but keep shared sessions: खाता मेटाउनुहोस्
@@ -307,7 +307,7 @@ ne: {'%(username_or_email)s does not exist': '%(username_or_email)s अवस्
     डेटामा मर्ज गर्नुहोस्, Methods: विधिहरू, Mexico: मेक्सिको, 'Micronesia, Federated States of': 'माइक्रोनेसिया,
     संघीय राज्यहरू', Models: मोडेलहरू, Modules: मोड्युलहरू, Modules available in Playground: खेल
     मैदानमा उपलब्ध मोड्युलहरू, Modules defined: मोड्युलहरू परिभाषित गरियो, 'Moldova, Republic of': 'मोल्डोभा,
-    गणतन्त्र', Monaco: मोनाको, Mongolia: मङ्गोलिया, Monitor: मनिटर, Montenegro: मोन्टेनेग्रो,
+    गणतन्त्र', Monaco: मोनाको, Mongolia: मङ्गोलिया, Monitor: मनिटर, Montenegro: मोन्टेनेग्रो, Month: महिना,
   Montserrat: मोन्टसेराट, Morocco: मोरक्को, Move down: तल सार्नुहोस्, Mozambique: मोजाम्बिक,
   Multiselect box: बहुचयन बाकस, Must be a two-letter code: दुई-अक्षरको कोड हुनुपर्छ,
   Must be a valid e-mail address: मान्य इमेल ठेगाना हुनुपर्छ।, Must be in E.164 format.  U.S. phone numbers begin with +1.: E.164
@@ -679,7 +679,7 @@ Resume: जारी राख्नुहोस्, Resume an interview: अन
     कुन फाइल आयात गर्न चाहनुहुन्छ?', 'When you type inside Jinja2 brackets, auto-complete options will appear here.': 'जब
     तपाईंले Jinja2 कोष्ठक भित्र टाइप गर्नुहुन्छ, यहाँ स्वत: पूर्ण विकल्पहरू देखा पर्नेछन्।',
   Wizard: विजार्ड, 'Would you like to reconfigure two-factor authentication?': 'के
-    तपाईं दुई-कारक प्रमाणीकरण पुन: कन्फिगर गर्न चाहनुहुन्छ?', Yemen: यमन, Yes: हो,
+    तपाईं दुई-कारक प्रमाणीकरण पुन: कन्फिगर गर्न चाहनुहुन्छ?', Year: वर्ष, Yemen: यमन, Yes: हो,
   'You are available for the following roles: ': 'तपाईं निम्न भूमिकाहरूको लागि उपलब्ध
     हुनुहुन्छ: ', You are not allowed to access this interview.: तपाईंलाई यो अन्तर्वार्तामा
     पहुँच गर्न अनुमति छैन।, You are not authorized to access: तपाईंलाई पहुँच गर्न

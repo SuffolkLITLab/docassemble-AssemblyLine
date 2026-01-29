@@ -113,7 +113,7 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
     un nouveau projet, Create an interview with the wizard: Créez une interview avec
     le magicien, 'Created new Markdown file called ': 'Création d''un nouveau fichier
     Markdown appelé ', Croatia: Croatie, Cuba: Cuba, Curaçao: Curaçao, Current: Actuel,
-  Cyprus: Chypre, Czechia: Tchéquie, Decorations: Décorations, Default Playground: Terrain
+  Cyprus: Chypre, Czechia: Tchéquie, Day: Jour, Decorations: Décorations, Default Playground: Terrain
     de jeu par défaut, Defined in: Défini dans, Delete: Supprimer, Delete Account: Supprimer
     le compte, Delete All: Supprimer tout, Delete account and shared sessions: Supprimer
     le compte et les sessions partagées, Delete account but keep shared sessions: Supprimer
@@ -317,7 +317,7 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
   'Micronesia, Federated States of': 'Micronésie, États fédérés de', Models: Modèles,
   Modules: Modules, Modules available in Playground: Modules disponibles dans Playground,
   Modules defined: Modules définis, 'Moldova, Republic of': 'Moldavie, République
-    de', Monaco: Monaco, Mongolia: Mongolie, Monitor: Moniteur, Montenegro: Monténégro,
+    de', Monaco: Monaco, Mongolia: Mongolie, Monitor: Moniteur, Montenegro: Monténégro, Month: Mois,
   Montserrat: Montserrat, Morocco: Maroc, Move down: Descendre, Mozambique: Mozambique,
   Multiselect box: boîte à sélection multiple, Must be a two-letter code: Doit être
     un code à deux lettres, Must be a valid e-mail address: Doit être une adresse
@@ -712,7 +712,7 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
     fichier souhaitez-vous importer ?', 'When you type inside Jinja2 brackets, auto-complete options will appear here.': 'Lorsque
     vous saisissez du texte entre les crochets Jinja2, des options de saisie automatique
     s''affichent ici.', Wizard: Magicien, 'Would you like to reconfigure two-factor authentication?': 'Souhaitez-vous
-    reconfigurer l''authentification à deux facteurs ?', Yemen: Yémen, Yes: Oui, 'You are available for the following roles: ': 'Vous
+    reconfigurer l''authentification à deux facteurs ?', Year: Année, Yemen: Yémen, Yes: Oui, 'You are available for the following roles: ': 'Vous
     êtes disponible pour les rôles suivants : ', You are not allowed to access this interview.: Vous
     n'êtes pas autorisé à accéder à cet entretien., You are not authorized to access: Vous
     n'êtes pas autorisé à accéder, You are now set up with two factor authentication.: L'authentification
