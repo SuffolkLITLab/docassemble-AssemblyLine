@@ -1581,6 +1581,7 @@ class ALDocumentBundle(DAList):
             self.auto_gather = False
         if "gathered" not in kwargs:
             self.gathered = True
+        self._set_default_attributes()
         self.initializeAttribute("cache", DALazyAttribute)
         self.always_enabled = hasattr(self, "enabled") and self.enabled
         # Pre-cache some DALazyTemplates we set up to aid translation that won't
@@ -1588,6 +1589,24 @@ class ALDocumentBundle(DAList):
         if not hasattr(self, "suffix_to_append"):
             # When the key is "preview", append it to the file name
             self.suffix_to_append = "preview"
+
+    def _set_default_attributes(self) -> None:
+        if not hasattr(self, "add_page_numbers"):
+            self.add_page_numbers = False
+        if not hasattr(self, "page_number_prefix"):
+            self.page_number_prefix = ""
+        if not hasattr(self, "page_number_start"):
+            self.page_number_start = 1
+        if not hasattr(self, "page_number_digits"):
+            self.page_number_digits = 5
+        if not hasattr(self, "page_number_area"):
+            self.page_number_area = None
+        if not hasattr(self, "page_number_font_size"):
+            self.page_number_font_size = 10
+        if not hasattr(self, "page_number_offset_horizontal"):
+            self.page_number_offset_horizontal = 15
+        if not hasattr(self, "page_number_offset_vertical"):
+            self.page_number_offset_vertical = 15
 
     def as_pdf(
         self,
@@ -1647,6 +1666,17 @@ class ALDocumentBundle(DAList):
                 [document.as_pdf(key=key, refresh=refresh) for document in files],
                 filename=f"{base_name(self.filename)}{append_suffix}.pdf",
                 pdfa=pdfa,
+            )
+        if hasattr(self, "add_page_numbers") and self.add_page_numbers:
+            self._set_default_attributes()
+            pdf.bates_number(
+                prefix=self.page_number_prefix,
+                start=self.page_number_start,
+                digits=self.page_number_digits,
+                area=self.page_number_area,
+                font_size=self.page_number_font_size,
+                offset_horizontal=self.page_number_offset_horizontal,
+                offset_vertical=self.page_number_offset_vertical,
             )
         pdf.title = self.title
         setattr(self.cache, safe_key, pdf)
