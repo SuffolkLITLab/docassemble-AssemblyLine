@@ -297,15 +297,13 @@ def get_interview_metadata(
     Returns:
         Dict[str, Any]: The metadata associated with the interview
     """
-    sql = text(
-        """
+    sql = text("""
         SELECT data
           FROM jsonstorage
          WHERE filename    = :filename
            AND tags        = :tags
            AND key         = :session_id
-        """
-    )
+        """)
     with db.connect() as con:
         row = con.execute(
             sql,
@@ -586,8 +584,7 @@ def find_matching_sessions(
     else:
         filename_condition = "TRUE"  # If no filenames are provided, this condition does not filter anything.
 
-    get_sessions_query = text(
-        f"""
+    get_sessions_query = text(f"""
         SELECT * FROM (
             SELECT DISTINCT ON (userdict.key) userdict.indexno,
                     userdict.filename as filename,
@@ -614,8 +611,7 @@ def find_matching_sessions(
         ) AS unique_sessions
         ORDER BY modtime DESC
         LIMIT :limit OFFSET :offset;
-        """
-    )
+        """)
 
     if offset < 0:
         offset = 0
@@ -699,8 +695,7 @@ def delete_interview_sessions(
             "User that is not logged in does not have permission to delete any sessions"
         )
         return None
-    delete_sessions_query = text(
-        """
+    delete_sessions_query = text("""
         DELETE FROM userdictkeys
         WHERE user_id = :user_id
         AND
@@ -708,8 +703,7 @@ def delete_interview_sessions(
         AND
         filename != :current_filename
         ;
-        """
-    )
+        """)
     if not user_id:
         user_id = user_info().id
     if user_id != user_info().id and not user_has_privilege(["developer", "admin"]):
@@ -1739,15 +1733,13 @@ def update_session_metadata(
             )
 
             # 4) Try UPDATE first, using CAST() instead of ::jsonb
-            update_sql = text(
-                """
+            update_sql = text("""
                 UPDATE jsonstorage
                    SET data = jsonstorage.data || CAST(:data AS jsonb)
                  WHERE key = :session_id
                    AND filename = :filename
                    AND tags = :tags
-            """
-            )
+            """)
             result = con.execute(
                 update_sql,
                 {
@@ -1760,12 +1752,10 @@ def update_session_metadata(
 
             # 5) If nothing was updated, INSERT
             if (result.rowcount or 0) == 0:
-                insert_sql = text(
-                    """
+                insert_sql = text("""
                     INSERT INTO jsonstorage (key, filename, tags, data)
                     VALUES (:session_id, :filename, :tags, CAST(:data AS jsonb))
-                """
-                )
+                """)
                 con.execute(
                     insert_sql,
                     {
