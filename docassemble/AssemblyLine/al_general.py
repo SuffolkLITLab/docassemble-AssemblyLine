@@ -30,13 +30,11 @@ from docassemble.base.util import (
     their,
     url_action,
     validation_error,
-    value,
     word,
     your,
     log,
     value,
 )
-from docassemble.ALToolbox.misc import fa_icon
 import docassemble.base.functions
 import random
 import re
@@ -325,7 +323,7 @@ class ALAddress(Address):
             if not bare and (
                 unit_lower.isnumeric()
                 or (
-                    not " " in self.unit
+                    " " not in self.unit
                     and not any(
                         x in unit_lower
                         for x in [
@@ -1660,10 +1658,13 @@ class ALIndividual(Individual):
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
         """
-        return not (
-            self.gender
-            in ["prefer-not-to-say", "male", "female", "unknown", "nonbinary"]
-        )
+        return self.gender not in [
+            "prefer-not-to-say",
+            "male",
+            "female",
+            "unknown",
+            "nonbinary",
+        ]
 
     def contact_fields(self) -> None:
         """

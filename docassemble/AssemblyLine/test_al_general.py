@@ -3,7 +3,7 @@
 import unittest
 from .al_general import ALIndividual, ALAddress, get_visible_al_nav_items
 from unittest.mock import Mock, patch
-from docassemble.base.util import DADict, DAAttributeError
+from docassemble.base.util import DADict
 from docassemble.base.functions import value as da_value
 
 
