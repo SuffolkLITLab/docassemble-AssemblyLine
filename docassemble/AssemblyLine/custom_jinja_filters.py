@@ -5,9 +5,8 @@
 
 # See: https://docassemble.org/docs/documents.html#register_jinja_filter
 
-import re
 from typing import Any, Dict, List, Optional, Union
-from docassemble.base.util import register_jinja_filter, DACatchAll, word
+from docassemble.base.util import register_jinja_filter, DACatchAll
 from jinja2 import Undefined, pass_context
 from jinja2.runtime import Context as Jinja2Context
 
@@ -18,6 +17,7 @@ __all__ = [
     "catchall_question",
     "catchall_subquestion",
     "catchall_fields_code",
+    "catchall_complete",
 ]
 
 
@@ -29,6 +29,7 @@ def catchall_options(value: Any, *raw_items: Any) -> DACatchAll:
 
     The items can be in various formats:
 
+    - String: `"code_is_the_label"`
     - String: `"code: label"`
     - Dictionary: `{"code": "label"}`
     - Tuple: `("code", "label")`
@@ -66,14 +67,14 @@ def catchall_options(value: Any, *raw_items: Any) -> DACatchAll:
         DACatchAll: The modified DACatchAll object with the assigned options.
     """
     if isinstance(value, DACatchAll):
-        pairs = []
+        pairs: list[str | tuple[str, str]] = []
         for item in raw_items:
             if isinstance(item, str):
                 if ":" in item:
                     code, label = item.split(":", 1)
+                    pairs.append((code.strip(), label.strip()))
                 else:
-                    code = label = item
-                pairs.append((code.strip(), label.strip()))
+                    pairs.append(item.strip())
             elif isinstance(item, dict):
                 for code, label in item.items():
                     pairs.append((code.strip(), label.strip()))
@@ -203,6 +204,49 @@ def catchall_subquestion(value: Any, subquestion: str) -> DACatchAll:
     return value
 
 
+def catchall_complete(
+    value: DACatchAll,
+    question: str = "",
+    subquestion: str = "",
+    label: str = "",
+    datatype: str = "",
+    options: Any = "",
+) -> DACatchAll:
+    """
+    Jinja2 filter to allow you to define multiple attributes of a DACatchAll field inside a DOCX template.
+
+    Each argument after `value` corresponds to the similarly named `catchall_` function.
+
+    Example usage in a DOCX template:
+    ```
+    {{ my_catchall_field | catchall_complete(question="What additional information do you need?", subquestion="Be specific", label="no label") }}
+    ```
+
+    Args:
+        value (DACatchAll): The DACatchAll object to which the attributes will be assigned.
+        question (str, optional): The question text to set on the DACatchAll object.
+        subquestion (str, optional): The subquestion text to set on the DACatchAll object.
+        label (str, optional): The label to set on the DACatchAll object.
+        datatype (str, optional): The datatype to set on the DACatchAll object.
+        options (Any, optional): The options to set on the DACatchAll object.
+
+    Returns:
+        DACatchAll: The modified DACatchAll object with the assigned attributes.
+    """
+    if isinstance(value, DACatchAll):
+        if question:
+            catchall_question(value, question)
+        if subquestion:
+            catchall_subquestion(value, subquestion)
+        if label:
+            catchall_label(value, label)
+        if datatype:
+            catchall_datatype(value, datatype)
+        if options:
+            catchall_options(value, options)
+    return value
+
+
 def _undefined_label(ud: Undefined) -> Union[str, None]:
     """
     Extract the variable name from a Jinja2 Undefined object for use as a placeholder label.
@@ -314,6 +358,7 @@ register_jinja_filter("catchall_label", catchall_label)
 register_jinja_filter("catchall_datatype", catchall_datatype)
 register_jinja_filter("catchall_question", catchall_question)
 register_jinja_filter("catchall_subquestion", catchall_subquestion)
+register_jinja_filter("catchall_complete", catchall_complete)
 register_jinja_filter("if_final", if_final)
 
 

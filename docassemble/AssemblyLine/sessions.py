@@ -1,7 +1,4 @@
-from psycopg2.extras import DictCursor
-
-from collections.abc import Iterable
-from typing import List, Dict, Any, Optional, Set, Union, Optional, Tuple
+from typing import List, Dict, Any, Set, Union, Optional, Tuple
 from docassemble.base.util import (
     all_variables,
     as_datetime,
@@ -32,7 +29,6 @@ from docassemble.base.util import (
     user_info,
     user_logged_in,
     validation_error,
-    variables_snapshot_connection,
     word,
 )
 from docassemble.webapp.db_object import init_sqlalchemy

@@ -35,7 +35,6 @@ from docassemble.base.pdfa import pdf_to_pdfa
 from textwrap import wrap
 from math import floor
 import subprocess
-from collections import ChainMap
 import pikepdf
 from typing import Tuple
 import secrets
