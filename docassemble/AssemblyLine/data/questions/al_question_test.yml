@@ -47,12 +47,12 @@ code: |
   chiropractors.gather()
   other_parties.gather()
   users.gather()
-  users[0].gender  
+  users[0].gender
   users[0].address.address
   users[0].mailing_address.address
   users[0].phone_number
   trial_court
-  big_text_field  
+  big_text_field
   children.gather()
   preview_screen
   basic_questions_signature_flow
@@ -73,7 +73,7 @@ continue button field: test_label_functions
 code: |
   children[i].name.first
   children[i].birthdate
-  children[i].complete=True
+  children[i].complete = True
 ---
 # Page to test certain features
 # Reduced text for ease of testing custom audio element
@@ -125,9 +125,9 @@ question: |
 yesno: mako_template_enabled
 ---
 code: |
-  # You must use an intermediate value to set the enabled status, because it is not 
+  # You must use an intermediate value to set the enabled status, because it is not
   # cached longer than one page load. You do not need to explicitly reconsider it.
-  mako_template.enabled = mako_template_enabled 
+  mako_template.enabled = mako_template_enabled
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(elements=[mako_template, word_template, static_template, exhibit_attachment], filename="user_bundle.pdf", title="All forms to download for your records")
@@ -140,8 +140,8 @@ code: |
   metadata_title = "AssemblyLine Question Test"
 ---
 code: |
-  mako_template.overflow_fields['big_text_field'].overflow_trigger = 200
-  mako_template.overflow_fields['children'].overflow_trigger = 2
+  mako_template.overflow_fields["big_text_field"].overflow_trigger = 200
+  mako_template.overflow_fields["children"].overflow_trigger = 2
   mako_template.overflow_fields.gathered = True
 ---
 attachment:

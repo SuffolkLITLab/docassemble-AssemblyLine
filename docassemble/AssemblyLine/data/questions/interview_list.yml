@@ -126,7 +126,7 @@ objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="")
 ---
 code: |
-  al_logo.alt_text = "" # Patch for old sessions
+  al_logo.alt_text = ""  # Patch for old sessions
 ---
 # This block is a placeholder and will be replaced by the definition below
 sections:
@@ -139,17 +139,15 @@ progressive: False
 mandatory: True
 code: |
   nav.set_sections(
-      [
-        {
-          "section_in_progress_forms": PAGE_QUESTION or PAGE_TITLE or word("In progress forms")
-        },
-        {
-          "section_answer_sets": ANSWER_SETS_TITLE or word("Answer sets")
-        },
-        {
-          "section_search": word("Search")
-        },
-        ]
+    [
+      {
+        "section_in_progress_forms": PAGE_QUESTION
+        or PAGE_TITLE
+        or word("In progress forms")
+      },
+      {"section_answer_sets": ANSWER_SETS_TITLE or word("Answer sets")},
+      {"section_search": word("Search")},
+    ]
   )
 ---
 # These override the `metadata` above
@@ -241,7 +239,7 @@ mandatory: True
 code: |
   if not user_logged_in():
     command("signin")
-  if get_config("assembly line",{}).get("enable answer sets"):
+  if get_config("assembly line", {}).get("enable answer sets"):
     nav.unhide()
   else:
     nav.hide()
@@ -376,14 +374,12 @@ continue button label: |
 ---
 code: |
   save_interview_answers(
-      source_filename=action_argument("filename"),
-      source_session=action_argument("session"),
-      metadata={
-        "title": al_sessions_copy_as_answer_set_label
-      },
-      original_interview_filename=action_argument("original_interview_filename"),        
-      )
-  log("Copied answers", "success")      
+    source_filename=action_argument("filename"),
+    source_session=action_argument("session"),
+    metadata={"title": al_sessions_copy_as_answer_set_label},
+    original_interview_filename=action_argument("original_interview_filename"),
+  )
+  log("Copied answers", "success")
   interview_list_copy_action = True
 ---
 id: rename answer
@@ -400,25 +396,43 @@ only sets:
 code: |
   al_sessions_snapshot_new_label
   try:
-      rename_interview_answers(action_argument("filename"), action_argument("session"), new_name = al_sessions_snapshot_new_label)
-      log(f"New name saved", "success")
-      session_page = 0 # Take back to first page where the renamed session will appear
+    rename_interview_answers(
+      action_argument("filename"),
+      action_argument("session"),
+      new_name=al_sessions_snapshot_new_label,
+    )
+    log(f"New name saved", "success")
+    session_page = 0  # Take back to first page where the renamed session will appear
   except:
-      log("Problem saving new name", "danger")
+    log("Problem saving new name", "danger")
   interview_list_rename_action = True
 ---
 code: |
-  interview_list(action="delete", filename=action_argument("filename"), session=action_argument("session"))  
+  interview_list(
+    action="delete",
+    filename=action_argument("filename"),
+    session=action_argument("session"),
+  )
   log("Deleted answers", "success")
   interview_list_delete_session = True
 ---
 code: |
   try:
-      interview_list(action="delete_all", query=(~DA.Or(DA.Sessions.filename == f"{current_context().current_package}:al_saved_sessions_store.yml", DA.Sessions.filename == "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml")))
-      log("Deleted answers", "success")
+    interview_list(
+      action="delete_all",
+      query=(
+        ~DA.Or(
+          DA.Sessions.filename
+          == f"{current_context().current_package}:al_saved_sessions_store.yml",
+          DA.Sessions.filename
+          == "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml",
+        )
+      ),
+    )
+    log("Deleted answers", "success")
   except Exception as ex:
-      log("Problem deleting answers", "danger")
-      log(f"Problem deleting answers for a user: {ex}")
+    log("Problem deleting answers", "danger")
+    log(f"Problem deleting answers for a user: {ex}")
   interview_list_delete_all = True
 ---
 ########### Get customized text values from configuration file ###################################33
@@ -458,19 +472,19 @@ code: |
 ---
 code: |
   al_sessions_to_exclude_from_interview_list = (
-      get_config("assembly line", {})
-      .get("interview list", {})
-      .get(
-          "exclude from interview list",
-          get_config("assembly line", {}).get(
-              "exclude from interview list",
-              [
-                  "docassemble.ALDashboard",
-                  "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml",
-                  "docassemble.AssemblyLine:data/questions/interview_list.yml",
-              ],
-          ),
-      )
+    get_config("assembly line", {})
+    .get("interview list", {})
+    .get(
+      "exclude from interview list",
+      get_config("assembly line", {}).get(
+        "exclude from interview list",
+        [
+          "docassemble.ALDashboard",
+          "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml",
+          "docassemble.AssemblyLine:data/questions/interview_list.yml",
+        ],
+      ),
+    )
   )
 ---
 event: delete_results_action

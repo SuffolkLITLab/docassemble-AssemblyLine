@@ -55,7 +55,7 @@ fields:
   - Number or amount: x.value
     datatype: integer
 validation code: |
-  define(x.instanceName, x.value)    
+  define(x.instanceName, x.value)
 css: |
   ${ dacatchall_css_template }  
 ---

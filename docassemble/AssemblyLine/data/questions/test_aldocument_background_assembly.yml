@@ -12,7 +12,7 @@ code: |
     al_preview_waiting_screen
   preview_screen
   # if not al_user_bundle.generate_downloads_task.ready(): # Without DOCX
-  if not al_user_bundle.generate_downloads_with_docx_task.ready(): # With DOCX
+  if not al_user_bundle.generate_downloads_with_docx_task.ready():  # With DOCX
     al_download_waiting_screen
   download_screen
 ---

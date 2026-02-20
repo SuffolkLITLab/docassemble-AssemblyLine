@@ -13,7 +13,7 @@ mandatory: True
 code: |
   court_with_all_fields_name
   court_with_all_fields_result
-  
+
   name_contains_city_name
   name_contains_city_result
 
@@ -31,12 +31,12 @@ need:
   - court_with_all_fields_name
   - court_with_all_fields_address
 code: |
-  court_with_all_fields = ALCourt('court_with_all_fields')
+  court_with_all_fields = ALCourt("court_with_all_fields")
   court_with_all_fields.name = court_with_all_fields_name
   court_with_all_fields.address = court_with_all_fields_address
 ---
 code: |
-  court_with_all_fields.description = 'Description of the court that has all its fields filled in defined by the developer.'
+  court_with_all_fields.description = "Description of the court that has all its fields filled in defined by the developer."
 ---
 id: court with all fields
 question: |
@@ -85,12 +85,12 @@ need:
   - name_contains_city_name
   - name_contains_city_address
 code: |
-  name_contains_city = ALCourt('name_contains_city')
+  name_contains_city = ALCourt("name_contains_city")
   name_contains_city.name = name_contains_city_name
   name_contains_city.address = name_contains_city_address
 ---
 code: |
-  name_contains_city.description = 'Description of the court that has just its name filled in defined by the developer.'
+  name_contains_city.description = "Description of the court that has just its name filled in defined by the developer."
 ---
 id: name has city
 question: |

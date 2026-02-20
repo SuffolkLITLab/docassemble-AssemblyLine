@@ -81,7 +81,10 @@ terms:
     Green words are legal terms or a short way of referring to something that needs more explanation. The definition or explanation pops up when you tap the green words. 
 validation code: |
   if not acknowledged_information_use:
-    validation_error("You must accept the terms of use to continue.", field="acknowledged_information_use")
+    validation_error(
+      "You must accept the terms of use to continue.",
+      field="acknowledged_information_use",
+    )
 ---
 ##### Backwards compatibility #####
 code: |
@@ -157,7 +160,7 @@ depends on:
   - user_ask_role
 code: |
   # If the interview author didn't specify and it's a "court" or "other" case, we just ask
-  user_started_case = user_ask_role == 'plaintiff'
+  user_started_case = user_ask_role == "plaintiff"
 ---
 id: what is the user's detailed role in this case?
 comment: |
@@ -204,10 +207,10 @@ fields:
 ---
 code: |
   # This will be considered after any code in the parent interview
-  # Most likely, user_started_case should be True for form types "other" and "out_of_court" but 
+  # Most likely, user_started_case should be True for form types "other" and "out_of_court" but
   # we will let form author decide
-  if al_form_type in ['letter', 'starts_case']:
-    user_started_case = True 
+  if al_form_type in ["letter", "starts_case"]:
+    user_started_case = True
 ---
 id: is there an opposing party?
 question: |
@@ -233,7 +236,7 @@ fields:
 ---
 code: |
   # If the form is a letter, it _always_ is addressed to someone.
-  if al_form_type == 'letter':
+  if al_form_type == "letter":
     other_parties.there_are_any = True
 ---    
 #######################################################
@@ -629,11 +632,16 @@ fields:
       But the friend must be someone you can rely on to give you a
       message.
 validation code: |
-  if (not showifdef('users[0].phone_number') and \
-      (not showifdef('users[0].mobile_number')) and \
-      (not showifdef('users[0].email')) and \
-      (not showifdef('users[0].other_contact_method'))):
-    validation_error(word("You need to provide at least one contact method."), field="users[0].other_contact_method")
+  if (
+    not showifdef("users[0].phone_number")
+    and (not showifdef("users[0].mobile_number"))
+    and (not showifdef("users[0].email"))
+    and (not showifdef("users[0].other_contact_method"))
+  ):
+    validation_error(
+      word("You need to provide at least one contact method."),
+      field="users[0].other_contact_method",
+    )
 ---
 template: why_contact_info_needed_template
 subject: |
@@ -661,7 +669,7 @@ fields:
 validation code: |
   # This should be safe too
   if dont_know_docket_number:
-    docket_number = ''    
+    docket_number = ""
 ---
 question: |
   Do you have a case number used to track this case in court?
@@ -691,7 +699,7 @@ fields:
 validation code: |
   # This should be safe too
   if dont_know_case_number:
-    case_number = ''    
+    case_number = ""
 ---
 question: |
   Do you have a case number used to track this case in court?
@@ -925,7 +933,7 @@ question: |
   % endif
 fields:
   - code: |
-      other_parties[i].name_fields(person_or_business='unsure')
+      other_parties[i].name_fields(person_or_business="unsure")
 ---
 id: generic address
 generic object: ALAddress
@@ -940,7 +948,7 @@ question: |
   What is the ${ x.object_name() }?
 fields:
   - code: |
-      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)  
+      x.address_fields(country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
 comment: |
   This is left as just object_name() rather than "address of object_name()" because
   commonly the word "address" would be included in the variable name.
@@ -1251,7 +1259,7 @@ fields:
 ---
 code: |
   # It's not really necessary to default to asking the user
-  # what date to list on the form.  
+  # what date to list on the form.
   signature_date = today()
 ---
 sets:
@@ -1421,7 +1429,7 @@ need:
 code: |
   # We do this in a code block so referencing just `trial_court` in interview
   # order block is good enough to trigger the question `id: choose a court`
-  trial_court = ALCourt('trial_court')
+  trial_court = ALCourt("trial_court")
   trial_court.name = trial_court_name
   trial_court.address = trial_court_address
 ---
@@ -1453,7 +1461,7 @@ need:
   - appeals_court_name
   - appeals_court_address.address
 code: |
-  appeals_court = ALCourt('appeals_court')
+  appeals_court = ALCourt("appeals_court")
   appeals_court.name = appeals_court_name
   appeals_court.address = appeals_court_address
 ---  
@@ -1462,14 +1470,16 @@ code: |
 #######################################################################
 ---
 code: |
-  signature_fields = ['users[0].signature']
+  signature_fields = ["users[0].signature"]
 ---
 code: |
-  if len(signature_fields):    
+  if len(signature_fields):
     if next(iter(signature_fields)).endswith(".signature"):
       # the id: signature choice question has to assume the object exists, so we don't guard against that here
       # note: this does not need to be an ALIndividual, so just use str() instead of .full_name()
-      slash_s_example_name = str(value( next(iter(signature_fields))[:-len(".signature")] ))
+      slash_s_example_name = str(
+        value(next(iter(signature_fields))[: -len(".signature")])
+      )
     else:
       slash_s_example_name = "Signer's Name"
   else:
@@ -1496,8 +1506,9 @@ fields:
       - With a typed signature, like "${ al_typed_signature_prefix }${ slash_s_example_name }": typed_signature
     show if:
       code: |
-        al_form_requires_digital_signature and not (device() and (device().is_mobile or device().is_touch_capable))
-
+        al_form_requires_digital_signature and not (
+          device() and (device().is_mobile or device().is_touch_capable)
+        )
   - I will sign: signature_choice
     input type: radio
     choices:
@@ -1505,8 +1516,9 @@ fields:
       - With a typed signature, like "${ al_typed_signature_prefix }${ slash_s_example_name }": typed_signature
     show if:
       code: |
-        al_form_requires_digital_signature and (device() and (device().is_mobile or device().is_touch_capable))
-
+        al_form_requires_digital_signature and (
+          device() and (device().is_mobile or device().is_touch_capable)
+        )
   - I will sign: signature_choice
     input type: radio
     choices:
@@ -1522,8 +1534,9 @@ fields:
       - On the paper with a pen after I print the documents: sign_after_printing
     show if:
       code: |
-        not al_form_requires_digital_signature and not (device() and (device().is_mobile or device().is_touch_capable))
-
+        not al_form_requires_digital_signature and not (
+          device() and (device().is_mobile or device().is_touch_capable)
+        )
   - I will sign: signature_choice
     input type: radio
     choices:
@@ -1532,7 +1545,9 @@ fields:
       - On the paper with a pen after I print the documents: sign_after_printing
     show if:
       code: |
-        not al_form_requires_digital_signature and (device() and (device().is_mobile or device().is_touch_capable))
+        not al_form_requires_digital_signature and (
+          device() and (device().is_mobile or device().is_touch_capable)
+        )
 continue button field: saw_signature_choice
 ---
 generic object: ALIndividual
@@ -1672,7 +1687,7 @@ content: |
   do not include sensitive or private information.
 ---
 code: |
-  all_final_forms_combined = al_final_form_to_file.as_pdf(key='final')
+  all_final_forms_combined = al_final_form_to_file.as_pdf(key="final")
 ---
 need:
   - comments_to_clerk
@@ -1879,18 +1894,24 @@ validation code: |
     full_size = sum(a_page.size_in_bytes() for a_page in x[0].pages)
     if full_size > (15 * 1024 * 1024):
       validation_error("Upload a file smaller than 15 MB.")
-    if hasattr(x, 'maximum_size'):
+    if hasattr(x, "maximum_size"):
       if full_size > x.maximum_size:
-        validation_error(f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}")
-    if hasattr(x, 'maximum_size_per_doc'):
+        validation_error(
+          f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}"
+        )
+    if hasattr(x, "maximum_size_per_doc"):
       if full_size > x.maximum_size_per_doc:
-        validation_error(f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}")
+        validation_error(
+          f"Upload a file smaller than {humanize.naturalsize(x.maximum_size)}"
+        )
     try:
       pdf_concatenate(x[0].pages)
     except:
       validation_error("Unable to convert this file. Please upload a new one.")
-    x[0].pages.complete_attribute = 'ok'
-    x[0].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
+    x[0].pages.complete_attribute = "ok"
+    x[
+      0
+    ].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
 ---
 generic object: ALExhibitList
 code: |
@@ -1913,21 +1934,27 @@ fields:
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   this_doc_size = sum(a_page.size_in_bytes() for a_page in x[i].pages)
-  if hasattr(x, 'maximum_size_per_doc'):
+  if hasattr(x, "maximum_size_per_doc"):
     if this_doc_size > x.maximum_size_per_doc:
-      validation_error(f"This document should be smaller than {humanize.naturalsize(x.maximum_size_per_doc)}")
+      validation_error(
+        f"This document should be smaller than {humanize.naturalsize(x.maximum_size_per_doc)}"
+      )
   if this_doc_size > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
-  if hasattr(x, 'maximum_size'):
+  if hasattr(x, "maximum_size"):
     full_size = x.size_in_bytes()
     if full_size > x.maximum_size:
       suggested_size = x.maximum_size - (full_size - this_doc_size)
-      validation_error(f"All exhibits combined must be smaller than {humanize.naturalsize(x.maximum_size)}. Upload a file smaller than {humanize.naturalsize(suggested_size)}.")
+      validation_error(
+        f"All exhibits combined must be smaller than {humanize.naturalsize(x.maximum_size)}. Upload a file smaller than {humanize.naturalsize(suggested_size)}."
+      )
   try:
     pdf_concatenate(x[i].pages)
   except:
     validation_error("Unable to convert this file. Please upload a new one.")
-  x[i].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
+  x[
+    i
+  ].pages.reset_gathered()  # docassemble sets this attribute but we want to force gathering additional pages
 ---
 # Only necessary to ignore playground "undefined names" warning
 objects:
@@ -1988,20 +2015,26 @@ fields:
       "image/png, image/jpeg, .doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/pdf,.pdf"   
 validation code: |
   page_size = x[i].pages[j].size_in_bytes()
-  this_doc_size = sum(a_page.size_in_bytes() for a_page in x[i].pages.complete_elements()) + page_size
+  this_doc_size = (
+    sum(a_page.size_in_bytes() for a_page in x[i].pages.complete_elements()) + page_size
+  )
   log(f"length of completed elements: {len(x[i].pages.complete_elements())}")
-  if hasattr(x, 'maximum_size_per_doc'):
+  if hasattr(x, "maximum_size_per_doc"):
     if this_doc_size > x.maximum_size_per_doc:
       suggested_size = x.maximum_size_per_doc - (this_doc_size - page_size)
-      validation_error(f"This document must be smaller than {humanize.naturalsize(x.maximum_size_per_doc) }. Upload a file smaller than {humanize.naturalsize(suggested_size)}.")
-      
+      validation_error(
+        f"This document must be smaller than {humanize.naturalsize(x.maximum_size_per_doc) }. Upload a file smaller than {humanize.naturalsize(suggested_size)}."
+      )
+
   if page_size > (15 * 1024 * 1024):
     validation_error("Upload a file smaller than 15 MB.")
-  if hasattr(x, 'maximum_size'):
+  if hasattr(x, "maximum_size"):
     full_size = x.size_in_bytes() + this_doc_size
     if full_size > x.maximum_size:
       suggested_size = x.maximum_size - (full_size - page_size)
-      validation_error(f"All exhibits combined must be smaller than {humanize.naturalsize(x.maximum_size)}. Upload a file smaller than {humanize.naturalsize(suggested_size)}.")
+      validation_error(
+        f"All exhibits combined must be smaller than {humanize.naturalsize(x.maximum_size)}. Upload a file smaller than {humanize.naturalsize(suggested_size)}."
+      )
   try:
     pdf_concatenate(x[i].pages[j])
   except:
@@ -2114,7 +2147,7 @@ code: |
 generic object: ALIndividual
 code: |
   # Set a default gender of a business to aid in methods like pronoun_possessive
-  if hasattr(x, 'person_type') and x.person_type == "business":
+  if hasattr(x, "person_type") and x.person_type == "business":
     x.gender = "other"
 ---    
 ################################### ALDocumentUpload questions #############################
