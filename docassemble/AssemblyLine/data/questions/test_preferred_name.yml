@@ -11,22 +11,22 @@ code: |
   # Get basic user information
   users[0].name.first
   users[0].name.last
-  
+
   # Choose test scenario
   test_scenario
-  
+
   # Handle different scenarios
-  if test_scenario == 'with_preferred':
+  if test_scenario == "with_preferred":
     users[0].preferred_name.first
-  elif test_scenario == 'business_with_preferred':
-    users[0].person_type = 'business'
+  elif test_scenario == "business_with_preferred":
+    users[0].person_type = "business"
     users[0].preferred_name.first
-  elif test_scenario == 'conflict_resolution':
+  elif test_scenario == "conflict_resolution":
     # Create another person to test conflict resolution
     other_people.gather()
     users[0].preferred_name.first
   # For 'without_preferred', we don't ask for preferred name
-  
+
   show_results
 ---
 question: |

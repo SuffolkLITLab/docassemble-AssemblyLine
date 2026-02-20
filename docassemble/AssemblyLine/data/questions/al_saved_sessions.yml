@@ -2,16 +2,18 @@
 code: |
   # HACK
   # Create a placeholder value to avoid playground errors
-  al_sessions_snapshot_results = DAEmpty() 
+  al_sessions_snapshot_results = DAEmpty()
 ---
 initial: True
 code: |
   ########### Save title and progress to session list ##################
-  if get_config("assembly line",{}).get("update session metadata", True):
-    update_current_session_metadata({
-      "auto_title": str(al_sessions_interview_title),
-      "progress": get_progress(),
-    })
+  if get_config("assembly line", {}).get("update session metadata", True):
+    update_current_session_metadata(
+      {
+        "auto_title": str(al_sessions_interview_title),
+        "progress": get_progress(),
+      }
+    )
 ---
 template: al_sessions_interview_title
 content: |
@@ -125,7 +127,11 @@ script: |
 ---
 event: al_sessions_delete_session
 code: |
-  interview_list(action="delete", filename=action_argument("filename"), session=action_argument("session"))
+  interview_list(
+    action="delete",
+    filename=action_argument("filename"),
+    session=action_argument("session"),
+  )
   log("Answer set deleted", "success")
 ---
 id: load answer
@@ -178,18 +184,19 @@ event: al_sessions_fast_forward_session
 code: |
   # set_save_status('ignore')
   al_sessions_snapshot_results = load_interview_answers(
-        action_argument("i"), 
-        action_argument("session"), 
-        new_session=False, 
-        additional_variables_to_filter=al_sessions_additional_variables_to_filter)
-  force_ask('al_sessions_load_status')
+    action_argument("i"),
+    action_argument("session"),
+    new_session=False,
+    additional_variables_to_filter=al_sessions_additional_variables_to_filter,
+  )
+  force_ask("al_sessions_load_status")
 ---
 code: |
   if user_logged_in():
     new_session_id = save_interview_answers(
-          metadata = { "title": al_sessions_snapshot_label },
-          additional_variables_to_filter=al_sessions_additional_variables_to_filter,
-        )
+      metadata={"title": al_sessions_snapshot_label},
+      additional_variables_to_filter=al_sessions_additional_variables_to_filter,
+    )
     log(f"Saved interview {al_sessions_snapshot_label} with id {new_session_id}")
   else:
     log(f"Anonymous user tried to save session snapshot, ignoring.")

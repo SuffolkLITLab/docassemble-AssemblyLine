@@ -18,14 +18,14 @@ code: |
   intro_screen
   as_foo_defaults
   download_list_html_defaults
-  #download_html_defaults
+  # download_html_defaults
   email_defaults
   as_foo_custom
   download_list_html_custom_1
   download_list_html_custom_2
   download_list_html_custom_3
-  #download_html_custom_1
-  #download_html_custom_2
+  # download_html_custom_1
+  # download_html_custom_2
   email_custom
   end_aldocument_tests
 ---
