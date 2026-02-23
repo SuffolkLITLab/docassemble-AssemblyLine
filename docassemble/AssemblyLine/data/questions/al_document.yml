@@ -25,14 +25,14 @@ code: |
       preferred_formats = ["pdf"]
 
   email_success = x.send_email(
-      to=action_argument('email'),
-      template=(
-        value(action_argument('template_name'))
-        if action_argument('template_name')
-        else None
-      ),
-      key=action_argument('key'),
-      preferred_formats=preferred_formats,
+    to=action_argument("email"),
+    template=(
+      value(action_argument("template_name"))
+      if action_argument("template_name")
+      else None
+    ),
+    key=action_argument("key"),
+    preferred_formats=preferred_formats,
   )
   email_arg = action_argument('email')
   if isinstance(email_arg, list):
@@ -41,10 +41,10 @@ code: |
     email_str = str(email_arg)
   if email_success:
     # Exact phrase below is in Docassemble's words dictionary
-    log(word('E-mail was sent to') + ' ' + email_str, 'success')
+    log(word("E-mail was sent to") + " " + action_argument("email"), "success")
   else:
     # E-mail failed is not in the default Docassemble words dictionary
-    log(word('E-mail failed'), 'error')
+    log(word("E-mail failed"), "error")
 ---
 generic object: ALDocumentBundle
 event: x.send_email_to_action_event
@@ -63,14 +63,14 @@ code: |
       preferred_formats = ["pdf"]
 
   email_success = x.send_email(
-      to=action_argument('email'),
-      template=(
-        value(action_argument('template_name'))
-        if action_argument('template_name')
-        else None
-      ),
-      key=action_argument('key'),
-      preferred_formats=preferred_formats,
+    to=action_argument("email"),
+    template=(
+      value(action_argument("template_name"))
+      if action_argument("template_name")
+      else None
+    ),
+    key=action_argument("key"),
+    preferred_formats=preferred_formats,
   )
   email_arg = action_argument('email')
   if isinstance(email_arg, list):
@@ -78,23 +78,24 @@ code: |
   else:
     email_str = str(email_arg)
   if email_success:
-    log("Email sent to " + email_str) # to log file
+    log("Email sent to " + action_argument("email"))  # to log file
   else:
-    log(word('E-mail failed to ') + email_str)
+    log(word("E-mail failed to ") + action_argument("email"))
 
-  json_response({'success': email_success})
-  
-
-
+  json_response({"success": email_success})
 ---
 generic object: ALDocumentBundle
 code: |
   # Used in the email subject line when email is triggered on download screen.
-  # This defaults to the interview title. For example, if the 
+  # This defaults to the interview title. For example, if the
   # interview title is "Guardianship Helper", the email
   # subject would be "Your Guardianship Helper document from CourtFormsOnline is ready".
   # Customize this if you prefer something like "Your guardianship document is ready"
-  x.document_label = str(all_variables(special='titles').get('title', all_variables(special='metadata').get('title', 'assembled'))).strip()
+  x.document_label = str(
+    all_variables(special="titles").get(
+      "title", all_variables(special="metadata").get("title", "assembled")
+    )
+  ).strip()
 ---
 generic object: ALDocumentBundle
 template: x.send_email_template
@@ -132,36 +133,46 @@ content: |
 id: al exhibit ocr pages bg
 event: al_exhibit_ocr_pages
 code: |
-  to_pdf = action_argument('to_pdf')
-  from_file = action_argument('from_file')
+  to_pdf = action_argument("to_pdf")
+  from_file = action_argument("from_file")
   background_response(ocrmypdf_task(from_file, to_pdf))
 ---
 ############## Background document assembly #################
 ---
 generic object: ALDocumentBundle
 code: |
-  x.generate_downloads_task = background_action(x.attr_name('create_downloads'))
+  x.generate_downloads_task = background_action(x.attr_name("create_downloads"))
 ---
 generic object: ALDocumentBundle
 event: x.create_downloads
 code: |
-  download_response = x.get_cacheable_documents(key="final", pdf=True, include_full_pdf=True)
-  background_response_action(x.attr_name('save_downloads'), download_response=download_response)
+  download_response = x.get_cacheable_documents(
+    key="final", pdf=True, include_full_pdf=True
+  )
+  background_response_action(
+    x.attr_name("save_downloads"), download_response=download_response
+  )
 ---
 generic object: ALDocumentBundle
 code: |
-  x.generate_downloads_with_docx_task = background_action(x.attr_name('create_downloads_with_docx'))
+  x.generate_downloads_with_docx_task = background_action(
+    x.attr_name("create_downloads_with_docx")
+  )
 ---
 generic object: ALDocumentBundle
 event: x.create_downloads_with_docx
 code: |
-  download_response = x.get_cacheable_documents(key="final", pdf=True, docx=True, include_full_pdf=True)
-  background_response_action(x.attr_name('save_downloads'), download_response=download_response)
+  download_response = x.get_cacheable_documents(
+    key="final", pdf=True, docx=True, include_full_pdf=True
+  )
+  background_response_action(
+    x.attr_name("save_downloads"), download_response=download_response
+  )
 ---
 generic object: ALDocumentBundle
 event: x.save_downloads
 code: |
-  x._downloadable_files = action_argument('download_response')
+  x._downloadable_files = action_argument("download_response")
 
   background_response()
 ---
@@ -181,18 +192,20 @@ reload: True
 ---
 generic object: ALDocumentBundle
 code: |
-  x.generate_preview_task = background_action(x.attr_name('generate_preview_event'))
+  x.generate_preview_task = background_action(x.attr_name("generate_preview_event"))
 ---
 generic object: ALDocumentBundle
 event: x.generate_preview_event
 code: |
   preview_response = x.as_pdf(key="preview")
-  background_response_action(x.attr_name('save_preview'), preview_response=preview_response)
+  background_response_action(
+    x.attr_name("save_preview"), preview_response=preview_response
+  )
 ---
 generic object: ALDocumentBundle
 event: x.save_preview
 code: |
-  x._preview_file = action_argument('preview_response')
+  x._preview_file = action_argument("preview_response")
   background_response()
 ---
 id: preview waiting screen

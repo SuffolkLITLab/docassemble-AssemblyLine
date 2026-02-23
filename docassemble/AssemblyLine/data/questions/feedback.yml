@@ -17,5 +17,4 @@ code: |
 ---
 code: |
   # This email will be used ONLY if there is no valid GitHub config
-  al_error_email = get_config('error notification email')
-  
+  al_error_email = get_config("error notification email")

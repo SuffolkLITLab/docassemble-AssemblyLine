@@ -3,7 +3,9 @@ objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="")
 ---
 code: |
-  al_logo.alt_text = "" # Per accessibility recommendations, best to leave alt text off a logo
+  al_logo.alt_text = (
+    ""  # Per accessibility recommendations, best to leave alt text off a logo
+  )
 ---
 default screen parts:
   title: |
@@ -75,9 +77,7 @@ features:
 ---
 initial: True
 code: |
-  menu_items = [
-    item for item in al_menu_items if not item.get("hidden", False)
-  ]
+  menu_items = [item for item in al_menu_items if not item.get("hidden", False)]
 ---
 code: |
   al_menu_items_custom_items = []
@@ -144,7 +144,7 @@ code: |
 ---
 event: al_start_over
 code: |
-  command('new_session')
+  command("new_session")
 ---
 code: |
   enable_al_nav_sections = False
@@ -161,7 +161,7 @@ code: |
   send_icon = "envelope"
 ---
 code: |
-  # Override this in your package where possible, so that 
+  # Override this in your package where possible, so that
   # features that depend on the package name will work
   # from the playground
   package_name = str(current_context().package)
@@ -170,8 +170,8 @@ code: |
   # github_repo_name is used to direct issue feedback to the right repository
   # Normally you will customize this in your package
   if package_name and not "playground" in package_name:
-    github_repo_name = package_name.replace('.','-')
-  else:    
+    github_repo_name = package_name.replace(".", "-")
+  else:
     github_repo_name = "docassemble-AssemblyLine"
 ---
 code: |
@@ -187,8 +187,11 @@ code: |
   # then `github_user` should be `suffolklitlab`
 
   # defaults to the "default repository owner" value in the global configuration, under the "github issues" section
-  
-  github_user = get_config("github issues",{}).get("default repository owner","").strip() or "suffolklitlab"
+
+  github_user = (
+    get_config("github issues", {}).get("default repository owner", "").strip()
+    or "suffolklitlab"
+  )
 ---
 code: |
   # github_about_user is used to lookup the last commit date on the default about page
@@ -288,10 +291,12 @@ back button label: |
 ---
 code: |
   sharing_choices = [
-      {"tell_friend": word("Tell a friend about this website")},
+    {"tell_friend": word("Tell a friend about this website")},
   ]
   if showifdef("multi_user", False):
-      sharing_choices.append({"share_answers": word("Share my answers and progress with someone")})
+    sharing_choices.append(
+      {"share_answers": word("Share my answers and progress with someone")}
+    )
 ---
 id: Results of sharing
 continue button field: al_share_results
@@ -316,17 +321,29 @@ need:
   - al_share_answers_message_template
   - al_tell_a_friend_message_template
 code: |
-  if al_how_share_link == 'email_or_sms':
+  if al_how_share_link == "email_or_sms":
     if phone_number_is_valid(share_interview_contact_method):
       if al_sharing_type == "tell_friend":
-        success = send_sms(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
+        success = send_sms(
+          to=share_interview_contact_method,
+          template=al_tell_a_friend_message_template,
+        )
       else:
-        success = send_sms(to=share_interview_contact_method, template=al_share_answers_message_template)
+        success = send_sms(
+          to=share_interview_contact_method,
+          template=al_share_answers_message_template,
+        )
     else:
       if al_sharing_type == "tell_friend":
-        success = send_email(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
+        success = send_email(
+          to=share_interview_contact_method,
+          template=al_tell_a_friend_message_template,
+        )
       else:
-        success = send_email(to=share_interview_contact_method, template=al_share_answers_message_template)
+        success = send_email(
+          to=share_interview_contact_method,
+          template=al_share_answers_message_template,
+        )
   al_did_share_form = True
 ---
 ##########
@@ -370,7 +387,7 @@ code: |
 code: |
   res = github_modified_date(github_about_user, github_about_repo_name)
   if res:
-    package_updated_on = res.format('yyyy-MM-dd')
+    package_updated_on = res.format("yyyy-MM-dd")
   else:
     package_updated_on = None
 ---
@@ -536,17 +553,25 @@ buttons:
   - Start over: new_session
 ---
 code: |
-  al_show_email_to_user_on_errors = get_config("assembly line", {}).get("show email to user on errors")
+  al_show_email_to_user_on_errors = get_config("assembly line", {}).get(
+    "show email to user on errors"
+  )
 ---
 code: |
-  al_enable_incomplete_downloads = get_config("assembly line", {}).get("enable incomplete downloads")
+  al_enable_incomplete_downloads = get_config("assembly line", {}).get(
+    "enable incomplete downloads"
+  )
 ---
 code: |
-  al_enable_error_action_feedback_link = get_config("assembly line", {}).get("enable error action feedback link")
+  al_enable_error_action_feedback_link = get_config("assembly line", {}).get(
+    "enable error action feedback link"
+  )
 ---
 code: |
   # Provide a list of strings
-  al_custom_error_options = get_config("assembly line", {}).get("custom error actions",[])
+  al_custom_error_options = get_config("assembly line", {}).get(
+    "custom error actions", []
+  )
 ---
 event: al_error_action_download_screen
 id: emergency download screen

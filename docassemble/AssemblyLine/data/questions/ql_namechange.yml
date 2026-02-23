@@ -30,7 +30,7 @@ id: consent of parent 2 attached
 question: |
   Is ${ users[1] }'s consent attached?
 fields:
-  - ${ users[1] }'s consent is attached: users[0].parent_consent_attached
+  - ${ users[1] }'s consent is attached: users[1].parent_consent_attached
     datatype: yesnoradio
   - Why not?: users[1].no_consent_attached_explanation
     datatype: area

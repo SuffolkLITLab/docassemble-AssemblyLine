@@ -60,7 +60,11 @@ continue button label: |
   :save: Save changes
 ---
 code: |
-  rename_interview_answers(current_context().filename, current_context().session, new_name = al_sessions_snapshot_new_label)
+  rename_interview_answers(
+    current_context().filename,
+    current_context().session,
+    new_name=al_sessions_snapshot_new_label,
+  )
   log("New name saved", "success")
   al_sessions_rename_session = True
 ---

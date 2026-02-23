@@ -33,10 +33,10 @@ fields:
 code: |
   if limit_column_name:
     matching_results = find_matching_sessions(
-      search_keyword, user_id="all", metadata_filters = {
-        limit_column_name: (limit_column_value, "ILIKE")
-      }
-      )
+      search_keyword,
+      user_id="all",
+      metadata_filters={limit_column_name: (limit_column_value, "ILIKE")},
+    )
   else:
     matching_results = find_matching_sessions(search_keyword, user_id="all")
 ---
@@ -63,7 +63,13 @@ fields:
   - Which session do you want to load: interview_to_load
     datatype: integer
     code: |
-      [{idx: f"<b>{nice_interview_subtitle(answer, exclude_identical=False)}</b>" + f' ({answer.get("modtime", DAEmpty()).strftime("%B %d, %Y")})'} for idx, answer in enumerate(matching_results)]
+      [
+        {
+          idx: f"<b>{nice_interview_subtitle(answer, exclude_identical=False)}</b>"
+          + f' ({answer.get("modtime", DAEmpty()).strftime("%B %d, %Y")})'
+        }
+        for idx, answer in enumerate(matching_results)
+      ]
 ---
 event: show_selected_interview
 id: show the selected interview

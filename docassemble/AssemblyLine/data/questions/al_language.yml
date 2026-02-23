@@ -30,13 +30,13 @@ code: |
 ---
 code: |
   if enable_al_language:
-    if url_args.get('lang'):
-      al_user_language = url_args.get('lang')
+    if url_args.get("lang"):
+      al_user_language = url_args.get("lang")
     else:
       al_user_language = al_user_default_language
 ---
 event: al_change_language
 code: |
-  if 'lang' in action_arguments():
-    al_user_language = action_argument('lang')
+  if "lang" in action_arguments():
+    al_user_language = action_argument("lang")
     set_language(al_user_language)

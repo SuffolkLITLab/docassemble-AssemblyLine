@@ -750,4 +750,4 @@ ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير مو�
   them: هم, themself: أنفسهم, themselves: أنفسهم, they: هم, to proceed.: للمتابعة.,
   'true': حقيقي, unavailable: غير متاح, us: نحن, v.: فعل, was saved at: تم حفظه في,
   we: نحن, x: س, y: ي, year: سنة, yes: نعم, you: أنت, yourself: نفسك, yourselves: أنفسكم,
-  Åland Islands: جزر آلاند}
+  Åland Islands: جزر آلاند, Month: شهر, Day: يوم, Year: سنة}

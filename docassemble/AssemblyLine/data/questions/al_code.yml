@@ -22,14 +22,14 @@ code: |
   form_delivery_complete = True
 ---
 code: |
-  court_email = court_emails.get(trial_court.name,None)
+  court_email = court_emails.get(trial_court.name, None)
   if not court_email:
     found_email = False
   else:
     found_email = True
 ---
 code: |
-  bcc_failsafe = court_emails.get('Failsafe Address',None)
+  bcc_failsafe = court_emails.get("Failsafe Address", None)
 ---
 comment: |
   You are encouraged to overwrite these emails during testing!
@@ -51,22 +51,50 @@ code: |
   else:
     email_to_use = dev_email_to_use
     bcc_email = dev_bcc_email
-  
+
   # temporary for testing
   # email_to_use = "massaccess@suffolk.edu"
 
-  if task_not_yet_performed('send email'):
+  if task_not_yet_performed("send email"):
     log(f"Court email is {court_email}, sending email to {email_to_use}")
     email_success = False
     if should_cc_user:
-      log('Sending email to ' + email_to_use + ' and ccing ' + cc_email + ' for ' + str(users) + ' bcc to ' + bcc_email)
-      email_success = send_email(to=email_to_use, template=email_to_court_template, task='send email', 
-                                 cc=cc_email, bcc=bcc_email, attachments=al_final_form_to_file.as_pdf_list(key='final'))
+      log(
+        "Sending email to "
+        + email_to_use
+        + " and ccing "
+        + cc_email
+        + " for "
+        + str(users)
+        + " bcc to "
+        + bcc_email
+      )
+      email_success = send_email(
+        to=email_to_use,
+        template=email_to_court_template,
+        task="send email",
+        cc=cc_email,
+        bcc=bcc_email,
+        attachments=al_final_form_to_file.as_pdf_list(key="final"),
+      )
     else:
-      log('Sending email to ' + email_to_use + ' and no cc ' + ' for ' + str(users) + ' bcc to ' + bcc_email)
-      email_success = send_email(to=email_to_use, template=email_to_court_template, task='send email', 
-                                 attachments=al_final_form_to_file.as_pdf_list(key='final'), bcc=bcc_email)
-    mark_task_as_performed('send email')
+      log(
+        "Sending email to "
+        + email_to_use
+        + " and no cc "
+        + " for "
+        + str(users)
+        + " bcc to "
+        + bcc_email
+      )
+      email_success = send_email(
+        to=email_to_use,
+        template=email_to_court_template,
+        task="send email",
+        attachments=al_final_form_to_file.as_pdf_list(key="final"),
+        bcc=bcc_email,
+      )
+    mark_task_as_performed("send email")
   sent_email_to_court = True
 ---
 ##############################################################
@@ -90,7 +118,7 @@ code: |
   # Gets the number of pages, plus the first cover page
   # TODO(brycew): figure out a better way to estimate the number of pages,
   # including addendum, without generating a full file
-  al_num_package_pages = al_court_bundle.as_pdf(key='preview').num_pages() + 1
+  al_num_package_pages = al_court_bundle.as_pdf(key="preview").num_pages() + 1
 ---
 code: |
   # You can define this in the interview's code block.
@@ -101,7 +129,7 @@ code: |
   # This is a fallback package title to avoid errors on new forms
   # It defines package_title as the metadata title.
   # You may want a better form title for most interviews
-  package_title = all_variables(special='metadata').get('title','').rstrip()
+  package_title = all_variables(special="metadata").get("title", "").rstrip()
 ---
 attachment:
   variable name: al_cover_page[i]
@@ -126,27 +154,36 @@ code: |
   elif signature_choice == "typed_signature":
     for signature in signature_fields:
       # Signature fields are strings like "users[0].signature". If the string ends in .signature, remove that and replace with .typed_signature, only at the end of the string
-      if signature.endswith('signature'):
-        typed_signature = signature[:-9] + 'typed_signature'
+      if signature.endswith("signature"):
+        typed_signature = signature[:-9] + "typed_signature"
         define(signature, DAFile(signature, filename="signature.png"))
         value(signature).initialize()
-        create_signature(value(typed_signature), value(signature).path(), signature_prefix = al_typed_signature_prefix, font_name = al_typed_signature_font)
+        create_signature(
+          value(typed_signature),
+          value(signature).path(),
+          signature_prefix=al_typed_signature_prefix,
+          font_name=al_typed_signature_font,
+        )
       else:
-        log("Signature field " + signature + " does not end with .signature, not creating typed signature")
-  elif signature_choice in ['this device', 'this_device']:
+        log(
+          "Signature field "
+          + signature
+          + " does not end with .signature, not creating typed signature"
+        )
+  elif signature_choice in ["this device", "this_device"]:
     for signature in signature_fields:
-      value(signature)    
+      value(signature)
   # Check for Branch 2 or 3
-  elif signature_choice == 'phone':
+  elif signature_choice == "phone":
     saw_signature_qrcode
     # User will click next. link_cell will only be defined if they chose the texting option
-    if showifdef("link_cell") and task_not_yet_performed('send signature link'): 
+    if showifdef("link_cell") and task_not_yet_performed("send signature link"):
       # They used the text option
-      send_sms(task='send signature link', to=link_cell,template=interview_link)
+      send_sms(task="send signature link", to=link_cell, template=interview_link)
       signature_wait_screen
       for signature in signature_fields:
         value(signature)
-    else: # Branch 3: They used the QR Code. No special screen, just continue
+    else:  # Branch 3: They used the QR Code. No special screen, just continue
       for signature in signature_fields:
         value(signature)
     # Show the follow-up if they sent the link to their phone by QR or by SMS
@@ -157,14 +194,14 @@ code: |
 code: |
   # Sometimes we have values that can be set from interview_metadata.
   # They don't always work, but interview author can override.
-  
+
   # Some interviews have multiple interview_metadata keys. Look in the 1st one
-  first_form_key = next(iter(interview_metadata),'')
-  if isinstance(interview_metadata.get(first_form_key,{}), dict):
-    first_form = interview_metadata.get(first_form_key,{})
+  first_form_key = next(iter(interview_metadata), "")
+  if isinstance(interview_metadata.get(first_form_key, {}), dict):
+    first_form = interview_metadata.get(first_form_key, {})
   else:
     first_form = {}
-  del(first_form_key)
+  del first_form_key
 ---
 depends on:
   - user_ask_role
@@ -175,12 +212,12 @@ code: |
   # define user_role to be either "defendant" or "plaintiff",
   # either by checking interview_metadata or asking the user.
   # The only valid values for user_role are "plaintiff" and "defendant".
-  
+
   # We will check for the "typical_role" key.
   # Some older wizarded code doesn't define `typical_role`, so fall back
   # to "unknown" if the key is not present.
   # first_form is the first entry in interview_metadata
-  if not first_form.get("typical_role", 'unknown') == 'unknown':
+  if not first_form.get("typical_role", "unknown") == "unknown":
     user_role = first_form.get("typical_role")
   else:
     # If the user role was set to "unknown" at the time wizard run
