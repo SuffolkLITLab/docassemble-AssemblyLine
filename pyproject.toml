@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "docassemble.AssemblyLine"
-version = "4.3.0"
+version = "4.4.0"
 description = "Quickly go from a paper court form to a runnable, guided, step-by-step web application powered by Docassemble. Swap out branding and pre-built questions to meet your needs."
 readme = "README.md"
 authors = [
