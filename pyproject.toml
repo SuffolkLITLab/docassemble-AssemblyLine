@@ -13,7 +13,7 @@ authors = [
     { name="Suffolk Legal Innovation and Technology Lab", email="litlab@suffolk.edu" },
 ]
 dependencies = [
-    "docassemble.ALToolbox>=0.12.0",
+    "docassemble.ALToolbox>=0.16.0",
     "docassemble.GitHubFeedbackForm>=0.4.1.1",
 ]
 license="MIT"

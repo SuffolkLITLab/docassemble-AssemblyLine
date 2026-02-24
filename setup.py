@@ -53,7 +53,7 @@ setup(name='docassemble.AssemblyLine',
       license='The MIT License (MIT)',
       url='https://courtformsonline.org',
       packages=find_namespace_packages(),
-      install_requires=['docassemble.ALToolbox>=0.12.0', 'docassemble.GithubFeedbackForm>=0.4.1.1'],
+      install_requires=['docassemble.ALToolbox>=0.16.0', 'docassemble.GithubFeedbackForm>=0.4.1.1'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/AssemblyLine/', package='docassemble.AssemblyLine'),
      )
