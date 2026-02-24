@@ -34,12 +34,17 @@ code: |
     key=action_argument("key"),
     preferred_formats=preferred_formats,
   )
+  email_arg = action_argument('email')
+  if isinstance(email_arg, list):
+    email_str = ', '.join(email_arg)
+  else:
+    email_str = str(email_arg)
   if email_success:
     # Exact phrase below is in Docassemble's words dictionary
-    log(word("E-mail was sent to") + " " + action_argument("email"), "success")
+    log(f" {word('E-mail was sent to')} {email_str}", "success")
   else:
     # E-mail failed is not in the default Docassemble words dictionary
-    log(word("E-mail failed"), "error")
+    log(f" {word('E-mail failed')} to {email_str}", "error")
 ---
 generic object: ALDocumentBundle
 event: x.send_email_to_action_event
@@ -67,10 +72,15 @@ code: |
     key=action_argument("key"),
     preferred_formats=preferred_formats,
   )
-  if email_success:
-    log("Email sent to " + action_argument("email"))  # to log file
+  email_arg = action_argument('email')
+  if isinstance(email_arg, list):
+    email_str = ', '.join(email_arg)
   else:
-    log(word("E-mail failed to ") + action_argument("email"))
+    email_str = str(email_arg)
+  if email_success:
+    log(f"Email sent to {email_str}")  # to log file
+  else:
+    log(f" {word('E-mail failed to ')} {email_str}")
 
   json_response({"success": email_success})
 ---
