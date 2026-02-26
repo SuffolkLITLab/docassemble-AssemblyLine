@@ -341,9 +341,9 @@ subquestion: |
 
   Send button which allows the user to edit the email address.
   
-  multi_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False, label="Custom send label", icon="search" )
+  multi_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False, label="Custom send label", icon="search", email_legend_class="h5" )
   
-  ${ multi_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False, label="Custom send label", icon="search" ) }
+  ${ multi_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False, label="Custom send label", icon="search", email_legend_class="h5" ) }
   
   ---
   single_pdf_bundle_1.send_button_html( key="test_key", show_editable_checkbox=False, label="Custom send label", icon="search" )
