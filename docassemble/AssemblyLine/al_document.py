@@ -1764,7 +1764,7 @@ class ALDocumentBundle(DAList):
         Returns:
             bool: True if there's at least one enabled document, otherwise False.
         """
-        return any(document.is_enabled(refresh=refresh) for document in self.elements)
+        return any(document.is_enabled(refresh=refresh) for document in self)
 
     def enabled_documents(self, refresh: bool = True) -> List[Any]:
         """
@@ -1776,11 +1776,7 @@ class ALDocumentBundle(DAList):
         Returns:
             List[Any]: List of enabled documents.
         """
-        return [
-            document
-            for document in self.elements
-            if document.is_enabled(refresh=refresh)
-        ]
+        return [document for document in self if document.is_enabled(refresh=refresh)]
 
     def as_flat_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
         """
