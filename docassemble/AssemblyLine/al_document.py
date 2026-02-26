@@ -1581,6 +1581,22 @@ class ALDocumentBundle(DAList):
             self.auto_gather = False
         if "gathered" not in kwargs:
             self.gathered = True
+        if "add_page_numbers" not in kwargs:
+            self.add_page_numbers = False
+        if "page_number_prefix" not in kwargs:
+            self.page_number_prefix = ""
+        if "page_number_start" not in kwargs:
+            self.page_number_start = 1
+        if "page_number_digits" not in kwargs:
+            self.page_number_digits = 5
+        if "page_number_area" not in kwargs:
+            self.page_number_area = None
+        if "page_number_font_size" not in kwargs:
+            self.page_number_font_size = 10
+        if "page_number_horizontal_offset" not in kwargs:
+            self.page_number_horizontal_offset = 15
+        if "page_number_vertical_offset" not in kwargs:
+            self.page_number_vertical_offset = 15
         self.initializeAttribute("cache", DALazyAttribute)
         self.always_enabled = hasattr(self, "enabled") and self.enabled
         # Pre-cache some DALazyTemplates we set up to aid translation that won't
@@ -1647,6 +1663,16 @@ class ALDocumentBundle(DAList):
                 [document.as_pdf(key=key, refresh=refresh) for document in files],
                 filename=f"{base_name(self.filename)}{append_suffix}.pdf",
                 pdfa=pdfa,
+            )
+        if self.add_page_numbers:
+            pdf.bates_number(
+                prefix=self.page_number_prefix,
+                start=self.page_number_start,
+                digits=self.page_number_digits,
+                area=self.page_number_area,
+                font_size=self.page_number_font_size,
+                offset_horizontal=self.page_number_horizontal_offset,
+                offset_vertical=self.page_number_vertical_offset,
             )
         pdf.title = self.title
         setattr(self.cache, safe_key, pdf)
