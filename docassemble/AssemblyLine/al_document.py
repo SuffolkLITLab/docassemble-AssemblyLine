@@ -2385,6 +2385,7 @@ class ALDocumentBundle(DAList):
         label: str = "Send",
         icon: str = "envelope",
         preferred_formats: Optional[Union[str, List[str]]] = None,
+        email_legend_class: str = "h4",
     ) -> str:
         """
         Generate HTML for an input box and button that allows someone to send the bundle
@@ -2404,6 +2405,8 @@ class ALDocumentBundle(DAList):
             icon (str, optional): The Fontawesome icon for the button. Defaults
                 to "envelope".
             preferred_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
+            email_legend_class (str, optional): CSS class applied to the email
+                section legend. Defaults to "h4".
 
         Returns:
             str: The generated HTML string for the input box and button.
@@ -2443,7 +2446,7 @@ class ALDocumentBundle(DAList):
         # Container of whole email section with header
         return_str = f"""
   <fieldset class="al_send_bundle al_send_section_alone {html_safe_str(self.instanceName)}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
-    <legend class="h4 al_doc_email_header">{str(self.get_email_copy)}</legend> 
+    <legend class="{email_legend_class} al_doc_email_header">{str(self.get_email_copy)}</legend> 
     """
         # "Editable" checkbox
         if (
