@@ -1,4 +1,4 @@
-# For usage, see https://suffolklitlab.org/docassemble-AssemblyLine-documentation/docs/framework/magic_variables
+# For usage, see https://assemblyline.suffolklitlab.org/docs/components/AssemblyLine/magic_variables
 ---
 include:
   - al_language.yml
