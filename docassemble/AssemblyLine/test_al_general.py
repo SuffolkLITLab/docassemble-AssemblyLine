@@ -418,6 +418,19 @@ class TestALIndividual(unittest.TestCase):
             self.individual.pronoun_possessive(item, capitalize=True), "Its fish"
         )
 
+        # Test for when user provides a pronoun string that cannot be parsed
+        # (doesn't follow the required 2-3 slash format), should fall back to using name's target
+        self.individual.pronouns = "custom"
+        self.individual.person_type = "individual"
+        self.individual.name_first = "John"
+        self.individual.name_last = "Smith"
+        # When pronouns can't be parsed, should use "{name}'s {target}"
+        self.assertEqual(self.individual.pronoun_possessive(item), "John Smith's fish")
+        self.assertEqual(
+            self.individual.pronoun_possessive(item, capitalize=True),
+            "John Smith's fish",
+        )
+
     def test_pronoun_subjective(self):
         self.individual.pronouns = None
         self.individual.person_type = "individual"
