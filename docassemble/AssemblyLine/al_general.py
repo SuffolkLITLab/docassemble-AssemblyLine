@@ -1914,7 +1914,7 @@ class ALIndividual(Individual):
             if len(pronouns_to_use) > 0:
                 output = "/".join(pronouns_to_use)
             else:
-                output = default
+                output = f"{default}'s {target}"
         elif hasattr(self, "person_type") and self.person_type in [
             "business",
             "organization",
@@ -1928,7 +1928,7 @@ class ALIndividual(Individual):
             else:
                 output = their(target, **kwargs)
         else:
-            output = default
+            output = f"{default}'s {target}"
 
         if "capitalize" in kwargs and kwargs["capitalize"]:
             return capitalize(output)
