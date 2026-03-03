@@ -18,7 +18,7 @@ comment: |
       new form label: Start a new form
       new form url: https://courtformsonline.org
       logo url: null # Defaults to `app homepage`
-      logo image url: https://app.yourserver.org/packagestatic/docassemble.AssemblyLine/ma_logo.png
+      logo image url: https://app.example.org/packagestatic/docassemble.AssemblyLine/ma_logo.png
       logo image alt: Logo
       answer sets title: Answer sets
       logo title row 1: null # Defaults to `interview page title`

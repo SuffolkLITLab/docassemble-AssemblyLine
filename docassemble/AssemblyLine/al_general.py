@@ -1903,13 +1903,11 @@ class ALIndividual(Individual):
                         self.pronouns_self_described
                     ):
                         pronouns_to_use.append(
-                            parse_custom_pronouns(self.pronouns_self_described)["p"]
-                            + " "
-                            + target
+                            f"{parse_custom_pronouns(self.pronouns_self_described)['p']} {target}"
                         )
                     elif has_parsable_pronouns(pronoun):
                         pronouns_to_use.append(
-                            parse_custom_pronouns(pronoun)["p"] + " " + target
+                            f"{parse_custom_pronouns(pronoun)['p']} {target}"
                         )
             if len(pronouns_to_use) > 0:
                 output = "/".join(pronouns_to_use)

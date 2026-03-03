@@ -1118,11 +1118,13 @@ class ALDocument(DADict):
                 main_doc, addendum_doc, filename=filename, pdfa=pdfa
             )
             concatenated.title = self.title
+            concatenated.commit()
             setattr(self.cache, safe_key, concatenated)
             return concatenated
         else:
             if pdfa:
                 pdf_to_pdfa(main_doc.path())
+            main_doc.commit()
             setattr(self.cache, safe_key, main_doc)
             return main_doc
 
@@ -1154,30 +1156,47 @@ class ALDocument(DADict):
                     filename=filename + ".docx",
                 )
                 the_file.title = self.title
+                the_file.commit()
                 return the_file
             except:
                 return self.as_pdf(key=key)
 
-        if self._is_docx(key=key):
-            the_file = self[key].docx
+        if self._is_docx(key=key, refresh=refresh):
+            if refresh:
+                main_doc = self.getitem_fresh(key)
+            else:
+                main_doc = self[key]
+            the_file = main_doc.docx
             the_file.title = self.title
-            the_file.set_attributes(filename=filename + ".docx")
+            the_file.filename = filename + ".docx"
+            try:
+                the_file.set_attributes(filename=filename + ".docx")
+            except:
+                pass
+            the_file.commit()
             return the_file
 
         return self.as_pdf(key=key, append_matching_suffix=append_matching_suffix)
 
-    def _is_docx(self, key: str = "final") -> bool:
+    def _is_docx(self, key: str = "final", refresh: bool = True) -> bool:
         """
         Checks if the document file format is DOCX.
 
         Args:
             key (str): Document version key. Defaults to "final".
+            refresh (bool): If True, gets a fresh version of the document. Defaults to True.
 
         Returns:
             bool: True if the document format is DOCX, False otherwise.
         """
-        if isinstance(self[key], DAFileCollection) and hasattr(self[key], "docx"):
+        if refresh:
+            item = self.getitem_fresh(key)
+        else:
+            item = self[key]
+
+        if isinstance(item, DAFileCollection) and hasattr(item, "docx"):
             return True
+        return False
         if isinstance(self[key], DAFile) and hasattr(self[key], "docx"):
             return True
 
@@ -1649,6 +1668,7 @@ class ALDocumentBundle(DAList):
                 pdfa=pdfa,
             )
         pdf.title = self.title
+        pdf.commit()
         setattr(self.cache, safe_key, pdf)
 
         if hasattr(self, "default_parity") and not ensure_parity:
@@ -1662,6 +1682,7 @@ class ALDocumentBundle(DAList):
                 return pdf
             else:
                 add_blank_page(pdf.path())
+                pdf.commit()
 
         return pdf
 
@@ -1719,7 +1740,7 @@ class ALDocumentBundle(DAList):
             docs = []
             for doc in self.enabled_documents(refresh=refresh):
                 docs.append(doc.as_docx(key=key, refresh=refresh))
-                if include_pdf and doc._is_docx():
+                if include_pdf and doc._is_docx(key=key, refresh=refresh):
                     docs.append(doc.as_pdf(key=key, pdfa=pdfa, refresh=refresh))
         elif format == "original":
             # We don't try to convert to PDF if format=="original" (for things like XLSX files)
@@ -1738,6 +1759,7 @@ class ALDocumentBundle(DAList):
             zip.title = self.title
         else:
             zip.title = title
+        zip.commit()
         setattr(self.cache, zip_key, zip)
 
         return zip
@@ -1949,7 +1971,7 @@ class ALDocumentBundle(DAList):
                     append_matching_suffix=append_matching_suffix,
                 )
                 result["download_filename"] = filename_root + ".pdf"
-            if docx and doc._is_docx(key=key):
+            if docx and doc._is_docx(key=key, refresh=refresh):
                 result["docx"] = doc.as_docx(
                     key=key,
                     refresh=refresh,
@@ -1989,11 +2011,15 @@ class ALDocumentBundle(DAList):
                 format=zip_format,
                 include_pdf=zip_include_pdf,
             )
+            if bundled_zip:
+                bundled_zip.commit()
         else:
             bundled_zip = None
 
         if len(enabled_docs) > 1 and include_full_pdf:
             bundled_pdf = self.as_pdf(key=key, pdfa=pdfa)
+            if bundled_pdf:
+                bundled_pdf.commit()
         else:
             bundled_pdf = None
 

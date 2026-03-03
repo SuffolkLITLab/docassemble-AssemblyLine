@@ -417,7 +417,6 @@ class TestALIndividual(unittest.TestCase):
         self.assertEqual(
             self.individual.pronoun_possessive(item, capitalize=True), "Its fish"
         )
-
     def test_pronoun_subjective(self):
         self.individual.pronouns = None
         self.individual.person_type = "individual"
