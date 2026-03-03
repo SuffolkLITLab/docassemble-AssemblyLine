@@ -422,8 +422,8 @@ class TestALIndividual(unittest.TestCase):
         # (doesn't follow the required 2-3 slash format), should fall back to using name's target
         self.individual.pronouns = "custom"
         self.individual.person_type = "individual"
-        self.individual.name_first = "John"
-        self.individual.name_last = "Smith"
+        self.individual.name.first = "John"
+        self.individual.name.last = "Smith"
         # When pronouns can't be parsed, should use "{name}'s {target}"
         self.assertEqual(self.individual.pronoun_possessive(item), "John Smith's fish")
         self.assertEqual(
