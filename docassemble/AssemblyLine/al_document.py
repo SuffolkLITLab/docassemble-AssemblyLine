@@ -2768,9 +2768,14 @@ class ALExhibit(DAObject):
         self,
         *,
         refresh: bool = False,
-        prefix: str = "",
         pdfa: bool = False,
         add_page_numbers: bool = True,
+        page_number_prefix: str = "",
+        page_number_digits: int = 5,
+        page_number_area=None,
+        page_number_font_size: float = 10,
+        page_number_offset_horizontal: float = 15,
+        page_number_offset_vertical: float = 15,
         add_cover_page: bool = True,
         filename: Optional[str] = None,
         append_matching_suffix: bool = True,
@@ -2782,9 +2787,14 @@ class ALExhibit(DAObject):
 
         Args:
             refresh (bool): If True, forces the exhibit to refresh before generating the PDF. (unused, provided for signature compatibility)
-            prefix (str): Prefix for Bates numbering if 'add_page_numbers' is True.
             pdfa (bool): If True, the generated PDF will be in PDF/A format.
             add_page_numbers (bool): If True, apply Bates numbering starting from 'self.start_page'.
+            page_number_prefix (str): If add_page_numbers is True, this gets added to the beginning on the bates number each page (e.g. `EX-`).
+            page_number_digits (int): How many digits (i.e. leading 0s) that the bates number will have
+            page_number_area (str): Where on the page the bates number will go ("TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT" (default))
+            page_number_font_size (float): How big the bates page number will be in points (default is 10).
+            page_number_offset_horizontal (float): The number of pixels that the bates page number is offset from the left / right of the page.
+            page_number_offset_vertical (float): The number of pixels that the bates page number is offset from the top / bottom of the page.
             add_cover_page (bool): If True, prepend the exhibit with a cover page.
             filename (Optional[str]): Custom filename for the generated PDF. Default is "exhibits.pdf".
             append_matching_suffix (bool): If True, appends a suffix to the filename based on certain matching criteria.
@@ -2812,7 +2822,15 @@ class ALExhibit(DAObject):
             )
 
         if add_page_numbers:
-            concatenated_pages.bates_number(prefix=prefix, start=self.start_page)
+            concatenated_pages.bates_number(
+                start=self.start_page,
+                prefix=page_number_prefix,
+                digits=page_number_digits,
+                area=page_number_area,
+                font_size=page_number_font_size,
+                offset_horizontal=page_number_offset_horizontal,
+                offset_vertical=page_number_offset_vertical,
+            )
 
         setattr(self._cache, safe_key, concatenated_pages)
         return getattr(self._cache, safe_key)
@@ -2946,6 +2964,12 @@ class ALExhibitList(DAList):
         filename="file.pdf",
         pdfa: bool = False,
         add_page_numbers: bool = False,
+        page_number_prefix: str = "",
+        page_number_digits: int = 5,
+        page_number_area=None,
+        page_number_font_size: float = 10,
+        page_number_offset_horizontal: float = 15,
+        page_number_offset_vertical: float = 15,
         toc_pages: int = 0,
         append_matching_suffix: bool = True,
     ) -> DAFile:
@@ -2956,6 +2980,12 @@ class ALExhibitList(DAList):
             filename (str): Desired filename for the generated PDF.
             pdfa (bool): If True, generates the PDF in PDF/A format.
             add_page_numbers (bool): If True, adds page numbers to the generated PDF.
+            page_number_prefix (str): What the bates number added to each page should start with (e.g. `EX-`).
+            page_number_digits (int): How many digits (i.e. leading 0s) that the bates number will have
+            page_number_area (str): Where on the page the bates number will go ("TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT" (default))
+            page_number_font_size (float): How big the bates page number will be in points (default is 10).
+            page_number_offset_horizontal (float): The number of pixels that the bates page number is offset from the left / right of the page.
+            page_number_offset_vertical (float): The number of pixels that the bates page number is offset from the top / bottom of the page.
             toc_pages (int): Expected number of pages in the table of contents.
             append_matching_suffix (bool): If True, appends matching suffix to the filename.
 
@@ -2967,12 +2997,19 @@ class ALExhibitList(DAList):
                 exhibit.cover_page
         if self.include_table_of_contents and toc_pages != 1:
             self._update_page_numbers(toc_guess_pages=toc_pages)
+        if not page_number_prefix and self.bates_prefix:
+            page_number_prefix = self.bates_prefix
         return pdf_concatenate(
             [
                 exhibit.as_pdf(
                     add_cover_page=self.include_exhibit_cover_pages,
                     add_page_numbers=add_page_numbers,
-                    prefix=self.bates_prefix,
+                    page_number_prefix=page_number_prefix,
+                    page_number_digits=page_number_digits,
+                    page_number_area=page_number_area,
+                    page_number_font_size=page_number_font_size,
+                    page_number_offset_horizontal=page_number_offset_horizontal,
+                    page_number_offset_vertical=page_number_offset_vertical,
                 )
                 for exhibit in self
             ],
@@ -3105,12 +3142,19 @@ class ALExhibitDocument(ALDocument):
     has_addendum: bool
     auto_labeler: Callable
     auto_ocr: bool
+    # Deprecated
     bates_prefix: str
     maximum_size: int
     maximum_size_per_doc: int
     suffix_to_append: str
     exhibits: ALExhibitList
     table_of_contents: DAFile
+    page_number_prefix: str
+    page_number_digits: int
+    page_number_area: str | None
+    page_number_font_size: float
+    page_number_offset_horizontal: float
+    page_number_offset_vertical: float
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
@@ -3125,8 +3169,6 @@ class ALExhibitDocument(ALDocument):
             self.exhibits.auto_labeler = self.auto_labeler
         if hasattr(self, "auto_ocr"):
             self.exhibits.auto_ocr = self.auto_ocr
-        if hasattr(self, "bates_prefix"):
-            self.exhibits.bates_prefix = self.bates_prefix
         if hasattr(self, "include_exhibit_cover_pages"):
             self.exhibits.include_exhibit_cover_pages = self.include_exhibit_cover_pages
         else:
@@ -3144,12 +3186,29 @@ class ALExhibitDocument(ALDocument):
         else:
             self.include_table_of_contents = True
             self.exhibits.include_table_of_contents = True
+        if hasattr(self, "bates_prefix"):
+            self.exhibits.bates_prefix = self.bates_prefix
         if not hasattr(self, "add_page_numbers"):
             self.add_page_numbers = False
+        self._set_default_attributes()
         self.has_addendum = False
         if not hasattr(self, "suffix_to_append"):
             # When the key is "preview", append it to the file name
             self.suffix_to_append = "preview"
+
+    def _set_default_attributes(self) -> None:
+        if not hasattr(self, "page_number_prefix"):
+            self.page_number_prefix = ""
+        if not hasattr(self, "page_number_digits"):
+            self.page_number_digits = 5
+        if not hasattr(self, "page_number_area"):
+            self.page_number_area = None
+        if not hasattr(self, "page_number_font_size"):
+            self.page_number_font_size = 10
+        if not hasattr(self, "page_number_offset_horizontal"):
+            self.page_number_offset_horizontal = 15
+        if not hasattr(self, "page_number_offset_vertical"):
+            self.page_number_offset_vertical = 15
 
     def has_overflow(self) -> bool:
         """
@@ -3225,12 +3284,21 @@ class ALExhibitDocument(ALDocument):
             filename = base_name(self.filename) + ".pdf"
 
         if len(self.exhibits):
+            self._set_default_attributes()
             if self.include_table_of_contents:
                 toc_pages = self.table_of_contents.num_pages()
                 return pdf_concatenate(
                     self.table_of_contents,
                     self.exhibits.as_pdf(
-                        add_page_numbers=self.add_page_numbers, toc_pages=toc_pages
+                        add_page_numbers=self.add_page_numbers,
+                        page_number_prefix=self.page_number_prefix,
+                        page_number_digits=self.page_number_digits,
+                        page_number_area=self.page_number_area,
+                        page_number_font_size=self.page_number_font_size,
+                        page_number_offset_horizontal=self.page_number_offset_horizontal,
+                        page_number_offset_vertical=self.page_number_offset_vertical,
+                        toc_pages=toc_pages,
+                        pdfa=pdfa,
                     ),
                     filename=filename,
                     pdfa=pdfa,
@@ -3238,6 +3306,12 @@ class ALExhibitDocument(ALDocument):
             else:
                 return self.exhibits.as_pdf(
                     add_page_numbers=self.add_page_numbers,
+                    page_number_prefix=self.page_number_prefix,
+                    page_number_digits=self.page_number_digits,
+                    page_number_area=self.page_number_area,
+                    page_number_font_size=self.page_number_font_size,
+                    page_number_offset_horizontal=self.page_number_offset_horizontal,
+                    page_number_offset_vertical=self.page_number_offset_vertical,
                     filename=filename,
                     pdfa=pdfa,
                 )

@@ -31,7 +31,7 @@ code: |
 ---
 objects:
   # No addenda, all start enabled
-  - multi_bundle_1: ALDocumentBundle.using(elements=[pdf_1, docx_1, notice_to_quit], title="Multiple docs 1", filename="multi_bundle_1" )
+  - multi_bundle_1: ALDocumentBundle.using(elements=[pdf_1, docx_1, notice_to_quit], title="Multiple docs 1", filename="multi_bundle_1", add_page_numbers=True, page_numbers_font_size=20 )
   - single_pdf_bundle_1: ALDocumentBundle.using(elements=[pdf_1], title="One pdf", filename="single_pdf_1" )
   - single_docx_bundle_1: ALDocumentBundle.using(elements=[docx_1], title="One docx", filename="single_docx_1" )
 ---
