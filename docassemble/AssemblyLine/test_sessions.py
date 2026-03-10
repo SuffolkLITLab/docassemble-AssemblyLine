@@ -63,10 +63,15 @@ class TestAnswerSetImportSafety(unittest.TestCase):
 
     @patch("docassemble.AssemblyLine.sessions.get_config")
     def test_sanitize_respects_allowlist(self, mock_get_config):
-        mock_get_config.return_value = {
-            "answer set import allowed variables": ["users_name"],
-            "answer set import require signed": False,
-        }
+        def mock_get_config_func(section, default=None):
+            if section == "assembly line":
+                return {
+                    "answer set import allowed variables": ["users_name"],
+                    "answer set import require signed": False,
+                }
+            return default
+
+        mock_get_config.side_effect = mock_get_config_func
         payload = {
             "users_name": "Alex",
             "users_city": "Boston",
@@ -383,7 +388,10 @@ class TestAnswerSetImportSafety(unittest.TestCase):
     def test_target_interview_vars(
         self, mock_get_config, mock_set_vars, mock_current_context, mock_get_interview
     ):
-        mock_get_config.return_value = {}
+        def mock_get_config_func(section, default=None):
+            return default
+
+        mock_get_config.side_effect = mock_get_config_func
 
         class QStub:
             pass
