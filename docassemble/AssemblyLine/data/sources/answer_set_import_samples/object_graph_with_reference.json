@@ -1,0 +1,45 @@
+{
+  "users": {
+    "_class": "docassemble.AssemblyLine.al_general.ALPeopleList",
+    "instanceName": "users",
+    "object_type": {
+      "_class": "type",
+      "name": "docassemble.AssemblyLine.al_general.ALIndividual"
+    },
+    "elements": [
+      {
+        "_class": "docassemble.AssemblyLine.al_general.ALIndividual",
+        "instanceName": "users[0]",
+        "name": {
+          "_class": "docassemble.base.util.IndividualName",
+          "instanceName": "users[0].name",
+          "first": "Client",
+          "last": "Example"
+        },
+        "agent": {
+          "_class": "docassemble.AssemblyLine.al_general.ALIndividual",
+          "instanceName": "spouse"
+        },
+        "custom_text": "notes",
+        "custom_float": 1.25,
+        "custom_dict": {
+          "_class": "docassemble.base.util.DADict",
+          "instanceName": "users[0].custom_dict",
+          "elements": {
+            "case": "A123"
+          }
+        }
+      },
+      {
+        "_class": "docassemble.AssemblyLine.al_general.ALIndividual",
+        "instanceName": "spouse",
+        "name": {
+          "_class": "docassemble.base.util.IndividualName",
+          "instanceName": "spouse.name",
+          "first": "Spouse",
+          "last": "Example"
+        }
+      }
+    ]
+  }
+}
