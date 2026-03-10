@@ -210,7 +210,12 @@ class TestAnswerSetImportSafety(unittest.TestCase):
         )
         sessions.load_interview_json(payload)
         report = sessions.get_last_import_report()
-        self.assertTrue(any(item["path"] == "evil_type" and "not allowed" in item.get("reason", "") for item in report["rejected"]))
+        self.assertTrue(
+            any(
+                item["path"] == "evil_type" and "not allowed" in item.get("reason", "")
+                for item in report["rejected"]
+            )
+        )
 
     @patch("docassemble.AssemblyLine.sessions.set_variables")
     def test_adversarial_object_attr_dunder(self, mock_set_variables):
@@ -220,7 +225,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
                 "users": {
                     "_class": "docassemble.base.util.DAObject",
                     "instanceName": "users",
-                    "__globals__": {"evil": "code"}
+                    "__globals__": {"evil": "code"},
                 }
             }
         )
@@ -228,7 +233,13 @@ class TestAnswerSetImportSafety(unittest.TestCase):
         report = sessions.get_last_import_report()
         # the key check fails at structural parsing phase before getting to sanitizer object validation,
         # which means the entire document is rejected with path '$'
-        self.assertTrue(any(item["path"] == "$" and "forbidden key '__globals__'" in item.get("reason", "") for item in report["rejected"]))
+        self.assertTrue(
+            any(
+                item["path"] == "$"
+                and "forbidden key '__globals__'" in item.get("reason", "")
+                for item in report["rejected"]
+            )
+        )
 
     @patch("docassemble.AssemblyLine.sessions.set_variables")
     def test_adversarial_deep_nesting(self, mock_set_variables):
@@ -236,9 +247,11 @@ class TestAnswerSetImportSafety(unittest.TestCase):
         payload = {"bomb": "a"}
         for i in range(45):
             payload = {"bomb": payload}
-        
+
         with self.assertRaises(ValueError) as cm:
-            sessions._parse_json_with_limits(json.dumps(payload), sessions._import_limits())
+            sessions._parse_json_with_limits(
+                json.dumps(payload), sessions._import_limits()
+            )
         self.assertIn("too deep", str(cm.exception))
 
     @patch("docassemble.AssemblyLine.sessions.set_variables")
@@ -246,76 +259,113 @@ class TestAnswerSetImportSafety(unittest.TestCase):
         # Tries to eat memory with huge string
         payload = {"big_string": "A" * 300000}
         with self.assertRaises(ValueError) as cm:
-            sessions._parse_json_with_limits(json.dumps(payload), sessions._import_limits())
+            sessions._parse_json_with_limits(
+                json.dumps(payload), sessions._import_limits()
+            )
         self.assertIn("too long", str(cm.exception))
-        
+
     @patch("docassemble.AssemblyLine.sessions.set_variables")
     def test_adversarial_number_overflow(self, mock_set_variables):
         # Tries to DOS via large float parsing/math
         payload = {"big_num": 1e20}
         with self.assertRaises(ValueError) as cm:
-            sessions._parse_json_with_limits(json.dumps(payload), sessions._import_limits())
+            sessions._parse_json_with_limits(
+                json.dumps(payload), sessions._import_limits()
+            )
         self.assertIn("outside allowed range", str(cm.exception))
-        
+
     @patch("docassemble.AssemblyLine.sessions.set_variables")
     def test_adversarial_newline_in_var_name(self, mock_set_variables):
         # Exploits ^/$ regex bugs with newlines
-        payload = json.dumps({
-            "users\nname": "evil",
-        })
+        payload = json.dumps(
+            {
+                "users\nname": "evil",
+            }
+        )
         sessions.load_interview_json(payload)
         report = sessions.get_last_import_report()
-        self.assertTrue(any(item["path"] == "users\nname" and "unsafe" in item.get("reason", "") for item in report["rejected"]))
+        self.assertTrue(
+            any(
+                item["path"] == "users\nname" and "unsafe" in item.get("reason", "")
+                for item in report["rejected"]
+            )
+        )
 
     @patch("docassemble.AssemblyLine.sessions.set_variables")
     def test_adversarial_protected_import_vars(self, mock_set_variables):
         # Tries to overwrite crucial DA modules
-        payload = json.dumps({
-            "server": "hacked",
-            "daconfig": "hacked",
-            "pickle": "hacked"
-        })
+        payload = json.dumps(
+            {"server": "hacked", "daconfig": "hacked", "pickle": "hacked"}
+        )
         sessions.load_interview_json(payload)
         report = sessions.get_last_import_report()
-        for var in ["server", "daconfig", "pickle"]: # handled in _safe_variable_name
-            self.assertTrue(any(item["path"] == var and "unsafe variable name" in item.get("reason", "") for item in report["rejected"]))
+        for var in ["server", "daconfig", "pickle"]:  # handled in _safe_variable_name
+            self.assertTrue(
+                any(
+                    item["path"] == var
+                    and "unsafe variable name" in item.get("reason", "")
+                    for item in report["rejected"]
+                )
+            )
 
     @patch("docassemble.AssemblyLine.sessions.set_variables")
     def test_adversarial_unicode_normalization_bypass(self, mock_set_variables):
         # Tries to bypass variable allowlist with homoglyphs
         # 'ＯＳ' is FULLWIDTH LATIN CAPITAL LETTER O and S
-        payload = json.dumps({
-            "ＯＳ": "evil",
-        })
+        payload = json.dumps(
+            {
+                "ＯＳ": "evil",
+            }
+        )
         sessions.load_interview_json(payload)
         report = sessions.get_last_import_report()
-        self.assertTrue(any(item["path"] == "ＯＳ" and "unsafe" in item.get("reason", "") for item in report["rejected"]))
+        self.assertTrue(
+            any(
+                item["path"] == "ＯＳ" and "unsafe" in item.get("reason", "")
+                for item in report["rejected"]
+            )
+        )
 
     @patch("docassemble.AssemblyLine.sessions.set_variables")
     def test_adversarial_type_envelope_malformed(self, mock_set_variables):
         # Tests that a malformed _class=type envelope is completely rejected
-        payload = json.dumps({
-            "valid_var": {
-                "_class": "type",
-                "name": "docassemble.base.util.DAObject",
-                "evil_extra_key": "injected"
+        payload = json.dumps(
+            {
+                "valid_var": {
+                    "_class": "type",
+                    "name": "docassemble.base.util.DAObject",
+                    "evil_extra_key": "injected",
+                }
             }
-        })
+        )
         sessions.load_interview_json(payload)
         report = sessions.get_last_import_report()
-        self.assertTrue(any(item["path"] == "valid_var" and "only include" in item.get("reason", "") for item in report["rejected"]))
+        self.assertTrue(
+            any(
+                item["path"] == "valid_var" and "only include" in item.get("reason", "")
+                for item in report["rejected"]
+            )
+        )
 
     @patch("docassemble.AssemblyLine.sessions.set_variables")
     def test_adversarial_object_envelope_malformed(self, mock_set_variables):
         # Tests that a docassemble object envelope without an instanceName is rejected
-        payload = json.dumps({
-            "users": {
-                "_class": "docassemble.base.util.DAObject",
+        payload = json.dumps(
+            {
+                "users": {
+                    "_class": "docassemble.base.util.DAObject",
+                }
             }
-        })
+        )
         sessions.load_interview_json(payload)
         report = sessions.get_last_import_report()
-        self.assertTrue(any(item["path"] == "users" and "metadata must include both" in item.get("reason", "") for item in report["rejected"]))
+        self.assertTrue(
+            any(
+                item["path"] == "users"
+                and "metadata must include both" in item.get("reason", "")
+                for item in report["rejected"]
+            )
+        )
 
     @patch("docassemble.AssemblyLine.sessions.validation_error")
     def test_is_valid_json_reports_validation_error(self, mock_validation_error):
@@ -325,6 +375,67 @@ class TestAnswerSetImportSafety(unittest.TestCase):
 
         self.assertFalse(is_valid)
         mock_validation_error.assert_called_once()
+
+    @patch("docassemble.base.interview_cache.get_interview")
+    @patch("docassemble.AssemblyLine.sessions.current_context")
+    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("docassemble.AssemblyLine.sessions.get_config")
+    def test_target_interview_vars(
+        self, mock_get_config, mock_set_vars, mock_current_context, mock_get_interview
+    ):
+        mock_get_config.return_value = {}
+
+        class QStub:
+            pass
+
+        class MockInterview:
+            def __init__(self):
+                self.names_used = {"user_name"}
+                q1 = QStub()
+                q1.mako_names = {"mako_var"}
+                q1.names_used = {"name_var"}
+                q1.fields_used = {"field_var"}
+                self.questions_list = [q1]
+                self.questions = {"q_val"}
+
+        class MockCurrentContext:
+            def __init__(self):
+                self.filename = "docassemble.MyTest:test.yml"
+                self.session = "123"
+
+        mock_get_interview.return_value = MockInterview()
+        mock_current_context.return_value = MockCurrentContext()
+
+        payload = json.dumps(
+            {
+                "user_name": "Alice",
+                "mako_var": "val1",
+                "q_val": "val2",
+                "bad_var": "hacked",
+            }
+        )
+
+        sessions.load_interview_json(payload)
+
+        report = sessions.get_last_import_report()
+        accepted_keys = (
+            list(report["accepted"].keys())
+            if isinstance(report["accepted"], dict)
+            else report["accepted"]
+        )
+        rejected_keys = [r["path"] for r in report["rejected"]]
+
+        self.assertIn("user_name", accepted_keys)
+        self.assertIn("mako_var", accepted_keys)
+        self.assertIn("q_val", accepted_keys)
+        self.assertIn("bad_var", rejected_keys)
+        self.assertTrue(
+            any(
+                "not in allowlist" in r["reason"]
+                for r in report["rejected"]
+                if r["path"] == "bad_var"
+            )
+        )
 
 
 if __name__ == "__main__":

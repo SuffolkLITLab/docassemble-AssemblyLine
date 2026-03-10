@@ -1,0 +1,73 @@
+--- docassemble/AssemblyLine/sessions.py
++++ docassemble/AssemblyLine/sessions.py
+@@ -637,6 +637,33 @@
+     raise ValueError("JSON contains an unsupported value type")
+ 
+ 
++def _get_target_interview_variables(filename: str) -> Set[str]:
++    """
++    Extract all variable names (including fields and mako names) known to the specific interview.
++    Used to prevent importing arbitrary variables that aren't defined/asked for by the interview.
++    """
++    try:
++        from docassemble.base.interview_cache import get_interview
++        interview = get_interview(filename)
++    except Exception:
++        return set()
++
++    names_used = set()
++    if hasattr(interview, "names_used"):
++        names_used.update(interview.names_used)
++    if hasattr(interview, "questions_list"):
++        for q in interview.questions_list:
++            if hasattr(q, "mako_names"):
++                names_used.update(q.mako_names)
++            if hasattr(q, "names_used"):
++                names_used.update(q.names_used)
++            if hasattr(q, "fields_used"):
++                names_used.update(q.fields_used)
++    if hasattr(interview, "questions"):
++        # For base docassemble structure
++        for val in interview.questions:
++            names_used.add(val)
++
++    return names_used
++
++
+ def _sanitize_json_import_payload(
+     payload: Any,
+     variables_to_filter: Optional[List[str]] = None,
++    target_filename: Optional[str] = None,
+ ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+     if not isinstance(payload, dict):
+         raise ValueError("JSON root must be an object")
+@@ -647,6 +674,13 @@
+         blocked = blocked.union(set(variables_to_filter))
+ 
+     allowed = _allowed_import_variables()
++    if target_filename:
++        target_vars = _get_target_interview_variables(target_filename)
++        if target_vars:
++            if allowed is None:
++                allowed = target_vars
++            else:
++                allowed = allowed.intersection(target_vars)
++
+     limits = _import_limits()
+     allow_objects = _allow_object_imports()
+     allowed_object_classes = _allowed_object_classes()
+@@ -1989,10 +2023,12 @@
+         Optional[Union[int, bool]]: ID of the newly created session if `new_session` is True, otherwise True or False based on success.
+     """
+     limits = _import_limits()
++    target_filename = new_interview_filename or current_context().filename
+     try:
+         parsed = _parse_json_with_limits(json_string, limits)
+         json_processed, report = _sanitize_json_import_payload(
+-            parsed, variables_to_filter=variables_to_filter
++            parsed, 
++            variables_to_filter=variables_to_filter,
++            target_filename=target_filename,
+         )
+         report["limits"] = limits
+     except Exception as err:
