@@ -42,8 +42,6 @@ from .al_document import (
     ALStaticDocument,
 )
 import docassemble.base.util
-import importlib
-import inspect
 import json
 import math
 import os
@@ -229,17 +227,8 @@ DEFAULT_IMPORT_MAX_STRING_LENGTH = 200000
 DEFAULT_IMPORT_MAX_NUMBER_ABS = 10**15
 
 PROTECTED_IMPORT_VARIABLES: Set[str] = {
-    # Python/runtime/module symbols that should never be user importable.
-    "__builtins__",
-    "__class__",
-    "__dict__",
-    "__globals__",
-    "__import__",
-    "__loader__",
-    "__module__",
-    "__name__",
-    "__package__",
-    "__spec__",
+    # Dunder names are already rejected by SAFE_VARIABLE_NAME_RE;
+    # these explicit entries cover non-dunder runtime/module symbols.
     "os",
     "sys",
     "subprocess",
@@ -253,10 +242,8 @@ DANGEROUS_KEY_PREFIXES = ("__",)
 DANGEROUS_KEY_EXACT = {"_internal", "_type", "@type"}
 OBJECT_METADATA_KEYS = {"_class", "instanceName"}
 PROTECTED_OBJECT_ATTRS = {
-    "__builtins__",
-    "__class__",
-    "__dict__",
-    "__globals__",
+    # Dunder attrs are already rejected by the DANGEROUS_KEY_PREFIXES check;
+    # these are non-dunder docassemble internals that must not be importable.
     "this_thread",
     "has_nonrandom_instance_name",
     "attrList",
@@ -581,7 +568,7 @@ def _sanitize_import_value(
                     raise ValueError(f"unsafe object attribute '{key}'")
                 nested_sanitized, _ = _sanitize_import_value(
                     nested,
-                    f"{path}.{key}",
+                    nested_path,
                     limits,
                     allow_objects,
                     allowed_object_classes,
@@ -608,7 +595,7 @@ def _sanitize_import_value(
                 raise ValueError(f"forbidden nested key '{key}'")
             nested_sanitized, nested_contains_object = _sanitize_import_value(
                 nested,
-                f"{path}.{key}",
+                nested_path,
                 limits,
                 allow_objects,
                 allowed_object_classes,
@@ -661,10 +648,7 @@ def _sanitize_import_value(
 
 
 def _get_target_interview_variables(filename: str) -> Set[str]:
-    """
-    Extract all variable names (including fields and mako names) known to the specific interview.
-    Used to prevent importing arbitrary variables that aren't defined/asked for by the interview.
-    """
+    """Extract variable names known to a specific interview from its parsed AST."""
     try:
         from docassemble.base.interview_cache import get_interview
 
@@ -684,7 +668,6 @@ def _get_target_interview_variables(filename: str) -> Set[str]:
             if hasattr(q, "fields_used"):
                 names_used.update(q.fields_used)
     if hasattr(interview, "questions"):
-        # For base docassemble structure
         for val in interview.questions:
             names_used.add(val)
 

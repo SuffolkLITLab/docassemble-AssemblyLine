@@ -418,11 +418,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
         sessions.load_interview_json(payload)
 
         report = sessions.get_last_import_report()
-        accepted_keys = (
-            list(report["accepted"].keys())
-            if isinstance(report["accepted"], dict)
-            else report["accepted"]
-        )
+        accepted_keys = report["accepted"]
         rejected_keys = [r["path"] for r in report["rejected"]]
 
         self.assertIn("user_name", accepted_keys)
