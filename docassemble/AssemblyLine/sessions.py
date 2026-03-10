@@ -281,7 +281,19 @@ _last_import_report: Dict[str, Any] = {
 
 
 def get_last_import_report() -> Dict[str, Any]:
-    """Return a copy of the most recent JSON import report."""
+    """Return a copy of the most recent JSON import report.
+
+    The report dictionary contains the following keys:
+    - ``accepted``: list of variable names that were imported successfully.
+    - ``rejected``: list of dicts describing paths and reasons for rejection.
+    - ``warnings``: list of warning messages generated during import.
+    - ``limits``: the numerical limits that were applied to the payload.
+    - ``contains_objects``: ``True`` if docassemble object envelopes were detected.
+    - ``remapped_classes``: list of class remapping operations that occurred.
+
+    Returns:
+        Dict[str, Any]: sanitized copy of the last import report.
+    """
     return safe_json(_last_import_report)
 
 
