@@ -101,9 +101,13 @@ al_sessions_variables_to_remove: Set = {
     "metadata_title",
     "multi_user",
     "nav",
+    "role",
+    "role_event",
+    "role_needed",
     "session_local",
     "speak_text",
     "url_args",
+    "user_dict",
     "user_local",
     # Database-like fields we don't need to copy
     "all_courts",
@@ -488,6 +492,7 @@ def _sanitize_import_value(
     allowed_object_classes: Set[str],
     remapped_classes: List[Dict[str, str]],
     remap_table: Dict[str, str],
+    blocked_keys: Set[str],
     object_stack: Optional[List[str]] = None,
 ) -> Tuple[Any, bool]:
     """Validate and sanitize nested imported values.
@@ -533,6 +538,13 @@ def _sanitize_import_value(
             if not isinstance(instance_name, str):
                 raise ValueError("object instanceName must be a string")
 
+            if instance_name in blocked_keys:
+                raise ValueError(f"object instanceName '{instance_name}' is blocked")
+            if not _safe_variable_name(instance_name.split(".")[0].split("[")[0]):
+                raise ValueError(
+                    f"object instanceName '{instance_name}' violates safe variable naming"
+                )
+
             if instance_name in object_stack:
                 raise ValueError(
                     f"circular or repeating object reference detected: {instance_name}"
@@ -560,6 +572,9 @@ def _sanitize_import_value(
             for key, nested in value.items():
                 if key in OBJECT_METADATA_KEYS:
                     continue
+                nested_path = f"{path}.{key}"
+                if key in blocked_keys or nested_path in blocked_keys:
+                    continue
                 if not isinstance(key, str):
                     raise ValueError("object attribute name must be a string")
                 if not _is_safe_object_attr_name(key):
@@ -572,6 +587,7 @@ def _sanitize_import_value(
                     allowed_object_classes,
                     remapped_classes,
                     remap_table,
+                    blocked_keys,
                     object_stack,
                 )
                 obj_sanitized[key] = nested_sanitized
@@ -581,6 +597,9 @@ def _sanitize_import_value(
         sanitized: Dict[str, Any] = {}
         contains_object = False
         for key, nested in value.items():
+            nested_path = f"{path}.{key}"
+            if key in blocked_keys or nested_path in blocked_keys:
+                continue
             if not isinstance(key, str):
                 raise ValueError("nested object key must be a string")
             if key in DANGEROUS_KEY_EXACT:
@@ -595,6 +614,7 @@ def _sanitize_import_value(
                 allowed_object_classes,
                 remapped_classes,
                 remap_table,
+                blocked_keys,
                 object_stack,
             )
             sanitized[key] = nested_sanitized
@@ -615,6 +635,7 @@ def _sanitize_import_value(
                 allowed_object_classes,
                 remapped_classes,
                 remap_table,
+                blocked_keys,
                 object_stack,
             )
             sanitized_list.append(nested_sanitized)
@@ -730,6 +751,7 @@ def _sanitize_json_import_payload(
                 allowed_object_classes,
                 remapped_classes,
                 remap_table,
+                blocked,
             )
             accepted[key] = sanitized_value
             has_object_payload = has_object_payload or nested_object
