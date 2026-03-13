@@ -1714,7 +1714,7 @@ def update_session_metadata(
 
     # 2) Derive two signed 32‑bit ints from MD5(session_id|filename|tags)
     key_string = f"{session_id}|{filename}|{metadata_key_name}"
-    digest = hashlib.md5(key_string.encode("utf-8")).digest()
+    digest = hashlib.md5(key_string.encode("utf-8"), usedforsecurity=False).digest()
     high_u32, low_u32 = struct.unpack(">II", digest[:8])
 
     def to_signed_32(x: int) -> int:
