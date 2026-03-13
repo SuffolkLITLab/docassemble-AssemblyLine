@@ -111,7 +111,7 @@ data from code:
     hidden: not get_config('assembly line',{}).get('enable answer sets')
   - url: |
       url_ask(["al_sessions_json_file", {"recompute": ["al_sessions_import_json"]}, "al_sessions_load_status"])
-    label: str(al_download_answer_set_string)
+    label: str(al_import_answer_set_string)
     hidden: |
       not (
         (
@@ -142,7 +142,7 @@ template: al_load_answer_set_string
 content: >-
   Load answer set
 ---
-template: al_download_answer_set_string
+template: al_import_answer_set_string
 content: >-
   Import answer set
 ---
