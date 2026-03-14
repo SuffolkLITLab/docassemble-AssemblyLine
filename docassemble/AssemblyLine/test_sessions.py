@@ -102,7 +102,9 @@ class TestAnswerSetImportSafety(unittest.TestCase):
         self.assertEqual(sessions._allowed_import_variables(), {"users_name"})
 
     @patch("AssemblyLine.sessions.get_config")
-    def test_allowed_import_variables_ignores_invalid_config_type(self, mock_get_config):
+    def test_allowed_import_variables_ignores_invalid_config_type(
+        self, mock_get_config
+    ):
         def mock_get_config_func(section, default=None):
             if section == "assembly line":
                 return {

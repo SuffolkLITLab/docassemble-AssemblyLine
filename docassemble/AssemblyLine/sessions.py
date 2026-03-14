@@ -395,18 +395,28 @@ def _safe_variable_name(name: str) -> bool:
     return True
 
 
-def _allowed_import_variables() -> Optional[Set[str]]:
-    """Optional strict allowlist from config; when empty/undefined, default policy applies."""
-    raw_allowed = get_config("assembly line", {}).get("answer set import allowed variables")
-    if raw_allowed is None:
-        return None
-    if isinstance(raw_allowed, str):
-        iterable = [raw_allowed]
-    elif isinstance(raw_allowed, (list, tuple, set)):
-        iterable = raw_allowed
+def _normalized_string_config_values(value: Any) -> Optional[List[str]]:
+    """Return a cleaned list of strings from supported config shapes."""
+    if isinstance(value, str):
+        raw_values = [value]
+    elif isinstance(value, (list, tuple, set)):
+        raw_values = list(value)
     else:
         return None
-    cleaned = {str(x).strip() for x in iterable if str(x).strip()}
+    return [text for item in raw_values if (text := str(item).strip())]
+
+
+def _allowed_import_variables() -> Optional[Set[str]]:
+    """Optional strict allowlist from config; when empty/undefined, default policy applies."""
+    raw_allowed = get_config("assembly line", {}).get(
+        "answer set import allowed variables"
+    )
+    if raw_allowed is None:
+        return None
+    normalized_values = _normalized_string_config_values(raw_allowed)
+    if normalized_values is None:
+        return None
+    cleaned = set(normalized_values)
     return cleaned if cleaned else None
 
 
@@ -445,16 +455,10 @@ def _allowed_object_classes() -> Set[str]:
     configured = get_config("assembly line", {}).get(
         "answer set import allowed object classes", []
     )
-    if isinstance(configured, str):
-        iterable = [configured]
-    elif isinstance(configured, (list, tuple, set)):
-        iterable = configured
-    else:
-        iterable = []
-    for class_name in iterable:
-        name = str(class_name).strip()
-        if name:
-            allowed.add(name)
+    normalized_values = _normalized_string_config_values(configured)
+    if normalized_values is not None:
+        for class_name in normalized_values:
+            allowed.add(class_name)
     return allowed
 
 
