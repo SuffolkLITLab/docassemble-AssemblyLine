@@ -61,7 +61,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             sessions._parse_json_with_limits(payload, limits)
         self.assertIn("too many items", str(cm.exception))
 
-    @patch("docassemble.AssemblyLine.sessions.get_config")
+    @patch("AssemblyLine.sessions.get_config")
     def test_sanitize_respects_allowlist(self, mock_get_config):
         def mock_get_config_func(section, default=None):
             if section == "assembly line":
@@ -88,7 +88,48 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             any(item["reason"] == "protected variable" for item in report["rejected"])
         )
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.get_config")
+    def test_allowed_import_variables_normalizes_string_config(self, mock_get_config):
+        def mock_get_config_func(section, default=None):
+            if section == "assembly line":
+                return {
+                    "answer set import allowed variables": "users_name",
+                }
+            return default
+
+        mock_get_config.side_effect = mock_get_config_func
+
+        self.assertEqual(sessions._allowed_import_variables(), {"users_name"})
+
+    @patch("AssemblyLine.sessions.get_config")
+    def test_allowed_import_variables_ignores_invalid_config_type(self, mock_get_config):
+        def mock_get_config_func(section, default=None):
+            if section == "assembly line":
+                return {
+                    "answer set import allowed variables": {"unexpected": "mapping"},
+                }
+            return default
+
+        mock_get_config.side_effect = mock_get_config_func
+
+        self.assertIsNone(sessions._allowed_import_variables())
+
+    @patch("AssemblyLine.sessions.get_config")
+    def test_allowed_object_classes_normalizes_string_config(self, mock_get_config):
+        def mock_get_config_func(section, default=None):
+            if section == "assembly line":
+                return {
+                    "answer set import allowed object classes": "custom.package.CustomObject",
+                }
+            return default
+
+        mock_get_config.side_effect = mock_get_config_func
+
+        allowed = sessions._allowed_object_classes()
+
+        self.assertIn("custom.package.CustomObject", allowed)
+
+    @patch("AssemblyLine.sessions.set_variables")
     def test_load_interview_json_partial_import_with_report(self, mock_set_variables):
         payload = json.dumps(
             {
@@ -109,7 +150,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             any(item["path"] == "user_started_case" for item in report["rejected"])
         )
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_load_interview_json_allows_object_graph_and_references(
         self, mock_set_variables
     ):
@@ -132,7 +173,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
         self.assertIn("users", report["accepted"])
         self.assertTrue(report.get("contains_objects"))
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_load_interview_json_rejects_unknown_object_class(self, mock_set_variables):
         object_json = self._sample("object_graph_unknown_class.json")
 
@@ -143,7 +184,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
         mock_set_variables.assert_not_called()
         self.assertTrue(any(item["path"] == "users" for item in report["rejected"]))
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_load_interview_json_remaps_known_playground_classes(
         self, mock_set_variables
     ):
@@ -182,7 +223,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
         self.assertFalse(result)
         self.assertTrue(any(item["path"] == "$" for item in report["rejected"]))
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_rejects_dunder_in_instance_name(self, mock_set_variables):
         payload = json.dumps(
             {
@@ -202,7 +243,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             any("instanceName" in item.get("reason", "") for item in report["rejected"])
         )
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_adversarial_type_envelope_bypass(self, mock_set_variables):
         # Tries to bypass type envelope allowlisting but specifying an unauthorized class
         payload = json.dumps(
@@ -222,7 +263,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             )
         )
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_adversarial_object_attr_dunder(self, mock_set_variables):
         # Tries to overwrite __globals__ via object attribute
         payload = json.dumps(
@@ -246,7 +287,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             )
         )
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_adversarial_deep_nesting(self, mock_set_variables):
         # Depth limit bypass attempt
         payload = {"bomb": "a"}
@@ -259,7 +300,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             )
         self.assertIn("too deep", str(cm.exception))
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_adversarial_massive_string(self, mock_set_variables):
         # Tries to eat memory with huge string
         payload = {"big_string": "A" * 300000}
@@ -269,7 +310,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             )
         self.assertIn("too long", str(cm.exception))
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_adversarial_number_overflow(self, mock_set_variables):
         # Tries to DOS via large float parsing/math
         payload = {"big_num": 1e20}
@@ -279,7 +320,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             )
         self.assertIn("outside allowed range", str(cm.exception))
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_adversarial_newline_in_var_name(self, mock_set_variables):
         # Exploits ^/$ regex bugs with newlines
         payload = json.dumps(
@@ -296,7 +337,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             )
         )
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_adversarial_protected_import_vars(self, mock_set_variables):
         # Tries to overwrite crucial DA modules
         payload = json.dumps(
@@ -313,7 +354,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
                 )
             )
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_adversarial_unicode_normalization_bypass(self, mock_set_variables):
         # Tries to bypass variable allowlist with homoglyphs
         # 'ＯＳ' is FULLWIDTH LATIN CAPITAL LETTER O and S
@@ -331,7 +372,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             )
         )
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_adversarial_type_envelope_malformed(self, mock_set_variables):
         # Tests that a malformed _class=type envelope is completely rejected
         payload = json.dumps(
@@ -352,7 +393,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             )
         )
 
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.set_variables")
     def test_adversarial_object_envelope_malformed(self, mock_set_variables):
         # Tests that a docassemble object envelope without an instanceName is rejected
         payload = json.dumps(
@@ -372,7 +413,7 @@ class TestAnswerSetImportSafety(unittest.TestCase):
             )
         )
 
-    @patch("docassemble.AssemblyLine.sessions.validation_error")
+    @patch("AssemblyLine.sessions.validation_error")
     def test_is_valid_json_reports_validation_error(self, mock_validation_error):
         bad_json = self._sample("malformed_trailing_comma.json")
 
@@ -382,9 +423,9 @@ class TestAnswerSetImportSafety(unittest.TestCase):
         mock_validation_error.assert_called_once()
 
     @patch("docassemble.base.interview_cache.get_interview")
-    @patch("docassemble.AssemblyLine.sessions.current_context")
-    @patch("docassemble.AssemblyLine.sessions.set_variables")
-    @patch("docassemble.AssemblyLine.sessions.get_config")
+    @patch("AssemblyLine.sessions.current_context")
+    @patch("AssemblyLine.sessions.set_variables")
+    @patch("AssemblyLine.sessions.get_config")
     def test_target_interview_vars(
         self, mock_get_config, mock_set_vars, mock_current_context, mock_get_interview
     ):

@@ -642,7 +642,7 @@ class ALAddress(Address):
         """
         try:
             self.geocode()
-        except:
+        except Exception:  # nosec B110
             pass
         if self.was_geocoded_successfully() and hasattr(self, "norm_long"):
             return self.norm_long
@@ -672,7 +672,7 @@ class ALAddress(Address):
         if hasattr(self, "country") and self.country and len(self.country) == 2:
             try:
                 return state_name(self.state, country_code=self.country)
-            except:
+            except Exception:  # nosec B110
                 pass
         try:
             return state_name(
@@ -1037,7 +1037,7 @@ class ALIndividual(Individual):
         elif len(nums):
             return list(nums[0].keys())[0]
 
-        assert False  # We should never get here, no default return is necessary
+        raise AssertionError("Unreachable: no default return is necessary")
 
     def contact_methods(self) -> str:
         """Generates a formatted string of all provided contact methods.
@@ -2470,7 +2470,7 @@ def is_phone_or_email(text: str) -> bool:
             validation_error("Enter a valid phone number or email address")
         else:
             validation_error("Enter a valid email address")
-        assert False, "unreachable"
+        raise AssertionError("unreachable")
 
 
 def github_modified_date(

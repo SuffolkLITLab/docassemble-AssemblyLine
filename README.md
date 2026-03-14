@@ -84,7 +84,7 @@ Default behavior:
 - Plain JSON values are imported by default, and object reconstruction is allowed only for allowlisted DAObject classes.
 - Top-level variable names must match `^[A-Za-z][A-Za-z0-9_]*$`.
 - Internal/protected variable names are blocked.
-- If `answer set import allowed variables` is not set, imports use a denylist-only policy for backwards compatibility.
+- If `answer set import allowed variables` is not set, imports allow safe variable names by default, still block protected/internal names, and intersect with the target interview's known variables when AssemblyLine can detect them.
 - Object payloads can be imported when classes are allowlisted; by default, known `docassemble.base` and `docassemble.AssemblyLine` DAObject descendants are allowed.
 
 Default import limits (`assembly line: answer set import limits`):
@@ -96,7 +96,7 @@ Default import limits (`assembly line: answer set import limits`):
 - `max number abs`: `1000000000000000` (`10**15`)
 
 Final allowlist/config policy:
-- Default allowlist: unset (`answer set import allowed variables` omitted), to avoid breaking existing interviews unexpectedly.
+- Default allowlist: unset (`answer set import allowed variables` omitted), which falls back to safe-name/protected-name checks plus target-interview variable detection when available.
 - Recommended production policy: set an explicit allowlist to only shared/reusable variables in your jurisdiction.
 - `answer set import allow objects` defaults to `true`; set it to `false` if you want strict plain-JSON-only imports.
 - `answer set import allowed object classes` can extend the default DAObject class allowlist with explicit additional class paths.

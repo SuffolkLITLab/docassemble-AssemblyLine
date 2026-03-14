@@ -33,7 +33,12 @@ from docassemble.base.util import (
 )
 from docassemble.webapp.db_object import init_sqlalchemy
 from sqlalchemy.sql import text
-from docassemble.base.functions import server, safe_json, serializable_dict
+from docassemble.base.functions import (
+    server,
+    safe_json,
+    serializable_dict,
+    this_thread,
+)
 from .al_document import (
     ALDocument,
     ALDocumentBundle,
@@ -270,18 +275,22 @@ KNOWN_CLASS_REMAP_BY_BASENAME: Dict[str, str] = {
     "DASet": "docassemble.base.util.DASet",
 }
 
-_last_import_report: Dict[str, Any] = {
-    "accepted": [],
-    "rejected": [],
-    "warnings": [],
-    "limits": {},
-    "contains_objects": False,
-    "remapped_classes": [],
-}
+LAST_IMPORT_REPORT_ATTR = "_assemblyline_last_import_report"
+
+
+def _default_import_report() -> Dict[str, Any]:
+    return {
+        "accepted": [],
+        "rejected": [],
+        "warnings": [],
+        "limits": {},
+        "contains_objects": False,
+        "remapped_classes": [],
+    }
 
 
 def get_last_import_report() -> Dict[str, Any]:
-    """Return a copy of the most recent JSON import report.
+    """Return a copy of the most recent JSON import report for this thread.
 
     The report dictionary contains the following keys:
     - ``accepted``: list of variable names that were imported successfully.
@@ -294,12 +303,18 @@ def get_last_import_report() -> Dict[str, Any]:
     Returns:
         Dict[str, Any]: sanitized copy of the last import report.
     """
-    return safe_json(_last_import_report)
+    misc = getattr(this_thread, "misc", None)
+    if not isinstance(misc, dict):
+        return safe_json(_default_import_report())
+    return safe_json(misc.get(LAST_IMPORT_REPORT_ATTR, _default_import_report()))
 
 
 def _set_last_import_report(report: Dict[str, Any]) -> None:
-    global _last_import_report
-    _last_import_report = report
+    misc = getattr(this_thread, "misc", None)
+    if not isinstance(misc, dict):
+        misc = {}
+        setattr(this_thread, "misc", misc)
+    misc[LAST_IMPORT_REPORT_ATTR] = safe_json(report)
 
 
 def _import_limits() -> Dict[str, int]:
@@ -382,10 +397,16 @@ def _safe_variable_name(name: str) -> bool:
 
 def _allowed_import_variables() -> Optional[Set[str]]:
     """Optional strict allowlist from config; when empty/undefined, default policy applies."""
-    allowed = get_config("assembly line", {}).get("answer set import allowed variables")
-    if not allowed:
+    raw_allowed = get_config("assembly line", {}).get("answer set import allowed variables")
+    if raw_allowed is None:
         return None
-    cleaned = {str(x).strip() for x in allowed if str(x).strip()}
+    if isinstance(raw_allowed, str):
+        iterable = [raw_allowed]
+    elif isinstance(raw_allowed, (list, tuple, set)):
+        iterable = raw_allowed
+    else:
+        return None
+    cleaned = {str(x).strip() for x in iterable if str(x).strip()}
     return cleaned if cleaned else None
 
 
@@ -424,7 +445,13 @@ def _allowed_object_classes() -> Set[str]:
     configured = get_config("assembly line", {}).get(
         "answer set import allowed object classes", []
     )
-    for class_name in configured:
+    if isinstance(configured, str):
+        iterable = [configured]
+    elif isinstance(configured, (list, tuple, set)):
+        iterable = configured
+    else:
+        iterable = []
+    for class_name in iterable:
         name = str(class_name).strip()
         if name:
             allowed.add(name)
@@ -1108,6 +1135,8 @@ def find_matching_sessions(
         metadata_search_conditions = "TRUE"
 
     # Add metadata filters
+    _ALLOWED_OPERATORS = {"=", "!=", "<", "<=", ">", ">=", "LIKE", "ILIKE"}
+    _ALLOWED_CAST_TYPES = {"int", "float"}
     if metadata_filters:
         metadata_filter_conditions = []
         for column, val_tuple in metadata_filters.items():
@@ -1116,6 +1145,14 @@ def find_matching_sessions(
                 cast_type = None
             else:
                 value, operator, cast_type = val_tuple
+
+            if operator.upper() not in _ALLOWED_OPERATORS:
+                raise ValueError(f"Disallowed SQL operator: {operator}")
+            if cast_type and cast_type.lower() not in _ALLOWED_CAST_TYPES:
+                raise ValueError(f"Disallowed SQL cast type: {cast_type}")
+            if not column.isidentifier():
+                raise ValueError(f"Invalid metadata column name: {column}")
+
             if cast_type:
                 column_expr = f"CAST(jsonstorage.data->>{repr(column)} AS {cast_type})"
             else:
@@ -1157,7 +1194,7 @@ def find_matching_sessions(
                     userdict.key as key,
                     {', '.join(f"jsonstorage.data->>{repr(column)} as {column}" for column in metadata_column_names)},
                     jsonstorage.data as data
-            FROM userdict 
+            FROM userdict
             NATURAL JOIN (
                 SELECT key, MAX(modtime) AS modtime, COUNT(key) AS num_keys
                 FROM userdict
@@ -1174,7 +1211,7 @@ def find_matching_sessions(
         ) AS unique_sessions
         ORDER BY modtime DESC
         LIMIT :limit OFFSET :offset;
-        """)
+        """)  # nosec B608
 
     if offset < 0:
         offset = 0
@@ -2322,7 +2359,9 @@ def update_session_metadata(
 
     # 2) Derive two signed 32‑bit ints from MD5(session_id|filename|tags)
     key_string = f"{session_id}|{filename}|{metadata_key_name}"
-    digest = hashlib.md5(key_string.encode("utf-8")).digest()
+    digest = hashlib.md5(
+        key_string.encode("utf-8"), usedforsecurity=False
+    ).digest()  # nosec B324
     high_u32, low_u32 = struct.unpack(">II", digest[:8])
 
     def to_signed_32(x: int) -> int:

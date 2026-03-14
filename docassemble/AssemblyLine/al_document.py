@@ -34,7 +34,7 @@ from docassemble.base.util import (
 from docassemble.base.pdfa import pdf_to_pdfa
 from textwrap import wrap
 from math import floor
-import subprocess
+import subprocess  # nosec B404
 import pikepdf
 from typing import Tuple
 import secrets
@@ -1104,7 +1104,7 @@ class ALDocument(DADict):
             try:
                 main_doc.set_attributes(filename=filename)
                 main_doc.set_mimetype("application/pdf")
-            except:
+            except Exception:  # nosec B110
                 pass
 
         if self.need_addendum():
@@ -1976,7 +1976,7 @@ class ALDocumentBundle(DAList):
                     )
                 )
                 result["download_filename"] = filename_root + ext
-            except:
+            except Exception:  # nosec B110
                 pass
             results.append(result)
 
@@ -2855,7 +2855,7 @@ def ocrmypdf_task(
 
     completed_ocr = None
     try:
-        completed_ocr = subprocess.run(
+        completed_ocr = subprocess.run(  # nosec B603
             ocr_params, timeout=60 * 60, check=False, capture_output=True
         )
         to_pdf.commit()

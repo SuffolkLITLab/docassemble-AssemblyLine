@@ -247,9 +247,12 @@ content: |
 template: al_sessions_import_rejected_template
 subject: Variables skipped during import
 content: |
-  % for item in al_sessions_last_import_report.get('rejected', []):
+  % for item in al_sessions_last_import_report.get('rejected', [])[:50]:
   * `${ item.get('path', '?') }`: ${ item.get('reason', 'unknown reason') }
   % endfor
+  % if len(al_sessions_last_import_report.get('rejected', [])) > 50:
+  * ${ len(al_sessions_last_import_report.get('rejected', [])) - 50 } more variables were skipped and are not shown here.
+  % endif
 ---
 question: |
   Upload a JSON file

@@ -454,7 +454,8 @@ class ALCourtLoader(DAObject):
             "address_zip": convert_zip
         }
         if hasattr(self, "converters") and self.converters:
-            assert isinstance(self.converters, dict)
+            if not isinstance(self.converters, dict):
+                raise TypeError("converters must be a dict")
             merged_converters.update(self.converters)
         to_load = path_and_mimetype(load_path)[0]
         if self.filename.lower().endswith(".xlsx"):
