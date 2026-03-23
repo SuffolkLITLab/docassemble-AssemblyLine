@@ -19,13 +19,16 @@ code: |
 default screen parts:
   navigation bar html: |
     % if enable_al_language and len(al_interview_languages) > 1:
-    ${ get_language_list_dropdown(al_interview_languages,current=al_user_language ) }
+    ${ get_language_list_dropdown(al_interview_languages, current=session_local.attr("al_user_language") or al_user_language ) }
     % endif
 ---
 initial: True
 code: |
   if enable_al_language:
-    set_language(al_user_language)
+    if session_local.attr("al_user_language"):
+      set_language(session_local.attr("al_user_language"))
+    else:
+      set_language(al_user_language)
   process_action()
 ---
 code: |
@@ -37,6 +40,14 @@ code: |
 ---
 event: al_change_language
 code: |
+  # Set browser-specific language for this interview session
+  if "lang" in action_arguments():
+    session_local.al_user_language = action_argument("lang")
+    set_language(session_local.al_user_language)
+---
+event: al_get_language_list_change_language
+code: |
+  # Set "global" language for this interview session instead of user-specific
   if "lang" in action_arguments():
     al_user_language = action_argument("lang")
     set_language(al_user_language)

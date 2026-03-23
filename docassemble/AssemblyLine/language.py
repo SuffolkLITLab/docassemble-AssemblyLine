@@ -173,7 +173,7 @@ def get_language_list(
     current="",
     lang_codes: Optional[List[str]] = None,
     languages_path: Optional[str] = None,
-    event_name="al_change_language",
+    event_name="al_get_language_list_change_language",
 ) -> str:
     """
     Given a list of language codes, returns
