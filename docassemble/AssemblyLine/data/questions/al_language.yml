@@ -19,7 +19,7 @@ code: |
 default screen parts:
   navigation bar html: |
     % if enable_al_language and len(al_interview_languages) > 1:
-    ${ get_language_list_dropdown(al_interview_languages,current=al_user_language ) }
+    ${ get_language_list_dropdown(al_interview_languages, current=session_local.attr("al_user_language") or al_user_language ) }
     % endif
 ---
 initial: True
@@ -42,4 +42,4 @@ event: al_change_language
 code: |
   if "lang" in action_arguments():
     session_local.al_user_language = action_argument("lang")
-    set_language(al_user_language)
+    set_language(session_local.al_user_language)
