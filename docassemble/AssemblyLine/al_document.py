@@ -945,6 +945,15 @@ class ALDocument(DADict):
           instance. These values will be used to detect and handle overflow.
         has_addendum (bool): (optional) Defaults to False. Set to True if the
           document could have overflow, like for a PDF template.
+        default_overflow_message (str): The message appended to truncated text when it overflows
+          to the addendum. Defaults to `"..."`. This is used as the fallback whenever
+          `overflow_message=None` is passed to :meth:`safe_value`,
+          :meth:`overflow_value`, or :meth:`original_or_overflow_message`.
+          Override per-document by setting `my_doc.default_overflow_message`.
+        suffix_to_append (str): When the document key matches this value, it is appended to
+          the output filename to distinguish it from other versions. Defaults to `"preview"`
+          so the preview version is saved as e.g. `myDoc_preview.pdf` while the final
+          version is saved as `myDoc.pdf`.
 
     Note:
         The `enabled` attribute should always be defined by a code block or the
@@ -1254,6 +1263,8 @@ class ALDocument(DADict):
         Args:
             field_name (str): The name of the field to check.
             overflow_message (str): A short message to go on the page where text is cutoff.
+                If `None`, falls back to `self.default_overflow_message`
+                (`"..."` by default).
             input_width (int): The width, in characters, of the input box. Defaults to 80.
             preserve_newlines (bool): Determines whether newlines are preserved in the "safe" text.
                 Defaults to False, which means all newlines are removed. This allows more text to appear
@@ -1292,7 +1303,9 @@ class ALDocument(DADict):
 
         Args:
             field_name (str): The name of the field to retrieve the safe value from.
-            overflow_message (Optional[str]): Message to display when the field value overflows. Defaults to the class's default overflow message.
+            overflow_message (Optional[str]): Message appended when the field value is truncated.
+                If `None`, falls back to `self.default_overflow_message`
+                (`"..."` by default).
             preserve_newlines (bool): Whether to maintain newlines in the output. Defaults to False.
             input_width (int): The expected input width, used for formatting. Defaults to 80.
             preserve_words (bool): Whether to avoid splitting words during formatting. Defaults to True.
@@ -1322,7 +1335,9 @@ class ALDocument(DADict):
 
         Args:
             field_name (str): The name of the field to retrieve the overflow value from.
-            overflow_message (Optional[str]): Message to display when the field value overflows. Defaults to the object's default overflow message.
+            overflow_message (Optional[str]): Message appended when the safe portion of the field
+                value is truncated. If `None`, falls back to `self.default_overflow_message`
+                (`"..."` by default).
             preserve_newlines (bool): Whether to maintain newlines in the output. Defaults to False.
             input_width (int): The expected input width, used for formatting. Defaults to 80.
             preserve_words (bool): Whether to avoid splitting words during formatting. Defaults to True.
@@ -1548,7 +1563,62 @@ class ALDocumentBundle(DAList):
         enabled (bool, optional): Determines if the bundle is active. Defaults to True.
         auto_gather (bool, optional): Automatically gathers attributes. Defaults to False.
         gathered (bool, optional): Specifies if attributes have been gathered. Defaults to True.
-        default_parity (Optional[Literal["even", "odd"]]): Default parity to enforce on the PDF. Defaults to None.
+        default_parity (Optional[Literal["even", "odd"]]): Default parity to enforce on the PDF.
+            When set, :meth:`as_pdf` will append a blank page if necessary to reach the desired
+            parity. Defaults to `None` (no enforcement).
+        suffix_to_append (str): When the document key matches this value, it is appended to the
+            output filename to distinguish it from other versions. Defaults to `"preview"`
+            so the preview bundle is saved as e.g. `bundle_preview.pdf` while the final is
+            saved as `bundle.pdf`.
+        view_label (DALazyTemplate): Template providing the label for "View" buttons in
+            :meth:`download_list_html`. Defined generically in `ql_baseline.yml`; resolves to
+            `"View"` (or its translation). Override by assigning a new template to
+            `your_bundle.view_label` in your interview YAML.
+        download_label (DALazyTemplate): Template providing the label for "Download" buttons in
+            :meth:`download_list_html`. Defined generically in `ql_baseline.yml`; resolves to
+            `"Download"` (or its translation).
+        send_label (DALazyTemplate): Template providing the label for "Send" buttons in
+            :meth:`download_list_html`, :meth:`send_email_table_row`, and
+            :meth:`send_button_to_html`. Defined generically in `ql_baseline.yml`; resolves to
+            `"Send"` (or its translation).
+        zip_label (DALazyTemplate): Template providing the label for the "Download all" zip
+            button in :meth:`download_list_html`. Defined generically in `al_document.yml`;
+            resolves to `"Download all"` (or its translation).
+        full_pdf_label (DALazyTemplate): Template providing the label for the "Download as one
+            PDF" button in :meth:`download_list_html`. Defined generically in
+            `al_document.yml`; resolves to `"Download as one PDF"` (or its translation).
+        send_email_template (DALazyTemplate): Template used as the default email subject and
+            body in :meth:`send_email` when `template=None`. Defined generically in
+            `al_document.yml`. The subject defaults to
+            `"Your <document> document from <app> is ready"` and the body to
+            `"Your document is attached. Visit <homepage> to learn more."`
+            Override by assigning a new template block to `your_bundle.send_email_template`
+            in your interview YAML.
+        get_email_copy (DALazyTemplate): Template providing the header text for the email input
+            section rendered by :meth:`send_button_html`. Defined generically in
+            `al_document.yml`; resolves to `"Get a copy of the documents in email"`
+            (or its translation).
+        include_editable_documents (DALazyTemplate): Template providing the label for the
+            "include editable copy" checkbox in :meth:`send_button_html`. Defined generically
+            in `al_document.yml`; resolves to `"Include an editable copy"`
+            (or its translation).
+        add_page_numbers (bool): If `True`, Bates-style page numbers are stamped onto the
+            merged PDF produced by :meth:`as_pdf`. Defaults to `False`.
+        page_number_prefix (str): Text prepended to each stamped page number (e.g. `"EX-"`).
+            Defaults to `""`.
+        page_number_start (int): The first page number used when stamping page numbers.
+            Defaults to `1`.
+        page_number_digits (int): Minimum number of digits in each stamped page number;
+            shorter numbers are left-padded with zeros. Defaults to `5`.
+        page_number_area (Optional[str]): Location on the page where numbers are stamped.
+            Accepted values: `"TOP_LEFT"`, `"TOP_RIGHT"`, `"BOTTOM_LEFT"`,
+            `"BOTTOM_RIGHT"`. Defaults to `None` (bottom-right).
+        page_number_font_size (float): Font size in points for stamped page numbers.
+            Defaults to `10`.
+        page_number_offset_horizontal (float): Horizontal inset in pixels from the nearest
+            page edge for stamped page numbers. Defaults to `15`.
+        page_number_offset_vertical (float): Vertical inset in pixels from the nearest page
+            edge for stamped page numbers. Defaults to `15`.
 
     Examples:
         Given three documents: `Cover page`, `Main motion form`, and `Notice of Interpreter Request`,
@@ -2064,13 +2134,21 @@ class ALDocumentBundle(DAList):
             refresh (bool): Flag to reconsider the 'enabled' attribute, default is True.
             pdfa (bool): Flag to return documents in PDF/A format, default is False.
             include_zip (bool): Flag to include a zip option, default is True.
-            view_label (str): Label for the 'view' button, default is self.view_label or "View".
+            view_label (str): Label for the 'view' button. If `None`, falls back to
+                `self.view_label` (a translatable template defined in `ql_baseline.yml`,
+                defaulting to `"View"`).
             view_icon (str): Icon for the 'view' button, default is "eye".
-            download_label (str): Label for the 'download' button, default is self.download_label or "Download".
+            download_label (str): Label for the 'download' button. If `None`, falls back to
+                `self.download_label` (a translatable template defined in `ql_baseline.yml`,
+                defaulting to `"Download"`).
             download_icon (str): Icon for the 'download' button, default is "download".
-            send_label (str): Label for the 'send' button. Default is self.send_label or "Send".
+            send_label (str): Label for the 'send' button. If `None`, falls back to
+                `self.send_label` (a translatable template defined in `ql_baseline.yml`,
+                defaulting to `"Send"`).
             send_icon (str): Fontawesome icon for the 'send' button. Default is "envelope".
-            zip_label (Optional[str]): Label for the zip option. If not provided, uses the generic template for `self.zip_label` ("Download all").
+            zip_label (Optional[str]): Label for the zip button. If `None`, falls back to
+                `self.zip_label` (a translatable template defined in `al_document.yml`,
+                defaulting to `"Download all"`).
             zip_icon (str): Icon for the zip option, default is "file-archive".
             zip_row_label (str, optional): Text to go in the left-most column
                 of the table's zip row. Will default to the value of `self.title`.
@@ -2296,7 +2374,9 @@ class ALDocumentBundle(DAList):
 
         Args:
             key (str): A key used to identify which version of the ALDocument to send. Defaults to "final".
-            send_label (str): Label for the 'send' button. Default is "Send".
+            send_label (str): Label for the 'send' button. If `None`, falls back to
+                `self.send_label` (a translatable template defined in `ql_baseline.yml`,
+                defaulting to `"Send"`).
             send_icon (str): Icon for the 'send' button. Default is "envelope".
 
         Returns:
@@ -2360,7 +2440,9 @@ class ALDocumentBundle(DAList):
             email (str): The recipient's email address.
             editable (bool, optional): Flag indicating if the bundle is editable. Defaults to False. (deprecated; use preferred_formats instead)
             template_name (str, optional): The name of the template to be used. Defaults to an empty string.
-            label (str, optional): The label for the button. Defaults to "Send".
+            label (str, optional): The label for the button. If `None`, falls back to
+                `self.send_label` (a translatable template defined in `ql_baseline.yml`,
+                defaulting to `"Send"`).
             icon (str, optional): The Fontawesome icon for the button. Defaults to "envelope".
             color (str, optional): The Bootstrap color of the button. Defaults to "primary".
             key (str, optional): A key used to identify which version of the ALDocument to send. Defaults to "final".
@@ -2528,7 +2610,14 @@ class ALDocumentBundle(DAList):
             to (Any): The email address, list of email addresses, or list of Individuals with a .email attribute to send to.
             key (str, optional): Specifies which version of the document to send. Defaults to "final".
             editable (bool, optional): If True, sends the editable documents. Defaults to False. (Deprecated)
-            template (Any): The template variable for the subject and body of the email, similar to da `send_email` `template` variable.
+            template (Any, optional): The template variable for the subject and body of the email,
+                similar to the `template` parameter of docassemble's `send_email` function.
+                If `None`, falls back to `self.send_email_template`, a template defined
+                generically in `al_document.yml`. Its subject defaults to
+                `"Your <document> document from <app> is ready"` and its body to
+                `"Your document is attached. Visit <homepage> to learn more."`
+                Override it by assigning a new template block to `your_bundle.send_email_template`
+                in your interview YAML.
             preferred_formats (str): Specifies the format of the files to send. Can be "pdf" or "docx", or a list of these formats. Overrides deprecated `editable` keyword.
             **kwargs: Additional parameters to pass to the da `send_email` function.
 
