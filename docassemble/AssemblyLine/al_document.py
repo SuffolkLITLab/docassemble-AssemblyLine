@@ -1730,7 +1730,14 @@ class ALDocumentBundle(DAList):
                 pdfa=pdfa,
                 append_matching_suffix=append_matching_suffix,
             )
+            bundle_filename = f"{base_name(self.filename)}{append_suffix}.pdf"
             pdf.title = self.title
+            pdf.filename = bundle_filename
+            try:
+                pdf.set_attributes(filename=bundle_filename)
+                pdf.set_mimetype("application/pdf")
+            except:
+                pass
         else:
             pdf = pdf_concatenate(
                 [document.as_pdf(key=key, refresh=refresh) for document in files],

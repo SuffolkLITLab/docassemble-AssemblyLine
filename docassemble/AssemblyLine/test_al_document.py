@@ -35,6 +35,52 @@ class test_dont_assume_pdf(unittest.TestCase):
         pass
 
 
+class FakePdf:
+    def __init__(self, filename="file.pdf", title="child"):
+        self.filename = filename
+        self.title = title
+        self.attribute_filenames = []
+        self.mimetype = None
+
+    def set_attributes(self, **kwargs):
+        if "filename" in kwargs:
+            self.attribute_filenames.append(kwargs["filename"])
+
+    def set_mimetype(self, mimetype):
+        self.mimetype = mimetype
+
+
+class FakeSingleDoc:
+    def __init__(self, pdf):
+        self._pdf = pdf
+
+    def is_enabled(self, refresh=True):
+        return True
+
+    def as_pdf(self, **kwargs):
+        return self._pdf
+
+
+class TestSingleDocumentBundleFilename(unittest.TestCase):
+    def test_bundle_as_pdf_renames_single_document_to_bundle_filename(self):
+        child_pdf = FakePdf()
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeSingleDoc(child_pdf)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        result = bundle.as_pdf()
+
+        self.assertIs(result, child_pdf)
+        self.assertEqual(result.title, "Bundle title")
+        self.assertEqual(result.filename, "bundle-output.pdf")
+        self.assertEqual(result.attribute_filenames, ["bundle-output.pdf"])
+        self.assertEqual(result.mimetype, "application/pdf")
+
+
 class test_aladdendum(unittest.TestCase):
     def test_safe_value(self):
         text_testcase1 = """Charged by my father with a very delicate mission, I repaired, towards the end of May, 1788, to the château of Ionis, situated a dozen leagues distant, in the lands lying between Angers and Saumur. I was twenty-two, and already practising the profession of lawyer, for which I experienced but slight inclination, although neither the study of business nor of argument had presented serious difficulties to me. Taking my youth into consideration, I was not esteemed without talent, and the standing of my father, a lawyer renowned in the locality, assured me a brilliant patronage in the future, in return for any paltry efforts I might make to be worthy of replacing him. But I would have preferred literature, a more dreamy life, a more independent and more individual use of my faculties, a responsibility less submissive to the passions and interests of others. As my family was well off, and I an only son, greatly spoiled and petted, I might have chosen my own career, but I would have thus afflicted my father, who took pride in his ability to direct me 4in the road which he had cleared in advance, and I loved him too tenderly to permit my instinct to outweigh his wishes.
