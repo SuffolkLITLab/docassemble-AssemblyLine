@@ -35,8 +35,10 @@ class test_dont_assume_pdf(unittest.TestCase):
         pass
 
 
-class FakePdf:
+class FakePdf(DAFile):
     def __init__(self, filename="file.pdf", title="child"):
+        self.instanceName = "fake_pdf"
+        self.has_nonrandom_instance_name = True
         self.filename = filename
         self.title = title
         self.attribute_filenames = []
@@ -78,6 +80,27 @@ class TestSingleDocumentBundleFilename(unittest.TestCase):
         self.assertEqual(result.title, "Bundle title")
         self.assertEqual(result.filename, "bundle-output.pdf")
         self.assertEqual(result.attribute_filenames, ["bundle-output.pdf"])
+        self.assertEqual(result.mimetype, "application/pdf")
+
+
+class TestSingleDocumentFilename(unittest.TestCase):
+    def test_document_as_pdf_renames_plain_dafile_to_document_filename(self):
+        child_pdf = FakePdf()
+        doc = ALDocument(
+            "doc",
+            title="Document title",
+            filename="document-output.pdf",
+            enabled=True,
+            has_addendum=False,
+        )
+        doc["final"] = child_pdf
+
+        result = doc.as_pdf(refresh=False)
+
+        self.assertIs(result, child_pdf)
+        self.assertEqual(result.title, "Document title")
+        self.assertEqual(result.filename, "document-output.pdf")
+        self.assertEqual(result.attribute_filenames, ["document-output.pdf"])
         self.assertEqual(result.mimetype, "application/pdf")
 
 

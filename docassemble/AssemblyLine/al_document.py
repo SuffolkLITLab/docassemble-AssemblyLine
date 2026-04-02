@@ -1108,6 +1108,7 @@ class ALDocument(DADict):
 
         if isinstance(main_doc, DAFileCollection):
             main_doc = main_doc.pdf
+        if isinstance(main_doc, DAFile):
             main_doc.title = self.title
             main_doc.filename = filename
             try:
