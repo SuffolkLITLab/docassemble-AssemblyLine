@@ -310,8 +310,8 @@ def get_interview_metadata(
             {"filename": filename, "tags": metadata_key_name, "session_id": session_id},
         ).fetchone()
 
-    if row:
-        return row[0]  # row is a RowMapping/tuple; data is column 0
+        if row:
+            return row[0]  # row is a RowMapping/tuple; data is column 0
     return {}
 
 
@@ -447,6 +447,7 @@ def get_saved_interview_list(
             log("Asked to get interview list for user that is not logged in")
             return []
 
+    sessions = []
     with db.connect() as con:
         rs = con.execute(
             get_sessions_query,
@@ -463,9 +464,8 @@ def get_saved_interview_list(
                 ),  # We need to pass a value to the query, but it's treated as a flag
             },
         )
-    sessions = []
-    for session in rs:
-        sessions.append(dict(session._mapping))
+        for session in rs:
+            sessions.append(dict(session._mapping))
 
     return sessions
 
@@ -665,12 +665,12 @@ def find_matching_sessions(
         for column, val_tuple in metadata_filters.items():
             parameters[f"{column}_filter"] = val_tuple[0]
 
+    sessions = []
     with db.connect() as con:
         rs = con.execute(get_sessions_query, parameters)
 
-    sessions = []
-    for session in rs:
-        sessions.append(dict(session._mapping))
+        for session in rs:
+            sessions.append(dict(session._mapping))
 
     return sessions
 
