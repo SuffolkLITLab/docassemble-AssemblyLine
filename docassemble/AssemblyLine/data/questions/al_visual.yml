@@ -117,6 +117,7 @@ data from code:
         (
           get_config('assembly line',{}).get('enable answer sets')
           and get_config('assembly line',{}).get('enable answer set imports')
+          and al_allow_answer_set_imports
         )
         or (user_logged_in() and user_has_privilege('admin'))
       )

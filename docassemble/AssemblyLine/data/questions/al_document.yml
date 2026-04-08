@@ -34,9 +34,9 @@ code: |
     key=action_argument("key"),
     preferred_formats=preferred_formats,
   )
-  email_arg = action_argument('email')
+  email_arg = action_argument("email")
   if isinstance(email_arg, list):
-    email_str = ', '.join(email_arg)
+    email_str = ", ".join(email_arg)
   else:
     email_str = str(email_arg)
   if email_success:
@@ -72,9 +72,9 @@ code: |
     key=action_argument("key"),
     preferred_formats=preferred_formats,
   )
-  email_arg = action_argument('email')
+  email_arg = action_argument("email")
   if isinstance(email_arg, list):
-    email_str = ', '.join(email_arg)
+    email_str = ", ".join(email_arg)
   else:
     email_str = str(email_arg)
   if email_success:
