@@ -21,6 +21,7 @@ docassemble.AssemblyLine.egg-info/*
 **/.mypy_cache/**
 dist/**
 .venv/**
+uv.lock
 
 # IDE related
 .vscode/**
