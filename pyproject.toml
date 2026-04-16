@@ -67,6 +67,7 @@ ignore_missing_imports = true
 dev = [
     "docassemble.base>=1.3",
     "docassemble.webapp",
+    "pytest",
     "mypy",
     "pandas-stubs",
     "sqlalchemy[mypy]",
