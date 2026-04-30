@@ -155,15 +155,16 @@ code: |
     for signature in signature_fields:
       # Signature fields are strings like "users[0].signature". If the string ends in .signature, remove that and replace with .typed_signature, only at the end of the string
       if signature.endswith("signature"):
-        typed_signature = signature[:-9] + "typed_signature"
-        define(signature, DAFile(signature, filename="signature.png"))
+        typed_signature = value(signature[:-9] + "typed_signature")
+        define(signature, DAFile(signature, filename="signature.png", alt_text=typed_signature))
         value(signature).initialize()
         create_signature(
-          value(typed_signature),
+          typed_signature,
           value(signature).path(),
           signature_prefix=al_typed_signature_prefix,
           font_name=al_typed_signature_font,
         )
+        del(typed_signature)
       else:
         log(
           "Signature field "
