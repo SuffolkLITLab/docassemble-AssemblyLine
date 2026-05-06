@@ -1755,6 +1755,7 @@ class ALDocumentBundle(DAList):
                 font_size=self.page_number_font_size,
                 offset_horizontal=self.page_number_offset_horizontal,
                 offset_vertical=self.page_number_offset_vertical,
+                filename=pdf.filename,
             )
         pdf.title = self.title
         setattr(self.cache, safe_key, pdf)
