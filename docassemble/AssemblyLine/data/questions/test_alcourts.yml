@@ -6,134 +6,94 @@ metadata:
   title: |
     Test courts classes
 ---
-# TODO: When the testing framework implements the back button,
-# consider reducing this to one page only and simply going back
-# and forth.
+variable name: functionality_list
+data: !!omap
+  - "ALCourtLoader": "ALCourtLoader"
+  - "Court from user selection": "Court from user selection"
+  - "Court filled in by user": "Court filled in by user"
+  - "Geocode": "Geocode"
+---
+objects:
+  - func_ordered: DAOrderedDict.using(elements=functionality_list, auto_gather=False, gathered=True)
+  - all_courts: ALCourtLoader.using(filename="test_vt_courts_list.xlsx")
+---
 mandatory: True
 code: |
-  court_with_all_fields_name
-  court_with_all_fields_result
+  if to_run["ALCourtLoader"]:
+    trial_court = all_courts.as_court('trial_court', trial_court_index)
 
-  name_contains_city_name
-  name_contains_city_result
+  if to_run["Court from user selection"]:
+    trial_court = all_courts.county_court('trial_court', court_county)
 
+  if to_run["Court filled in by user"]:
+    trial_court
+
+  if to_run["Geocode"]:
+    trial_court.geocode()
+
+  trial_court_demo
   end_alcourt_tests
 ---
-# User fills in all fields
----
-objects:
-  - court_with_all_fields_address: Address
----
-depends on:
-  - court_with_all_fields_name
-  - court_with_all_fields_address
-need:
-  - court_with_all_fields_name
-  - court_with_all_fields_address
-code: |
-  court_with_all_fields = ALCourt("court_with_all_fields")
-  court_with_all_fields.name = court_with_all_fields_name
-  court_with_all_fields.address = court_with_all_fields_address
----
-code: |
-  court_with_all_fields.description = "Description of the court that has all its fields filled in defined by the developer."
----
-id: court with all fields
+id: which to test
 question: |
-  User fills all fields
-fields:
-  - Name: court_with_all_fields_name
-  - Address: court_with_all_fields_address.address
-    address autocomplete: True
-    required: False
-  - Suite: court_with_all_fields_address.unit
-    required: False
-  - City: court_with_all_fields_address.city
-    required: False
-  - State: court_with_all_fields_address.state
-    required: False
-  - Postal code: court_with_all_fields_address.zip
-    required: False
----
-# TODO: test `.from_row()`, `.geolocate()`
-id: court_with_all_fields_result
-question: |
-  Court info when all fields filled
+  ALCourts Demo
 subquestion: |
-  `court_with_all_fields.short_label()`:
-  
-  ${ court_with_all_fields.short_label() }
-  
-  `court_with_all_fields.short_label_and_address()`:
-  
-  ${ court_with_all_fields.short_label_and_address() }
-  
-  `court_with_all_fields.short_description()`:
-  
-  ${ court_with_all_fields.short_description() }
-continue button field: court_with_all_fields_result
----
-# Court name includes city
----
-objects:
-  - name_contains_city_address: Address
----
-depends on:
-  - name_contains_city_name
-  - name_contains_city_address
-need:
-  - name_contains_city_name
-  - name_contains_city_address
-code: |
-  name_contains_city = ALCourt("name_contains_city")
-  name_contains_city.name = name_contains_city_name
-  name_contains_city.address = name_contains_city_address
----
-code: |
-  name_contains_city.description = "Description of the court that has just its name filled in defined by the developer."
----
-id: name has city
-question: |
-  Name contains city name
+  This interview lets you try out functionalities from the `al_courts` module.
 fields:
-  - Name: name_contains_city_name
-  - Address: name_contains_city_address.address
-    address autocomplete: True
-    required: False
-  - Suite: name_contains_city_address.unit
-    required: False
-  - City: name_contains_city_address.city
-    required: False
-  - State: name_contains_city_address.state
-    required: False
-  - Postal code: name_contains_city_address.zip    
-    required: False
+  - "What functionality do you want to try?": to_run
+    datatype: checkboxes
+    none of the above: False
+    code: |
+      func_ordered
 ---
-# TODO: test `.from_row()`, `.geolocate()`
-id: name_contains_city_result
+##############
+## Questions you'll want to copy
+##############
+id: choose a court (courts matching provided address were found)
 question: |
-  Court info when all fields filled
+  What family court do you want to select?
+fields:
+  - no label: trial_court_index
+    # Only shows courts with the value "Family Division" in the "divison" column. Returns the row index and the name to show (defaults to the "name" column, but can is set with "display_column='...'").
+    code: all_courts.filter_courts(["Family Division"], column='division')
+help: 
+  label: |
+    How do I pick a court?
+  content: |
+    ${ how_to_pick_court_help_template }
+---
+question: |
+  What county court do you want to select?
+fields:
+  - County: court_county
+    # Gets all of the values in the "address_county" column, sorting them.
+    # sorted(all_courts.county_list()) also does the same thing.
+    code: sorted(all_courts.unique_column_values('address_county'))
+---
+question: |
+  Here is the court you selected
 subquestion: |
-  `name_contains_city.short_label()`:
+  ${ trial_court }
+  ${ trial_court.address.block() }
   
-  ${ name_contains_city.short_label() }
-  
-  `name_contains_city.short_label_and_address()`:
-  
-  ${ name_contains_city.short_label_and_address() }
-  
-  `name_contains_city.short_description()`:
-  
-  ${ name_contains_city.short_description() }
-continue button field: name_contains_city_result
+  ${ trial_court.description }
+
+  ${ trial_court.phone}
+
+  % if to_run["Geocode"] and defined("trial_court.address.location.latitude"):
+  ${ map_of(trial_court) }
+  % elif to_run["Geocode"]:
+  Cannot show the court on a map, be sure you have geocoding setup correctly: https://docassemble.org/docs/objects.html#Address.
+  % endif
+continue button field: trial_court_demo
 ---
 id: end alcourt tests
 event: end_alcourt_tests
 question: The end of ALCourt tests
+buttons:
+  - Restart: restart
 subquestion: |
   Tests still needed:
   
-  - ALCourt `.geolocate()`
   - ALCourt `.from_row()`
-  - ALCourtLoader functionality
 ---
