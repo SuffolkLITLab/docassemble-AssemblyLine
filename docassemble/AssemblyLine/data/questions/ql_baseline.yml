@@ -1249,7 +1249,7 @@ signature: x.signature
 under: |
   ${x}
 validation code: |
-  x.alt_text = f"Signature of {x.name_full()}"
+  x.signature.alt_text = f"Signature of {x.name_full()}"
 ---
 id: signature date
 question: |
