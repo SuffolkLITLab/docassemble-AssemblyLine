@@ -60,6 +60,13 @@ zh-Hans:
 zh-Hant: 
   name: Chinese (Traditional)
   native_name: 繁體中文
+# Alternative codes for Chinese
+zh-CN: 
+  name: Chinese (Simplified, China)
+  native_name: 中文（中国）
+zh-TW: 
+  name: Chinese (Traditional, Taiwan, Hong Kong, Macau)
+  native_name: 中文（台湾）
 # If you have a choice, prefer the more specific Chinese (Simplified) or Chinese (Traditional) codes
 # Note: because we target scripts, we omit Mandarin/Cantonese distinctions in this file.
 zh:
