@@ -7,13 +7,13 @@ code: |
   # Set this to the name of your application
   # Defaults to checking for a possible name from global docassemble config
   al_app_name = get_config(
-    "appname", get_config("external hostname", "CourtFormsOnline.org")
+    "appname", get_config("external hostname", "docassemble")
   )
 ---
 code: |
   # The name of your organization. Defaults to a similar value as `al_app_name`,
   # but is still distinct
-  AL_ORGANIZATION_TITLE = get_config("appname", "CourtFormsOnline")
+  AL_ORGANIZATION_TITLE = get_config("appname", "docassemble")
 ---
 code: |
   AL_ORGANIZATION_HOMEPAGE = get_config("app homepage", "https://courtformsonline.org")

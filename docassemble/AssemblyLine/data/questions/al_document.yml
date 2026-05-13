@@ -89,7 +89,7 @@ code: |
   # Used in the email subject line when email is triggered on download screen.
   # This defaults to the interview title. For example, if the
   # interview title is "Guardianship Helper", the email
-  # subject would be "Your Guardianship Helper document from CourtFormsOnline is ready".
+  # subject would be "Your Guardianship Helper document from docassemble is ready".
   # Customize this if you prefer something like "Your guardianship document is ready"
   x.document_label = str(
     all_variables(special="titles").get(
