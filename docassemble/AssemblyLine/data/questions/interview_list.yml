@@ -158,7 +158,7 @@ default screen parts:
     % elif showifdef("AL_ORGANIZATION_TITLE"):
     ${ AL_ORGANIZATION_TITLE }
     % else:
-    ${ get_config("app name", "CourtFormsOnline") }
+    ${ get_config("appname", "docassemble") }
     % endif
   short title: |
     % if PAGE_TITLE:
@@ -166,7 +166,7 @@ default screen parts:
     % elif showifdef("AL_ORGANIZATION_TITLE"):
     ${ AL_ORGANIZATION_TITLE }
     % else:
-    ${ get_config("app name", "CourtFormsOnline") }
+    ${ get_config("appname", "docassemble") }
     % endif
   title url: |
     % if LOGO_URL:
@@ -197,7 +197,7 @@ default screen parts:
     % elif showifdef("AL_ORGANIZATION_TITLE"):
         <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>    
     % else:
-        <span class="title-row-1">${ get_config("app name", "CourtFormsOnline") }</span>    
+        <span class="title-row-1">${ get_config("appname", "docassemble") }</span>    
     % endif
     % if LOGO_TITLE_ROW_2:
         <span class="title-row-2">${ LOGO_TITLE_ROW_2 }</span>
@@ -223,7 +223,7 @@ default screen parts:
     % elif showifdef("AL_ORGANIZATION_TITLE"):
         <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>    
     % else:
-        <span class="title-row-1">${ get_config("app name", "CourtFormsOnline") }</span>    
+        <span class="title-row-1">${ get_config("appname", "docassemble") }</span>    
     % endif
     % if LOGO_TITLE_ROW_2:
         <span class="title-row-2">${ LOGO_TITLE_ROW_2 }</span>
