@@ -1248,6 +1248,8 @@ question: |
 signature: x.signature
 under: |
   ${x}
+validation code: |
+  x.signature.alt_text = f"Signature of {x.name_full()}"
 ---
 id: signature date
 question: |
