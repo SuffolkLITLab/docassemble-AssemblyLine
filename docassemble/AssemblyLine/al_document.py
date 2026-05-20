@@ -2224,7 +2224,7 @@ class ALDocumentBundle(DAList):
                 download_doc.url_for(
                     attachment=True, display_filename=download_filename
                 ),
-                label=download_label,
+                label=f'{download_label} <span class="visually-hidden">{title}</span>',
                 icon=download_icon,
                 color="primary",
                 size="md",
@@ -2239,7 +2239,7 @@ class ALDocumentBundle(DAList):
                     result["pdf"].url_for(
                         attachment=False, display_filename=view_filename
                     ),
-                    label=view_label,
+                    label=f'{view_label} <span class="visually-hidden">{title}</span>',
                     icon=view_icon,
                     color="secondary",
                     size="md",

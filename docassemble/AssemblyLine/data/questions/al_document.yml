@@ -123,12 +123,12 @@ content: |
 generic object: ALDocumentBundle
 template: x.zip_label
 content: |
-  Download all
+  Download all <span class="visually-hidden">${ x.title }</span> documents
 ---
 generic object: ALDocumentBundle
 template: x.full_pdf_label
 content: |
-  Download as one PDF
+  Download <span class="visually-hidden">${ x.title }</span> as one PDF
 ---
 id: al exhibit ocr pages bg
 event: al_exhibit_ocr_pages
