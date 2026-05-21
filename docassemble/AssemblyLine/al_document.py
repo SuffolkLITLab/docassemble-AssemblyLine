@@ -2224,7 +2224,7 @@ class ALDocumentBundle(DAList):
                 download_doc.url_for(
                     attachment=True, display_filename=download_filename
                 ),
-                label=download_label,
+                label=f'{download_label} <span class="visually-hidden">{title}</span>',
                 icon=download_icon,
                 color="primary",
                 size="md",
@@ -2239,7 +2239,7 @@ class ALDocumentBundle(DAList):
                     result["pdf"].url_for(
                         attachment=False, display_filename=view_filename
                     ),
-                    label=view_label,
+                    label=f'{view_label} <span class="visually-hidden">{title}</span>',
                     icon=view_icon,
                     color="secondary",
                     size="md",
@@ -2503,7 +2503,7 @@ class ALDocumentBundle(DAList):
         key: str = "final",
         show_editable_checkbox: bool = True,
         template_name: str = "",
-        label: str = "Send",
+        label: Optional[str] = None,
         icon: str = "envelope",
         preferred_formats: Optional[Union[str, List[str]]] = None,
         email_legend_class: str = "h4",
@@ -2532,6 +2532,9 @@ class ALDocumentBundle(DAList):
         Returns:
             str: The generated HTML string for the input box and button.
         """
+        if label is None:
+            label = str(self.send_label) or word("Send")
+
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
 

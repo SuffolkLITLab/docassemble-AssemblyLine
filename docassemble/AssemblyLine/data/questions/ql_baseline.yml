@@ -2668,8 +2668,10 @@ content: "Download"
 ---
 generic object: ALDocumentBundle
 template: x.send_label
-content: "Send"
+content: |
+  Send <span class="visually-hidden">${ x.title } documents</span>
 ---
 generic object: ALDocumentBundle
 template: x.send_button_to_label
-content: "Send"
+content: |
+  Send <span class="visually-hidden">${ x.title } documents</span>
