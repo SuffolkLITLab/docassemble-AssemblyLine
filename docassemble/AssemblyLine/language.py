@@ -18,10 +18,10 @@ def _package_name(package_name: Optional[str] = None) -> str:
     """Get package name without the name of the given module. By default this is `docassemble.AssemblyLine.language`
 
     Args:
-        package_name: the name of the package to get the package name from (defaults to `docassemble.AssemblyLine.language`)
+        package_name: the name of the package to get the package name from (defaults to `docassemble.AssemblyLine.language`).
 
     Returns:
-        str: the package name without the name of the given module
+        str: the package name without the name of the given module.
     """
     if not package_name:
         package_name = __name__
@@ -36,7 +36,7 @@ def get_local_languages_yaml() -> str:
     Get the path to the local languages.yml file. If it does not exist, it will return the path to the languages.yml
 
     Returns:
-        str: the path to the local languages.yml file if it exists, otherwise the path to the languages.yml file
+        str: the path to the local languages.yml file if it exists, otherwise the path to the languages.yml file.
     """
     try:
         local_yaml = path_and_mimetype("data/sources/languages.yml")[0]
@@ -61,8 +61,8 @@ def get_tuples(
     English name from pycountry. If neither is present, it will use the language code itself.
 
     Args:
-        lang_codes: a list of ISO 639-1 language codes (e.g. ['en', 'es'])
-        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
+        lang_codes: a list of ISO 639-1 language codes (e.g. ['en', 'es']).
+        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml).
 
     Returns:
         A list of tuples representing the language name, followed by language ISO 639-1 code.
@@ -112,12 +112,12 @@ def get_language_list_dropdown(
     Get a Bootstrap 5 dropdown menu for language selection that can be added to navigation bar.
 
     Args:
-        lang_codes: a list of ISO 639-1 language codes (e.g. ['en', 'es'])
-        current: the current language code
-        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
-        event_name: the name of the event to trigger when the language is changed
-        icon: the name of the icon to use for the dropdown menu (defaults to fa-solid fa-language fa-xl)
-        extra_class: additional classes to add to the link
+        lang_codes: a list of ISO 639-1 language codes (e.g. ['en', 'es']).
+        current: the current language code.
+        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml).
+        event_name: the name of the event to trigger when the language is changed.
+        icon: the name of the icon to use for the dropdown menu (defaults to fa-solid fa-language fa-xl).
+        extra_class: additional classes to add to the link.
     Returns:
       A string containing the HTML for a dropdown menu for language selection.
     """
@@ -154,9 +154,9 @@ def get_language_list_dropdown_item(
     given in the first part of the tuple.
 
     Args:
-        language: a tuple containing the language name and language code
-        link: whether to return a link or just the text
-        event_name: the name of the event to trigger when the language is changed
+        language: a tuple containing the language name and language code.
+        link: whether to return a link or just the text.
+        event_name: the name of the event to trigger when the language is changed.
 
     Returns:
         str: A string containing the HTML for a dropdown menu item for language selection.
@@ -183,11 +183,11 @@ def get_language_list(
     tuples containing the language name and language code. This is deprecated and may be removed in a future version.
 
     Args:
-        languages: a list of tuples containing the language name and language code (deprecated)
-        current: the current language code
-        lang_codes: a list of ISO 639-1 language codes (e.g. ['en', 'es'])
-        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml)
-        event_name: the name of the event to trigger when the language is changed
+        languages: a list of tuples containing the language name and language code (deprecated).
+        current: the current language code.
+        lang_codes: a list of ISO 639-1 language codes (e.g. ['en', 'es']).
+        languages_path: the path to the languages.yml file (defaults to data/sources/languages.yml).
+        event_name: the name of the event to trigger when the language is changed.
 
     Returns:
         A string containing the HTML for an unordered inline list of language selection.
@@ -217,9 +217,9 @@ def get_language_list_item(language, link=True, event_name="al_change_language")
     given in the first part of the tuple.
 
     Args:
-        language: a tuple containing the language name and language code
-        link: whether to return a link or just the text
-        event_name: the name of the event to trigger when the language is changed
+        language: a tuple containing the language name and language code.
+        link: whether to return a link or just the text.
+        event_name: the name of the event to trigger when the language is changed.
 
     Returns:
         str: A string containing the HTML for an unordered inline list item for language selection.

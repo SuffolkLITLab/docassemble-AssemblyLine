@@ -216,7 +216,7 @@ def _package_name(package_name: Optional[str] = None):
     docassemble.ALWeaver.advertise_capabilities
 
     Args:
-        package_name (str, optional): The package name to process. If `None`, will use the existing package name `__name__` instead
+        package_name (str, optional): The package name to process. If `None`, will use the existing package name `__name__` instead.
 
     Returns:
         str: The package name without the current module name.
@@ -237,7 +237,7 @@ def is_file_like(obj: Any) -> bool:
     Return True if the object is a file-like object.
 
     Args:
-        obj (Any): The object to test
+        obj (Any): The object to test.
 
     Returns:
         bool: True if the object is a file-like object.
@@ -273,9 +273,9 @@ def set_interview_metadata(
     - variable_count
 
     Args:
-        filename (str): The filename of the interview to add metadata for
-        session_id (str): The session ID of the interview to add metadata for
-        data (Dict): The metadata to add
+        filename (str): The filename of the interview to add metadata for.
+        session_id (str): The session ID of the interview to add metadata for.
+        data (Dict): The metadata to add.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
     """
     server.write_answer_json(
@@ -290,12 +290,12 @@ def get_interview_metadata(
     We implement this with the docassemble jsonstorage table and a dedicated `tag` which defaults to `metadata`.
 
     Args:
-        filename (str): The filename of the interview to retrieve metadata for
-        session_id (str): The session ID of the interview to retrieve metadata for
+        filename (str): The filename of the interview to retrieve metadata for.
+        session_id (str): The session ID of the interview to retrieve metadata for.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
 
     Returns:
-        Dict[str, Any]: The metadata associated with the interview
+        Dict[str, Any]: The metadata associated with the interview.
     """
     sql = text("""
         SELECT data
@@ -345,7 +345,7 @@ def get_saved_interview_list(
         offset (int, optional): The offset to start returning results from. Defaults to 0.
         filename_to_exclude (str, optional): The filename to exclude from the results. Defaults to "".
         exclude_current_filename (bool, optional): Whether to exclude the current filename from the results. Defaults to True.
-        exclude_filenames (Optional[List[str]], optional): List of filenames to exclude. Defaults to None. If the `filename` does not contain a `:` it will be treated as a prefix, allowing you to filter out whole packages (e.g., any path starting with docassemble.ALDashboard or docassemble.playground)
+        exclude_filenames (Optional[List[str]], optional): List of filenames to exclude. Defaults to None. If the `filename` does not contain a `:` it will be treated as a prefix, allowing you to filter out whole packages (e.g., any path starting with docassemble.ALDashboard or docassemble.playground).
         exclude_newly_started_sessions (bool, optional): Whether to exclude sessions that are still on "step 1". Defaults to False.
 
     Returns:
@@ -490,7 +490,7 @@ def find_matching_sessions(
     The keyword search is case-insensitive and will match any part of the metadata column values.
 
     Args:
-        keyword (str): The keyword to search for in the metadata
+        keyword (str): The keyword to search for in the metadata.
         metadata_column_names (List[str], optional): The names of the metadata columns to search. If not provided, defaults to ["title", "auto_title", "description"].
         filenames (List[str], optional): The filename or filenames of the interviews to retrieve sessions for.
         user_id (Union[int, str, None], optional): The user ID to retrieve sessions for. Defaults to current user. Specify "all" if you want and have the necessary privileges to search all sessions.
@@ -504,12 +504,12 @@ def find_matching_sessions(
         global_search_allowed_roles (Union[Set[str],List[str]], optional): A list or set of roles that are allowed to search all sessions. Defaults to {'admin','developer', 'advocate'}. 'admin' and 'developer' are always allowed to search all sessions.
         metadata_filters (Optional[Dict[str, Tuple[Any, str, Optional[str]]]], optional): A dictionary of metadata column names and their corresponding filter tuples.
             Each tuple should contain (value, operator, cast_type).
-            - value: The value to compare against
-            - operator: One of '=', '!=', '<', '<=', '>', '>=', 'LIKE', 'ILIKE'
-            - cast_type: Optional. One of 'int', 'float', or None for string (default)
+            - value: The value to compare against.
+            - operator: One of '=', '!=', '<', '<=', '>', '>=', 'LIKE', 'ILIKE'.
+            - cast_type: Optional. One of 'int', 'float', or None for string (default).
 
     Returns:
-        List[Dict[str, Any]]: A list of saved sessions for the specified filename that match the search keyword and metadata filters
+        List[Dict[str, Any]]: A list of saved sessions for the specified filename that match the search keyword and metadata filters.
 
     Example:
     ```python
@@ -867,10 +867,10 @@ def nice_interview_title(
     4. Finally, return "Untitled interview" or translated phrase from system-wide words.yml
 
     Args:
-        answer (Dict[str, str]): The answer dictionary to get the interview title from
+        answer (Dict[str, str]): The answer dictionary to get the interview title from.
 
     Returns:
-        str: The human readable interview title
+        str: The human readable interview title.
     """
     if answer.get("filename"):
         for interview in system_interviews:
@@ -892,10 +892,10 @@ def pascal_to_zwspace(text: str) -> str:
     with word breaks on small viewports.
 
     Args:
-        text (str): The text to insert zero-width spaces into
+        text (str): The text to insert zero-width spaces into.
 
     Returns:
-        str: The text with zero-width spaces inserted
+        str: The text with zero-width spaces inserted.
     """
     re_outer = re.compile(r"([^A-Z ])([A-Z])")
     re_inner = re.compile(r"(?<!^)([A-Z])([^A-Z])")
@@ -909,11 +909,11 @@ def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True) -> s
     If exclude_identical, return empty string when title is the same as the subtitle.
 
     Args:
-        answer (Dict[str, str]): The answer dictionary to get the interview subtitle from
+        answer (Dict[str, str]): The answer dictionary to get the interview subtitle from.
         exclude_identical (bool, optional): If True, excludes the subtitle if it is identical to the title. Defaults to True.
 
     Returns:
-        str: The human readable interview subtitle
+        str: The human readable interview subtitle.
     """
     if answer.get("title"):
         return pascal_to_zwspace(answer["title"])
@@ -932,10 +932,10 @@ def radial_progress(answer: Dict[str, Union[str, int]]) -> str:
     Return HTML for a radial progress bar, or the number of steps if progress isn't available in the metadata.
 
     Args:
-        answer (Dict[str, Union[str, int]]): The answer dictionary to get the interview progress from
+        answer (Dict[str, Union[str, int]]): The answer dictionary to get the interview progress from.
 
     Returns:
-        str: the HTML as a string
+        str: the HTML as a string.
     """
     if not answer.get("progress"):
         return f"Page {answer.get('steps') or answer.get('num_keys') or 1}"
@@ -961,10 +961,10 @@ def local_date(utcstring: Optional[str]) -> DADateTime:
     Return a localized date from a UTC string.
 
     Args:
-        utcstring (Optional[str]): The UTC string to convert to a localized date
+        utcstring (Optional[str]): The UTC string to convert to a localized date.
 
     Returns:
-        DADateTime: The localized date
+        DADateTime: The localized date.
     """
     if not utcstring:
         return DADateTime()
@@ -1009,7 +1009,7 @@ def session_list_html(
         metadata_key_name (str, optional): Name of the metadata key. Defaults to "metadata".
         filename_to_exclude (str, optional): Name of the file to exclude. Defaults to `al_session_store_default_filename`.
         exclude_current_filename (bool, optional): If True, excludes the current filename. Defaults to True.
-        exclude_filenames (Optional[List[str]], optional): List of filenames to exclude. Defaults to None. If the `filename` does not contain a `:` it will be treated as a prefix, allowing you to filter out whole packages (e.g., any path starting with docassemble.ALDashboard or docassemble.playground)
+        exclude_filenames (Optional[List[str]], optional): List of filenames to exclude. Defaults to None. If the `filename` does not contain a `:` it will be treated as a prefix, allowing you to filter out whole packages (e.g., any path starting with docassemble.ALDashboard or docassemble.playground).
         exclude_newly_started_sessions (bool, optional): If True, excludes newly started sessions. Defaults to False.
         name_label (str, optional): Label for the session name/title. Defaults to translated word "Title".
         date_label (str, optional): Label for the date column. Defaults to translated word "Date modified".
@@ -1025,7 +1025,7 @@ def session_list_html(
         show_copy_button (bool, optional): If True, show a copy button for answer sets. Defaults to True.
         limit (int, optional): Limit for the number of sessions returned. Defaults to 50.
         offset (int, optional): Offset for the session list. Defaults to 0.
-        answers (Optional[List[Dict[str, Any]], optional): A list of answers to format and display. Defaults to showing all sessions for the current user.
+        answers (Optional[List[Dict[str, Any]]], optional): A list of answers to format and display. Defaults to showing all sessions for the current user.
 
 
     Returns:
@@ -1160,9 +1160,9 @@ def rename_interview_answers(
     metadata that may be present.
 
     Args:
-        filename (str): The filename of the interview to rename
-        session_id (str): The session ID of the interview to rename
-        new_name (str): The new name to set for the interview
+        filename (str): The filename of the interview to rename.
+        session_id (str): The session ID of the interview to rename.
+        new_name (str): The new name to set for the interview.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
 
     If exception is raised in set_session_variables, this will silently fail but log the error.
@@ -1198,7 +1198,7 @@ def set_current_session_metadata(
     Set metadata for the current session, such as the title, in an unencrypted database entry.
 
     Args:
-        data (Dict[str, Any]): The metadata to set
+        data (Dict[str, Any]): The metadata to set.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
     """
     return set_interview_metadata(
@@ -1217,7 +1217,7 @@ def rename_current_session(
     metadata that might be present.
 
     Args:
-        new_name (str): The new name to set for the interview
+        new_name (str): The new name to set for the interview.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
     """
     return rename_interview_answers(
@@ -1523,7 +1523,7 @@ def export_interview_variables(
         additional_variables_to_filter (Union[Set, List[str], None], optional): List or set of additional variables to exclude. Defaults to None.
 
     Returns:
-        DAFile: DAFile with a JSON representation of the answers
+        DAFile: DAFile with a JSON representation of the answers.
     """
     if not output:
         output = DAFile()
@@ -1779,7 +1779,7 @@ def update_current_session_metadata(
 
     Args:
         data (Dict[str, Any]): A dictionary of metadata to add or update.
-        metadata_key_name (str, optional): The tag for the metadata in the
+        metadata_key_name (str, optional): The tag for the metadata in the.
                                            jsonstorage table. Defaults to "metadata".
     """
     return update_session_metadata(
