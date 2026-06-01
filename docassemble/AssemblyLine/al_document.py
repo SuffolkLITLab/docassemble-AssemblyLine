@@ -1602,6 +1602,9 @@ class ALDocumentBundle(DAList):
         email_input_label (DALazyTemplate): Template providing the label for the email input
             field in :meth:`send_button_html`. Defined generically in
             `ql_baseline.yml`; resolves to `"Email"` (or its translation).
+        email_alt_text (DALazyTemplate): Template providing the alt text for the email input
+            field. Defined generically in `ql_baseline.yml`; resolves to
+            `"Email address for document"` (or its translation).
         include_editable_documents (DALazyTemplate): Template providing the label for the.
             "include editable copy" checkbox in :meth:`send_button_html`. Defined generically.
             in `al_document.yml`; resolves to `"Include an editable copy"`
@@ -2415,7 +2418,7 @@ class ALDocumentBundle(DAList):
         input_html = f"""
         <span class="al_email_input_container {name} form-group da-field-container da-field-container-datatype-email">
           <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">Email</label>
-          <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control al_doc_email_field al_button" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
+          <input value="{user_info().email if user_logged_in() else ''}" alt="{str(self.email_alt_text)}" class="form-control al_doc_email_field al_button" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
         </span>
         """
 
@@ -2602,7 +2605,7 @@ class ALDocumentBundle(DAList):
   
     <span class="al_email_address {html_safe_str(self.instanceName)} container form-group row da-field-container da-field-container-datatype-email">
       <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">{email_label}</label>
-      <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
+      <input value="{user_info().email if user_logged_in() else ''}" alt="{str(self.email_alt_text)}" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
     </span>
     
     {action_button_html(javascript_string, label=label, icon=icon, color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}

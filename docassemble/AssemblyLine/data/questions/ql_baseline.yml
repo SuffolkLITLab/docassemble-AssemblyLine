@@ -2679,3 +2679,11 @@ content: |
 generic object: ALDocumentBundle
 template: x.email_input_label
 content: "Email"
+---
+generic object: ALDocumentBundle
+template: x.email_alt_text
+content: "Email address for document"
+---
+generic object: ALDocument
+template: x.email_alt_text
+content: "Email address for document"
