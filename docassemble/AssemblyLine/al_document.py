@@ -1599,6 +1599,9 @@ class ALDocumentBundle(DAList):
             section rendered by :meth:`send_button_html`. Defined generically in
             `al_document.yml`; resolves to `"Get a copy of the documents in email"`
             (or its translation).
+        email_input_label (DALazyTemplate): Template providing the label for the email input
+            field in :meth:`send_button_html`. Defined generically in
+            `ql_baseline.yml`; resolves to `"Email"` (or its translation).
         include_editable_documents (DALazyTemplate): Template providing the label for the
             "include editable copy" checkbox in :meth:`send_button_html`. Defined generically
             in `al_document.yml`; resolves to `"Include an editable copy"`
@@ -2507,6 +2510,7 @@ class ALDocumentBundle(DAList):
         icon: str = "envelope",
         preferred_formats: Optional[Union[str, List[str]]] = None,
         email_legend_class: str = "h4",
+        email_label: Optional[str] = None,
     ) -> str:
         """
         Generate HTML for an input box and button that allows someone to send the bundle
@@ -2528,12 +2532,16 @@ class ALDocumentBundle(DAList):
             preferred_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
             email_legend_class (str, optional): CSS class applied to the email
                 section legend. Defaults to "h4".
+            email_label (str, optional): The label for the email input. Defaults to "Email".
 
         Returns:
             str: The generated HTML string for the input box and button.
         """
         if label is None:
             label = str(self.send_label) or word("Send")
+            
+        if email_label is None:
+            email_label = str(self.email_input_label) or word("Email")
 
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
@@ -2593,7 +2601,7 @@ class ALDocumentBundle(DAList):
   <div class="al_email_container">
   
     <span class="al_email_address {html_safe_str(self.instanceName)} container form-group row da-field-container da-field-container-datatype-email">
-      <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">Email</label>
+      <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">{email_label}</label>
       <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
     </span>
     

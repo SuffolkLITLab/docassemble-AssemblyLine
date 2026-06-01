@@ -2675,3 +2675,7 @@ generic object: ALDocumentBundle
 template: x.send_button_to_label
 content: |
   Send <span class="visually-hidden">${ x.title } documents</span>
+---
+generic object: ALDocumentBundle
+template: x.email_input_label
+content: "Email"
