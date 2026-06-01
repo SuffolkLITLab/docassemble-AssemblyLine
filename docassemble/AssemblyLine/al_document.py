@@ -2539,7 +2539,7 @@ class ALDocumentBundle(DAList):
         """
         if label is None:
             label = str(self.send_label) or word("Send")
-            
+
         if email_label is None:
             email_label = str(self.email_input_label) or word("Email")
 
