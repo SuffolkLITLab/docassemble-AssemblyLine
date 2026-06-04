@@ -24,7 +24,7 @@ code: |
       # We only send the PDF if "editable" checkbox wasn't checked, except when format limited to DOCX (only possible when len == 1)
       preferred_formats = ["pdf"]
 
-  email_success = x.send_email(
+  email_success_doc_bundle = x.send_email(
     to=action_argument("email"),
     template=(
       value(action_argument("template_name"))
@@ -39,7 +39,7 @@ code: |
     email_str = ', '.join(email_arg)
   else:
     email_str = str(email_arg)
-  if email_success:
+  if email_success_doc_bundle:
     # Exact phrase below is in Docassemble's words dictionary
     log(f" {word('E-mail was sent to')} {email_str}", "success")
   else:
@@ -62,7 +62,7 @@ code: |
       # We only send the PDF if "editable" checkbox wasn't checked, except when format limited to DOCX (only possible when len == 1)
       preferred_formats = ["pdf"]
 
-  email_success = x.send_email(
+  email_success_doc_bundle = x.send_email(
     to=action_argument("email"),
     template=(
       value(action_argument("template_name"))
@@ -77,12 +77,12 @@ code: |
     email_str = ', '.join(email_arg)
   else:
     email_str = str(email_arg)
-  if email_success:
+  if email_success_doc_bundle:
     log(f"Email sent to {email_str}")  # to log file
   else:
     log(f" {word('E-mail failed to ')} {email_str}")
 
-  json_response({"success": email_success})
+  json_response({"success": email_success_doc_bundle})
 ---
 generic object: ALDocumentBundle
 code: |
