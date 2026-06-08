@@ -120,3 +120,9 @@ code: |
 code: |
   # Can be an exact path or just a name, in which case we will search /usr/share/fonts and /var/www/.fonts for a matching file ending in .ttf
   al_typed_signature_font = "/usr/share/fonts/truetype/google-fonts/BadScript-Regular.ttf"
+---
+code: |
+  # Allow users to import answer sets from JSON files.
+  # The global config 'enable answer set imports' is checked first; this variable allows
+  # interview authors to disable imports at the interview level even if global config permits them.
+  al_allow_answer_set_imports = True

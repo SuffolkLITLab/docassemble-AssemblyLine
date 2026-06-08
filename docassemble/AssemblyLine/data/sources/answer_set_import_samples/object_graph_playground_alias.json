@@ -1,0 +1,22 @@
+{
+  "users": {
+    "_class": "docassemble.playground1.al_general.ALPeopleList",
+    "instanceName": "users",
+    "object_type": {
+      "_class": "type",
+      "name": "docassemble.playground1.al_general.ALIndividual"
+    },
+    "elements": [
+      {
+        "_class": "docassemble.playground1.al_general.ALIndividual",
+        "instanceName": "users[0]",
+        "name": {
+          "_class": "docassemble.playground1.al_general.IndividualName",
+          "instanceName": "users[0].name",
+          "first": "Client",
+          "last": "Example"
+        }
+      }
+    ]
+  }
+}

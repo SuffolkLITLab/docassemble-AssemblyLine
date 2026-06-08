@@ -33,7 +33,12 @@ from docassemble.base.util import (
 )
 from docassemble.webapp.db_object import init_sqlalchemy
 from sqlalchemy.sql import text
-from docassemble.base.functions import server, safe_json, serializable_dict
+from docassemble.base.functions import (
+    server,
+    safe_json,
+    serializable_dict,
+    this_thread,
+)
 from .al_document import (
     ALDocument,
     ALDocumentBundle,
@@ -41,7 +46,9 @@ from .al_document import (
     ALExhibitList,
     ALStaticDocument,
 )
+import docassemble.base.util
 import json
+import math
 import os
 import re
 import hashlib
@@ -69,6 +76,7 @@ __all__ = [
     "is_valid_json",
     "load_interview_answers",
     "load_interview_json",
+    "get_last_import_report",
     "nice_interview_subtitle",
     "rename_current_session",
     "rename_interview_answers",
@@ -96,9 +104,13 @@ al_sessions_variables_to_remove: Set = {
     "metadata_title",
     "multi_user",
     "nav",
+    "role",
+    "role_event",
+    "role_needed",
     "session_local",
     "speak_text",
     "url_args",
+    "user_dict",
     "user_local",
     # Database-like fields we don't need to copy
     "all_courts",
@@ -209,6 +221,588 @@ al_sessions_variables_to_remove_from_new_interview = [
 ]
 
 system_interviews: List[Dict[str, Any]] = interview_menu()
+
+
+# Conservative defaults for untrusted JSON answer set imports.
+DEFAULT_IMPORT_MAX_BYTES = 1024 * 1024  # 1 MB
+DEFAULT_IMPORT_MAX_DEPTH = 40
+DEFAULT_IMPORT_MAX_KEYS = 20000
+DEFAULT_IMPORT_MAX_LIST_ITEMS = 5000
+DEFAULT_IMPORT_MAX_STRING_LENGTH = 200000
+DEFAULT_IMPORT_MAX_NUMBER_ABS = 10**15
+
+PROTECTED_IMPORT_VARIABLES: Set[str] = {
+    # Dunder names are already rejected by SAFE_VARIABLE_NAME_RE;
+    # these explicit entries cover non-dunder runtime/module symbols.
+    "os",
+    "sys",
+    "subprocess",
+    "pickle",
+    "json",
+    "server",
+    "daconfig",
+}.union({n for n in dir(docassemble.base.util) if not n.startswith("_")})
+
+DANGEROUS_KEY_PREFIXES = ("__",)
+DANGEROUS_KEY_EXACT = {"_internal", "_type", "@type"}
+OBJECT_METADATA_KEYS = {"_class", "instanceName"}
+PROTECTED_OBJECT_ATTRS = {
+    # Dunder attrs are already rejected by the DANGEROUS_KEY_PREFIXES check;
+    # these are non-dunder docassemble internals that must not be importable.
+    "this_thread",
+    "has_nonrandom_instance_name",
+    "attrList",
+}
+SAFE_ATTR_NAME_RE = re.compile(r"\A[A-Za-z_][A-Za-z0-9_]*\Z")
+SAFE_INSTANCE_NAME_RE = re.compile(
+    r"\A[A-Za-z_][A-Za-z0-9_]*(?:\[(?:[0-9]+|'[A-Za-z0-9_ \-]+'|\"[A-Za-z0-9_ \-]+\")\]|\.[A-Za-z_][A-Za-z0-9_]*)*\Z"
+)
+SAFE_VARIABLE_NAME_RE = re.compile(r"\A[A-Za-z][A-Za-z0-9_]*\Z")
+
+# Conservative remaps for known equivalent DA/AL class names across packages
+# (e.g. playground exports). Targets are still validated against allowlist.
+KNOWN_CLASS_REMAP_BY_BASENAME: Dict[str, str] = {
+    "ALIndividual": "docassemble.AssemblyLine.al_general.ALIndividual",
+    "ALPeopleList": "docassemble.AssemblyLine.al_general.ALPeopleList",
+    "ALAddress": "docassemble.AssemblyLine.al_general.ALAddress",
+    "ALAddressList": "docassemble.AssemblyLine.al_general.ALAddressList",
+    "ALNameList": "docassemble.AssemblyLine.al_general.ALNameList",
+    "IndividualName": "docassemble.base.util.IndividualName",
+    "Name": "docassemble.base.util.Name",
+    "Address": "docassemble.base.util.Address",
+    "DADict": "docassemble.base.util.DADict",
+    "DAList": "docassemble.base.util.DAList",
+    "DASet": "docassemble.base.util.DASet",
+}
+
+LAST_IMPORT_REPORT_ATTR = "_assemblyline_last_import_report"
+
+
+def _default_import_report() -> Dict[str, Any]:
+    return {
+        "accepted": [],
+        "rejected": [],
+        "warnings": [],
+        "limits": {},
+        "contains_objects": False,
+        "remapped_classes": [],
+    }
+
+
+def get_last_import_report() -> Dict[str, Any]:
+    """Return a copy of the most recent JSON import report for this thread.
+
+    The report dictionary contains the following keys:
+    - ``accepted``: list of variable names that were imported successfully.
+    - ``rejected``: list of dicts describing paths and reasons for rejection.
+    - ``warnings``: list of warning messages generated during import.
+    - ``limits``: the numerical limits that were applied to the payload.
+    - ``contains_objects``: ``True`` if docassemble object envelopes were detected.
+    - ``remapped_classes``: list of class remapping operations that occurred.
+
+    Returns:
+        Dict[str, Any]: sanitized copy of the last import report.
+    """
+    misc = getattr(this_thread, "misc", None)
+    if not isinstance(misc, dict):
+        return safe_json(_default_import_report())
+    return safe_json(misc.get(LAST_IMPORT_REPORT_ATTR, _default_import_report()))
+
+
+def _set_last_import_report(report: Dict[str, Any]) -> None:
+    misc = getattr(this_thread, "misc", None)
+    if not isinstance(misc, dict):
+        misc = {}
+        setattr(this_thread, "misc", misc)
+    misc[LAST_IMPORT_REPORT_ATTR] = safe_json(report)
+
+
+def _import_limits() -> Dict[str, int]:
+    cfg = get_config("assembly line", {}).get("answer set import limits", {})
+    return {
+        "max_bytes": int(cfg.get("max bytes", DEFAULT_IMPORT_MAX_BYTES)),
+        "max_depth": int(cfg.get("max depth", DEFAULT_IMPORT_MAX_DEPTH)),
+        "max_keys": int(cfg.get("max keys", DEFAULT_IMPORT_MAX_KEYS)),
+        "max_list_items": int(cfg.get("max list items", DEFAULT_IMPORT_MAX_LIST_ITEMS)),
+        "max_string_length": int(
+            cfg.get("max string length", DEFAULT_IMPORT_MAX_STRING_LENGTH)
+        ),
+        "max_number_abs": int(cfg.get("max number abs", DEFAULT_IMPORT_MAX_NUMBER_ABS)),
+        "max_object_depth": int(cfg.get("max object depth", 10)),
+    }
+
+
+def _parse_json_with_limits(json_string: str, limits: Dict[str, int]) -> Any:
+    if len(json_string.encode("utf-8", errors="ignore")) > limits["max_bytes"]:
+        raise ValueError("JSON file is too large")
+    try:
+        parsed = json.loads(json_string)
+    except json.JSONDecodeError as err:
+        raise ValueError("Invalid JSON format") from err
+
+    key_count = 0
+    stack: List[Tuple[Any, int]] = [(parsed, 0)]
+    while stack:
+        node, depth = stack.pop()
+        if depth > limits["max_depth"]:
+            raise ValueError("JSON nesting is too deep")
+
+        if isinstance(node, dict):
+            key_count += len(node)
+            if key_count > limits["max_keys"]:
+                raise ValueError("JSON contains too many keys")
+            for key, val in node.items():
+                if not isinstance(key, str):
+                    raise ValueError("JSON object keys must be strings")
+                if len(key) > limits["max_string_length"]:
+                    raise ValueError("JSON key is too long")
+                if key.startswith(DANGEROUS_KEY_PREFIXES):
+                    raise ValueError(
+                        f"JSON contains forbidden key '{key}' used in object reconstruction"
+                    )
+                stack.append((val, depth + 1))
+
+        elif isinstance(node, list):
+            if len(node) > limits["max_list_items"]:
+                raise ValueError("JSON list contains too many items")
+            for val in node:
+                stack.append((val, depth + 1))
+
+        elif isinstance(node, str):
+            if len(node) > limits["max_string_length"]:
+                raise ValueError("JSON contains a string value that is too long")
+
+        elif isinstance(node, bool) or node is None:
+            continue
+
+        elif isinstance(node, (int, float)):
+            if isinstance(node, float) and not math.isfinite(node):
+                raise ValueError("JSON contains a non-finite numeric value")
+            if abs(node) > limits["max_number_abs"]:
+                raise ValueError("JSON contains a numeric value outside allowed range")
+
+        else:
+            raise ValueError("JSON contains an unsupported value type")
+
+    return parsed
+
+
+def _safe_variable_name(name: str) -> bool:
+    if not SAFE_VARIABLE_NAME_RE.match(name):
+        return False
+    if name in PROTECTED_IMPORT_VARIABLES:
+        return False
+    return True
+
+
+def _normalized_string_config_values(value: Any) -> Optional[List[str]]:
+    """Return a cleaned list of strings from supported config shapes."""
+    if isinstance(value, str):
+        raw_values = [value]
+    elif isinstance(value, (list, tuple, set)):
+        raw_values = list(value)
+    else:
+        return None
+    return [text for item in raw_values if (text := str(item).strip())]
+
+
+def _allowed_import_variables() -> Optional[Set[str]]:
+    """Optional strict allowlist from config; when empty/undefined, default policy applies."""
+    raw_allowed = get_config("assembly line", {}).get(
+        "answer set import allowed variables"
+    )
+    if raw_allowed is None:
+        return None
+    normalized_values = _normalized_string_config_values(raw_allowed)
+    if normalized_values is None:
+        return None
+    cleaned = set(normalized_values)
+    return cleaned if cleaned else None
+
+
+def _allow_object_imports() -> bool:
+    return get_config("assembly line", {}).get("answer set import allow objects", True)
+
+
+def _default_allowed_object_classes() -> Set[str]:
+    return {
+        "docassemble.base.core.DAObject",
+        "docassemble.base.util.DAObject",
+        "docassemble.base.util.DADict",
+        "docassemble.base.util.DAList",
+        "docassemble.base.util.DASet",
+        "docassemble.base.util.Individual",
+        "docassemble.base.util.Person",
+        "docassemble.base.util.Name",
+        "docassemble.base.util.IndividualName",
+        "docassemble.base.util.Address",
+        "docassemble.base.util.PeriodicValue",
+        "docassemble.base.util.FinancialList",
+        "docassemble.base.util.Income",
+        "docassemble.AssemblyLine.al_general.ALIndividual",
+        "docassemble.AssemblyLine.al_general.ALIndividualDict",
+        "docassemble.AssemblyLine.al_general.ALPeopleList",
+        "docassemble.AssemblyLine.al_general.ALAddress",
+        "docassemble.AssemblyLine.al_general.ALAddressList",
+        "docassemble.AssemblyLine.al_general.ALNameList",
+        "docassemble.AssemblyLine.al_courts.ALCourt",
+        "docassemble.AssemblyLine.al_courts.MACourt",
+    }
+
+
+def _allowed_object_classes() -> Set[str]:
+    allowed = _default_allowed_object_classes()
+    configured = get_config("assembly line", {}).get(
+        "answer set import allowed object classes", []
+    )
+    normalized_values = _normalized_string_config_values(configured)
+    if normalized_values is not None:
+        for class_name in normalized_values:
+            allowed.add(class_name)
+    return allowed
+
+
+def _class_remap_table() -> Dict[str, str]:
+    remap = dict(KNOWN_CLASS_REMAP_BY_BASENAME)
+    configured = get_config("assembly line", {}).get(
+        "answer set import class remap", {}
+    )
+    if isinstance(configured, dict):
+        for key, value in configured.items():
+            source = str(key).strip()
+            target = str(value).strip()
+            if source and target:
+                remap[source] = target
+    return remap
+
+
+def _maybe_remap_class_name(
+    class_name: str,
+    allowed_object_classes: Set[str],
+    remap_table: Dict[str, str],
+) -> Tuple[str, bool]:
+    if class_name in allowed_object_classes:
+        return class_name, False
+    if not remap_table:
+        return class_name, False
+    basename = class_name.rsplit(".", 1)[-1]
+    target = remap_table.get(basename)
+    if target and target in allowed_object_classes:
+        return target, True
+    return class_name, False
+
+
+def _is_safe_object_attr_name(name: str) -> bool:
+    if name in OBJECT_METADATA_KEYS:
+        return True
+    if name in PROTECTED_OBJECT_ATTRS:
+        return False
+    if name.startswith(DANGEROUS_KEY_PREFIXES):
+        return False
+    return bool(SAFE_ATTR_NAME_RE.match(name))
+
+
+def _is_safe_instance_name(name: str, max_length: int) -> bool:
+    if not isinstance(name, str):
+        return False
+    if len(name) == 0 or len(name) > max_length:
+        return False
+    if not SAFE_INSTANCE_NAME_RE.match(name):
+        return False
+    if "__" in name:
+        return False
+    return True
+
+
+def _sanitize_import_value(
+    value: Any,
+    path: str,
+    limits: Dict[str, int],
+    allow_objects: bool,
+    allowed_object_classes: Set[str],
+    remapped_classes: List[Dict[str, str]],
+    remap_table: Dict[str, str],
+    blocked_keys: Set[str],
+    object_stack: Optional[List[str]] = None,
+) -> Tuple[Any, bool]:
+    """Validate and sanitize nested imported values.
+
+    Returns:
+        Tuple[Any, bool]: (sanitized value, contains object envelope)
+    """
+    if object_stack is None:
+        object_stack = []
+
+    if isinstance(value, dict):
+        if value.get("_class") == "type":
+            if not allow_objects:
+                raise ValueError("object imports are disabled")
+            if set(value.keys()) != {"_class", "name"}:
+                raise ValueError("type envelope can only include _class and name")
+            class_name = value.get("name")
+            if not isinstance(class_name, str):
+                raise ValueError("type envelope name must be a string")
+            resolved_class, remapped = _maybe_remap_class_name(
+                class_name, allowed_object_classes, remap_table
+            )
+            if resolved_class not in allowed_object_classes:
+                raise ValueError(f"type envelope class '{class_name}' is not allowed")
+            if remapped:
+                remapped_classes.append(
+                    {"path": path, "from": class_name, "to": resolved_class}
+                )
+            return {"_class": "type", "name": resolved_class}, True
+
+        if "_class" in value or "instanceName" in value:
+            if not allow_objects:
+                raise ValueError("object imports are disabled")
+            if "_class" not in value or "instanceName" not in value:
+                raise ValueError(
+                    "object metadata must include both _class and instanceName"
+                )
+
+            class_name = value.get("_class")
+            instance_name = value.get("instanceName")
+            if not isinstance(class_name, str):
+                raise ValueError("object _class must be a string")
+            if not isinstance(instance_name, str):
+                raise ValueError("object instanceName must be a string")
+
+            if instance_name in blocked_keys:
+                raise ValueError(f"object instanceName '{instance_name}' is blocked")
+            if not _safe_variable_name(instance_name.split(".")[0].split("[")[0]):
+                raise ValueError(
+                    f"object instanceName '{instance_name}' violates safe variable naming"
+                )
+
+            if instance_name in object_stack:
+                raise ValueError(
+                    f"circular or repeating object reference detected: {instance_name}"
+                )
+            if len(object_stack) >= limits.get("max_object_depth", 10):
+                raise ValueError("nested object envelope depth limit exceeded")
+
+            resolved_class, remapped = _maybe_remap_class_name(
+                class_name, allowed_object_classes, remap_table
+            )
+            if resolved_class not in allowed_object_classes:
+                raise ValueError(f"object class '{class_name}' is not allowed")
+            if not _is_safe_instance_name(instance_name, limits["max_string_length"]):
+                raise ValueError("object instanceName is invalid")
+            if remapped:
+                remapped_classes.append(
+                    {"path": path, "from": class_name, "to": resolved_class}
+                )
+
+            obj_sanitized: Dict[str, Any] = {
+                "_class": resolved_class,
+                "instanceName": instance_name,
+            }
+            object_stack.append(instance_name)
+            for key, nested in value.items():
+                if key in OBJECT_METADATA_KEYS:
+                    continue
+                nested_path = f"{path}.{key}"
+                if key in blocked_keys or nested_path in blocked_keys:
+                    continue
+                if not isinstance(key, str):
+                    raise ValueError("object attribute name must be a string")
+                if not _is_safe_object_attr_name(key):
+                    raise ValueError(f"unsafe object attribute '{key}'")
+                nested_sanitized, _ = _sanitize_import_value(
+                    nested,
+                    nested_path,
+                    limits,
+                    allow_objects,
+                    allowed_object_classes,
+                    remapped_classes,
+                    remap_table,
+                    blocked_keys,
+                    object_stack,
+                )
+                obj_sanitized[key] = nested_sanitized
+            object_stack.pop()
+            return obj_sanitized, True
+
+        sanitized: Dict[str, Any] = {}
+        contains_object = False
+        for key, nested in value.items():
+            nested_path = f"{path}.{key}"
+            if key in blocked_keys or nested_path in blocked_keys:
+                continue
+            if not isinstance(key, str):
+                raise ValueError("nested object key must be a string")
+            if key in DANGEROUS_KEY_EXACT:
+                raise ValueError(f"forbidden nested key '{key}'")
+            if key.startswith(DANGEROUS_KEY_PREFIXES):
+                raise ValueError(f"forbidden nested key '{key}'")
+            nested_sanitized, nested_contains_object = _sanitize_import_value(
+                nested,
+                nested_path,
+                limits,
+                allow_objects,
+                allowed_object_classes,
+                remapped_classes,
+                remap_table,
+                blocked_keys,
+                object_stack,
+            )
+            sanitized[key] = nested_sanitized
+            contains_object = contains_object or nested_contains_object
+        return sanitized, contains_object
+
+    if isinstance(value, list):
+        if len(value) > limits["max_list_items"]:
+            raise ValueError("JSON list contains too many items")
+        sanitized_list: List[Any] = []
+        contains_object = False
+        for index, nested in enumerate(value):
+            nested_sanitized, nested_contains_object = _sanitize_import_value(
+                nested,
+                f"{path}[{index}]",
+                limits,
+                allow_objects,
+                allowed_object_classes,
+                remapped_classes,
+                remap_table,
+                blocked_keys,
+                object_stack,
+            )
+            sanitized_list.append(nested_sanitized)
+            contains_object = contains_object or nested_contains_object
+        return sanitized_list, contains_object
+
+    if isinstance(value, str):
+        if len(value) > limits["max_string_length"]:
+            raise ValueError("JSON contains a string value that is too long")
+        return value, False
+
+    if isinstance(value, bool) or value is None:
+        return value, False
+
+    if isinstance(value, (int, float)):
+        if isinstance(value, float) and not math.isfinite(value):
+            raise ValueError("JSON contains a non-finite numeric value")
+        if abs(value) > limits["max_number_abs"]:
+            raise ValueError("JSON contains a numeric value outside allowed range")
+        return value, False
+
+    raise ValueError("JSON contains an unsupported value type")
+
+
+def _get_target_interview_variables(filename: str) -> Set[str]:
+    """Extract variable names known to a specific interview from its parsed AST."""
+    try:
+        from docassemble.base.interview_cache import get_interview
+
+        interview = get_interview(filename)
+    except Exception:
+        return set()
+
+    names_used = set()
+    if hasattr(interview, "names_used"):
+        names_used.update(interview.names_used)
+    if hasattr(interview, "questions_list"):
+        for q in interview.questions_list:
+            if hasattr(q, "mako_names"):
+                names_used.update(q.mako_names)
+            if hasattr(q, "names_used"):
+                names_used.update(q.names_used)
+            if hasattr(q, "fields_used"):
+                names_used.update(q.fields_used)
+    if hasattr(interview, "questions"):
+        for val in interview.questions:
+            names_used.add(val)
+
+    return names_used
+
+
+def _sanitize_json_import_payload(
+    payload: Any,
+    variables_to_filter: Optional[List[str]] = None,
+    target_filename: Optional[str] = None,
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    if not isinstance(payload, dict):
+        raise ValueError("JSON root must be an object")
+
+    blocked = set(al_sessions_variables_to_remove)
+    if variables_to_filter:
+        blocked = blocked.union(set(variables_to_filter))
+
+    allowed = _allowed_import_variables()
+    if target_filename:
+        target_vars = _get_target_interview_variables(target_filename)
+        if target_vars:
+            if allowed is None:
+                allowed = target_vars
+            else:
+                allowed = allowed.intersection(target_vars)
+
+    limits = _import_limits()
+    allow_objects = _allow_object_imports()
+    allowed_object_classes = _allowed_object_classes()
+    al_config = get_config("assembly line", {})
+    remap_enabled = al_config.get("answer set import remap known classes", True)
+    remap_table = _class_remap_table() if remap_enabled else {}
+    accepted: Dict[str, Any] = {}
+    rejected: List[Dict[str, str]] = []
+    warnings: List[str] = []
+    has_object_payload = False
+    remapped_classes: List[Dict[str, str]] = []
+
+    if not al_config.get("answer set import require signed", False):
+        warnings.append(
+            "Unsigned imports are enabled. All values are validated against structural limits and object allowlists."
+        )
+
+    for key, value in payload.items():
+        if not isinstance(key, str):
+            rejected.append({"path": str(key), "reason": "non-string key"})
+            continue
+        if key in blocked:
+            rejected.append({"path": key, "reason": "protected variable"})
+            continue
+        if not _safe_variable_name(key):
+            rejected.append({"path": key, "reason": "unsafe variable name"})
+            continue
+        if allowed is not None and key not in allowed:
+            rejected.append({"path": key, "reason": "not in allowlist"})
+            continue
+        try:
+            sanitized_value, nested_object = _sanitize_import_value(
+                value,
+                key,
+                limits,
+                allow_objects,
+                allowed_object_classes,
+                remapped_classes,
+                remap_table,
+                blocked,
+            )
+            accepted[key] = sanitized_value
+            has_object_payload = has_object_payload or nested_object
+        except Exception as err:
+            rejected.append({"path": key, "reason": str(err)})
+            continue
+
+    if has_object_payload:
+        warnings.append(
+            "Object payload detected. Import will reconstruct only allowlisted docassemble object classes."
+        )
+    elif not allow_objects:
+        warnings.append(
+            "Object imports are disabled; only plain JSON values are accepted."
+        )
+
+    report = {
+        "accepted": sorted(list(accepted.keys())),
+        "rejected": rejected,
+        "warnings": warnings,
+        "limits": limits,
+        "contains_objects": has_object_payload,
+        "remapped_classes": remapped_classes,
+    }
+    return accepted, report
 
 
 def _package_name(package_name: Optional[str] = None):
@@ -545,6 +1139,8 @@ def find_matching_sessions(
         metadata_search_conditions = "TRUE"
 
     # Add metadata filters
+    _ALLOWED_OPERATORS = {"=", "!=", "<", "<=", ">", ">=", "LIKE", "ILIKE"}
+    _ALLOWED_CAST_TYPES = {"int", "float"}
     if metadata_filters:
         metadata_filter_conditions = []
         for column, val_tuple in metadata_filters.items():
@@ -553,6 +1149,14 @@ def find_matching_sessions(
                 cast_type = None
             else:
                 value, operator, cast_type = val_tuple
+
+            if operator.upper() not in _ALLOWED_OPERATORS:
+                raise ValueError(f"Disallowed SQL operator: {operator}")
+            if cast_type and cast_type.lower() not in _ALLOWED_CAST_TYPES:
+                raise ValueError(f"Disallowed SQL cast type: {cast_type}")
+            if not column.isidentifier():
+                raise ValueError(f"Invalid metadata column name: {column}")
+
             if cast_type:
                 column_expr = f"CAST(jsonstorage.data->>{repr(column)} AS {cast_type})"
             else:
@@ -594,7 +1198,7 @@ def find_matching_sessions(
                     userdict.key as key,
                     {', '.join(f"jsonstorage.data->>{repr(column)} as {column}" for column in metadata_column_names)},
                     jsonstorage.data as data
-            FROM userdict 
+            FROM userdict
             NATURAL JOIN (
                 SELECT key, MAX(modtime) AS modtime, COUNT(key) AS num_keys
                 FROM userdict
@@ -611,7 +1215,7 @@ def find_matching_sessions(
         ) AS unique_sessions
         ORDER BY modtime DESC
         LIMIT :limit OFFSET :offset;
-        """)
+        """)  # nosec B608
 
     if offset < 0:
         offset = 0
@@ -1470,7 +2074,7 @@ def load_interview_json(
     new_session: bool = False,
     new_interview_filename: Optional[str] = None,
     variables_to_filter: Optional[List[str]] = None,
-) -> Optional[int]:
+) -> Optional[Union[int, bool]]:
     """
     Given a JSON string, this function loads the specified variables into a Docassemble session.
     JSON strings containing annotated class names will be transformed into Docassemble objects.
@@ -1485,21 +2089,66 @@ def load_interview_json(
     Returns:
         Optional[Union[int, bool]]: ID of the newly created session if `new_session` is True, otherwise True or False based on success.
     """
-    json_processed = json.loads(json_string)
+    limits = _import_limits()
+    target_filename = new_interview_filename or current_context().filename
+    try:
+        parsed = _parse_json_with_limits(json_string, limits)
+        json_processed, report = _sanitize_json_import_payload(
+            parsed,
+            variables_to_filter=variables_to_filter,
+            target_filename=target_filename,
+        )
+        report["limits"] = limits
+    except Exception as err:
+        _set_last_import_report(
+            {
+                "accepted": [],
+                "rejected": [
+                    {
+                        "path": "$",
+                        "reason": str(err),
+                    }
+                ],
+                "warnings": [],
+                "limits": limits,
+            }
+        )
+        return False
+
+    if not json_processed:
+        report["warnings"].append("No variables were imported from the provided JSON.")
+        _set_last_import_report(report)
+        return False
 
     if new_session:
         if not new_interview_filename:
             new_interview_filename = current_context().filename
         new_session_id = create_session(new_interview_filename)
         set_session_variables(
-            new_interview_filename, new_session_id, json_processed, process_objects=True
+            new_interview_filename,
+            new_session_id,
+            json_processed,
+            process_objects=bool(report.get("contains_objects", False)),
         )
+        _set_last_import_report(report)
         return new_session_id
     else:
         try:
-            set_variables(json_processed, process_objects=True)
+            set_variables(
+                json_processed,
+                process_objects=bool(report.get("contains_objects", False)),
+            )
+            _set_last_import_report(report)
             return True
-        except:
+        except Exception:
+            log("Answer set import failed while setting variables")
+            report["rejected"].append(
+                {
+                    "path": "$",
+                    "reason": "failed to apply imported variables to session",
+                }
+            )
+            _set_last_import_report(report)
             return False
 
 
@@ -1551,9 +2200,9 @@ def is_valid_json(json_string: str) -> bool:
         bool: True if the string is a valid JSON, otherwise it raises a validation error and returns False.
     """
     try:
-        json.loads(json_string)
-    except:
-        validation_error("Enter a valid JSON-formatted string")
+        _parse_json_with_limits(json_string, _import_limits())
+    except Exception as err:
+        validation_error(str(err))
         return False
     return True
 
@@ -1714,7 +2363,9 @@ def update_session_metadata(
 
     # 2) Derive two signed 32‑bit ints from MD5(session_id|filename|tags)
     key_string = f"{session_id}|{filename}|{metadata_key_name}"
-    digest = hashlib.md5(key_string.encode("utf-8"), usedforsecurity=False).digest()
+    digest = hashlib.md5(
+        key_string.encode("utf-8"), usedforsecurity=False
+    ).digest()  # nosec B324
     high_u32, low_u32 = struct.unpack(">II", digest[:8])
 
     def to_signed_32(x: int) -> int:

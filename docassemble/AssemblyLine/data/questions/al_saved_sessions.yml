@@ -3,6 +3,7 @@ code: |
   # HACK
   # Create a placeholder value to avoid playground errors
   al_sessions_snapshot_results = DAEmpty()
+  al_sessions_last_import_report = {"accepted": [], "rejected": [], "warnings": []}
 ---
 initial: True
 code: |
@@ -217,8 +218,6 @@ back button: False
 ---
 id: al sessions load status
 continue button field: al_sessions_load_status
-comment: |
-  #TODO There's no error handling yet so this might be a lie
 question: |
   % if al_sessions_snapshot_results:
   Your answer set was loaded
@@ -226,8 +225,34 @@ question: |
   Your answer set was not loaded. You can try again.
   % endif
 subquestion: |
+  % if defined('al_sessions_last_import_report'):
+  % if al_sessions_last_import_report.get('warnings'):
+  ${ collapse_template(al_sessions_import_warnings_template) }
+  % endif
+  % if al_sessions_last_import_report.get('rejected'):
+  ${ collapse_template(al_sessions_import_rejected_template) }
+  % endif
+  % endif
+
   Tap "next" to keep answering any unanswered questions and finish the interview.
 back button: False
+---
+template: al_sessions_import_warnings_template
+subject: Import warnings
+content: |
+  % for warning in al_sessions_last_import_report.get('warnings', []):
+  * ${ warning }
+  % endfor
+---
+template: al_sessions_import_rejected_template
+subject: Variables skipped during import
+content: |
+  % for item in al_sessions_last_import_report.get('rejected', [])[:50]:
+  * `${ item.get('path', '?') }`: ${ item.get('reason', 'unknown reason') }
+  % endfor
+  % if len(al_sessions_last_import_report.get('rejected', [])) > 50:
+  * ${ len(al_sessions_last_import_report.get('rejected', [])) - 50 } more variables were skipped and are not shown here.
+  % endif
 ---
 question: |
   Upload a JSON file
@@ -239,11 +264,9 @@ fields:
     accept: |
       "application/json, text/json, text/*, .json"
 validation code: |
-  try:
-    json.loads(al_sessions_json_file.slurp())
-  except:
-    validation_error("Upload a file with valid JSON")
+  is_valid_json(al_sessions_json_file.slurp())
 ---
 code: |
   al_sessions_snapshot_results = load_interview_json(al_sessions_json_file.slurp())
+  al_sessions_last_import_report = get_last_import_report()
   al_sessions_import_json = True
