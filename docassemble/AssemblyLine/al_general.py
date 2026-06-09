@@ -778,27 +778,36 @@ class ALPeopleList(DAList):
             comma_string=comma_string,
         )
 
-    def familiar(self, **kwargs) -> str:
-        """Provide a list of familiar forms of names of individuals.
+    def familiar(self, unique_names: Optional[list]=None, default: Optional[str]=None) -> str:
+        """Provide a list of familiar forms of names of individuals, in the
+        most familiar way possible while preserving uniqueness. When possible,
+        it will return just the first name of each individual.
+
+        See ALIndividual.familiar for how the familiar form of each individual is determined.
 
         Args:
-            **kwargs: Keyword arguments to pass to the familiar method.
+            unique_names (list): A list of unique names to check input against.
+            default (str): The default name to use if a unique name is not available.
         Returns:
             str: Formatted string of familiar names.
         """
-        return comma_and_list([person.familiar(**kwargs) for person in self])
+        return comma_and_list([person.familiar(unique_names=unique_names, default=default) for person in self])
 
-    def familiar_or(self, **kwargs) -> str:
-        """Provide a list of familiar forms of names of individuals separated by 'or'.
+    def familiar_or(self, unique_names: Optional[list]=None, default: Optional[str]=None) -> str:
+        """Provide a list of familiar forms of names of individuals separated by 'or',
+        using the most familiar form possible while preserving uniqueness. When possible, it will return just the first name of each individual.
+
+        See ALIndividual.familiar for how the familiar form of each individual is determined.
 
         Args:
-            **kwargs: Keyword arguments to pass to the familiar method.
+            unique_names (list): A list of unique names to check input against.
+            default (str): The default name to use if a unique name is not available.
 
         Returns:
             str: Formatted string of familiar names separated by 'or'.
         """
         return comma_and_list(
-            [person.familiar(**kwargs) for person in self], and_string=word("or")
+            [person.familiar(unique_names=unique_names, default=default) for person in self], and_string=word("or")
         )
 
     def short_list(self, limit: int, truncate_string: str = ", et al.") -> str:
