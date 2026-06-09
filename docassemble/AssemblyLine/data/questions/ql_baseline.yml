@@ -2160,7 +2160,7 @@ code: |
 generic object: ALDocumentUpload
 id: Upload a document for a bundle that will not be transformed
 question: |
-  ${ x.title.capitalize() }
+  ${ str(x.title).capitalize() }
 fields:
   - I do not have a ${ x.title }: x.has_no_file
     datatype: yesno

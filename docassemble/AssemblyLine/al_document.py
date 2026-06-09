@@ -1936,7 +1936,7 @@ class ALDocumentBundle(DAList):
             if isinstance(document, ALDocumentBundle):
                 flat_list.extend(document.get_titles(key=key, refresh=refresh))
             else:
-                flat_list.append(document.title)
+                flat_list.append(str(document.title))
         return flat_list
 
     def as_pdf_list(

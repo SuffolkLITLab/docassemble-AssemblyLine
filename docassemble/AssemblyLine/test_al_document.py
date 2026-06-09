@@ -1,7 +1,7 @@
 # do not pre-load
 
 import unittest
-from docassemble.base.util import DAFile
+from docassemble.base.util import DAFile, DATemplate
 from .al_document import ALDocument, ALDocumentBundle, ALAddendumField
 
 
@@ -102,6 +102,27 @@ class TestSingleDocumentFilename(unittest.TestCase):
         self.assertEqual(result.filename, "document-output.pdf")
         self.assertEqual(result.attribute_filenames, ["document-output.pdf"])
         self.assertEqual(result.mimetype, "application/pdf")
+
+
+class TestTranslatableDocumentTitles(unittest.TestCase):
+    def test_get_titles_returns_rendered_strings(self):
+        document = ALDocument(
+            "document",
+            title=DATemplate(content="Translated document title"),
+            filename="document",
+            enabled=True,
+        )
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[document],
+            filename="bundle",
+            enabled=True,
+        )
+
+        titles = bundle.get_titles()
+
+        self.assertEqual(titles, ["Translated document title"])
+        self.assertIsInstance(titles[0], str)
 
 
 class test_aladdendum(unittest.TestCase):
