@@ -10,7 +10,7 @@ id: consent of parent 1 2
 question: |
   Does ${ users[1] } consent to ${ children[0].preferred_name }'s name change?
 fields:
-  - ${ users[1] } consents: users[0].consented_to_name_change
+  - ${ users[1] } consents: users[1].consented_to_name_change
     datatype: yesnoradio
 ---
 id: consent of parent 1 attached
