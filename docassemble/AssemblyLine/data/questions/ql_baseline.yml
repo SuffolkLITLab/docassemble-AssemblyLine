@@ -674,7 +674,7 @@ validation code: |
   if dont_know_docket_number:
     docket_number = ""
 ---
-id: do-you-have-a-case-number-used-to-track
+id: do-you-have-a-docket-number
 question: |
   Do you have a case number used to track this case in court?
 fields:
@@ -705,7 +705,7 @@ validation code: |
   if dont_know_case_number:
     case_number = ""
 ---
-id: do-you-have-a-case-number-used-to-track
+id: do-you-have-a-case-number
 question: |
   Do you have a case number used to track this case in court?
 fields:

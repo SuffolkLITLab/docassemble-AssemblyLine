@@ -11,7 +11,7 @@ code: |
   # If you intentionally want to use catchall questions, you can set this value to False
   al_warn_catchall_questions = True
 ---
-id: xlabel-if-hasattrx-label-else-xobjectnam
+id: catchall-default
 generic object: DACatchAll
 question: |
   ${ x.label if hasattr(x, "label") else x.object_name() }?
@@ -26,7 +26,7 @@ validation code: |
 css: |
   ${ dacatchall_css_template }
 ---
-id: how-much-is-xlabel-if-hasattrx-label-el
+id: catchall-currency
 if: |
   x.context == 'float' or (x.data_type_guess() == 'float')
 generic object: DACatchAll
@@ -44,7 +44,7 @@ validation code: |
 css: |
   ${ dacatchall_css_template }  
 ---
-id: xlabel-if-hasattrx-label-else-xobjectnam
+id: catchall-int
 if: |
   x.data_type_guess() == 'int'
 generic object: DACatchAll
@@ -62,7 +62,7 @@ validation code: |
 css: |
   ${ dacatchall_css_template }  
 ---
-id: xlabel-if-hasattrx-label-else-xobjectnam
+id: catchall-bool
 if: |
   x.data_type_guess() == 'bool'
 generic object: DACatchAll
@@ -80,7 +80,7 @@ validation code: |
 css: |
   ${ dacatchall_css_template }  
 ---
-id: xlabel-if-hasattrx-label-else-xobjectnam
+id: catchall-date
 if: |
   x.object_name().endswith('date')
 generic object: DACatchAll
