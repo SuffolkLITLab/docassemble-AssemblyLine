@@ -275,12 +275,18 @@ class ALAddress(Address):
                 }
             )
 
+        # All 'field' entries start with the full name of the object (i.e. 'users[1].address...'),
+        # so make sure the keys in maxlengths and required have that prefix
+        prefix = self.attr_name("")
+        rename_key = lambda key: key if key.startswith(prefix) else prefix + key
         if maxlengths:
+            maxlengths = {rename_key(k): v for k, v in maxlengths.items()}
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
 
         if required:
+            required = {rename_key(k): v for k, v in required.items()}
             for field in fields:
                 if field["field"] in required:
                     field["required"] = required[field["field"]]
@@ -1223,17 +1229,6 @@ class ALIndividual(Individual):
                 for field in fields:
                     field["show if"] = show_if
 
-            if maxlengths:
-                for field in fields:
-                    if field["field"] in maxlengths:
-                        field["maxlength"] = maxlengths[field["field"]]
-
-            if required:
-                for field in fields:
-                    if field["field"] in required:
-                        field["required"] = required[field["field"]]
-
-            return fields
         elif person_or_business == "business":
             fields = [
                 {
@@ -1244,17 +1239,6 @@ class ALIndividual(Individual):
             if show_if:
                 fields[0]["show if"] = show_if
 
-            if maxlengths:
-                for field in fields:
-                    if field["field"] in maxlengths:
-                        field["maxlength"] = maxlengths[field["field"]]
-
-            if required:
-                for field in fields:
-                    if field["field"] in required:
-                        field["required"] = required[field["field"]]
-
-            return fields
         else:
             # Note: the labels are template block objects: if they are keys,
             # they should be converted to strings first
@@ -1317,17 +1301,23 @@ class ALIndividual(Individual):
                 }
             )
 
-            if maxlengths:
-                for field in fields:
-                    if field["field"] in maxlengths:
-                        field["maxlength"] = maxlengths[field["field"]]
+        # All 'field' entries start with the full name of the object (i.e. 'users[1].address...'),
+        # so make sure the keys in maxlengths and required have that prefix
+        prefix = self.attr_name("name.")
+        rename_key = lambda key: key if key.startswith(prefix) else prefix + key
+        if maxlengths:
+            maxlengths = {rename_key(k): v for k, v in maxlengths.items()}
+            for field in fields:
+                if field["field"] in maxlengths:
+                    field["maxlength"] = maxlengths[field["field"]]
 
-            if required:
-                for field in fields:
-                    if field["field"] in required:
-                        field["required"] = required[field["field"]]
+        if required:
+            required = {rename_key(k): v for k, v in required.items()}
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
 
-            return fields
+        return fields
 
     def address_fields(
         self,
@@ -1428,12 +1418,18 @@ class ALIndividual(Individual):
         if show_if:
             fields[0]["show if"] = show_if
 
+        # All 'field' entries start with the full name of the object (i.e. 'users[1].address...'),
+        # so make sure the keys in maxlengths and required have that prefix
+        prefix = self.attr_name("")
+        rename_key = lambda key: key if key.startswith(prefix) else prefix + key
         if maxlengths:
+            maxlengths = {rename_key(k): v for k, v in maxlengths.items()}
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
 
         if required:
+            required = {rename_key(k): v for k, v in required.items()}
             for field in fields:
                 if field["field"] in required:
                     field["required"] = required[field["field"]]
@@ -1590,12 +1586,18 @@ class ALIndividual(Individual):
         if show_if:
             fields[0]["show if"] = show_if
 
+        # All 'field' entries start with the full name of the object (i.e. 'users[1].address...'),
+        # so make sure the keys in maxlengths and required have that prefix
+        prefix = self.attr_name("")
+        rename_key = lambda key: key if key.startswith(prefix) else prefix + key
         if maxlengths:
+            maxlengths = {rename_key(k): v for k, v in maxlengths.items()}
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
 
         if required:
+            required = {rename_key(k): v for k, v in required.items()}
             for field in fields:
                 if field["field"] in required:
                     field["required"] = required[field["field"]]
