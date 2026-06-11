@@ -124,7 +124,9 @@ code: |
 id: Mako template
 question: |
   Enable Mako template?
-yesno: mako_template_enabled
+fields:
+  - "Enable mako template?": mako_template_enabled
+    datatype: yesno
 ---
 code: |
   # You must use an intermediate value to set the enabled status, because it is not

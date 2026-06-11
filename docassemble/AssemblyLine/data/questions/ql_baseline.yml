@@ -181,7 +181,7 @@ question: |
 subquestion: |
   ${ collapse_template(help_user_ask_role_template) }
 fields: 
-  - no label: user_detailed_role_started_case
+  - "Who started this case?": user_detailed_role_started_case
     datatype: radio
     choices:
       - I started this case: started
@@ -782,9 +782,9 @@ question: |
   Are any children involved in this matter?
   % endif  
 fields:
-  - no label: children.there_are_any
+  - "Any children?": children.there_are_any
     datatype: yesnoradio
-  - How many?: children.target_number
+  - "How many <span class='visually-hidden'>children</span>?": children.target_number
     datatype: integer
     show if: children.there_are_any
 validation code: |
@@ -813,9 +813,9 @@ id: how many witnesses
 question: |
   Do you have any witnesses?
 fields:
-  - no label: witnesses.there_are_any
+  - "Any witnesses?": witnesses.there_are_any
     datatype: yesnoradio
-  - no label: witnesses.target_number
+  - "How many <span class='visually-hidden'>witnesses</span>?": witnesses.target_number
     datatype: integer
     show if: witnesses.there_are_any
 validation code: |

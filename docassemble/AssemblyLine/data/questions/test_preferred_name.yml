@@ -65,7 +65,9 @@ objects:
 id: is-there-anyone-else
 question: |
   Is there anyone else?
-yesno: other_people.there_is_another
+fields:
+  - "Anyone else to add?": other_people.there_is_another
+    datatype: yesno
 ---
 code: |
   other_people[i].name.first
