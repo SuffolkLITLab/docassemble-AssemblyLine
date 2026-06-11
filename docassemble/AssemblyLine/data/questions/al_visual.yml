@@ -268,7 +268,7 @@ fields:
     show if:
       variable: al_how_share_link
       is: email_or_sms
-  - Message: tell_a_friend_message
+  - "Message <span class='visually-hidden'>to friend</span>": tell_a_friend_message
     datatype: area
     default: |
       Hi, I wanted to let you know about a free website that I learned about:
@@ -276,7 +276,7 @@ fields:
       help you, too. Check it out at the link in this message:       
     js show if: |
       val("al_how_share_link") === "email_or_sms" && val("al_sharing_type") === "tell_friend"
-  - Message: share_interview_answers_message
+  - "Message <span class='visually-hidden'>with answers</span>": share_interview_answers_message
     datatype: area
     default: |
       Hi, I wanted to share my progress on a form on "${ AL_ORGANIZATION_TITLE }".

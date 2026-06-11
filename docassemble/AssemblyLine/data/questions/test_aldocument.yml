@@ -9,6 +9,7 @@ metadata:
   title: |
     Test ALDocument class
 ---
+id: intro-screen
 continue button field: intro_screen
 question: |
   Intro screen

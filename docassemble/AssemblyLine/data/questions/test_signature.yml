@@ -11,6 +11,7 @@ code: |
   basic_questions_signature_flow
   show_signatures
 ---
+id: your-signature
 event: show_signatures
 question: |
   Your signature

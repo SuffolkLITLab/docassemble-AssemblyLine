@@ -29,6 +29,7 @@ code: |
 
   show_results
 ---
+id: which-test-scenario-would-you-like-to-ru
 question: |
   Which test scenario would you like to run?
 field: test_scenario
@@ -38,6 +39,7 @@ choices:
   - Test business with preferred name: business_with_preferred
   - Test conflict resolution: conflict_resolution
 ---
+id: what-is-your-preferred-first-name
 question: |
   What is your preferred first name?
 subquestion: |
@@ -48,6 +50,7 @@ fields:
   - Preferred first name: users[0].preferred_name.first
     required: False
 ---
+id: what-is-the-other-persons-name
 question: |
   What is the other person's name?
 subquestion: |
@@ -59,14 +62,18 @@ fields:
 objects:
   - other_people: ALPeopleList.using(object_type=ALIndividual, complete_attribute="complete")
 ---
+id: is-there-anyone-else
 question: |
   Is there anyone else?
-yesno: other_people.there_is_another
+fields:
+  - "Anyone else to add?": other_people.there_is_another
+    datatype: yesno
 ---
 code: |
   other_people[i].name.first
   other_people[i].complete = True
 ---
+id: test-results
 event: show_results
 question: |
   Test Results

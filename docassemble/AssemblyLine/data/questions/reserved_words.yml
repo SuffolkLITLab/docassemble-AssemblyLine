@@ -88,7 +88,5 @@ code: |
       "allow_cron",
     ]
   )
----
-mandatory: True
-code: |
+  
   json_response(sorted(all_reserved))

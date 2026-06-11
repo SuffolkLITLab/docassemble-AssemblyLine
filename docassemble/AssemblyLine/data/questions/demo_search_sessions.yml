@@ -40,12 +40,14 @@ code: |
   else:
     matching_results = find_matching_sessions(search_keyword, user_id="all")
 ---
+id: we-didnt-find-any-matches
 event: no_matches
 question: |
   We didn't find any matches
 subquestion: |
   Check your spelling and try again.
 ---
+id: we-found-lenmatchingresults-results-th
 continue button field: show_results
 question: |
   We found ${ len(matching_results) } results that match your keyword
