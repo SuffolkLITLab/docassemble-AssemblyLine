@@ -136,7 +136,6 @@ sections:
 progressive: False
 ---
 # A code block is the only way to show navigation with custom labels (mako isn't allowed in `sections`)
-mandatory: True
 code: |
   nav.set_sections(
     [
@@ -149,6 +148,7 @@ code: |
       {"section_search": word("Search")},
     ]
   )
+  set_sections_once = True
 ---
 # These override the `metadata` above
 default screen parts:
@@ -237,6 +237,7 @@ default screen parts:
 ---
 mandatory: True
 code: |
+  set_sections_once
   if not user_logged_in():
     command("signin")
   if get_config("assembly line", {}).get("enable answer sets"):

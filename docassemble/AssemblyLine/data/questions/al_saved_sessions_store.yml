@@ -16,6 +16,7 @@ modules:
 mandatory: True
 code: |
   multi_user = True
+  show_saved_answer_set
 ---
 features:
   css:
@@ -24,7 +25,7 @@ features:
   navigation back button: False
 ---
 id: saved-answer-set-if-allvariablesspecial
-mandatory: True
+event: show_saved_answer_set
 question: |
   Saved answer set
   % if all_variables(special='titles').get('sub'):
