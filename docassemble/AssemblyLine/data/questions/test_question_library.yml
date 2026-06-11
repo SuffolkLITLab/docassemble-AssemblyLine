@@ -28,6 +28,7 @@ code: |
     users[0].pronouns
   all_done
 ---
+id: all-done
 event: all_done
 question: All done!
 subquestion: |
@@ -50,6 +51,7 @@ subquestion: |
   % endif
   % endfor
 ---
+id: which-question-do-you-want-to-test
 question: Which question do you want to test?
 field: which_to_test
 choices:
@@ -59,6 +61,7 @@ choices:
   - Address (with the option to not have one): address_no_address
   - Contact Information: contact
 ---
+id: what-is-your-address
 sets: users[0].address.has_no_address
 question: |
   What is your address?

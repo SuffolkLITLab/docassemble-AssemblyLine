@@ -229,6 +229,7 @@ subquestion: |
   Tap "next" to keep answering any unanswered questions and finish the interview.
 back button: False
 ---
+id: upload-a-json-file
 question: |
   Upload a JSON file
 subquestion: |

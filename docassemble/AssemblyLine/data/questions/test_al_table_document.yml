@@ -20,6 +20,7 @@ objects:
 objects:
   - al_court_bundle: ALDocumentBundle.using(elements=[test_table], filename='court_bundle.pdf', title='All forms to send to the court', enabled=False)
 ---
+id: intro
 field: intro
 question: |
   Intro
@@ -27,6 +28,7 @@ question: |
 imports:
   - mimetypes
 ---
+id: download
 event: download
 question: |
   Download

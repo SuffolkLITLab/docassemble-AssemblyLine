@@ -6,7 +6,7 @@ fields:
   - I consent: users[0].consented_to_name_change
     datatype: yesnoradio
 ---
-id: consent of parent 1
+id: consent of parent 1 2
 question: |
   Does ${ users[1] } consent to ${ children[0].preferred_name }'s name change?
 fields:

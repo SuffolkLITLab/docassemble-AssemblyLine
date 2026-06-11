@@ -11,6 +11,7 @@ code: |
   # If you intentionally want to use catchall questions, you can set this value to False
   al_warn_catchall_questions = True
 ---
+id: xlabel-if-hasattrx-label-else-xobjectnam
 generic object: DACatchAll
 question: |
   ${ x.label if hasattr(x, "label") else x.object_name() }?
@@ -25,6 +26,7 @@ validation code: |
 css: |
   ${ dacatchall_css_template }
 ---
+id: how-much-is-xlabel-if-hasattrx-label-el
 if: |
   x.context == 'float' or (x.data_type_guess() == 'float')
 generic object: DACatchAll
@@ -42,6 +44,7 @@ validation code: |
 css: |
   ${ dacatchall_css_template }  
 ---
+id: xlabel-if-hasattrx-label-else-xobjectnam
 if: |
   x.data_type_guess() == 'int'
 generic object: DACatchAll
@@ -59,6 +62,7 @@ validation code: |
 css: |
   ${ dacatchall_css_template }  
 ---
+id: xlabel-if-hasattrx-label-else-xobjectnam
 if: |
   x.data_type_guess() == 'bool'
 generic object: DACatchAll
@@ -76,6 +80,7 @@ validation code: |
 css: |
   ${ dacatchall_css_template }  
 ---
+id: xlabel-if-hasattrx-label-else-xobjectnam
 if: |
   x.object_name().endswith('date')
 generic object: DACatchAll
@@ -131,6 +136,7 @@ content: |
   This warning message will not appear when this interview is installed on a production
   server.
 ---
+id: if-hasattrx-question
 #############
 # Catchall questions for generic objects with custom Jinja2 filters to provide text
 # 1. catchall_options()

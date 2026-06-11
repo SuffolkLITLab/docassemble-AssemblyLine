@@ -23,6 +23,7 @@ features:
   question help button: True
   navigation back button: False
 ---
+id: saved-answer-set-if-allvariablesspecial
 mandatory: True
 question: |
   Saved answer set

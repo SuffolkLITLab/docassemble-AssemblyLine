@@ -674,6 +674,7 @@ validation code: |
   if dont_know_docket_number:
     docket_number = ""
 ---
+id: do-you-have-a-case-number-used-to-track
 question: |
   Do you have a case number used to track this case in court?
 fields:
@@ -704,6 +705,7 @@ validation code: |
   if dont_know_case_number:
     case_number = ""
 ---
+id: do-you-have-a-case-number-used-to-track
 question: |
   Do you have a case number used to track this case in court?
 fields:
@@ -1146,7 +1148,7 @@ fields:
   - code: |
       users[i].previous_addresses[j].address_fields(default_state=AL_DEFAULT_STATE)
 ---
-id: has another previous address
+id: has another previous address 2
 question: |
   % if i == 0 and al_person_answering == "user":
   Do you have any other address where you used to live to tell us about?
@@ -1438,7 +1440,7 @@ code: |
   trial_court.name = trial_court_name
   trial_court.address = trial_court_address
 ---
-id: choose a court
+id: choose a court 2
 question: |
   What is the name of the appeals court your case is in?
 subquestion: |
@@ -1784,6 +1786,7 @@ content: |
   Please contact ${users} in the next business day to
   confirm that you received this message.
 ---
+id: review-of-your-answers
 event: review_all_sections
 question: |
   Review of your answers
@@ -1807,7 +1810,7 @@ subquestion: |
 buttons:
   ${word("Resume")}: continue
 ---
-id: is the user the plaintiff or defendant?
+id: is the user the plaintiff or defendant? 2
 comment: |
   This question is asked if the interview can be used by both
   a Plaintiff and a Defendant. It sets the value of `user_role`, `user_started_case`,
@@ -2107,6 +2110,7 @@ template: al_exhibit_total_pages_label
 content: |
   Total pages
 ---
+id: review-your-documents
 generic object: ALExhibitList
 question: |
   Review your documents
@@ -2121,6 +2125,7 @@ subquestion: |
   ${ x.add_action() }
 continue button field: x.rearrange_exhibits
 ---
+id: review-your-document-pages
 generic object: ALExhibit
 question: |
   Review your document pages
@@ -2493,7 +2498,7 @@ fields:
   - no label: x.aliases.there_is_another
     datatype: yesnoradio
 ---
-id: name i
+id: name i 2
 question: |
   % if i == 0 and al_person_answering == "user":
   What was your ${ ordinal(j) } name?
@@ -2510,7 +2515,7 @@ fields:
     code: name_suffix()
 ---
 generic object: ALIndividual
-id: x i name
+id: x i name 2
 question: |
   What is the ${ ordinal(i) } name that ${ x.preferred_name } has been known by?
 fields:

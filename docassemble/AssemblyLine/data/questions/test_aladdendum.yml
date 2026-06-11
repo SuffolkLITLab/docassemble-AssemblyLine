@@ -10,6 +10,7 @@ code: |
   intro_screen
   ending_screen
 ---
+id: test-addendum-class
 question: |
   Test addendum class
 continue button field: intro_screen
@@ -27,12 +28,14 @@ code: |
   al_addendum_test_attachment.overflow_fields["custom_list_item"].label = "Custom list"
   al_addendum_test_attachment.overflow_fields.gathered = True
 ---
+id: are-there-any-custom-list-items
 question: |
   Are there any custom list items?
 fields:
   - no label: custom_list_item.there_are_any
     datatype: yesnoradio
 ---
+id: are-there-any-more
 question: |
   Are there any more?
 subquestion: |
@@ -41,6 +44,7 @@ fields:
   - no label: custom_list_item.there_is_another
     datatype: yesnoradio
 ---
+id: tell-me-about-the-ordinali-list-item
 question: |
   Tell me about the ${ ordinal(i) } list item
 fields:
@@ -63,6 +67,7 @@ attachment:
 
     % endfor
 ---
+id: download
 event: ending_screen
 question: |
   Download

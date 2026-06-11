@@ -57,11 +57,13 @@ attachment:
   content: |
     Test content
 ---
+id: about-to-make-a-pdf
 mandatory: True
 question: |
   About to make a PDF
 continue button field: the_field
 ---
+id: download
 mandatory: True
 question: |
   Download

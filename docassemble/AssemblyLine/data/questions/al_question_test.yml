@@ -59,6 +59,7 @@ code: |
   many_bundles_test
   end
 ---
+id: test
 question: |
   Test
 fields:
@@ -101,6 +102,7 @@ subquestion: |
 
   [Edit user's name](${url_action('users[0].name.first')})
 ---
+id: try-a-big-text-field
 question: |
   Try a big text field
 subquestion: |

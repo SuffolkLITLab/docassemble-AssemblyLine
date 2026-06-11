@@ -16,6 +16,7 @@ code: |
     al_download_waiting_screen
   download_screen
 ---
+id: intro-screen
 continue button field: intro_screen
 question: |
   Intro screen
