@@ -1499,7 +1499,7 @@ question: |
 subquestion: |
   How do you want to sign them?
 fields: 
-  - I will sign: signature_choice
+  - "I will sign <span class='visually-hidden'>desktop</span>": signature_choice
     input type: radio
     choices:
       - On a phone with my finger: phone
@@ -1516,7 +1516,7 @@ fields:
         al_form_requires_digital_signature and not (
           device() and (device().is_mobile or device().is_touch_capable)
         )
-  - I will sign: signature_choice
+  - "I will sign <span class='visually-hidden'>mobile</span>": signature_choice
     input type: radio
     choices:
       - On this device: this_device
@@ -1526,7 +1526,7 @@ fields:
         al_form_requires_digital_signature and (
           device() and (device().is_mobile or device().is_touch_capable)
         )
-  - I will sign: signature_choice
+  - "I will sign <span class='visually-hidden'>desktop with print</span>": signature_choice
     input type: radio
     choices:
       - On a phone with my finger: phone
@@ -1544,7 +1544,7 @@ fields:
         not al_form_requires_digital_signature and not (
           device() and (device().is_mobile or device().is_touch_capable)
         )
-  - I will sign: signature_choice
+  - "I will sign <span class='visually-hidden'>mobile with print</span>": signature_choice
     input type: radio
     choices:
       - On this device: this_device
