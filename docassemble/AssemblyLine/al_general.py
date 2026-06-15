@@ -838,7 +838,9 @@ class ALPeopleList(DAList):
         else:
             return comma_and_list(self)
 
-    def full_names(self, comma_string=", ", and_string=word("and")) -> str:
+    def full_names(
+        self, comma_string: str = ", ", and_string: Optional[str] = None
+    ) -> str:
         """Return a formatted list of full names of individuals.
 
         Args:
@@ -848,6 +850,8 @@ class ALPeopleList(DAList):
         Returns:
             str: Formatted string of full names.
         """
+        if not and_string:
+            and_string = word("and")
         return comma_and_list(
             [
                 (
