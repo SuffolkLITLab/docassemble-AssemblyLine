@@ -42,6 +42,7 @@ event: al_change_language
 code: |
   # Set browser-specific language for this interview session
   if "lang" in action_arguments():
+    al_user_language = action_argument("lang")
     session_local.al_user_language = action_argument("lang")
     set_language(session_local.al_user_language)
 ---
@@ -50,4 +51,5 @@ code: |
   # Set "global" language for this interview session instead of user-specific
   if "lang" in action_arguments():
     al_user_language = action_argument("lang")
-    set_language(al_user_language)
+    session_local.al_user_language = action_argument("lang")
+    set_language(session_local.al_user_language)
