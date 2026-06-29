@@ -28,6 +28,10 @@ class test_aladdress(unittest.TestCase):
         for field in fields:
             if "zip" in field["field"]:
                 self.assertTrue(field["required"])
+        fields = addr.address_fields(required={"zip": True})
+        for field in fields:
+            if "zip" in field["field"]:
+                self.assertTrue(field["required"])
         fields = addr.address_fields()
         for field in fields:
             if "zip" in field["field"]:
@@ -586,7 +590,7 @@ class TestALIndividual(unittest.TestCase):
         # Test business case with required parameter
         fields = self.individual.name_fields(
             person_or_business="business",
-            required={"test_individual.name.first": True},
+            required={"first": True},
             title_choices=["a title"],
             suffix_choices=["Jr.", "Sr."],
         )
@@ -613,9 +617,7 @@ class TestALIndividual(unittest.TestCase):
         )  # Should not have required by default
 
         # Test with required parameter
-        fields = self.individual.gender_fields(
-            required={"test_individual.gender": True}
-        )
+        fields = self.individual.gender_fields(required={"gender": True})
         gender_field = fields[0]
         self.assertEqual(gender_field["required"], True)
 
