@@ -1382,7 +1382,7 @@ def get_filtered_session_variables(
         if is_file_like(value):
             del all_vars[key]
             continue
-            
+
         if id(value) in visited:
             continue
         visited.add(id(value))
