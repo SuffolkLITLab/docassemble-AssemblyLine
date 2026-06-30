@@ -31,9 +31,8 @@ from docassemble.base.util import (
     validation_error,
     word,
 )
-from docassemble.webapp.db_object import init_sqlalchemy
 from sqlalchemy.sql import text
-from docassemble.base.functions import server, safe_json, serializable_dict
+from docassemble.base.functions import safe_json, serializable_dict
 from .al_document import (
     ALDocument,
     ALDocumentBundle,
@@ -46,6 +45,33 @@ import os
 import re
 import hashlib
 import struct
+
+try:
+    from docassemble.base.hooks import write_answer_json as _write_answer_json
+except ModuleNotFoundError as err:
+    if err.name != "docassemble.base.hooks":
+        raise
+    # docassemble < 1.10 exposes webapp hooks through the legacy server object.
+    from docassemble.base.functions import server as _legacy_server
+
+    def _write_answer_json(*args, **kwargs):
+        return _legacy_server.write_answer_json(*args, **kwargs)
+
+
+try:
+    from docassemble.webapp.db import (
+        get_session as _get_session,
+        session_scope as _session_scope,
+    )
+except ModuleNotFoundError as err:
+    if err.name != "docassemble.webapp.db":
+        raise
+    # docassemble < 1.10 uses a SQLAlchemy engine instead of session context managers.
+    from docassemble.webapp.db_object import init_sqlalchemy
+
+    _legacy_db = init_sqlalchemy()
+    _get_session = _legacy_db.connect
+    _session_scope = _legacy_db.begin
 
 try:
     import zoneinfo  # type: ignore
@@ -79,8 +105,6 @@ __all__ = [
     "update_current_session_metadata",
     "update_session_metadata",
 ]
-
-db = init_sqlalchemy()
 
 al_sessions_variables_to_remove: Set = {
     # Internal fields
@@ -278,7 +302,7 @@ def set_interview_metadata(
         data (Dict): The metadata to add.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
     """
-    server.write_answer_json(
+    _write_answer_json(
         session_id, filename, safe_json(data), tags=metadata_key_name, persistent=True
     )
 
@@ -304,8 +328,8 @@ def get_interview_metadata(
            AND tags        = :tags
            AND key         = :session_id
         """)
-    with db.connect() as con:
-        row = con.execute(
+    with _get_session() as session:
+        row = session.execute(
             sql,
             {"filename": filename, "tags": metadata_key_name, "session_id": session_id},
         ).fetchone()
@@ -448,8 +472,8 @@ def get_saved_interview_list(
             return []
 
     sessions = []
-    with db.connect() as con:
-        rs = con.execute(
+    with _get_session() as session:
+        rs = session.execute(
             get_sessions_query,
             {
                 "metadata": metadata_key_name,
@@ -464,8 +488,8 @@ def get_saved_interview_list(
                 ),  # We need to pass a value to the query, but it's treated as a flag
             },
         )
-        for session in rs:
-            sessions.append(dict(session._mapping))
+        for row in rs:
+            sessions.append(dict(row._mapping))
 
     return sessions
 
@@ -666,11 +690,11 @@ def find_matching_sessions(
             parameters[f"{column}_filter"] = val_tuple[0]
 
     sessions = []
-    with db.connect() as con:
-        rs = con.execute(get_sessions_query, parameters)
+    with _get_session() as session:
+        rs = session.execute(get_sessions_query, parameters)
 
-        for session in rs:
-            sessions.append(dict(session._mapping))
+        for row in rs:
+            sessions.append(dict(row._mapping))
 
     return sessions
 
@@ -720,8 +744,8 @@ def delete_interview_sessions(
 
     log(f"Deleting sessions with {user_id} {filename_to_exclude} {current_filename}")
 
-    with db.connect() as connection:
-        connection.execute(
+    with _session_scope() as session:
+        session.execute(
             delete_sessions_query,
             {
                 "user_id": user_id,
@@ -1638,11 +1662,11 @@ def get_filenames_having_sessions(
     sql_all = text("SELECT DISTINCT filename FROM userdict")
     sql_user = text("SELECT DISTINCT filename FROM userdict WHERE user_id = :user_id")
 
-    with db.connect() as conn:
+    with _get_session() as session:
         if user_id is None:
-            rows = conn.execute(sql_all).mappings().all()
+            rows = session.execute(sql_all).mappings().all()
         else:
-            rows = conn.execute(sql_user, {"user_id": user_id}).mappings().all()
+            rows = session.execute(sql_user, {"user_id": user_id}).mappings().all()
 
     return [row["filename"] for row in rows]
 
@@ -1723,48 +1747,47 @@ def update_session_metadata(
     h1 = to_signed_32(high_u32)
     h2 = to_signed_32(low_u32)
 
-    with db.connect() as con:
-        # Wrap in a transaction so the advisory lock holds until COMMIT
-        with con.begin():
-            # 3) Acquire the advisory lock on (h1,h2)
-            con.execute(
-                text("SELECT pg_advisory_xact_lock(:h1, :h2)"),
-                {"h1": h1, "h2": h2},
-            )
+    # The advisory lock and upsert must share one transaction.
+    with _session_scope() as session:
+        # 3) Acquire the advisory lock on (h1,h2)
+        session.execute(
+            text("SELECT pg_advisory_xact_lock(:h1, :h2)"),
+            {"h1": h1, "h2": h2},
+        )
 
-            # 4) Try UPDATE first, using CAST() instead of ::jsonb
-            update_sql = text("""
-                UPDATE jsonstorage
-                   SET data = jsonstorage.data || CAST(:data AS jsonb)
-                 WHERE key = :session_id
-                   AND filename = :filename
-                   AND tags = :tags
+        # 4) Try UPDATE first, using CAST() instead of ::jsonb
+        update_sql = text("""
+            UPDATE jsonstorage
+               SET data = jsonstorage.data || CAST(:data AS jsonb)
+             WHERE key = :session_id
+               AND filename = :filename
+               AND tags = :tags
+        """)
+        result = session.execute(
+            update_sql,
+            {
+                "data": json_data_string,
+                "session_id": session_id,
+                "filename": filename,
+                "tags": metadata_key_name,
+            },
+        )
+
+        # 5) If nothing was updated, INSERT
+        if (result.rowcount or 0) == 0:
+            insert_sql = text("""
+                INSERT INTO jsonstorage (key, filename, tags, data)
+                VALUES (:session_id, :filename, :tags, CAST(:data AS jsonb))
             """)
-            result = con.execute(
-                update_sql,
+            session.execute(
+                insert_sql,
                 {
-                    "data": json_data_string,
                     "session_id": session_id,
                     "filename": filename,
                     "tags": metadata_key_name,
+                    "data": json_data_string,
                 },
             )
-
-            # 5) If nothing was updated, INSERT
-            if (result.rowcount or 0) == 0:
-                insert_sql = text("""
-                    INSERT INTO jsonstorage (key, filename, tags, data)
-                    VALUES (:session_id, :filename, :tags, CAST(:data AS jsonb))
-                """)
-                con.execute(
-                    insert_sql,
-                    {
-                        "session_id": session_id,
-                        "filename": filename,
-                        "tags": metadata_key_name,
-                        "data": json_data_string,
-                    },
-                )
 
 
 def update_current_session_metadata(
