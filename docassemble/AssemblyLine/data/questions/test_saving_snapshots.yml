@@ -1,0 +1,15 @@
+---
+include:
+  - docassemble.AssemblyLine:assembly_line.yml
+---
+mandatory: True
+code: |
+  al_sessions_snapshot_label
+  al_sessions_save_session_snapshot
+  finish_screen
+---
+id: finish screen
+event: finish_screen
+question: |
+  Done
+---
