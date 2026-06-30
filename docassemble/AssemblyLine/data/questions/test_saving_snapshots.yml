@@ -1,11 +1,13 @@
 ---
 include:
-  - docassemble.AssemblyLine:assembly_line.yml
+  - assembly_line.yml
 ---
 mandatory: True
 code: |
+  al_sessions_additional_variables_to_filter = []
   al_sessions_snapshot_label
   al_sessions_save_session_snapshot
+  al_sessions_save_status
   finish_screen
 ---
 id: finish screen

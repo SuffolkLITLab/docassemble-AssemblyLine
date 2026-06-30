@@ -1373,6 +1373,7 @@ def get_filtered_session_variables(
     all_vars = {k: v for k, v in all_vars.items() if k not in variables_to_filter}
 
     items_to_check = list(all_vars.items())
+    visited = set()
 
     while items_to_check:
         key, value = items_to_check.pop()
@@ -1381,6 +1382,10 @@ def get_filtered_session_variables(
         if is_file_like(value):
             del all_vars[key]
             continue
+            
+        if id(value) in visited:
+            continue
+        visited.add(id(value))
 
         if isinstance(value, DAObject):
             # docassemble overrides both __dir__ and __getattr__ for reasons unknown
