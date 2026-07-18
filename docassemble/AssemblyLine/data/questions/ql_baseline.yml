@@ -1773,7 +1773,7 @@ content: |
   --------------|-----------
   Date of email | ${current_datetime().format_datetime()}
   Pages | ${al_num_package_pages }  
-  Preferred language | ${ user_preferred_language if user_needs_interpreter else 'English' }
+  Preferred language | ${ user_preferred_language if showifdef('user_needs_interpreter') else 'English' }
   Mobile phone | ${showifdef('users[0].mobile_number')}
   Other phone | ${showifdef('users[0].phone_number')}
   Email | ${showifdef('users[0].email')}
