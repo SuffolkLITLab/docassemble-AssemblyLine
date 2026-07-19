@@ -2485,6 +2485,7 @@ class ALDocumentBundle(DAList):
         name = html_safe_str(self.instanceName) + random_suffix()
         al_send_button_id = "al_send_email_to_button_" + name
 
+        formats_value: Optional[Union[str, List[str]]]
         if isinstance(preferred_formats, (list, tuple)):
             formats_value = [str(fmt) for fmt in preferred_formats]
         elif preferred_formats:

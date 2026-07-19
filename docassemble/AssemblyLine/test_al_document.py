@@ -21,13 +21,11 @@ class TestJavascriptHref(unittest.TestCase):
             "javascript:aldocument_send_action("
             "&quot;template_request.requestee_bundles[&#x27;4167e36be7f04794ad30770e865afe68&#x27;]&quot;,"
             "&quot;_ignore_al_wants_editable_bundle&quot;,"
-            "&quot;_ignore_al_doc_email_bundle&quot;)"
+            "&quot;_ignore_al_doc_email_bundle&quot;)",
         )
 
     def test_preserves_javascript_value_types(self):
-        result = unescape(
-            _javascript_href("send", "None", None, ["pdf", "docx"])
-        )
+        result = unescape(_javascript_href("send", "None", None, ["pdf", "docx"]))
         args_json = result.removeprefix("javascript:send(").removesuffix(")")
 
         self.assertEqual(
