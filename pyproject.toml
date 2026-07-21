@@ -77,4 +77,4 @@ dev = [
 ]
 
 [tool.uv]
-exclude-newer-package = {"docassemble.ALToolbox" = false,}
+exclude-newer-package = {"docassemble.ALToolbox" = false}
