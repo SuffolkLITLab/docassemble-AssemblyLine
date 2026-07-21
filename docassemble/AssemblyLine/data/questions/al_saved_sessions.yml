@@ -195,7 +195,7 @@ code: |
   if user_logged_in():
     new_session_id = save_interview_answers(
       metadata={"title": al_sessions_snapshot_label},
-      additional_variables_to_filter=al_sessions_additional_variables_to_filter,
+      additional_variables_to_filter=showifdef('al_sessions_additional_variables_to_filter', []),
     )
     log(f"Saved interview {al_sessions_snapshot_label} with id {new_session_id}")
   else:
