@@ -1,6 +1,8 @@
-import re
-import os
+import json
 import mimetypes
+import os
+import re
+from html import escape
 from typing import Any, Dict, List, Literal, Union, Callable, Optional
 from docassemble.base.util import (
     Address,
@@ -173,6 +175,14 @@ def html_safe_str(the_string: str) -> str:
         str: A string that's safe for use as an HTML class or ID.
     """
     return re.sub(r"[^A-Za-z0-9]+", "_", the_string)
+
+
+def _javascript_href(function_name: str, *args: Any) -> str:
+    """Build a JavaScript URL that is safe to use in an HTML href attribute."""
+    return escape(
+        f"javascript:{function_name}({','.join(json.dumps(arg) for arg in args)})",
+        quote=True,
+    )
 
 
 def table_row(title: str, button_htmls: List[str] = []) -> str:
@@ -2408,10 +2418,11 @@ class ALDocumentBundle(DAList):
         al_email_input_id = "_ignore_al_doc_email_" + name
         al_send_button_id = "al_send_email_button_" + name
 
-        javascript_string = (
-            f"javascript:aldocument_send_action("
-            f"'{self.attr_name('send_email_action_event')}',"
-            f"'{al_wants_editable_input_id}','{al_email_input_id}')"
+        javascript_string = _javascript_href(
+            "aldocument_send_action",
+            str(self.attr_name("send_email_action_event")),
+            al_wants_editable_input_id,
+            al_email_input_id,
         )
 
         # Label "email" and input field for the 1st column of the table row
@@ -2474,23 +2485,23 @@ class ALDocumentBundle(DAList):
         name = html_safe_str(self.instanceName) + random_suffix()
         al_send_button_id = "al_send_email_to_button_" + name
 
+        formats_value: Optional[Union[str, List[str]]]
         if isinstance(preferred_formats, (list, tuple)):
-            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in preferred_formats) + "]"
+            formats_value = [str(fmt) for fmt in preferred_formats]
         elif preferred_formats:
-            formats_js = f"'{preferred_formats}'"
+            formats_value = str(preferred_formats)
         else:
-            formats_js = "null"
+            formats_value = None
 
-        javascript_string = (
-            f"javascript:aldocument_send_to_action("
-            f"'{self.attr_name('send_email_to_action_event')}',"
-            f"'{editable}',"
-            f"'{email}',"
-            f"'{al_send_button_id}',"
-            f"'{template_name}',"
-            f"'{key}',"
-            f"{formats_js}"
-            f")"
+        javascript_string = _javascript_href(
+            "aldocument_send_to_action",
+            str(self.attr_name("send_email_to_action_event")),
+            str(editable),
+            str(email),
+            al_send_button_id,
+            str(template_name),
+            str(key),
+            formats_value,
         )
         send_button = action_button_html(
             javascript_string,
@@ -2560,22 +2571,15 @@ class ALDocumentBundle(DAList):
         al_email_input_id = "_ignore_al_doc_email_" + name
         al_send_button_id = "al_send_email_button_" + name
 
-        if isinstance(preferred_formats, (list, tuple)):
-            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in preferred_formats) + "]"
-        elif preferred_formats:
-            formats_js = f"'{preferred_formats}'"
-        else:
-            formats_js = "null"
-
-        javascript_string = (
-            f"javascript:aldocument_send_action("
-            f"'{self.attr_name('send_email_action_event')}',"
-            f"'{al_wants_editable_input_id}',"
-            f"'{al_email_input_id}',"
-            f"'{template_name}',"
-            f"'{key}',"
-            f"{formats_js}"
-            ")"
+        formats_value = [str(fmt) for fmt in preferred_formats]
+        javascript_string = _javascript_href(
+            "aldocument_send_action",
+            str(self.attr_name("send_email_action_event")),
+            al_wants_editable_input_id,
+            al_email_input_id,
+            str(template_name),
+            str(key),
+            formats_value,
         )
 
         # Container of whole email section with header

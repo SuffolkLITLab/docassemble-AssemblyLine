@@ -1,8 +1,37 @@
 # do not pre-load
 
+import json
 import unittest
+from html import unescape
 from docassemble.base.util import DAFile, DATemplate
-from .al_document import ALDocument, ALDocumentBundle, ALAddendumField
+from .al_document import ALDocument, ALDocumentBundle, ALAddendumField, _javascript_href
+
+
+class TestJavascriptHref(unittest.TestCase):
+    def test_escapes_javascript_strings_inside_html_href(self):
+        result = _javascript_href(
+            "aldocument_send_action",
+            "template_request.requestee_bundles['4167e36be7f04794ad30770e865afe68']",
+            "_ignore_al_wants_editable_bundle",
+            "_ignore_al_doc_email_bundle",
+        )
+
+        self.assertEqual(
+            result,
+            "javascript:aldocument_send_action("
+            "&quot;template_request.requestee_bundles[&#x27;4167e36be7f04794ad30770e865afe68&#x27;]&quot;,"
+            "&quot;_ignore_al_wants_editable_bundle&quot;,"
+            "&quot;_ignore_al_doc_email_bundle&quot;)",
+        )
+
+    def test_preserves_javascript_value_types(self):
+        result = unescape(_javascript_href("send", "None", None, ["pdf", "docx"]))
+        args_json = result.removeprefix("javascript:send(").removesuffix(")")
+
+        self.assertEqual(
+            json.loads(f"[{args_json}]"),
+            ["None", None, ["pdf", "docx"]],
+        )
 
 
 class test_dont_assume_pdf(unittest.TestCase):
