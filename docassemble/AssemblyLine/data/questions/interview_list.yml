@@ -186,9 +186,9 @@ default screen parts:
     <span class="title-container">
       <span class="al-logo">
     % if LOGO_IMAGE_URL:
-        <img src="${ LOGO_IMAGE_URL }" alt="${ LOGO_IMAGE_ALT }"/>
+        <img src="${ LOGO_IMAGE_URL }" alt="${ LOGO_IMAGE_ALT or '' }"/>
     % else:
-        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text or '' }"/>
     % endif
       </span>
       <span class="al-title">
@@ -212,9 +212,9 @@ default screen parts:
     <span class="title-container">
       <span class="al-logo">
     % if LOGO_IMAGE_URL:
-        <img src="${ LOGO_IMAGE_URL }" alt="${ LOGO_IMAGE_ALT }"/>
+        <img src="${ LOGO_IMAGE_URL }" alt="${ LOGO_IMAGE_ALT or '' }"/>
     % else:
-        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text or '' }"/>
     % endif
       </span>
       <span class="al-title">
@@ -455,7 +455,7 @@ code: |
   LOGO_IMAGE_URL = config_with_language_fallback("logo image url")
 ---
 code: |
-  LOGO_IMAGE_ALT = config_with_language_fallback("logo alt")
+  LOGO_IMAGE_ALT = config_with_language_fallback("logo alt") or ""
 ---
 code: |
   NEW_FORM_LABEL = config_with_language_fallback("new form label")
