@@ -394,13 +394,13 @@ def get_saved_interview_list(
                 ,jsonstorage.data->'original_interview_filename' as original_interview_filename
                 ,jsonstorage.data->'answer_count' as answer_count
                 ,jsonstorage.data as data
-            FROM userdict 
+            FROM filtered_userdict as userdict 
             NATURAL JOIN 
             (
             SELECT  key
                     ,MAX(modtime) AS modtime
                     ,COUNT(key)   AS num_keys
-            FROM userdict
+            FROM filtered_userdict as userdict 
             GROUP BY  key
             ) mostrecent
             LEFT JOIN userdictkeys
@@ -606,10 +606,10 @@ def find_matching_sessions(
                     userdict.key as key,
                     {', '.join(f"jsonstorage.data->>{repr(column)} as {column}" for column in metadata_column_names)},
                     jsonstorage.data as data
-            FROM userdict 
+            FROM filtered_userdict as userdict 
             NATURAL JOIN (
                 SELECT key, MAX(modtime) AS modtime, COUNT(key) AS num_keys
-                FROM userdict
+                FROM filtered_userdict as userdict 
                 GROUP BY key
             ) mostrecent
             LEFT JOIN userdictkeys ON userdictkeys.key = userdict.key
