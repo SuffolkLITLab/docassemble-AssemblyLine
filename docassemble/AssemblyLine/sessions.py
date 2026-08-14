@@ -397,6 +397,12 @@ def get_saved_interview_list(
     filenames_to_exclude.extend([current_filename, filename_to_exclude])
 
     query_draft = """
+        WITH filtered_userdict AS (
+            SELECT userdict.indexno as indexno, userdict.key as key, userdict.dictionary as dictinory, userdict.modtime as modtime, userdict.user_id as user_id, userdict.filename as filename
+            FROM userdict JOIN userdictkeys ON userdict.key = userdictkeys.key
+            -- userdictkeys.user_id has an index, that's why we need the join
+            WHERE (userdictkeys.user_id = :user_id or :user_id is null)
+        )
         SELECT * FROM (
             SELECT DISTINCT ON (userdict.key) userdict.indexno
                 ,userdict.filename as filename
@@ -412,13 +418,13 @@ def get_saved_interview_list(
                 ,jsonstorage.data->'original_interview_filename' as original_interview_filename
                 ,jsonstorage.data->'answer_count' as answer_count
                 ,jsonstorage.data as data
-            FROM userdict 
+            FROM filtered_userdict as userdict
             NATURAL JOIN 
             (
             SELECT  key
                     ,MAX(modtime) AS modtime
                     ,COUNT(key)   AS num_keys
-            FROM userdict
+            FROM filtered_userdict as userdict
             GROUP BY  key
             ) mostrecent
             LEFT JOIN userdictkeys
@@ -609,6 +615,12 @@ def find_matching_sessions(
         filename_condition = "TRUE"  # If no filenames are provided, this condition does not filter anything.
 
     get_sessions_query = text(f"""
+        WITH filtered_userdict AS (
+            SELECT userdict.indexno as indexno, userdict.key as key, userdict.dictionary as dictinory, userdict.modtime as modtime, userdict.user_id as user_id, userdict.filename as filename
+            FROM userdict JOIN userdictkeys ON userdict.key = userdictkeys.key
+            -- userdictkeys.user_id has an index, that's why we need the join
+            WHERE (userdictkeys.user_id = :user_id or :user_id is null)
+        )
         SELECT * FROM (
             SELECT DISTINCT ON (userdict.key) userdict.indexno,
                     userdict.filename as filename,
@@ -618,10 +630,10 @@ def find_matching_sessions(
                     userdict.key as key,
                     {', '.join(f"jsonstorage.data->>{repr(column)} as {column}" for column in metadata_column_names)},
                     jsonstorage.data as data
-            FROM userdict 
+            FROM filtered_userdict as userdict
             NATURAL JOIN (
                 SELECT key, MAX(modtime) AS modtime, COUNT(key) AS num_keys
-                FROM userdict
+                FROM filtered_userdict as userdict
                 GROUP BY key
             ) mostrecent
             LEFT JOIN userdictkeys ON userdictkeys.key = userdict.key
