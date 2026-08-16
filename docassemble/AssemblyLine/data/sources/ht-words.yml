@@ -1,0 +1,12 @@
+ht:
+  "Change country, selected ${countryName} (${dialCode})": "Chanje peyi, peyi chwazi ${countryName} (${dialCode})"
+  "Select country": "Chwazi peyi"
+  "List of countries": "Lis peyi yo"
+  "Search": "Rechèch"
+  "Clear search": "Efase rechèch"
+  "No results found": "Pa jwenn okenn rezilta"
+  "1 result found": "Yo jwenn 1 rezilta"
+  "${count} results found": "Yo jwenn ${count} rezilta"
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'Nimewo telefòn sa a pa sanble kòrèk. Tanpri sonje yon nimewo ki pa ameriken bezwen yon "+" anvan nimewo a.'
+  "You have entered %d character.": "Ou antre %d karaktè."
+  "You have entered %d characters.": "Ou antre %d karaktè."

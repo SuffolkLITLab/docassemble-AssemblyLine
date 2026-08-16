@@ -6,6 +6,10 @@ translations:
   - translation_es.xlsx
   - translation_ht.xlsx
   - translation_pt.xlsx
+  - translation_zh-CN.xlsx
+  - translation_zh-TW.xlsx
+  - translation_vi.xlsx
+  - translation_km.xlsx
 ---
 code: |
   enable_al_language = True
