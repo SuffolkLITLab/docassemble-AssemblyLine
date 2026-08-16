@@ -420,17 +420,16 @@ content: |
   "${all_variables(special='metadata').get('title','').rstrip()}" version 
   `${ package_version_number }`; AssemblyLine version `${ al_version }`.
 
-  % if interview_metadata.get("main_interview_key"):
+  <% MAIN_METADATA = all_variables(special='metadata') %>
+  % if "original_form" not in MAIN_METADATA and interview_metadata.get("main_interview_key"):
     <%
       MAIN_METADATA = interview_metadata[interview_metadata["main_interview_key"]]
     %>
-  % elif len(interview_metadata) > 1:    
+  % elif "original_form" not in MAIN_METADATA and len(interview_metadata) > 1:
     <% 
       del(interview_metadata["main_interview_key"]) # DADict creates the key on lookup above
       MAIN_METADATA = next(iter(interview_metadata.values())) 
     %>
-  % else:
-    <% MAIN_METADATA = all_variables(special='metadata') %>
   % endif
   <% ORIGINAL_FORMS = MAIN_METADATA.get("original_form", []) if isinstance(MAIN_METADATA.get("original_form"), list) else ([MAIN_METADATA.get("original_form", "")] if MAIN_METADATA.get("original_form") else []) %>
 
@@ -509,17 +508,16 @@ decoration: bug
 question: |
   Something went wrong
 subquestion: |
-  % if interview_metadata.get("main_interview_key"):
+  <% MAIN_METADATA = all_variables(special='metadata') %>
+  % if "original_form" not in MAIN_METADATA and interview_metadata.get("main_interview_key"):
     <%
       MAIN_METADATA = interview_metadata[interview_metadata["main_interview_key"]]
     %>
-  % elif len(interview_metadata) > 1:    
+  % elif "original_form" not in MAIN_METADATA and len(interview_metadata) > 1:
     <% 
       del(interview_metadata["main_interview_key"]) # DADict creates the key on lookup above
       MAIN_METADATA = next(iter(interview_metadata.values())) 
     %>
-  % else:
-    <% MAIN_METADATA = all_variables(special='metadata') %>
   % endif
   <% ORIGINAL_FORMS = MAIN_METADATA.get("original_form", []) if isinstance(MAIN_METADATA.get("original_form"), list) else ([MAIN_METADATA.get("original_form", "")] if MAIN_METADATA.get("original_form") else []) %>
 
