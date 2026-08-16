@@ -1,4 +1,7 @@
 ---
+include:
+  - docassemble.ALToolbox:translation_strings.yml
+---
 objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="")
 ---

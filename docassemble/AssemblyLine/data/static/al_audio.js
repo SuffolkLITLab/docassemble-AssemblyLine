@@ -13,6 +13,28 @@ $(document).on('daPageLoad', function(event) {
   } catch ( error ) { console.log( 'AL audio instantiation error:', error, 'event was ', event ) }
 });
 
+// Translate both the visible button text and the accessible labels. The
+// translation catalog may arrive after the controls are first rendered, so we
+// also run this again when ALToolbox announces that the catalog has loaded.
+al_js.translate_audio_controls = function( $audio_container ) {
+  var labels = {
+    play: alTranslate('Listen'),
+    restart: alTranslate('Restart'),
+    pause: alTranslate('Pause'),
+    stop: alTranslate('Stop'),
+  };
+
+  for ( var control_name in labels ) {
+    var $button = $audio_container.find('.' + control_name);
+    $button.attr('aria-label', labels[control_name]);
+    $button.find('span').text('\u00a0' + labels[control_name] + '\u00a0');
+  }
+};
+
+window.addEventListener('alTranslationsLoaded', function() {
+  al_js.translate_audio_controls($('.al_audio_controls'));
+});
+
 // We are not providing a way to rewind or scan through the audio.
 // TODO: Show user the audio still needs to load:
 // - https://stackoverflow.com/questions/9337300/html5-audio-load-event,
@@ -46,6 +68,7 @@ al_js.replace_with_audio_minimal_controls = function( audio_node, id ) {
   $('<div id="' + id + '" class="btn-group">' +
         audio_contents_html +
   '</div>').appendTo( $audio_container );
+  al_js.translate_audio_controls( $audio_container );
   
   // Start of all the right selectors
   var id_s = '#' + id + ' ';
@@ -109,15 +132,15 @@ var audio_contents_html = '\
     <i class="fas fa-volume-up"></i><span>&nbsp;Listen&nbsp;</span>\
     <i class="fas fa-play"></i>\
   </button>\
-  <button class="media-action restart btn btn-sm btn-outline-secondary" aria-label="restart" value="restart">\
+  <button class="media-action restart btn btn-sm btn-outline-secondary" aria-label="Restart" value="restart">\
     <i class="fas fa-volume-up"></i><span>&nbsp;Restart&nbsp;</span>\
     <i class="fas fa-undo"></i>\
   </button>\
-  <button class="media-action pause btn btn-sm btn-outline-secondary" aria-label="pause" value="pause">\
+  <button class="media-action pause btn btn-sm btn-outline-secondary" aria-label="Pause" value="pause">\
     <i class="fas fa-volume-up"></i><span>&nbsp;Pause&nbsp;</span>\
     <i class="fas fa-pause"></i>\
   </button>\
-  <button class="media-action stop btn btn-sm btn-outline-secondary" aria-label="stop" value="stop">\
+  <button class="media-action stop btn btn-sm btn-outline-secondary" aria-label="Stop" value="stop">\
     <i class="fas fa-stop"></i>\
   </button>\
 ';

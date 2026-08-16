@@ -262,7 +262,7 @@ ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير مو�
   Lebanon: لبنان, Lesotho: ليسوتو, Liberia: ليبيريا, Libya: ليبيا, License: رخصة,
   Liechtenstein: ليختنشتاين, Limited Permissions: أذونات محدودة, Link copied to clipboard.: تم
     نسخ الرابط إلى الحافظة., Linked folder: المجلد المرتبط, Links: الروابط, List of ISO-639-1 language codes: قائمة
-    رموز لغة ISO-639-1, Listen: يستمع, Lithuania: ليتوانيا, Live chat: الدردشة المباشرة,
+    رموز لغة ISO-639-1, Listen: استمع, Lithuania: ليتوانيا, Live chat: الدردشة المباشرة,
   Live chat is available: الدردشة المباشرة متاحة, Loading . . .: تحميل . . ., 'Loading.  Please wait . . . ': 'جاري
     التحميل. الرجاء الانتظار. ', Log: سجل, Logs: السجلات, Luxembourg: لوكسمبورغ, Macao: ماكاو,
   Madagascar: مدغشقر, Malawi: ملاوي, Malaysia: ماليزيا, Maldives: جزر المالديف, Mali: مالي,
@@ -393,8 +393,8 @@ ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير مو�
     كل مثيل لـ Null بترجمة مقتبسة., Request Developer Account: طلب حساب المطور, Resend Confirmation Email: إعادة
     إرسال رسالة التأكيد, Resend email confirmation email: إعادة إرسال رسالة تأكيد
     البريد الإلكتروني, Reset Password: إعادة تعيين كلمة المرور, Reset e-mail confirmation: إعادة
-    تعيين تأكيد البريد الإلكتروني, Reset password: إعادة تعيين كلمة المرور, Restart: إعادة
-    تشغيل, Restarting: إعادة التشغيل, Resume: استئناف, Resume an interview: استئناف
+    تعيين تأكيد البريد الإلكتروني, Reset password: إعادة تعيين كلمة المرور, Restart: أعد
+    التشغيل, Restarting: إعادة التشغيل, Resume: استئناف, Resume an interview: استئناف
     المقابلة, Retry: إعادة المحاولة, Return: يعود, Retype New Password: أعد كتابة
     كلمة المرور الجديدة, Retype Password: أعد كتابة كلمة المرور, Role: دور, Romania: رومانيا,
   Room: غرفة, Run: يجري, Running in other tab.: تشغيل في علامة تبويب أخرى., Russian Federation: الاتحاد
@@ -750,4 +750,5 @@ ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير مو�
   them: هم, themself: أنفسهم, themselves: أنفسهم, they: هم, to proceed.: للمتابعة.,
   'true': حقيقي, unavailable: غير متاح, us: نحن, v.: فعل, was saved at: تم حفظه في,
   we: نحن, x: س, y: ي, year: سنة, yes: نعم, you: أنت, yourself: نفسك, yourselves: أنفسكم,
+  Pause: إيقاف مؤقت, Stop: إيقاف,
   Åland Islands: جزر آلاند, Month: شهر, Day: يوم, Year: سنة}

@@ -456,7 +456,7 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
     un compte développeur, Resend Confirmation Email: Renvoyer l'e-mail de confirmation,
   Resend email confirmation email: Renvoyer l'e-mail de confirmation, Reset Password: Réinitialiser
     le mot de passe, Reset e-mail confirmation: Réinitialiser la confirmation par
-    e-mail, Reset password: Réinitialiser le mot de passe, Restart: Redémarrage, Restarting: Redémarrage,
+    e-mail, Reset password: Réinitialiser le mot de passe, Restart: Recommencer, Restarting: Redémarrage,
   Resume: Reanudar, Resume an interview: Reprendre un entretien, Retry: Réessayer, Return: Retour,
   Retype New Password: Retapez le nouveau mot de passe, Retype Password: Retaper le
     mot de passe, Role: Rôle, Romania: Roumanie, Room: Chambre, Run: Courir, Running in other tab.: Exécution
@@ -875,4 +875,4 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
   themself: eux-mêmes, themselves: eux-mêmes, they: ils, to proceed.: pour continuer.,
   'true': vrai, unavailable: indisponible, us: nous, v.: v., was saved at: a été sauvé
     à, we: nous, x: x, y: et, year: année, yes: Oui, you: toi, yourself: toi-même,
-  yourselves: vous-mêmes, Åland Islands: Îles Åland}
+  yourselves: vous-mêmes, Pause: Pause, Stop: Arrêter, Åland Islands: Îles Åland}
