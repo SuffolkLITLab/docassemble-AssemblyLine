@@ -1,3 +1,4 @@
+# do not pre-load
 # Makes sure that loading each module file works.
 # Includes all imports not covered by other test files.
 
