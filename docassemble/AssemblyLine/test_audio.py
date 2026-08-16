@@ -3,7 +3,6 @@ from pathlib import Path
 
 import yaml
 
-
 PACKAGE_PATH = Path(__file__).parent
 AUDIO_LABELS = {"Listen", "Restart", "Pause", "Stop"}
 
