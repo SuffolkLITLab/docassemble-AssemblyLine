@@ -4,6 +4,8 @@ modules:
 ---
 translations:
   - translation_es.xlsx
+  - translation_ht.xlsx
+  - translation_pt.xlsx
 ---
 code: |
   enable_al_language = True
