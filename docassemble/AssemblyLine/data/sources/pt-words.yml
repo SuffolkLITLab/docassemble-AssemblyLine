@@ -10,3 +10,7 @@ pt:
   'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'Este número de telefone não parece correto. Observe que um número que não seja dos EUA precisa de um "+" antes do número.'
   "You have entered %d character.": "Você digitou %d caractere."
   "You have entered %d characters.": "Você digitou %d caracteres."
+  "Listen": "Ouvir"
+  "Restart": "Reiniciar"
+  "Pause": "Pausar"
+  "Stop": "Parar"

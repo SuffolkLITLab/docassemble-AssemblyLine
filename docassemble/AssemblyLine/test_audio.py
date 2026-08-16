@@ -23,6 +23,6 @@ def test_every_word_catalog_translates_audio_control_labels() -> None:
 
     for word_file in word_files:
         catalogs = yaml.safe_load(word_file.read_text(encoding="utf-8"))
-        assert len(catalogs) == 1
-        translations = next(iter(catalogs.values()))
-        assert AUDIO_LABELS <= translations.keys(), word_file.name
+        assert catalogs
+        for language, translations in catalogs.items():
+            assert AUDIO_LABELS <= translations.keys(), f"{word_file.name}:{language}"

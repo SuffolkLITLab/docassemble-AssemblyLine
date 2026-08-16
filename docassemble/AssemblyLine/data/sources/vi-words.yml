@@ -10,3 +10,7 @@ vi:
   'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'Số điện thoại này có vẻ không đúng. Lưu ý rằng số điện thoại không phải của Hoa Kỳ cần có dấu "+" trước số.'
   "You have entered %d character.": "Bạn đã nhập %d ký tự."
   "You have entered %d characters.": "Bạn đã nhập %d ký tự."
+  "Listen": "Nghe"
+  "Restart": "Khởi động lại"
+  "Pause": "Tạm dừng"
+  "Stop": "Dừng"
