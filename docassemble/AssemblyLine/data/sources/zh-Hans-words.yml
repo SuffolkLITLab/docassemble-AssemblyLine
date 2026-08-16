@@ -1,0 +1,26 @@
+zh-Hans:
+  "Change country, selected ${countryName} (${dialCode})": "更改国家/地区，当前选定的国家/地区为 ${countryName} (${dialCode})"
+  "Select country": "选择国家/地区"
+  "List of countries": "国家/地区列表"
+  "Search": "搜索"
+  "Clear search": "清除搜索"
+  "No results found": "未找到结果"
+  "1 result found": "找到 1 个结果"
+  "${count} results found": "找到 ${count} 个结果"
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': '此电话号码似乎不正确。请注意，非美国电话号码需要在号码前加上“+”。'
+  "You have entered %d character.": "您已输入 %d 个字符。"
+  "You have entered %d characters.": "您已输入 %d 个字符。"
+
+# Keep the common regional code working as an alias.
+zh-CN:
+  "Change country, selected ${countryName} (${dialCode})": "更改国家/地区，当前选定的国家/地区为 ${countryName} (${dialCode})"
+  "Select country": "选择国家/地区"
+  "List of countries": "国家/地区列表"
+  "Search": "搜索"
+  "Clear search": "清除搜索"
+  "No results found": "未找到结果"
+  "1 result found": "找到 1 个结果"
+  "${count} results found": "找到 ${count} 个结果"
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': '此电话号码似乎不正确。请注意，非美国电话号码需要在号码前加上“+”。'
+  "You have entered %d character.": "您已输入 %d 个字符。"
+  "You have entered %d characters.": "您已输入 %d 个字符。"

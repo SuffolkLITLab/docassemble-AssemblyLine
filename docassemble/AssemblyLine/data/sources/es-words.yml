@@ -464,7 +464,14 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
   Save your changes to the package information: Guarda los cambios en la información
     del paquete., Saved: Guardado, Saved at: Guardado en, Scan: Escanear, Scan the barcode with your phone's authenticator app and enter the verification code.: Escanee
     el código de barras con la aplicación de autenticación de su teléfono e ingrese
-    el código de verificación., Score: Puntaje, Search: Buscar, Second Subdivision: Segunda
+    el código de verificación., Score: Puntaje,
+  "Change country, selected ${countryName} (${dialCode})": "Cambiar país, seleccionado ${countryName} (${dialCode})",
+  "Select country": "Seleccionar país", "List of countries": "Lista de países", "Clear search": "Borrar búsqueda",
+  "No results found": "No se han encontrado resultados", "1 result found": "1 resultado encontrado",
+  "${count} results found": "Se encontraron ${count} resultados",
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'Este número de teléfono no parece correcto. Tenga en cuenta que un número que no es de EE. UU. necesita un "+" antes del número.',
+  "You have entered %d character.": "Ha escrito %d carácter.", "You have entered %d characters.": "Ha escrito %d caracteres.",
+  Search: Buscar, Second Subdivision: Segunda
     subdivisión, Second factor authentication: Autenticación de segundo factor, Second subdivision: Segunda
     subdivisión, Section: Sección, Sections: Secciones, Security Method: Método de
     seguridad, Select a package: Seleccione un paquete, Select a value between: Seleccione

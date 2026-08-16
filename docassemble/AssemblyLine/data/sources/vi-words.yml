@@ -1,0 +1,12 @@
+vi:
+  "Change country, selected ${countryName} (${dialCode})": "Đổi quốc gia, quốc gia đã chọn ${countryName} (${dialCode})"
+  "Select country": "Chọn quốc gia"
+  "List of countries": "Danh sách các quốc gia"
+  "Search": "Tìm kiếm"
+  "Clear search": "Xóa tìm kiếm"
+  "No results found": "Không tìm thấy kết quả nào"
+  "1 result found": "Đã tìm thấy 1 kết quả"
+  "${count} results found": "Đã tìm thấy ${count} kết quả"
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'Số điện thoại này có vẻ không đúng. Lưu ý rằng số điện thoại không phải của Hoa Kỳ cần có dấu "+" trước số.'
+  "You have entered %d character.": "Bạn đã nhập %d ký tự."
+  "You have entered %d characters.": "Bạn đã nhập %d ký tự."
