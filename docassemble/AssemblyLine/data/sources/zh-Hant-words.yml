@@ -11,7 +11,7 @@ zh-Hant:
   "You have entered %d character.": "您已輸入 %d 個字元。"
   "You have entered %d characters.": "您已輸入 %d 個字元。"
 
-# The translation workbook uses zh-TW; keep that code working as an alias.
+# Keep the common regional code working as an alias.
 zh-TW:
   "Change country, selected ${countryName} (${dialCode})": "更改國家/地區，目前選擇的國家/地區為 ${countryName} (${dialCode})"
   "Select country": "選擇國家/地區"

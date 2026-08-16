@@ -11,7 +11,7 @@ zh-Hans:
   "You have entered %d character.": "您已输入 %d 个字符。"
   "You have entered %d characters.": "您已输入 %d 个字符。"
 
-# The translation workbook uses zh-CN; keep that code working as an alias.
+# Keep the common regional code working as an alias.
 zh-CN:
   "Change country, selected ${countryName} (${dialCode})": "更改国家/地区，当前选定的国家/地区为 ${countryName} (${dialCode})"
   "Select country": "选择国家/地区"
