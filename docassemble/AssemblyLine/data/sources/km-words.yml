@@ -1,0 +1,12 @@
+km:
+  "Change country, selected ${countryName} (${dialCode})": "ប្តូរប្រទេស ប្រទេសដែលបានជ្រើសរើស ${countryName} (${dialCode})"
+  "Select country": "ជ្រើសរើសប្រទេស"
+  "List of countries": "បញ្ជីប្រទេស"
+  "Search": "ស្វែងរក"
+  "Clear search": "សម្អាតការស្វែងរក"
+  "No results found": "រកមិនឃើញលទ្ធផល"
+  "1 result found": "រកឃើញលទ្ធផល ១"
+  "${count} results found": "រកឃើញលទ្ធផល ${count}"
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'លេខទូរសព្ទនេះមើលទៅមិនត្រឹមត្រូវទេ។ សូមចំណាំថា លេខទូរសព្ទដែលមិនមែនជាលេខអាមេរិក ត្រូវដាក់សញ្ញា "+" នៅពីមុខលេខ។'
+  "You have entered %d character.": "អ្នកបានបញ្ចូល %d តួអក្សរ។"
+  "You have entered %d characters.": "អ្នកបានបញ្ចូល %d តួអក្សរ។"

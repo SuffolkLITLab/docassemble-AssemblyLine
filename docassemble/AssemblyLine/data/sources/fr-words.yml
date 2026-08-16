@@ -471,7 +471,14 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
     vos modifications apportées aux informations du colis, Saved: Enregistré, Saved at: Enregistré
     à, Scan: Balayage, Scan the barcode with your phone's authenticator app and enter the verification code.: Scannez
     le code-barres avec l'application d'authentification de votre téléphone et saisissez
-    le code de vérification., Score: Score, Search: Recherche, Second Subdivision: Deuxième
+    le code de vérification., Score: Score,
+  "Change country, selected ${countryName} (${dialCode})": "Changer de pays, ${countryName} sélectionné (${dialCode})",
+  "Select country": "Sélectionner un pays", "List of countries": "Liste des pays", "Clear search": "Effacer la recherche",
+  "No results found": "Aucun résultat trouvé", "1 result found": "1 résultat trouvé",
+  "${count} results found": "${count} résultats trouvés",
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'Ce numéro de téléphone ne semble pas correct. Notez qu’un numéro non américain doit être précédé d’un "+".',
+  "You have entered %d character.": "Vous avez saisi %d caractère.", "You have entered %d characters.": "Vous avez saisi %d caractères.",
+  Search: Recherche, Second Subdivision: Deuxième
     subdivision, Second factor authentication: Authentification à deux facteurs, Second subdivision: Deuxième
     subdivision, Section: Section, Sections: Sections, Security Method: Méthode de
     sécurité, Select a package: Sélectionnez un forfait, Select a value between: Sélectionnez

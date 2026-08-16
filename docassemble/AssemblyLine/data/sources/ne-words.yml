@@ -453,7 +453,14 @@ Resume: जारी राख्नुहोस्, Resume an interview: अन
     जानकारीमा आफ्ना परिवर्तनहरू बचत गर्नुहोस्।, Saved: सुरक्षित गरियो, Saved at: 'बचत
     गरिएको समय:', Scan: स्क्यान गर्नुहोस्, Scan the barcode with your phone's authenticator app and enter the verification code.: आफ्नो
     फोनको प्रमाणक एप प्रयोग गरी बारकोड स्क्यान गर्नुहोस् र प्रमाणिकरण कोड प्रविष्ट
-    गर्नुहोस्।, Score: स्कोर, Search: खोज्नुहोस्, Second Subdivision: दोस्रो उपविभाजन,
+    गर्नुहोस्।, Score: स्कोर,
+  "Change country, selected ${countryName} (${dialCode})": "देश परिवर्तन गर्नुहोस्, हाल चयन गरिएको ${countryName} (${dialCode})",
+  "Select country": "देश चयन गर्नुहोस्", "List of countries": "देशहरूको सूची", "Clear search": "खोजी खाली गर्नुहोस्",
+  "No results found": "कुनै परिणाम फेला परेन", "1 result found": "१ परिणाम फेला पर्यो",
+  "${count} results found": "${count} वटा परिणाम फेला परे",
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'यो फोन नम्बर सही जस्तो देखिँदैन। अमेरिकाबाहिरको नम्बरअघि "+" राख्नुपर्छ भन्ने कुरा ध्यान दिनुहोस्।',
+  "You have entered %d character.": "तपाईंले %d अक्षर प्रविष्ट गर्नुभएको छ।", "You have entered %d characters.": "तपाईंले %d अक्षरहरू प्रविष्ट गर्नुभएको छ।",
+  Search: खोज्नुहोस्, Second Subdivision: दोस्रो उपविभाजन,
   Second factor authentication: दोस्रो कारक प्रमाणीकरण, Second subdivision: दोस्रो
     उपविभाजन, Section: खण्ड, Sections: खण्डहरू, Security Method: सुरक्षा विधि, Select a package: प्याकेज
     चयन गर्नुहोस्, Select a value between: बीचमा मान चयन गर्नुहोस्, Select file: फाइल

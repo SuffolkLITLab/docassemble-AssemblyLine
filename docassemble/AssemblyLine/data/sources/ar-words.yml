@@ -409,6 +409,12 @@ ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير مو�
     التغييرات التي أجريتها على معلومات الحزمة, Saved: أنقذ, Saved at: تم الحفظ في,
   Scan: مسح ضوئي, Scan the barcode with your phone's authenticator app and enter the verification code.: قم
     بمسح الرمز الشريطي باستخدام تطبيق المصادقة الخاص بهاتفك وأدخل رمز التحقق., Score: نتيجة,
+  "Change country, selected ${countryName} (${dialCode})": "تغيير البلد، المحدد حاليًا ${countryName} (${dialCode})",
+  "Select country": "حدد البلد", "List of countries": "قائمة الدول", "Clear search": "مسح البحث",
+  "No results found": "لم يتم العثور على نتائج", "1 result found": "تم العثور على نتيجة واحدة",
+  "${count} results found": "تم العثور على ${count} نتيجة",
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'يبدو أن رقم الهاتف هذا غير صحيح. لاحظ أن الرقم غير الأمريكي يحتاج إلى "+" قبل الرقم.',
+  "You have entered %d character.": "لقد أدخلت %d حرفًا.", "You have entered %d characters.": "لقد أدخلت %d أحرف.",
   Search: يبحث, Second Subdivision: القسم الفرعي الثاني, Second factor authentication: المصادقة
     بالعامل الثاني, Second subdivision: القسم الفرعي الثاني, Section: قسم, Sections: الأقسام,
   Security Method: طريقة الأمان, Select a package: اختر الباقة, Select a value between: حدد

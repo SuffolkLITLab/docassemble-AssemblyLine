@@ -1,0 +1,12 @@
+pt:
+  "Change country, selected ${countryName} (${dialCode})": "Alterar país, país selecionado ${countryName} (${dialCode})"
+  "Select country": "Selecionar país"
+  "List of countries": "Lista de países"
+  "Search": "Procurar"
+  "Clear search": "Limpar pesquisa"
+  "No results found": "Nenhum resultado encontrado"
+  "1 result found": "1 resultado encontrado"
+  "${count} results found": "${count} resultados encontrados"
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'Este número de telefone não parece correto. Observe que um número que não seja dos EUA precisa de um "+" antes do número.'
+  "You have entered %d character.": "Você digitou %d caractere."
+  "You have entered %d characters.": "Você digitou %d caracteres."
