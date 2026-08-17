@@ -17,6 +17,8 @@ $(document).on('daPageLoad', function(event) {
 // translation catalog may arrive after the controls are first rendered, so we
 // also run this again when ALToolbox announces that the catalog has loaded.
 al_js.translate_audio_controls = function( $audio_container ) {
+  if ( typeof alTranslate !== 'function' ) { return; }
+
   var labels = {
     play: alTranslate('Listen'),
     restart: alTranslate('Restart'),
@@ -25,6 +27,7 @@ al_js.translate_audio_controls = function( $audio_container ) {
   };
 
   for ( var control_name in labels ) {
+    if ( !Object.prototype.hasOwnProperty.call(labels, control_name) ) { continue; }
     var $button = $audio_container.find('.' + control_name);
     $button.attr('aria-label', labels[control_name]);
     $button.find('span').text('\u00a0' + labels[control_name] + '\u00a0');
