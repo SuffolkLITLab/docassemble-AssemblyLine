@@ -2960,6 +2960,24 @@ class ALExhibit(DAObject):
         """
         return self.pages.num_pages()
 
+    def toc_page_number(
+        self, toc_pages: int = 1, include_cover_page: bool = True
+    ) -> int:
+        """Return the page where this exhibit's uploaded content begins.
+
+        ``start_page`` already includes the initial one-page table of contents and
+        every preceding exhibit cover. Adjust it only for additional TOC pages and
+        this exhibit's own cover page.
+
+        Args:
+            toc_pages (int): Actual or estimated number of TOC pages.
+            include_cover_page (bool): Whether this exhibit has a cover page.
+
+        Returns:
+            int: The physical page number of the exhibit's first uploaded page.
+        """
+        return self.start_page + toc_pages - 1 + int(include_cover_page)
+
     @property
     def complete(self) -> bool:
         """

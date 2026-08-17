@@ -4,7 +4,13 @@ import json
 import unittest
 from html import unescape
 from docassemble.base.util import DAFile, DATemplate
-from .al_document import ALDocument, ALDocumentBundle, ALAddendumField, _javascript_href
+from .al_document import (
+    ALAddendumField,
+    ALDocument,
+    ALDocumentBundle,
+    ALExhibit,
+    _javascript_href,
+)
 
 
 class TestJavascriptHref(unittest.TestCase):
@@ -152,6 +158,27 @@ class TestTranslatableDocumentTitles(unittest.TestCase):
 
         self.assertEqual(titles, ["Translated document title"])
         self.assertIsInstance(titles[0], str)
+
+
+class TestExhibitTableOfContentsPageNumbers(unittest.TestCase):
+    def setUp(self):
+        self.exhibit = ALExhibit("exhibit")
+        self.exhibit.start_page = 2
+
+    def test_includes_current_exhibit_cover_once(self):
+        self.assertEqual(self.exhibit.toc_page_number(), 3)
+
+        self.exhibit.start_page = 4
+        self.assertEqual(self.exhibit.toc_page_number(), 5)
+
+    def test_omits_cover_page_when_disabled(self):
+        self.assertEqual(
+            self.exhibit.toc_page_number(include_cover_page=False),
+            2,
+        )
+
+    def test_adjusts_for_multi_page_table_of_contents(self):
+        self.assertEqual(self.exhibit.toc_page_number(toc_pages=2), 4)
 
 
 class test_aladdendum(unittest.TestCase):
