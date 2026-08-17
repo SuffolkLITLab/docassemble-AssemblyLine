@@ -2664,8 +2664,11 @@ def get_visible_al_nav_items(
         # For dictionaries at top level
         item_copy = deepcopy(item)
         if not str(item_copy.pop("hidden", "False")).lower() == "true":  # if not hidden
+            has_subsections = False
+            has_visible_subsections = False
             for key, val in item_copy.items():
                 if isinstance(val, list):  # if value of a key is a list
+                    has_subsections = True
                     new_sublist: List[Union[str, dict]] = []
                     for subitem in val:
                         # Add subitem strings as-is
@@ -2679,7 +2682,13 @@ def get_visible_al_nav_items(
                         ):
                             new_sublist.append(subitem)
                     item_copy[key] = new_sublist
-            new_list.append(item_copy)
+                    has_visible_subsections = has_visible_subsections or bool(
+                        new_sublist
+                    )
+
+            # Do not show a section expander when all of its subsections are hidden.
+            if not has_subsections or has_visible_subsections:
+                new_list.append(item_copy)
         continue
 
     return new_list

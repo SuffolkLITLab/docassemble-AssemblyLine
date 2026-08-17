@@ -849,6 +849,29 @@ class test_get_visible_al_nav_items(unittest.TestCase):
         ]
         self.assertEqual(get_visible_al_nav_items(data), expected)
 
+    def test_hides_section_with_no_visible_subsections(self):
+        data = [
+            {
+                "hidden_section": [
+                    {"subtask": "A hidden subtask", "hidden": True},
+                ]
+            },
+            {
+                "visible_section": [
+                    {"subtask": "A visible subtask", "hidden": False},
+                ]
+            },
+        ]
+        expected = [
+            {
+                "visible_section": [
+                    {"subtask": "A visible subtask"},
+                ]
+            },
+        ]
+
+        self.assertEqual(get_visible_al_nav_items(data), expected)
+
 
 if __name__ == "__main__":
     unittest.main()
