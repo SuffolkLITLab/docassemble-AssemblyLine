@@ -92,6 +92,7 @@ comment: |
 ---
 include:
   - docassemble.ALToolbox:display_template.yml
+  - docassemble.ALToolbox:translation_strings.yml
 ---
 # clear playground errors
 objects:

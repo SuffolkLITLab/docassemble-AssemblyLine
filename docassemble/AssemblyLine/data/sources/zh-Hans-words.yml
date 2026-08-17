@@ -10,6 +10,10 @@ zh-Hans:
   'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': '此电话号码似乎不正确。请注意，非美国电话号码需要在号码前加上“+”。'
   "You have entered %d character.": "您已输入 %d 个字符。"
   "You have entered %d characters.": "您已输入 %d 个字符。"
+  "Listen": "听"
+  "Restart": "重新开始"
+  "Pause": "暂停"
+  "Stop": "停止"
 
 # Keep the common regional code working as an alias.
 zh-CN:
@@ -24,3 +28,7 @@ zh-CN:
   'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': '此电话号码似乎不正确。请注意，非美国电话号码需要在号码前加上“+”。'
   "You have entered %d character.": "您已输入 %d 个字符。"
   "You have entered %d characters.": "您已输入 %d 个字符。"
+  "Listen": "听"
+  "Restart": "重新开始"
+  "Pause": "暂停"
+  "Stop": "停止"

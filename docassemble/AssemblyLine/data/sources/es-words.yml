@@ -299,7 +299,7 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
   Libya: Libia, License: Licencia, Liechtenstein: Liechtenstein, Limited Permissions: Permisos
     limitados, Link copied to clipboard.: Enlace copiado al portapapeles., Linked folder: Carpeta
     vinculada, Links: Campo de golf, List of ISO-639-1 language codes: Lista de códigos
-    de idioma ISO-639-1, Listen: Escucha, Lithuania: Lituania, Live chat: Chat en
+    de idioma ISO-639-1, Listen: Escuchar, Lithuania: Lituania, Live chat: Chat en
     vivo, Live chat is available: Chat en vivo está disponible, Loading . . .: Cargando
     . . ., 'Loading.  Please wait . . . ': Cargando. Por favor espera . . ., Log: Registro,
   Logs: Troncos, Luxembourg: Luxemburgo, Macao: Macao, Madagascar: Madagascar, Malawi: Malawi,
@@ -867,4 +867,5 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
   t: t, them: ellos, themself: ellos mismos, themselves: ellos mismos, they: ellos,
   to proceed.: para proceder., 'true': cierto, unavailable: indisponible, us: a nosotros,
   v.: v., was saved at: fue guardado en, we: nosotros, x: X, y: y, year: año, yes: sí,
-  you: tú, yourself: tú mismo, yourselves: vosotros, Åland Islands: Islas Åland}
+  you: tú, yourself: tú mismo, yourselves: vosotros, Pause: Pausar, Stop: Detener,
+  Åland Islands: Islas Åland}
