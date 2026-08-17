@@ -16,6 +16,15 @@ def test_audio_control_labels_use_browser_translations() -> None:
         assert f"alTranslate('{label}')" in audio_javascript
 
 
+def test_audio_controls_are_hidden_from_assistive_technology_and_tab_order() -> None:
+    audio_javascript = (PACKAGE_PATH / "data" / "static" / "al_audio.js").read_text(
+        encoding="utf-8"
+    )
+
+    assert 'class="btn-group" aria-hidden="true"' in audio_javascript
+    assert audio_javascript.count('tabindex="-1"') == 4
+
+
 def test_every_word_catalog_translates_audio_control_labels() -> None:
     source_path = PACKAGE_PATH / "data" / "sources"
     word_files = sorted(source_path.glob("*-words.yml"))

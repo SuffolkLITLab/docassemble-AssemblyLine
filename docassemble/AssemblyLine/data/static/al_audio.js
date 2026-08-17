@@ -68,7 +68,10 @@ al_js.replace_with_audio_minimal_controls = function( audio_node, id ) {
   audio_node.style.display = 'none';
   var $audio_container = $($(audio_node).closest('.daaudiovideo-control'));
   $audio_container.addClass( 'al_custom_media_controls al_audio_controls' );
-  $('<div id="' + id + '" class="btn-group">' +
+  // This widget is for pointer/touch users who benefit from spoken text; it
+  // must not compete with a screen reader. Keep it out of both the
+  // accessibility tree and keyboard tab order while retaining click/tap use.
+  $('<div id="' + id + '" class="btn-group" aria-hidden="true">' +
         audio_contents_html +
   '</div>').appendTo( $audio_container );
   al_js.translate_audio_controls( $audio_container );
@@ -131,19 +134,19 @@ al_js.replace_with_audio_minimal_controls = function( audio_node, id ) {
 
 // The DOM structure for every AL audio element with custom controls
 var audio_contents_html = '\
-  <button class="media-action play btn btn-sm btn-outline-secondary" aria-label="Listen" value="play">\
+  <button class="media-action play btn btn-sm btn-outline-secondary" aria-label="Listen" value="play" tabindex="-1">\
     <i class="fas fa-volume-up"></i><span>&nbsp;Listen&nbsp;</span>\
     <i class="fas fa-play"></i>\
   </button>\
-  <button class="media-action restart btn btn-sm btn-outline-secondary" aria-label="Restart" value="restart">\
+  <button class="media-action restart btn btn-sm btn-outline-secondary" aria-label="Restart" value="restart" tabindex="-1">\
     <i class="fas fa-volume-up"></i><span>&nbsp;Restart&nbsp;</span>\
     <i class="fas fa-undo"></i>\
   </button>\
-  <button class="media-action pause btn btn-sm btn-outline-secondary" aria-label="Pause" value="pause">\
+  <button class="media-action pause btn btn-sm btn-outline-secondary" aria-label="Pause" value="pause" tabindex="-1">\
     <i class="fas fa-volume-up"></i><span>&nbsp;Pause&nbsp;</span>\
     <i class="fas fa-pause"></i>\
   </button>\
-  <button class="media-action stop btn btn-sm btn-outline-secondary" aria-label="Stop" value="stop">\
+  <button class="media-action stop btn btn-sm btn-outline-secondary" aria-label="Stop" value="stop" tabindex="-1">\
     <i class="fas fa-stop"></i>\
   </button>\
 ';
