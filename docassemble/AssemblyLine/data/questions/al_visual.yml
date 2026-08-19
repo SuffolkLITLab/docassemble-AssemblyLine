@@ -2,6 +2,10 @@
 include:
   - docassemble.ALToolbox:translation_strings.yml
 ---
+modules:
+  - json
+  - html
+---
 objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="")
 ---
@@ -92,8 +96,8 @@ code: |
 reconsider: True
 variable name: al_menu_items_default_items
 data from code:
-  - url: 
-      url_ask(['al_start_over_confirmation','al_start_over'])
+  - url: |
+      html.escape("javascript:(function(){if(window.confirm(" + json.dumps(str(al_start_over_confirmation_question) + "\n\n" + str(al_start_over_confirmation_subquestion)) + ")){window.location.assign(" + json.dumps(url_of('new_session')) + ");}})();void(0)", quote=True)
     label: str(al_start_over_string)
     hidden: _internal.get('steps') < 2
   - url: |
@@ -127,6 +131,23 @@ data from code:
 template: al_start_over_string
 content: >-
   Start over
+---
+template: al_start_over_confirmation_question
+content: >-
+  Do you want to start over?
+---
+template: al_start_over_confirmation_subquestion
+content: |
+  % if not user_logged_in():
+  You may lose access to your current answers. Make sure you have downloaded
+  any forms that you need.
+  % else:
+  You can still access your current answers by visiting the "My interviews"
+  page.
+  % endif
+
+  Confirm to start a new copy of the form you are working on, or cancel if
+  you want to keep working.
 ---
 template: al_exit_logout_string
 content: >-
@@ -461,18 +482,9 @@ content: |
 ---
 id: start a new session
 question: |
-  Do you want to start over?
+  ${ al_start_over_confirmation_question }
 subquestion: |
-  % if not user_logged_in():
-  You may lose access to your current answers. Make sure you have downloaded
-  any forms that you need.
-  % else:
-  You can still access your current answers by visiting the "My interviews"
-  page.
-  % endif
-  
-  Click "Start over" to start a new copy of the form you are working on,
-  or "Back" if you want to keep working.
+  ${ al_start_over_confirmation_subquestion }
 back button label: |
   Back
 continue button label: |
