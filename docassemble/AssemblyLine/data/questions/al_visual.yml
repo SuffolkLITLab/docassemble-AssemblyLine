@@ -2,7 +2,7 @@
 include:
   - docassemble.ALToolbox:translation_strings.yml
 ---
-modules:
+imports:
   - json
   - html
 ---
