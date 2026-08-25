@@ -2895,7 +2895,7 @@ class ALExhibit(DAObject):
         add_cover_page: bool = True,
         filename: Optional[str] = None,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Generates a PDF version of the exhibit, with optional features like Bates numbering or a cover page.
 
@@ -2928,13 +2928,19 @@ class ALExhibit(DAObject):
             return getattr(self._cache, safe_key)
         if not filename:
             filename = "exhibits.pdf"
+        valid_pages = [p for p in self.ocr_pages() if p and p.ok]
+        if not valid_pages:
+            log(
+                f"ALExhibit.as_pdf(): no valid pages for exhibit '{self.title}', skipping"
+            )
+            return None
         if add_cover_page:
             concatenated_pages = pdf_concatenate(
-                self.cover_page, self.ocr_pages(), filename=filename, pdfa=pdfa
+                self.cover_page, valid_pages, filename=filename, pdfa=pdfa
             )
         else:
             concatenated_pages = pdf_concatenate(
-                self.ocr_pages(), filename=filename, pdfa=pdfa
+                valid_pages, filename=filename, pdfa=pdfa
             )
 
         if add_page_numbers:
