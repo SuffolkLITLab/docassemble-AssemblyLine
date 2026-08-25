@@ -3112,7 +3112,7 @@ class ALExhibitList(DAList):
         page_number_offset_vertical: float = 15,
         toc_pages: int = 0,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Compiles all exhibits in the list into a single PDF.
 
@@ -3139,8 +3139,9 @@ class ALExhibitList(DAList):
             self._update_page_numbers(toc_guess_pages=toc_pages)
         if not page_number_prefix and self.bates_prefix:
             page_number_prefix = self.bates_prefix
-        return pdf_concatenate(
-            [
+        exhibit_pdfs = [
+            pdf
+            for pdf in (
                 exhibit.as_pdf(
                     add_cover_page=self.include_exhibit_cover_pages,
                     add_page_numbers=add_page_numbers,
@@ -3152,7 +3153,14 @@ class ALExhibitList(DAList):
                     page_number_offset_vertical=page_number_offset_vertical,
                 )
                 for exhibit in self
-            ],
+            )
+            if pdf is not None
+        ]
+        if not exhibit_pdfs:
+            log("ALExhibitList.as_pdf(): no valid exhibits to include, skipping")
+            return None
+        return pdf_concatenate(
+            exhibit_pdfs,
             filename=filename,
             pdfa=pdfa,
         )
