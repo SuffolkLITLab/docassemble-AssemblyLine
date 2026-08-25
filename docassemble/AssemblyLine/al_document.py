@@ -3409,7 +3409,7 @@ class ALExhibitDocument(ALDocument):
         refresh: bool = True,
         pdfa: bool = False,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Render the document as a PDF.
 
@@ -3433,43 +3433,44 @@ class ALExhibitDocument(ALDocument):
 
         if len(self.exhibits):
             self._set_default_attributes()
+            exhibits_pdf = self.exhibits.as_pdf(
+                add_page_numbers=self.add_page_numbers,
+                page_number_prefix=self.page_number_prefix,
+                page_number_digits=self.page_number_digits,
+                page_number_area=self.page_number_area,
+                page_number_font_size=self.page_number_font_size,
+                page_number_offset_horizontal=self.page_number_offset_horizontal,
+                page_number_offset_vertical=self.page_number_offset_vertical,
+                toc_pages=(
+                    self.table_of_contents.num_pages()
+                    if self.include_table_of_contents
+                    else 0
+                ),
+                pdfa=pdfa,
+            )
+            if exhibits_pdf is None:
+                log(
+                    f"ALExhibitDocument.as_pdf(): no valid exhibits for '{self.title}', skipping"
+                )
+                return (
+                    self.table_of_contents if self.include_table_of_contents else None
+                )
             if self.include_table_of_contents:
-                toc_pages = self.table_of_contents.num_pages()
                 return pdf_concatenate(
                     self.table_of_contents,
-                    self.exhibits.as_pdf(
-                        add_page_numbers=self.add_page_numbers,
-                        page_number_prefix=self.page_number_prefix,
-                        page_number_digits=self.page_number_digits,
-                        page_number_area=self.page_number_area,
-                        page_number_font_size=self.page_number_font_size,
-                        page_number_offset_horizontal=self.page_number_offset_horizontal,
-                        page_number_offset_vertical=self.page_number_offset_vertical,
-                        toc_pages=toc_pages,
-                        pdfa=pdfa,
-                    ),
+                    exhibits_pdf,
                     filename=filename,
                     pdfa=pdfa,
                 )
-            else:
-                return self.exhibits.as_pdf(
-                    add_page_numbers=self.add_page_numbers,
-                    page_number_prefix=self.page_number_prefix,
-                    page_number_digits=self.page_number_digits,
-                    page_number_area=self.page_number_area,
-                    page_number_font_size=self.page_number_font_size,
-                    page_number_offset_horizontal=self.page_number_offset_horizontal,
-                    page_number_offset_vertical=self.page_number_offset_vertical,
-                    filename=filename,
-                    pdfa=pdfa,
-                )
+            return exhibits_pdf
+        return None
 
     def as_docx(
         self,
         key: str = "final",
         refresh: bool = True,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Despite the name, renders the document as a PDF. Provided for signature compatibility.
 
