@@ -3251,6 +3251,7 @@ class ALExhibitList(DAList):
                     page_number_font_size=page_number_font_size,
                     page_number_offset_horizontal=page_number_offset_horizontal,
                     page_number_offset_vertical=page_number_offset_vertical,
+                    pdfa=pdfa,
                 )
                 for exhibit in self
             )
