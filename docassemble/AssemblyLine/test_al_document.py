@@ -3,7 +3,7 @@
 import json
 import unittest
 from html import unescape
-from docassemble.base.util import DAFile, DATemplate
+from docassemble.base.util import DAFile, DAFileList, DATemplate
 from .al_document import (
     ALAddendumField,
     ALDocument,
@@ -96,6 +96,17 @@ class FakeSingleDoc:
 
     def as_pdf(self, **kwargs):
         return self._pdf
+
+
+class FakeDocWithBrokenExhibits:
+    def __init__(self, broken):
+        self._broken = broken
+
+    def is_enabled(self, refresh=True):
+        return True
+
+    def has_broken_exhibits(self):
+        return self._broken
 
 
 class TestSingleDocumentBundleFilename(unittest.TestCase):
@@ -220,6 +231,81 @@ class TestExhibitWithNoValidPages(unittest.TestCase):
         result = exhibit.as_pdf()
 
         self.assertIsNone(result)
+
+
+class TestExhibitIsBroken(unittest.TestCase):
+    def test_valid_pages_and_gathered_is_not_broken(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        good_page = FakePdf(filename="good.pdf", title="page")
+        good_page.ok = True
+        exhibit.pages = DAFileList("exhibit.pages")
+        exhibit.pages.append(good_page)
+        exhibit.pages.gathered = True
+
+        self.assertFalse(exhibit.is_broken())
+
+    def test_no_valid_pages_and_gathered_is_broken(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        exhibit.pages = DAFileList("exhibit.pages")
+        exhibit.pages.gathered = True
+
+        self.assertTrue(exhibit.is_broken())
+
+    def test_no_pages_and_not_gathered_is_not_broken(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        exhibit.pages = DAFileList("exhibit.pages")
+        exhibit.pages.gathered = False
+
+        self.assertFalse(exhibit.is_broken())
+
+
+class TestBundleWarnsOnBrokenDocuments(unittest.TestCase):
+    def test_bundle_with_broken_exhibit_doc_shows_warning(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeDocWithBrokenExhibits(broken=True)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        self.assertTrue(bundle.has_broken_documents())
+        self.assertIn(
+            "did not upload correctly", bundle.broken_documents_warning_html()
+        )
+
+    def test_bundle_all_valid_shows_no_warning(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeDocWithBrokenExhibits(broken=False)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        self.assertFalse(bundle.has_broken_documents())
+        self.assertEqual(bundle.broken_documents_warning_html(), "")
+
+    def test_bundle_detects_broken_document_in_nested_bundle(self):
+        inner_bundle = ALDocumentBundle(
+            "inner_bundle",
+            elements=[FakeDocWithBrokenExhibits(broken=True)],
+            title="Inner",
+            filename="inner.pdf",
+            enabled=True,
+        )
+        outer_bundle = ALDocumentBundle(
+            "outer_bundle",
+            elements=[inner_bundle],
+            title="Outer",
+            filename="outer.pdf",
+            enabled=True,
+        )
+
+        self.assertTrue(outer_bundle.has_broken_documents())
 
 
 class test_aladdendum(unittest.TestCase):
