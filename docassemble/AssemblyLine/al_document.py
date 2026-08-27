@@ -1740,13 +1740,17 @@ class ALDocumentBundle(DAList):
             # In the case of no enabled files, avoid errors
             return None
         elif len(files) == 1:
-            # This case is simplest--we do not need to process the document at this level
             pdf = files[0].as_pdf(
                 key=key,
                 refresh=refresh,
                 pdfa=pdfa,
                 append_matching_suffix=append_matching_suffix,
             )
+            if pdf is None:
+                log(
+                    f"ALDocumentBundle.as_pdf(): '{files[0].title}' in bundle '{self.title}' has no valid PDF, skipping"
+                )
+                return None
             bundle_filename = f"{base_name(self.filename)}{append_suffix}.pdf"
             pdf.title = self.title
             pdf.filename = bundle_filename
@@ -1756,11 +1760,35 @@ class ALDocumentBundle(DAList):
             except:
                 pass
         else:
-            pdf = pdf_concatenate(
-                [document.as_pdf(key=key, refresh=refresh) for document in files],
-                filename=f"{base_name(self.filename)}{append_suffix}.pdf",
-                pdfa=pdfa,
-            )
+            document_pdfs = [
+                p
+                for p in (
+                    document.as_pdf(key=key, refresh=refresh) for document in files
+                )
+                if p is not None
+            ]
+            if len(document_pdfs) < len(files):
+                log(
+                    f"ALDocumentBundle.as_pdf(): {len(files) - len(document_pdfs)} of {len(files)} documents in bundle '{self.title}' have no valid PDF, skipping them"
+                )
+            if len(document_pdfs) == 0:
+                return None
+            elif len(document_pdfs) == 1:
+                pdf = document_pdfs[0]
+                bundle_filename = f"{base_name(self.filename)}{append_suffix}.pdf"
+                pdf.title = self.title
+                pdf.filename = bundle_filename
+                try:
+                    pdf.set_attributes(filename=bundle_filename)
+                    pdf.set_mimetype("application/pdf")
+                except:
+                    pass
+            else:
+                pdf = pdf_concatenate(
+                    document_pdfs,
+                    filename=f"{base_name(self.filename)}{append_suffix}.pdf",
+                    pdfa=pdfa,
+                )
         if hasattr(self, "add_page_numbers") and self.add_page_numbers:
             self._set_default_attributes()
             pdf.bates_number(
@@ -1799,8 +1827,10 @@ class ALDocumentBundle(DAList):
         Returns:
             str: String representation of the PDF.
         """
-        # Could be triggered in many different places unintentionally: don't refresh
-        return str(self.as_pdf(refresh=False))
+        pdf = self.as_pdf(refresh=False)
+        if pdf is None:
+            return ""
+        return str(pdf)
 
     def as_zip(
         self,
@@ -1810,9 +1840,11 @@ class ALDocumentBundle(DAList):
         title: str = "",
         format: Optional[str] = "pdf",
         include_pdf: Optional[bool] = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Returns a zip file containing all enabled documents in the bundle in the specified format.
+
+        Returns None if there are no valid documents to include in the zip.
 
         Args:
             key (str): Identifier for the document version, default is "final".
@@ -1843,21 +1875,34 @@ class ALDocumentBundle(DAList):
         if format == "docx":
             docs = []
             for doc in self.enabled_documents(refresh=refresh):
-                docs.append(doc.as_docx(key=key, refresh=refresh))
+                docx_doc = doc.as_docx(key=key, refresh=refresh)
+                if docx_doc is not None:
+                    docs.append(docx_doc)
+                else:
+                    log(f"'{doc.title}' has no usable DOCX, leaving it out of the zip")
                 if include_pdf and doc._is_docx():
-                    docs.append(doc.as_pdf(key=key, pdfa=pdfa, refresh=refresh))
+                    pdf_doc = doc.as_pdf(key=key, pdfa=pdfa, refresh=refresh)
+                    if pdf_doc is not None:
+                        docs.append(pdf_doc)
         elif format == "original":
-            # We don't try to convert to PDF if format=="original" (for things like XLSX files)
+            # We don't try to convert to PDF if format=="original"(for things like XLSX files)
             docs = [doc[key] for doc in self.enabled_documents(refresh=refresh)]
         else:
             docs = [
-                doc.as_pdf(
-                    key=key,
-                    refresh=refresh,
-                    pdfa=pdfa,
+                pdf
+                for pdf in (
+                    doc.as_pdf(
+                        key=key,
+                        refresh=refresh,
+                        pdfa=pdfa,
+                    )
+                    for doc in self.enabled_documents(refresh=refresh)
                 )
-                for doc in self.enabled_documents(refresh=refresh)
+                if pdf is not None
             ]
+        if not docs:
+            log(f"as_zip(): no valid documents to include for bundle '{self.title}'")
+            return None
         zip = zip_file(docs, filename=zipname + ".zip")
         if title == "":
             zip.title = self.title
@@ -1955,6 +2000,8 @@ class ALDocumentBundle(DAList):
         """
         Returns all enabled documents in the bundle as individual PDFs, even from nested bundles.
 
+        Documents that have no valid PDF are omitted from the list.
+
         Args:
             key (str): Identifier for the document version, default is "final".
             refresh (bool): Flag to reconsider the 'enabled' attribute and regenerate the enabled documents, default is True.
@@ -1964,8 +2011,12 @@ class ALDocumentBundle(DAList):
             List[DAFile]: List of enabled documents as individual PDFs.
         """
         return [
-            doc.as_pdf(key=key, refresh=refresh, pdfa=pdfa)
-            for doc in self.enabled_documents(refresh=refresh)
+            pdf
+            for pdf in (
+                doc.as_pdf(key=key, refresh=refresh, pdfa=pdfa)
+                for doc in self.enabled_documents(refresh=refresh)
+            )
+            if pdf is not None
         ]
 
     def as_docx_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
@@ -1973,6 +2024,8 @@ class ALDocumentBundle(DAList):
         Generates a list of enabled documents from the bundle represented as DOCX files.
 
         If a particular document can't be represented as a DOCX, its original format or a PDF is returned.
+
+        Documents that have no valid DOCX are omitted from the list.
 
         Args:
             key (str): Identifier for the document version, default is "final".
@@ -1982,8 +2035,12 @@ class ALDocumentBundle(DAList):
             List[DAFile]: List of documents represented as DOCX files or in their original format.
         """
         return [
-            doc.as_docx(key=key, refresh=refresh)
-            for doc in self.enabled_documents(refresh=refresh)
+            docx
+            for docx in (
+                doc.as_docx(key=key, refresh=refresh)
+                for doc in self.enabled_documents(refresh=refresh)
+            )
+            if docx is not None
         ]
 
     def as_editable_list(
@@ -2066,6 +2123,7 @@ class ALDocumentBundle(DAList):
         for doc in enabled_docs:
             result = {"title": doc.title}
             filename_root = os.path.splitext(str(doc.filename))[0]
+            got_any_format = False
             if pdf:
                 result["pdf"] = doc.as_pdf(
                     key=key,
@@ -2073,17 +2131,38 @@ class ALDocumentBundle(DAList):
                     pdfa=pdfa,
                     append_matching_suffix=append_matching_suffix,
                 )
-                result["download_filename"] = filename_root + ".pdf"
+                if result["pdf"] is not None:
+                    result["download_filename"] = filename_root + ".pdf"
+                    got_any_format = True
+                else:
+                    log(
+                        f"get_cacheable_documents(): '{doc.title}' produced no valid PDF"
+                    )
+                    del result["pdf"]
             if docx and doc._is_docx(key=key):
                 result["docx"] = doc.as_docx(
                     key=key,
                     refresh=refresh,
                     append_matching_suffix=append_matching_suffix,
                 )
-                result["download_filename"] = filename_root + ".docx"
+                if result["docx"] is not None:
+                    result["download_filename"] = filename_root + ".docx"
+                    got_any_format = True
+                else:
+                    log(
+                        f"get_cacheable_documents(): '{doc.title}' produced no valid DOCX"
+                    )
+                    del result["docx"]
             if original:
                 result["original"] = doc[key]
                 result["download_filename"] = doc.filename
+                got_any_format = True
+
+            if not got_any_format:
+                log(
+                    f"get_cacheable_documents(): '{doc.title}' didn't produce a valid file in any requested format, skipping entirely"
+                )
+                continue
 
             try:
                 # If it's possible, set the file extension to the actual filetype
@@ -2351,6 +2430,10 @@ class ALDocumentBundle(DAList):
             the_file = self.as_docx(key=key)
         else:
             the_file = self.as_pdf(key=key, pdfa=pdfa)
+
+        if the_file is None:
+            log(f"bundle '{self.title}' has nothing to download")
+            return ""
 
         doc_download_button = action_button_html(
             the_file.url_for(attachment=True),
@@ -2673,7 +2756,12 @@ class ALDocumentBundle(DAList):
 
             if "docx" in allowed:
                 primary = item.as_docx(key=key)
-                attachments.append(primary)
+                if primary is not None:
+                    attachments.append(primary)
+                else:
+                    log(
+                        f"send_email(): '{item.title}' has no valid DOCX, skipping from an email"
+                    )
 
             if "pdf" in allowed:
                 if not (
@@ -2681,7 +2769,13 @@ class ALDocumentBundle(DAList):
                     and hasattr(primary, "extension")
                     and primary.extension == "pdf"
                 ):
-                    attachments.append(item.as_pdf(key=key))
+                    pdf_doc = item.as_pdf(key=key)
+                    if pdf_doc is not None:
+                        attachments.append(pdf_doc)
+                    else:
+                        log(
+                            f"send_email(): '{item.title}' has no valid PDF, skipping from an email"
+                        )
 
         return send_email(
             to=to,
@@ -2744,9 +2838,11 @@ class ALDocumentBundle(DAList):
         key: str = "final",
         refresh: bool = True,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Convert the enabled documents to a single DOCX file or PDF file if conversion fails.
+
+        Returns None if none of the enabled documents produced a valid file.
 
         Args:
             key (str, optional): The key to identify enabled documents. Defaults to "final".
@@ -2895,9 +2991,11 @@ class ALExhibit(DAObject):
         add_cover_page: bool = True,
         filename: Optional[str] = None,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Generates a PDF version of the exhibit, with optional features like Bates numbering or a cover page.
+
+        Returns None if no valid pages were available to include.
 
         Note that these are keyword only parameters, not positional.
 
@@ -2928,13 +3026,19 @@ class ALExhibit(DAObject):
             return getattr(self._cache, safe_key)
         if not filename:
             filename = "exhibits.pdf"
+        valid_pages = [p for p in self.ocr_pages() if p and p.ok]
+        if not valid_pages:
+            log(
+                f"ALExhibit.as_pdf(): no valid pages for exhibit '{self.title}', skipping"
+            )
+            return None
         if add_cover_page:
             concatenated_pages = pdf_concatenate(
-                self.cover_page, self.ocr_pages(), filename=filename, pdfa=pdfa
+                self.cover_page, valid_pages, filename=filename, pdfa=pdfa
             )
         else:
             concatenated_pages = pdf_concatenate(
-                self.ocr_pages(), filename=filename, pdfa=pdfa
+                valid_pages, filename=filename, pdfa=pdfa
             )
 
         if add_page_numbers:
@@ -3106,9 +3210,11 @@ class ALExhibitList(DAList):
         page_number_offset_vertical: float = 15,
         toc_pages: int = 0,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Compiles all exhibits in the list into a single PDF.
+
+        Returns None if none of the exhibits produced valid pages to include.
 
         Args:
             filename (str): Desired filename for the generated PDF.
@@ -3133,8 +3239,9 @@ class ALExhibitList(DAList):
             self._update_page_numbers(toc_guess_pages=toc_pages)
         if not page_number_prefix and self.bates_prefix:
             page_number_prefix = self.bates_prefix
-        return pdf_concatenate(
-            [
+        exhibit_pdfs = [
+            pdf
+            for pdf in (
                 exhibit.as_pdf(
                     add_cover_page=self.include_exhibit_cover_pages,
                     add_page_numbers=add_page_numbers,
@@ -3144,9 +3251,19 @@ class ALExhibitList(DAList):
                     page_number_font_size=page_number_font_size,
                     page_number_offset_horizontal=page_number_offset_horizontal,
                     page_number_offset_vertical=page_number_offset_vertical,
+                    pdfa=pdfa,
                 )
                 for exhibit in self
-            ],
+            )
+            if pdf is not None
+        ]
+        if not exhibit_pdfs:
+            log(
+                "ALExhibitList.as_pdf(): none of the exhibits have valid pages, nothing to compile"
+            )
+            return None
+        return pdf_concatenate(
+            exhibit_pdfs,
             filename=filename,
             pdfa=pdfa,
         )
@@ -3155,12 +3272,21 @@ class ALExhibitList(DAList):
         """
         Calculates the total size in bytes of all exhibits in the list.
 
+        Pages that fail to load are skipped rather than raising an exception,
+        so the total may be an undercount if any page couldn't be read.
+
         Returns:
             int: Total size of all exhibits in bytes.
         """
         full_size = 0
         for exhibit in self.complete_elements():
-            full_size += sum((a_page.size_in_bytes() for a_page in exhibit.pages))
+            for a_page in exhibit.pages:
+                try:
+                    full_size += a_page.size_in_bytes()
+                except Exception:
+                    log(
+                        f"ALExhibitList.size_in_bytes(): could not get size for a page in exhibit '{exhibit.title}', skipping it"
+                    )
         return full_size
 
     def _update_labels(self, auto_labeler: Optional[Callable] = None) -> None:
@@ -3395,9 +3521,11 @@ class ALExhibitDocument(ALDocument):
         refresh: bool = True,
         pdfa: bool = False,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Render the document as a PDF.
+
+        Returns None if no valid exhibits were available to include.
 
         Args:
             key (str): Identifier key for the document. Default is "final".
@@ -3419,45 +3547,50 @@ class ALExhibitDocument(ALDocument):
 
         if len(self.exhibits):
             self._set_default_attributes()
+            exhibits_pdf = self.exhibits.as_pdf(
+                add_page_numbers=self.add_page_numbers,
+                page_number_prefix=self.page_number_prefix,
+                page_number_digits=self.page_number_digits,
+                page_number_area=self.page_number_area,
+                page_number_font_size=self.page_number_font_size,
+                page_number_offset_horizontal=self.page_number_offset_horizontal,
+                page_number_offset_vertical=self.page_number_offset_vertical,
+                toc_pages=(
+                    self.table_of_contents.num_pages()
+                    if self.include_table_of_contents
+                    else 0
+                ),
+                pdfa=pdfa,
+            )
+            if exhibits_pdf is None:
+                log(
+                    f"ALExhibitDocument.as_pdf(): no valid exhibits for '{self.title}', skipping"
+                )
+                if self.include_table_of_contents:
+                    return pdf_concatenate(
+                        self.table_of_contents, filename=filename, pdfa=pdfa
+                    )
+                return None
             if self.include_table_of_contents:
-                toc_pages = self.table_of_contents.num_pages()
                 return pdf_concatenate(
                     self.table_of_contents,
-                    self.exhibits.as_pdf(
-                        add_page_numbers=self.add_page_numbers,
-                        page_number_prefix=self.page_number_prefix,
-                        page_number_digits=self.page_number_digits,
-                        page_number_area=self.page_number_area,
-                        page_number_font_size=self.page_number_font_size,
-                        page_number_offset_horizontal=self.page_number_offset_horizontal,
-                        page_number_offset_vertical=self.page_number_offset_vertical,
-                        toc_pages=toc_pages,
-                        pdfa=pdfa,
-                    ),
+                    exhibits_pdf,
                     filename=filename,
                     pdfa=pdfa,
                 )
-            else:
-                return self.exhibits.as_pdf(
-                    add_page_numbers=self.add_page_numbers,
-                    page_number_prefix=self.page_number_prefix,
-                    page_number_digits=self.page_number_digits,
-                    page_number_area=self.page_number_area,
-                    page_number_font_size=self.page_number_font_size,
-                    page_number_offset_horizontal=self.page_number_offset_horizontal,
-                    page_number_offset_vertical=self.page_number_offset_vertical,
-                    filename=filename,
-                    pdfa=pdfa,
-                )
+            return exhibits_pdf
+        return None
 
     def as_docx(
         self,
         key: str = "final",
         refresh: bool = True,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Despite the name, renders the document as a PDF. Provided for signature compatibility.
+
+        Returns None if no valid exhibits were available to include.
 
         Args:
             key (str, optional): Identifier key for the document. Default is "final".
