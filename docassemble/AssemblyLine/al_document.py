@@ -2204,6 +2204,13 @@ class ALDocumentBundle(DAList):
         return results, bundled_zip, bundled_pdf
 
     def has_broken_documents(self) -> bool:
+        """
+        Checks if anything in this bundle, including any content inside a nested
+        bundle, failed to process and will be silently skipped.
+
+        Returns:
+            bool: True if any document or nested bundle has broken content.
+        """
         for document in self.enabled_documents():
             if (
                 hasattr(document, "has_broken_exhibits")
@@ -2218,6 +2225,13 @@ class ALDocumentBundle(DAList):
         return False
 
     def broken_documents_warning_html(self) -> str:
+        """
+        Builds the warning banner shown on the download screen if any document in
+        this bundle has broken content.
+
+        Returns:
+            str: The warning HTML, or an empty string if nothing is broken.
+        """
         if not self.has_broken_documents():
             return ""
         return (
@@ -3009,6 +3023,9 @@ class ALExhibit(DAObject):
         Checks pages.gathered rather than the `complete` property, since
         `complete` is a gathering trigger that always returns True and can
         force docassemble to gather undefined attributes as a side effect
+
+        Returns:
+            bool: True if this exhibit will get skipped.
         """
         if not getattr(self.pages, "gathered", False):
             return False
@@ -3308,13 +3325,21 @@ class ALExhibitList(DAList):
         )
 
     def broken_exhibits(self) -> List["ALExhibit"]:
-        """Returns exhibits that are complete but have no valid pages"""
+        """Returns exhibits that are complete but have no valid pages
+
+        Returns:
+            List[ALExhibit]: The exhibits that will get skipped.
+        """
         if not self.gathered:
             return []
         return [exhibit for exhibit in self if exhibit.is_broken()]
 
     def has_broken_exhibits(self) -> bool:
-        """True if any exhibit in this list will be skipped"""
+        """True if any exhibit in this list will be skipped
+
+        Returns:
+            bool: True if at least one exhibit has no valid pages.
+        """
         return len(self.broken_exhibits()) > 0
 
     def size_in_bytes(self) -> int:
@@ -3631,11 +3656,19 @@ class ALExhibitDocument(ALDocument):
         return None
 
     def has_broken_exhibits(self) -> bool:
-        """True if any exhibit in this document will be silently skipped"""
+        """True if any exhibit in this document will be silently skipped
+
+        Returns:
+            bool: True if at least one exhibit has no valid pages.
+        """
         return self.exhibits.has_broken_exhibits()
 
     def broken_exhibits(self) -> List["ALExhibit"]:
-        """Returns exhibits that are complete but have no valid pages"""
+        """Returns exhibits that are complete but have no valid pages
+
+        Returns:
+            List[ALExhibit]: The exhibits that will get skipped.
+        """
         return self.exhibits.broken_exhibits()
 
     def as_docx(
