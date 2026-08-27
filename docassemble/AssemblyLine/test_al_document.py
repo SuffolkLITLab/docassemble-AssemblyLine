@@ -181,6 +181,47 @@ class TestExhibitTableOfContentsPageNumbers(unittest.TestCase):
         self.assertEqual(self.exhibit.toc_page_number(toc_pages=2), 4)
 
 
+class TestBundleSkipsBrokenDocument(unittest.TestCase):
+    def test_partial_failure_still_works(self):
+        good_pdf = FakePdf(filename="good.pdf", title="Good doc")
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeSingleDoc(None), FakeSingleDoc(good_pdf)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        result = bundle.as_pdf()
+
+        self.assertIsNotNone(result)
+
+    def test_all_broken_returns_none(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeSingleDoc(None), FakeSingleDoc(None)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        result = bundle.as_pdf()
+
+        self.assertIsNone(result)
+
+
+class TestExhibitWithNoValidPages(unittest.TestCase):
+    def test_exhibit_with_no_pages_returns_none(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        exhibit.pages = []
+        exhibit.start_page = 1
+
+        result = exhibit.as_pdf()
+
+        self.assertIsNone(result)
+
+
 class test_aladdendum(unittest.TestCase):
     def test_safe_value(self):
         text_testcase1 = """Charged by my father with a very delicate mission, I repaired, towards the end of May, 1788, to the château of Ionis, situated a dozen leagues distant, in the lands lying between Angers and Saumur. I was twenty-two, and already practising the profession of lawyer, for which I experienced but slight inclination, although neither the study of business nor of argument had presented serious difficulties to me. Taking my youth into consideration, I was not esteemed without talent, and the standing of my father, a lawyer renowned in the locality, assured me a brilliant patronage in the future, in return for any paltry efforts I might make to be worthy of replacing him. But I would have preferred literature, a more dreamy life, a more independent and more individual use of my faculties, a responsibility less submissive to the passions and interests of others. As my family was well off, and I an only son, greatly spoiled and petted, I might have chosen my own career, but I would have thus afflicted my father, who took pride in his ability to direct me 4in the road which he had cleared in advance, and I loved him too tenderly to permit my instinct to outweigh his wishes.
