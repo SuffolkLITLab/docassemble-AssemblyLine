@@ -2203,6 +2203,44 @@ class ALDocumentBundle(DAList):
 
         return results, bundled_zip, bundled_pdf
 
+    def has_broken_documents(self) -> bool:
+        """
+        Checks if anything in this bundle, including any content inside a nested
+        bundle, failed to process and will be silently skipped.
+
+        Returns:
+            bool: True if any document or nested bundle has broken content.
+        """
+        for document in self.enabled_documents():
+            if (
+                hasattr(document, "has_broken_exhibits")
+                and document.has_broken_exhibits()
+            ):
+                return True
+            if (
+                isinstance(document, ALDocumentBundle)
+                and document.has_broken_documents()
+            ):
+                return True
+        return False
+
+    def broken_documents_warning_html(self) -> str:
+        """
+        Builds the warning banner shown on the download screen if any document in
+        this bundle has broken content.
+
+        Returns:
+            str: The warning HTML, or an empty string if nothing is broken.
+        """
+        if not self.has_broken_documents():
+            return ""
+        return (
+            '<div class="alert alert-warning" role="alert">'
+            "One of your files did not upload correctly and it will not be included. "
+            "Please try uploading it again before you continue."
+            "</div>"
+        )
+
     def download_list_html(
         self,
         key: str = "final",
@@ -2299,7 +2337,8 @@ class ALDocumentBundle(DAList):
                 zip_format=zip_format,
             )
 
-        html = f'<div class="container al_table al_doc_table" id="{ html_safe_str(self.instanceName) }">'
+        html = self.broken_documents_warning_html()
+        html += f'<div class="container al_table al_doc_table" id="{ html_safe_str(self.instanceName) }">'
 
         for result in downloadable_files:
             title = result["title"]
@@ -2976,6 +3015,23 @@ class ALExhibit(DAObject):
             pages.append(page)
         return pages
 
+    def is_broken(self) -> bool:
+        """
+        Returns True if this exhibit's pages finished gathering but none of
+        them are currently valid, meaning as_pdf() will silently skip it.
+
+        Checks pages.gathered rather than the `complete` property, since
+        `complete` is a gathering trigger that always returns True and can
+        force docassemble to gather undefined attributes as a side effect
+
+        Returns:
+            bool: True if this exhibit will get skipped.
+        """
+        if not getattr(self.pages, "gathered", False):
+            return False
+        valid_pages = [p for p in self.ocr_pages() if p and p.ok]
+        return len(valid_pages) == 0
+
     def as_pdf(
         self,
         *,
@@ -3267,6 +3323,24 @@ class ALExhibitList(DAList):
             filename=filename,
             pdfa=pdfa,
         )
+
+    def broken_exhibits(self) -> List["ALExhibit"]:
+        """Returns exhibits that are complete but have no valid pages
+
+        Returns:
+            List[ALExhibit]: The exhibits that will get skipped.
+        """
+        if not self.gathered:
+            return []
+        return [exhibit for exhibit in self if exhibit.is_broken()]
+
+    def has_broken_exhibits(self) -> bool:
+        """True if any exhibit in this list will be skipped
+
+        Returns:
+            bool: True if at least one exhibit has no valid pages.
+        """
+        return len(self.broken_exhibits()) > 0
 
     def size_in_bytes(self) -> int:
         """
@@ -3580,6 +3654,22 @@ class ALExhibitDocument(ALDocument):
                 )
             return exhibits_pdf
         return None
+
+    def has_broken_exhibits(self) -> bool:
+        """True if any exhibit in this document will be silently skipped
+
+        Returns:
+            bool: True if at least one exhibit has no valid pages.
+        """
+        return self.exhibits.has_broken_exhibits()
+
+    def broken_exhibits(self) -> List["ALExhibit"]:
+        """Returns exhibits that are complete but have no valid pages
+
+        Returns:
+            List[ALExhibit]: The exhibits that will get skipped.
+        """
+        return self.exhibits.broken_exhibits()
 
     def as_docx(
         self,
