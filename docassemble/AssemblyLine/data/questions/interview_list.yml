@@ -269,14 +269,15 @@ subquestion: |
   ${ session_list_html(answers = find_matching_sessions(filenames={limit_filename} if limit_filename else None, keyword=search_keyword), filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }
 
   % else:
-  ${ session_list_html(filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }
+  <% current_page_sessions = get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, exclude_filenames=al_sessions_to_exclude_from_interview_list, limit=20, offset=session_page*20, exclude_newly_started_sessions=True) %>
+  ${ session_list_html(answers=current_page_sessions, filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }
 
   <nav aria-label="Page navigation">
     <ul class="pagination justify-content-center">
   % if session_page > 0:
       <li class="page-item"><a class="page-link" href="${ url_action("update_page_event", page_increment=-1) }">Previous</a></li>
   % endif
-  % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, exclude_filenames=al_sessions_to_exclude_from_interview_list, limit=20, offset=session_page*20, exclude_newly_started_sessions=True)) >= 20:
+  % if len(current_page_sessions) >= 20:
       <li class="page-item"><a class="page-link" href="${ url_action("update_page_event", page_increment=1) }">Next</a></li>
   % endif
     </ul>
