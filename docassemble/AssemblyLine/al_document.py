@@ -2211,18 +2211,24 @@ class ALDocumentBundle(DAList):
         Returns:
             bool: True if any document or nested bundle has broken content.
         """
+        return len(self.broken_exhibit_titles()) > 0
+
+    def broken_exhibit_titles(self) -> List[str]:
+        """
+        Returns the titles of any broken exhibits in this bundle, including
+        ones inside nested bundles.
+
+        Returns:
+            List[str]: Titles of exhibits that will be skipped.
+        """
+        titles: List[str] = []
         for document in self.enabled_documents():
-            if (
-                hasattr(document, "has_broken_exhibits")
-                and document.has_broken_exhibits()
-            ):
-                return True
-            if (
-                isinstance(document, ALDocumentBundle)
-                and document.has_broken_documents()
-            ):
-                return True
-        return False
+            if hasattr(document, "broken_exhibits"):
+                for exhibit in document.broken_exhibits():
+                    titles.append(getattr(exhibit, "title", None) or "an exhibit")
+            if isinstance(document, ALDocumentBundle):
+                titles.extend(document.broken_exhibit_titles())
+        return titles
 
     def broken_documents_warning_html(self) -> str:
         """
@@ -2232,14 +2238,15 @@ class ALDocumentBundle(DAList):
         Returns:
             str: The warning HTML, or an empty string if nothing is broken.
         """
-        if not self.has_broken_documents():
+        broken_titles = self.broken_exhibit_titles()
+        if not broken_titles:
             return ""
-        return (
-            '<div class="alert alert-warning" role="alert">'
-            "One of your files did not upload correctly and it will not be included. "
-            "Please try uploading it again before you continue."
-            "</div>"
-        )
+        quoted = [f'"{escape(title)}"' for title in broken_titles]
+        if len(quoted) == 1:
+            message = f"{quoted[0]} did not upload correctly and won't be included. Please try uploading it again before you continue."
+        else:
+            message = f"{', '.join(quoted[:-1])} and {quoted[-1]} did not upload correctly and won't be included. Please try uploading them again before you continue."
+        return f'<div class="alert alert-warning" role="alert">{message}</div>'
 
     def download_list_html(
         self,

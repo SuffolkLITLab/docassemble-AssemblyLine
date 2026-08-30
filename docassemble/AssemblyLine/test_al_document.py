@@ -98,15 +98,29 @@ class FakeSingleDoc:
         return self._pdf
 
 
+class FakeExhibit:
+    def __init__(self, title):
+        self.title = title
+
+
 class FakeDocWithBrokenExhibits:
-    def __init__(self, broken):
+    def __init__(self, broken, broken_titles=None):
         self._broken = broken
+        if broken_titles is not None:
+            self._broken_titles = broken_titles
+        elif broken:
+            self._broken_titles = ["Broken Exhibit"]
+        else:
+            self._broken_titles = []
 
     def is_enabled(self, refresh=True):
         return True
 
     def has_broken_exhibits(self):
         return self._broken
+
+    def broken_exhibits(self):
+        return [FakeExhibit(title) for title in self._broken_titles]
 
 
 class TestSingleDocumentBundleFilename(unittest.TestCase):
@@ -306,6 +320,21 @@ class TestBundleWarnsOnBrokenDocuments(unittest.TestCase):
         )
 
         self.assertTrue(outer_bundle.has_broken_documents())
+
+    def test_warning_names_the_broken_exhibit(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[
+                FakeDocWithBrokenExhibits(broken=True, broken_titles=["Pay Stub"])
+            ],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        warning = bundle.broken_documents_warning_html()
+
+        self.assertIn("Pay Stub", warning)
 
 
 class test_aladdendum(unittest.TestCase):
