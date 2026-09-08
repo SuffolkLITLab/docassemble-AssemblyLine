@@ -73,11 +73,17 @@ def _list_config():
         ),
     )
     return {
-        "page_heading": config_with_language_fallback("page question", "interview page heading") or "In progress forms",
+        "page_heading": config_with_language_fallback(
+            "page question", "interview page heading"
+        )
+        or "In progress forms",
         "page_intro": config_with_language_fallback("interview page pre"),
-        "new_form_label": config_with_language_fallback("new form label") or "Start a new form",
+        "new_form_label": config_with_language_fallback("new form label")
+        or "Start a new form",
         "new_form_url": config_with_language_fallback("new form url", "app homepage"),
-        "enable_answer_sets": bool(get_config("assembly line", {}).get("enable answer sets")),
+        "enable_answer_sets": bool(
+            get_config("assembly line", {}).get("enable answer sets")
+        ),
         "exclude_filenames": exclude_filenames,
     }
 
@@ -88,21 +94,25 @@ def _set_current_info():
     # by docassemble's own interview dispatch. Since this is a plain Flask
     # route, we have to populate it ourselves before calling into them
     this_thread.current_info = {
-        'user': {
-            'is_authenticated': True,
-            'is_anonymous': False,
-            'theid': current_user.id,
-            'the_user_id': current_user.id,
-            'email': current_user.email,
-            'firstname': current_user.first_name,
-            'lastname': current_user.last_name,
-            'roles': [r.name for r in current_user.roles] if hasattr(current_user, 'roles') else [],
-            'device_id': 'al_interview_list',
-            'session_uid': 'al_interview_list',
+        "user": {
+            "is_authenticated": True,
+            "is_anonymous": False,
+            "theid": current_user.id,
+            "the_user_id": current_user.id,
+            "email": current_user.email,
+            "firstname": current_user.first_name,
+            "lastname": current_user.last_name,
+            "roles": (
+                [r.name for r in current_user.roles]
+                if hasattr(current_user, "roles")
+                else []
+            ),
+            "device_id": "al_interview_list",
+            "session_uid": "al_interview_list",
         },
-        'session': None,
-        'secret': None,
-        'yaml_filename': None,
+        "session": None,
+        "secret": None,
+        "yaml_filename": None,
     }
 
 
@@ -118,7 +128,9 @@ def _toggleable_action_icon(icon_class, label, target_id, danger=False, tooltip=
     """
 
 
-def _toggleable_action_form(route_name, filename, session_key, csrf_token, placeholder, target_id):
+def _toggleable_action_form(
+    route_name, filename, session_key, csrf_token, placeholder, target_id
+):
     field_id = f"{ target_id }-name"
     return f"""
         <form id="{ target_id }" method="POST" action="{ url_for(route_name) }" style="display:none; flex-direction:column; gap:2px; margin-top:4px; max-width:16rem;">
@@ -136,31 +148,42 @@ def _toggleable_action_form(route_name, filename, session_key, csrf_token, place
 
 def _render_session_rows(sessions, csrf_token, enable_answer_sets):
     if not sessions:
-        return '<p>No saved forms yet.</p>'
+        return "<p>No saved forms yet.</p>"
 
     rows = (
         '<div class="table-responsive">'
         '<table class="table table-striped al-saved-answer-table">'
-        '<thead><tr>'
+        "<thead><tr>"
         '<th scope="col">Title</th>'
         '<th scope="col">Date modified</th>'
         '<th scope="col">Progress</th>'
         '<th scope="col">Actions</th>'
-        '</tr></thead><tbody>'
+        "</tr></thead><tbody>"
     )
 
     for s in sessions:
         title = escape(nice_interview_title(s))
         subtitle = escape(nice_interview_subtitle(s))
-        filename = escape(s['filename'])
-        session_key = escape(s['key'])
-        modtime = local_date(s.get('modtime'))
-        subtitle_html = f'<br/><span class="al-session-form-subtitle">{ subtitle }</span>' if subtitle else ''
+        filename = escape(s["filename"])
+        session_key = escape(s["key"])
+        modtime = local_date(s.get("modtime"))
+        subtitle_html = (
+            f'<br/><span class="al-session-form-subtitle">{ subtitle }</span>'
+            if subtitle
+            else ""
+        )
 
         rename_target = f"rename-{ session_key }"
-        rename_icon = _toggleable_action_icon("fa-solid fa-tag", "Rename", rename_target)
+        rename_icon = _toggleable_action_icon(
+            "fa-solid fa-tag", "Rename", rename_target
+        )
         rename_form = _toggleable_action_form(
-            "al_interview_list_rename", filename, session_key, csrf_token, "New name", rename_target
+            "al_interview_list_rename",
+            filename,
+            session_key,
+            csrf_token,
+            "New name",
+            rename_target,
         )
 
         copy_icon = ""
@@ -168,11 +191,18 @@ def _render_session_rows(sessions, csrf_token, enable_answer_sets):
         if enable_answer_sets:
             copy_target = f"copy-{ session_key }"
             copy_icon = _toggleable_action_icon(
-                "fa-regular fa-clone", "Copy to answer set", copy_target,
+                "fa-regular fa-clone",
+                "Copy to answer set",
+                copy_target,
                 tooltip="Saves these answers so you can reuse them to start a different form later.",
             )
             copy_form = _toggleable_action_form(
-                "al_interview_list_copy", filename, session_key, csrf_token, "Answer set name", copy_target
+                "al_interview_list_copy",
+                filename,
+                session_key,
+                csrf_token,
+                "Answer set name",
+                copy_target,
             )
 
         rows += f"""<tr class="al-saved-answer-table-row">
@@ -208,18 +238,18 @@ def _render_session_rows(sessions, csrf_token, enable_answer_sets):
     return rows
 
 
-if 'al_interview_list' not in app.view_functions:
+if "al_interview_list" not in app.view_functions:
 
-    @app.route('/al_interview_list', methods=['GET'])
+    @app.route("/al_interview_list", methods=["GET"])
     @login_required
     def al_interview_list():
         al_timing_start = time.time()
         cfg = _list_config()
 
-        page = max(request.args.get('page', 0, type=int), 0)
+        page = max(request.args.get("page", 0, type=int), 0)
         offset = page * PAGE_SIZE
-        keyword = request.args.get('keyword', '').strip()
-        limit_filename = request.args.get('limit_filename', '').strip()
+        keyword = request.args.get("keyword", "").strip()
+        limit_filename = request.args.get("limit_filename", "").strip()
 
         if keyword or limit_filename:
             sessions = find_matching_sessions(
@@ -227,7 +257,7 @@ if 'al_interview_list' not in app.view_functions:
                 filenames={limit_filename} if limit_filename else None,
                 user_id=current_user.id,
                 exclude_current_filename=False,
-                exclude_filenames=cfg['exclude_filenames'],
+                exclude_filenames=cfg["exclude_filenames"],
                 limit=PAGE_SIZE,
                 offset=offset,
             )
@@ -236,7 +266,7 @@ if 'al_interview_list' not in app.view_functions:
                 filename=None,
                 user_id=current_user.id,
                 exclude_current_filename=False,
-                exclude_filenames=cfg['exclude_filenames'],
+                exclude_filenames=cfg["exclude_filenames"],
                 exclude_newly_started_sessions=True,
                 limit=PAGE_SIZE,
                 offset=offset,
@@ -244,22 +274,26 @@ if 'al_interview_list' not in app.view_functions:
             # get_saved_interview_list() has a bug where
             # exclude_filenames is ignored (it loops over an empty list)
             sessions = [
-                s for s in sessions
+                s
+                for s in sessions
                 if not any(
-                    s['filename'] == excl or (":" not in excl and s['filename'].startswith(excl))
-                    for excl in cfg['exclude_filenames']
+                    s["filename"] == excl
+                    or (":" not in excl and s["filename"].startswith(excl))
+                    for excl in cfg["exclude_filenames"]
                 )
             ]
 
         csrf_token = generate_csrf()
-        rows = _render_session_rows(sessions, csrf_token, cfg['enable_answer_sets'])
+        rows = _render_session_rows(sessions, csrf_token, cfg["enable_answer_sets"])
 
         new_form_button = f"""
         <a class="btn btn-primary btn-md" href="{ escape(cfg['new_form_url'] or '#') }">
             <i class="fa-solid fa-circle-plus" aria-hidden="true"></i> { escape(cfg['new_form_label']) }
         </a>
         """
-        page_intro = f"<p>{ escape(cfg['page_intro']) }</p>" if cfg['page_intro'] else ""
+        page_intro = (
+            f"<p>{ escape(cfg['page_intro']) }</p>" if cfg["page_intro"] else ""
+        )
 
         filename_options = get_combined_filename_list(user_id=current_user.id)
         filename_dropdown_options = ""
@@ -296,20 +330,20 @@ if 'al_interview_list' not in app.view_functions:
 
         pagination = '<nav aria-label="Page navigation"><ul class="pagination justify-content-center">'
         if page > 0:
-            prev_args = {'page': page - 1}
+            prev_args = {"page": page - 1}
             if keyword:
-                prev_args['keyword'] = keyword
+                prev_args["keyword"] = keyword
             if limit_filename:
-                prev_args['limit_filename'] = limit_filename
+                prev_args["limit_filename"] = limit_filename
             pagination += f'<li class="page-item"><a class="page-link" href="{ url_for("al_interview_list", **prev_args) }">Previous</a></li>'
         if len(sessions) >= PAGE_SIZE:
-            next_args = {'page': page + 1}
+            next_args = {"page": page + 1}
             if keyword:
-                next_args['keyword'] = keyword
+                next_args["keyword"] = keyword
             if limit_filename:
-                next_args['limit_filename'] = limit_filename
+                next_args["limit_filename"] = limit_filename
             pagination += f'<li class="page-item"><a class="page-link" href="{ url_for("al_interview_list", **next_args) }">Next</a></li>'
-        pagination += '</ul></nav>'
+        pagination += "</ul></nav>"
 
         content = f"""
         <h1 class="da-page-header h3">{ escape(cfg['page_heading']) } { new_form_button }</h1>
@@ -323,63 +357,74 @@ if 'al_interview_list' not in app.view_functions:
         log(f"AL_TIMING_TEST new_endpoint elapsed={time.time() - al_timing_start:.4f}s")
         return render_template_string(PAGE_TEMPLATE, content=content)
 
-    @app.route('/al_interview_list/delete', methods=['POST'])
+    @app.route("/al_interview_list/delete", methods=["POST"])
     @login_required
     def al_interview_list_delete():
-        filename = request.form.get('filename')
-        session_id = request.form.get('session')
+        filename = request.form.get("filename")
+        session_id = request.form.get("session")
         if not filename or not session_id:
             flash("Missing information, could not delete.", "danger")
-            return redirect(url_for('al_interview_list'))
+            return redirect(url_for("al_interview_list"))
         _set_current_info()
         try:
-            user_interviews(user_id=current_user.id, action="delete", filename=filename, session=session_id)
+            user_interviews(
+                user_id=current_user.id,
+                action="delete",
+                filename=filename,
+                session=session_id,
+            )
             flash("Deleted.", "success")
         except Exception as e:
             log(f"al_interview_list_delete error: {e}")
             flash("Could not delete that item.", "danger")
-        return redirect(url_for('al_interview_list'))
+        return redirect(url_for("al_interview_list"))
 
-    @app.route('/al_interview_list/delete_all', methods=['POST'])
+    @app.route("/al_interview_list/delete_all", methods=["POST"])
     @login_required
     def al_interview_list_delete_all():
         _set_current_info()
         try:
-            delete_interview_sessions(user_id=current_user.id, exclude_current_filename=False)
+            delete_interview_sessions(
+                user_id=current_user.id, exclude_current_filename=False
+            )
             flash("Deleted all saved sessions.", "success")
         except Exception as e:
             log(f"al_interview_list_delete_all error: {e}")
             flash("Could not delete sessions.", "danger")
-        return redirect(url_for('al_interview_list'))
+        return redirect(url_for("al_interview_list"))
 
-    @app.route('/al_interview_list/rename', methods=['POST'])
+    @app.route("/al_interview_list/rename", methods=["POST"])
     @login_required
     def al_interview_list_rename():
-        filename = request.form.get('filename')
-        session_id = request.form.get('session')
-        new_name = request.form.get('new_name')
+        filename = request.form.get("filename")
+        session_id = request.form.get("session")
+        new_name = request.form.get("new_name")
         if not filename or not session_id or not new_name:
             flash("Missing information, could not rename.", "danger")
-            return redirect(url_for('al_interview_list'))
+            return redirect(url_for("al_interview_list"))
         _set_current_info()
         try:
-            rename_interview_answers(filename=filename, session_id=session_id, new_name=new_name)
+            rename_interview_answers(
+                filename=filename, session_id=session_id, new_name=new_name
+            )
             flash("Renamed.", "success")
         except Exception as e:
             log(f"al_interview_list_rename error: {e}")
             flash("Could not rename that item.", "danger")
-        return redirect(url_for('al_interview_list'))
+        return redirect(url_for("al_interview_list"))
 
-    @app.route('/al_interview_list/copy_to_answer_set', methods=['POST'])
+    @app.route("/al_interview_list/copy_to_answer_set", methods=["POST"])
     @login_required
     def al_interview_list_copy():
-        filename = request.form.get('filename')
-        session_id = request.form.get('session')
-        new_name = request.form.get('new_name')
-        original_interview_filename = request.form.get('original_interview_filename') or filename
+        filename = request.form.get("filename")
+        session_id = request.form.get("session")
+        new_name = request.form.get("new_name")
+        original_interview_filename = (
+            request.form.get("original_interview_filename") or filename
+        )
         if not filename or not session_id or not new_name:
             flash("Missing information, could not copy.", "danger")
-            return redirect(url_for('al_interview_list'))
+            return redirect(url_for("al_interview_list"))
         _set_current_info()
         try:
             save_interview_answers(
@@ -391,5 +436,8 @@ if 'al_interview_list' not in app.view_functions:
             flash("Copied to answer set.", "success")
         except Exception as e:
             log(f"al_interview_list_copy error: {e}")
-            flash("Sorry, these answers couldn't be copied right now. Try starting a new form instead.", "danger")
-        return redirect(url_for('al_interview_list'))
+            flash(
+                "Sorry, these answers couldn't be copied right now. Try starting a new form instead.",
+                "danger",
+            )
+        return redirect(url_for("al_interview_list"))
