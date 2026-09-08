@@ -1,5 +1,5 @@
 # pre-load
-from flask import request, redirect, url_for, flash, render_template_string
+from flask import request, redirect, url_for, flash, render_template_string, Response
 from flask_login import login_required, current_user
 from flask_wtf.csrf import generate_csrf
 from markupsafe import escape
@@ -19,6 +19,7 @@ from docassemble.AssemblyLine.sessions import (
     local_date,
     config_with_language_fallback,
     get_combined_filename_list,
+    _package_name,
 )
 
 PAGE_SIZE = 20
@@ -26,29 +27,7 @@ PAGE_SIZE = 20
 PAGE_TEMPLATE = """
 {%- extends 'flask_user/public_base.html' %}
 {%- block content %}
-<link rel="stylesheet" href="/packagestatic/docassemble.AssemblyLine/interview_list.css">
-<style>
-.al-icon-btn {
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    color: #0d6efd;
-    text-decoration: none;
-}
-.al-icon-btn:hover, .al-icon-btn:focus {
-    text-decoration: underline;
-}
-.al-icon-btn i {
-    color: #0d6efd;
-}
-.al-icon-btn.al-danger, .al-icon-btn.al-danger i {
-    color: #dc3545;
-}
-.al-icon-btn span {
-    font-size: 0.85rem;
-}
-</style>
+<link rel="stylesheet" href="/packagestatic/{{ package_name }}/interview_list.css">
 {{ content|safe }}
 {%- endblock %}
 """
@@ -244,8 +223,13 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list", methods=["GET"])
     @login_required
-    def al_interview_list():
-        """Show the current user's saved interview sessions, with search and paging."""
+    def al_interview_list() -> str:
+        """
+        Show the current user's saved interview sessions, with search and paging.
+
+        Returns:
+            str: rendered HTML page listing the user's saved interview sessions.
+        """
         cfg = _list_config()
 
         page = max(request.args.get("page", 0, type=int), 0)
@@ -356,12 +340,20 @@ if "al_interview_list" not in app.view_functions:
         { delete_all_form }
         """
 
-        return render_template_string(PAGE_TEMPLATE, content=content)
+        return render_template_string(
+            PAGE_TEMPLATE, content=content, package_name=_package_name()
+        )
 
     @app.route("/al_interview_list/delete", methods=["POST"])
     @login_required
-    def al_interview_list_delete():
-        """Delete a single saved session"""
+    def al_interview_list_delete() -> Response:
+        """
+        Delete a single saved session.
+
+        Returns:
+            Response: A redirect back to the interview list page, with a
+                flash message showing success or failure.
+        """
         filename = request.form.get("filename")
         session_id = request.form.get("session")
         if not filename or not session_id:
@@ -383,8 +375,13 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list/delete_all", methods=["POST"])
     @login_required
-    def al_interview_list_delete_all():
-        """Delete all of the current user's saved sessions."""
+    def al_interview_list_delete_all() -> Response:
+        """Delete all of the current user's saved sessions.
+
+        Returns:
+            Response: A redirect back to the interview list page, with a
+                flash message indicating success or failure.
+        """
         _set_current_info()
         try:
             delete_interview_sessions(
@@ -398,8 +395,13 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list/rename", methods=["POST"])
     @login_required
-    def al_interview_list_rename():
-        """Rename a single saved session"""
+    def al_interview_list_rename() -> Response:
+        """Rename a single saved session
+
+        Returns:
+            Response: A redirect back to the interview list page, with a
+                flash message indicating success or failure.
+        """
         filename = request.form.get("filename")
         session_id = request.form.get("session")
         new_name = request.form.get("new_name")
@@ -419,8 +421,13 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list/copy_to_answer_set", methods=["POST"])
     @login_required
-    def al_interview_list_copy():
-        """Copy a single session's answers into a new answer set"""
+    def al_interview_list_copy() -> Response:
+        """Copy a single session's answers into a new answer set
+
+        Returns:
+            Response: A redirect back to the interview list page, with a
+                flash message indicating success or failure.
+        """
         filename = request.form.get("filename")
         session_id = request.form.get("session")
         new_name = request.form.get("new_name")

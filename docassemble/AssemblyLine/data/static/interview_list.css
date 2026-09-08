@@ -25,6 +25,27 @@
   font-weight: bolder;
 }
 
+.al-icon-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: #0d6efd;
+  text-decoration: none;
+}
+.al-icon-btn:hover, .al-icon-btn:focus {
+  text-decoration: underline;
+}
+.al-icon-btn i {
+  color: #0d6efd;
+}
+.al-icon-btn.al-danger, .al-icon-btn.al-danger i {
+  color: #dc3545;
+}
+.al-icon-btn span {
+  font-size: 0.85rem;
+}
+
 .radialProgressBar {
   border-radius: 50%;
   width: 2.5rem;
