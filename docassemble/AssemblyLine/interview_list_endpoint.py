@@ -1,6 +1,4 @@
 # pre-load
-import time
-
 from flask import request, redirect, url_for, flash, render_template_string
 from flask_login import login_required, current_user
 from flask_wtf.csrf import generate_csrf
@@ -89,6 +87,7 @@ def _list_config():
 
 
 def _set_current_info():
+    """Set up the login info docassemble's session functions need, since we're not inside a real interview"""
     # rename_interview_answers/save_interview_answers/user_interviews all read
     # this_thread.current_info for the acting user, which usually is populated
     # by docassemble's own interview dispatch. Since this is a plain Flask
@@ -117,6 +116,7 @@ def _set_current_info():
 
 
 def _toggleable_action_icon(icon_class, label, target_id, danger=False, tooltip=None):
+    """Make a small icon link that shows or hides a form when clicked."""
     danger_class = " al-danger" if danger else ""
     tooltip_text = tooltip or label
     return f"""
@@ -131,6 +131,7 @@ def _toggleable_action_icon(icon_class, label, target_id, danger=False, tooltip=
 def _toggleable_action_form(
     route_name, filename, session_key, csrf_token, placeholder, target_id
 ):
+    """Make the hidden name box that shows up when you click rename or copy"""
     field_id = f"{ target_id }-name"
     return f"""
         <form id="{ target_id }" method="POST" action="{ url_for(route_name) }" style="display:none; flex-direction:column; gap:2px; margin-top:4px; max-width:16rem;">
@@ -147,6 +148,7 @@ def _toggleable_action_form(
 
 
 def _render_session_rows(sessions, csrf_token, enable_answer_sets):
+    """Build the table showing all the saved sessions and their action buttons"""
     if not sessions:
         return "<p>No saved forms yet.</p>"
 
@@ -243,7 +245,7 @@ if "al_interview_list" not in app.view_functions:
     @app.route("/al_interview_list", methods=["GET"])
     @login_required
     def al_interview_list():
-        al_timing_start = time.time()
+        """Show the current user's saved interview sessions, with search and paging."""
         cfg = _list_config()
 
         page = max(request.args.get("page", 0, type=int), 0)
@@ -354,12 +356,12 @@ if "al_interview_list" not in app.view_functions:
         { delete_all_form }
         """
 
-        log(f"AL_TIMING_TEST new_endpoint elapsed={time.time() - al_timing_start:.4f}s")
         return render_template_string(PAGE_TEMPLATE, content=content)
 
     @app.route("/al_interview_list/delete", methods=["POST"])
     @login_required
     def al_interview_list_delete():
+        """Delete a single saved session"""
         filename = request.form.get("filename")
         session_id = request.form.get("session")
         if not filename or not session_id:
@@ -382,6 +384,7 @@ if "al_interview_list" not in app.view_functions:
     @app.route("/al_interview_list/delete_all", methods=["POST"])
     @login_required
     def al_interview_list_delete_all():
+        """Delete all of the current user's saved sessions."""
         _set_current_info()
         try:
             delete_interview_sessions(
@@ -396,6 +399,7 @@ if "al_interview_list" not in app.view_functions:
     @app.route("/al_interview_list/rename", methods=["POST"])
     @login_required
     def al_interview_list_rename():
+        """Rename a single saved session"""
         filename = request.form.get("filename")
         session_id = request.form.get("session")
         new_name = request.form.get("new_name")
@@ -416,6 +420,7 @@ if "al_interview_list" not in app.view_functions:
     @app.route("/al_interview_list/copy_to_answer_set", methods=["POST"])
     @login_required
     def al_interview_list_copy():
+        """Copy a single session's answers into a new answer set"""
         filename = request.form.get("filename")
         session_id = request.form.get("session")
         new_name = request.form.get("new_name")
