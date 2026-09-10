@@ -222,12 +222,11 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list", methods=["GET"])
     @login_required
-    def al_interview_list():
-        """
-        Show the current user's saved interview sessions, with search and paging.
+    def al_interview_list() -> str:
+        """Show the current user's saved interview sessions, with search and paging.
 
         Returns:
-            str: rendered HTML page listing the user's saved interview sessions.
+            str: the rendered page.
         """
         cfg = _list_config()
 
@@ -347,13 +346,11 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list/delete", methods=["POST"])
     @login_required
-    def al_interview_list_delete():
-        """
-        Delete a single saved session.
+    def al_interview_list_delete() -> Any:
+        """Delete a single saved session.
 
         Returns:
-            Response: A redirect back to the interview list page, with a
-                flash message showing success or failure.
+            Any: a redirect back to the interview list page
         """
         filename = request.form.get("filename")
         session_id = request.form.get("session")
@@ -376,12 +373,11 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list/delete_all", methods=["POST"])
     @login_required
-    def al_interview_list_delete_all():
-        """Delete all of the current user's saved sessions.
+    def al_interview_list_delete_all() -> Any:
+        """Delete all of the current user's saved sessions
 
         Returns:
-            Response: A redirect back to the interview list page, with a
-                flash message indicating success or failure.
+            Any: a redirect back to the interview list page
         """
         _set_current_info()
         try:
@@ -396,12 +392,11 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list/rename", methods=["POST"])
     @login_required
-    def al_interview_list_rename():
+    def al_interview_list_rename() -> Any:
         """Rename a single saved session
 
         Returns:
-            Response: A redirect back to the interview list page, with a
-                flash message indicating success or failure.
+            Any: a redirect back to the interview list page
         """
         filename = request.form.get("filename")
         session_id = request.form.get("session")
@@ -422,12 +417,11 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list/copy_to_answer_set", methods=["POST"])
     @login_required
-    def al_interview_list_copy():
+    def al_interview_list_copy() -> Any:
         """Copy a single session's answers into a new answer set
 
         Returns:
-            Response: A redirect back to the interview list page, with a
-                flash message indicating success or failure.
+            Any: a redirect back to the interview list page
         """
         filename = request.form.get("filename")
         session_id = request.form.get("session")
