@@ -1,5 +1,8 @@
 # pre-load
-from flask import request, redirect, url_for, flash, render_template_string, Response
+from pathlib import Path
+from typing import Any
+
+from flask import request, redirect, url_for, flash, render_template_string
 from flask_login import login_required, current_user
 from flask_wtf.csrf import generate_csrf
 from markupsafe import escape
@@ -24,13 +27,9 @@ from docassemble.AssemblyLine.sessions import (
 
 PAGE_SIZE = 20
 
-PAGE_TEMPLATE = """
-{%- extends 'flask_user/public_base.html' %}
-{%- block content %}
-<link rel="stylesheet" href="/packagestatic/{{ package_name }}/interview_list.css">
-{{ content|safe }}
-{%- endblock %}
-"""
+PAGE_TEMPLATE = (
+    Path(__file__).parent / "data" / "flask_templates" / "al_interview_list_page.html"
+).read_text()
 
 DEFAULT_EXCLUDED_FILENAMES = [
     "docassemble.ALDashboard",
@@ -223,7 +222,7 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list", methods=["GET"])
     @login_required
-    def al_interview_list() -> str:
+    def al_interview_list():
         """
         Show the current user's saved interview sessions, with search and paging.
 
@@ -316,14 +315,16 @@ if "al_interview_list" not in app.view_functions:
 
         pagination = '<nav aria-label="Page navigation"><ul class="pagination justify-content-center">'
         if page > 0:
-            prev_args = {"page": page - 1}
+            prev_args: dict[str, Any] = {}
+            prev_args["page"] = page - 1
             if keyword:
                 prev_args["keyword"] = keyword
             if limit_filename:
                 prev_args["limit_filename"] = limit_filename
             pagination += f'<li class="page-item"><a class="page-link" href="{ url_for("al_interview_list", **prev_args) }">Previous</a></li>'
         if len(sessions) >= PAGE_SIZE:
-            next_args = {"page": page + 1}
+            next_args: dict[str, Any] = {}
+            next_args["page"] = page + 1
             if keyword:
                 next_args["keyword"] = keyword
             if limit_filename:
@@ -346,7 +347,7 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list/delete", methods=["POST"])
     @login_required
-    def al_interview_list_delete() -> Response:
+    def al_interview_list_delete():
         """
         Delete a single saved session.
 
@@ -375,7 +376,7 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list/delete_all", methods=["POST"])
     @login_required
-    def al_interview_list_delete_all() -> Response:
+    def al_interview_list_delete_all():
         """Delete all of the current user's saved sessions.
 
         Returns:
@@ -395,7 +396,7 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list/rename", methods=["POST"])
     @login_required
-    def al_interview_list_rename() -> Response:
+    def al_interview_list_rename():
         """Rename a single saved session
 
         Returns:
@@ -421,7 +422,7 @@ if "al_interview_list" not in app.view_functions:
 
     @app.route("/al_interview_list/copy_to_answer_set", methods=["POST"])
     @login_required
-    def al_interview_list_copy() -> Response:
+    def al_interview_list_copy():
         """Copy a single session's answers into a new answer set
 
         Returns:
