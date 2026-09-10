@@ -1,0 +1,5 @@
+{%- extends 'flask_user/public_base.html' %}
+{%- block content %}
+<link rel="stylesheet" href="/packagestatic/{{ package_name }}/interview_list.css">
+{{ content|safe }}
+{%- endblock %}
