@@ -63,6 +63,14 @@ ignore_missing_imports = true
 module = "backports.*"
 ignore_missing_imports = true
 
+[[tool.mypy.overrides]]
+module = "flask_login"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "flask_wtf.*"
+ignore_missing_imports = true
+
 [dependency-groups]
 dev = [
     "docassemble.base==1.9.8",

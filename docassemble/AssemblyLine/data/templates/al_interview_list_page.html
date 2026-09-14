@@ -1,0 +1,128 @@
+{%- extends 'flask_user/public_base.html' %}
+{%- block content %}
+
+{% macro toggleable_action_icon(icon_class, label, target_id, danger=False, tooltip=None) %}
+<a href="#" class="al-icon-btn{{ ' al-danger' if danger else '' }} d-inline-flex align-items-center gap-1" title="{{ tooltip or label }}" aria-label="{{ tooltip or label }}"
+   onclick="var f=document.getElementById('{{ target_id }}'); f.style.display = f.style.display === 'none' ? 'flex' : 'none'; return false;">
+    <i class="{{ icon_class }}" aria-hidden="true"></i>
+    <span>{{ label }}</span>
+</a>
+{% endmacro %}
+
+{% macro toggleable_action_form(route_name, filename, session_key, placeholder, target_id, csrf_token) %}
+<form id="{{ target_id }}" method="POST" action="{{ url_for(route_name) }}" style="display:none; flex-direction:column; gap:2px; margin-top:4px; max-width:16rem;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="filename" value="{{ filename }}">
+    <input type="hidden" name="session" value="{{ session_key }}">
+    <label for="{{ target_id }}-name" class="small mb-0">{{ placeholder }}<span class="text-danger">*</span></label>
+    <div class="d-flex gap-2">
+        <input id="{{ target_id }}-name" type="text" name="new_name" required class="form-control form-control-sm" style="width:9rem;">
+        <button type="submit" class="btn btn-sm btn-secondary">Save</button>
+    </div>
+</form>
+{% endmacro %}
+
+<link rel="stylesheet" href="/packagestatic/{{ package_name }}/interview_list.css">
+
+<h1 class="da-page-header h3">
+    {{ cfg.page_heading }}
+    <a class="btn btn-primary btn-md" href="{{ cfg.new_form_url or '#' }}">
+        <i class="fa-solid fa-circle-plus" aria-hidden="true"></i> {{ cfg.new_form_label }}
+    </a>
+</h1>
+
+{% if cfg.page_intro %}
+<p>{{ cfg.page_intro }}</p>
+{% endif %}
+
+<form method="GET" action="{{ url_for('al_interview_list') }}">
+    <p class="small text-muted mb-1">Use a keyword to find results that match the title or description of a form.</p>
+    <div class="d-flex flex-wrap align-items-end gap-2 mb-2">
+        <div>
+            <label for="limit_filename" class="d-block small mb-1">Limit by form title (optional)</label>
+            <select id="limit_filename" name="limit_filename" class="form-select form-select-sm" style="width:auto;">
+                <option value="">All forms</option>
+                {% for option in filename_options %}
+                    {% for fname, nice_name in option.items() %}
+                    <option value="{{ fname }}"{{ ' selected' if fname == limit_filename else '' }}>{{ nice_name }}</option>
+                    {% endfor %}
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="keyword" class="d-block small mb-1">Search term (optional)</label>
+            <input id="keyword" type="text" name="keyword" value="{{ keyword }}" class="form-control form-control-sm">
+        </div>
+        <button type="submit" class="btn btn-sm btn-primary">Search</button>
+    </div>
+</form>
+
+{% if not sessions %}
+<p>No saved forms yet.</p>
+{% else %}
+<div class="table-responsive">
+<table class="table table-striped al-saved-answer-table">
+<thead><tr>
+    <th scope="col">Title</th>
+    <th scope="col">Date modified</th>
+    <th scope="col">Progress</th>
+    <th scope="col">Actions</th>
+</tr></thead>
+<tbody>
+{% for s in sessions %}
+<tr class="al-saved-answer-table-row">
+    <td class="text-break">
+        <a class="al-session-form-title" href="{{ s.url }}">{{ s.title }}</a>
+        {% if s.subtitle %}<br/><span class="al-session-form-subtitle">{{ s.subtitle }}</span>{% endif %}
+    </td>
+    <td>
+        <span class="al-session-date-modified">{{ s.date_str }}</span><br/>
+        <span class="al-session-time-modified">{{ s.time_str }}</span>
+    </td>
+    <td class="al-progress-box">{{ s.progress_html }}</td>
+    <td>
+        <div class="d-flex flex-wrap gap-3">
+            {{ toggleable_action_icon("fa-solid fa-tag", "Rename", "rename-" ~ s.session_key) }}
+            {% if cfg.enable_answer_sets %}
+                {{ toggleable_action_icon("fa-regular fa-clone", "Copy to answer set", "copy-" ~ s.session_key, tooltip="Saves these answers so you can reuse them to start a different form later.") }}
+            {% endif %}
+            <form id="delete-{{ s.session_key }}" method="POST" action="{{ url_for('al_interview_list_delete') }}" style="display:inline" onsubmit="return confirm('Delete this item?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <input type="hidden" name="filename" value="{{ s.filename }}">
+                <input type="hidden" name="session" value="{{ s.session_key }}">
+                <button type="submit" class="al-icon-btn al-danger d-inline-flex align-items-center gap-1" title="Delete" aria-label="Delete">
+                    <i class="far fa-trash-alt" aria-hidden="true"></i>
+                    <span>Delete</span>
+                </button>
+            </form>
+        </div>
+        {{ toggleable_action_form('al_interview_list_rename', s.filename, s.session_key, 'New name', 'rename-' ~ s.session_key, csrf_token) }}
+        {% if cfg.enable_answer_sets %}
+            {{ toggleable_action_form('al_interview_list_copy', s.filename, s.session_key, 'Answer set name', 'copy-' ~ s.session_key, csrf_token) }}
+        {% endif %}
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% endif %}
+
+<nav aria-label="Page navigation">
+<ul class="pagination justify-content-center">
+    {% if page > 0 %}
+    <li class="page-item"><a class="page-link" href="{{ url_for('al_interview_list', page=page-1, keyword=keyword or None, limit_filename=limit_filename or None) }}">Previous</a></li>
+    {% endif %}
+    {# We don't query atotal count, so "Next" just checks whether this page came back full. #}
+    {% if sessions|length >= page_size %}
+    <li class="page-item"><a class="page-link" href="{{ url_for('al_interview_list', page=page+1, keyword=keyword or None, limit_filename=limit_filename or None) }}">Next</a></li>
+    {% endif %}
+</ul>
+</nav>
+
+<form method="POST" action="{{ url_for('al_interview_list_delete_all') }}" onsubmit="return confirm('Delete all your sessions? This cannot be undone.')">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button type="submit" class="btn btn-sm btn-danger">Delete All</button>
+</form>
+
+{%- endblock %}
