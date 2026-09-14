@@ -5,7 +5,7 @@ from typing import Any
 from flask import request, redirect, url_for, flash, render_template_string
 from flask_login import login_required, current_user
 from flask_wtf.csrf import generate_csrf
-from markupsafe import escape
+from markupsafe import Markup
 
 from docassemble.webapp.app_object import app
 from docassemble.webapp.server import user_interviews
@@ -28,7 +28,7 @@ from docassemble.AssemblyLine.sessions import (
 PAGE_SIZE = 20
 
 PAGE_TEMPLATE = (
-    Path(__file__).parent / "data" / "flask_templates" / "al_interview_list_page.html"
+    Path(__file__).parent / "data" / "templates" / "al_interview_list_page.html"
 ).read_text()
 
 DEFAULT_EXCLUDED_FILENAMES = [
@@ -93,129 +93,23 @@ def _set_current_info():
     }
 
 
-def _toggleable_action_icon(icon_class, label, target_id, danger=False, tooltip=None):
-    """Make a small icon link that shows or hides a form when clicked."""
-    danger_class = " al-danger" if danger else ""
-    tooltip_text = tooltip or label
-    return f"""
-        <a href="#" class="al-icon-btn{ danger_class } d-inline-flex align-items-center gap-1" title="{ tooltip_text }" aria-label="{ tooltip_text }"
-           onclick="var f=document.getElementById('{ target_id }'); f.style.display = f.style.display === 'none' ? 'flex' : 'none'; return false;">
-            <i class="{ icon_class }" aria-hidden="true"></i>
-            <span>{ label }</span>
-        </a>
+def _session_view_model(s):
+    """Turn one raw saved-session record into the plain data the template needs,
+    so AL helper calls stay out of the template itself
     """
-
-
-def _toggleable_action_form(
-    route_name, filename, session_key, csrf_token, placeholder, target_id
-):
-    """Make the hidden name box that shows up when you click rename or copy"""
-    field_id = f"{ target_id }-name"
-    return f"""
-        <form id="{ target_id }" method="POST" action="{ url_for(route_name) }" style="display:none; flex-direction:column; gap:2px; margin-top:4px; max-width:16rem;">
-            <input type="hidden" name="csrf_token" value="{ csrf_token }">
-            <input type="hidden" name="filename" value="{ filename }">
-            <input type="hidden" name="session" value="{ session_key }">
-            <label for="{ field_id }" class="small mb-0">{ placeholder }<span class="text-danger">*</span></label>
-            <div class="d-flex gap-2">
-                <input id="{ field_id }" type="text" name="new_name" required class="form-control form-control-sm" style="width:9rem;">
-                <button type="submit" class="btn btn-sm btn-secondary">Save</button>
-            </div>
-        </form>
-    """
-
-
-def _render_session_rows(sessions, csrf_token, enable_answer_sets):
-    """Build the table showing all the saved sessions and their action buttons"""
-    if not sessions:
-        return "<p>No saved forms yet.</p>"
-
-    rows = (
-        '<div class="table-responsive">'
-        '<table class="table table-striped al-saved-answer-table">'
-        "<thead><tr>"
-        '<th scope="col">Title</th>'
-        '<th scope="col">Date modified</th>'
-        '<th scope="col">Progress</th>'
-        '<th scope="col">Actions</th>'
-        "</tr></thead><tbody>"
-    )
-
-    for s in sessions:
-        title = escape(nice_interview_title(s))
-        subtitle = escape(nice_interview_subtitle(s))
-        filename = escape(s["filename"])
-        session_key = escape(s["key"])
-        modtime = local_date(s.get("modtime"))
-        subtitle_html = (
-            f'<br/><span class="al-session-form-subtitle">{ subtitle }</span>'
-            if subtitle
-            else ""
-        )
-
-        rename_target = f"rename-{ session_key }"
-        rename_icon = _toggleable_action_icon(
-            "fa-solid fa-tag", "Rename", rename_target
-        )
-        rename_form = _toggleable_action_form(
-            "al_interview_list_rename",
-            filename,
-            session_key,
-            csrf_token,
-            "New name",
-            rename_target,
-        )
-
-        copy_icon = ""
-        copy_form = ""
-        if enable_answer_sets:
-            copy_target = f"copy-{ session_key }"
-            copy_icon = _toggleable_action_icon(
-                "fa-regular fa-clone",
-                "Copy to answer set",
-                copy_target,
-                tooltip="Saves these answers so you can reuse them to start a different form later.",
-            )
-            copy_form = _toggleable_action_form(
-                "al_interview_list_copy",
-                filename,
-                session_key,
-                csrf_token,
-                "Answer set name",
-                copy_target,
-            )
-
-        rows += f"""<tr class="al-saved-answer-table-row">
-            <td class="text-break">
-                <a class="al-session-form-title" href="{ interview_url(i=s['filename'], session=s['key'], style='full') }">{ title }</a>
-                { subtitle_html }
-            </td>
-            <td>
-                <span class="al-session-date-modified">{ modtime.strftime('%B %-d, %Y') }</span><br/>
-                <span class="al-session-time-modified">{ modtime.strftime('%-I:%M %p') }</span>
-            </td>
-            <td class="al-progress-box">{ radial_progress(s) }</td>
-            <td>
-                <div class="d-flex flex-wrap gap-3">
-                    { rename_icon }
-                    { copy_icon }
-                    <form id="delete-{ session_key }" method="POST" action="{ url_for('al_interview_list_delete') }" style="display:inline" onsubmit="return confirm('Delete this item?')">
-                        <input type="hidden" name="csrf_token" value="{ csrf_token }">
-                        <input type="hidden" name="filename" value="{ filename }">
-                        <input type="hidden" name="session" value="{ session_key }">
-                        <button type="submit" class="al-icon-btn al-danger d-inline-flex align-items-center gap-1" title="Delete" aria-label="Delete">
-                            <i class="far fa-trash-alt" aria-hidden="true"></i>
-                            <span>Delete</span>
-                        </button>
-                    </form>
-                </div>
-                { rename_form }
-                { copy_form }
-            </td>
-        </tr>"""
-
-    rows += "</tbody></table></div>"
-    return rows
+    modtime = local_date(s.get("modtime"))
+    return {
+        "title": nice_interview_title(s),
+        "subtitle": nice_interview_subtitle(s),
+        "filename": s["filename"],
+        "session_key": s["key"],
+        "url": interview_url(i=s["filename"], session=s["key"], style="full"),
+        "date_str": modtime.strftime("%B %-d, %Y"),
+        "time_str": modtime.strftime("%-I:%M %p"),
+        # radial_progress() returns HTML we generate ourselves, so it's
+        # wrapped in Markup to skip escaping. Everything else here is plain text and gets Jinja's normal autoescaping.
+        "progress_html": Markup(radial_progress(s)),
+    }
 
 
 if "al_interview_list" not in app.view_functions:
@@ -267,81 +161,22 @@ if "al_interview_list" not in app.view_functions:
                 )
             ]
 
-        csrf_token = generate_csrf()
-        rows = _render_session_rows(sessions, csrf_token, cfg["enable_answer_sets"])
-
-        new_form_button = f"""
-        <a class="btn btn-primary btn-md" href="{ escape(cfg['new_form_url'] or '#') }">
-            <i class="fa-solid fa-circle-plus" aria-hidden="true"></i> { escape(cfg['new_form_label']) }
-        </a>
-        """
-        page_intro = (
-            f"<p>{ escape(cfg['page_intro']) }</p>" if cfg["page_intro"] else ""
-        )
+        session_count = len(sessions)
+        session_view_models = [_session_view_model(s) for s in sessions]
 
         filename_options = get_combined_filename_list(user_id=current_user.id)
-        filename_dropdown_options = ""
-        for option in filename_options:
-            for fname, nice_name in option.items():
-                selected = " selected" if fname == limit_filename else ""
-                filename_dropdown_options += f'<option value="{ escape(fname) }"{ selected }>{ escape(nice_name) }</option>'
-
-        search_box = f"""
-        <form method="GET" action="{ url_for('al_interview_list') }">
-            <p class="small text-muted mb-1">Use a keyword to find results that match the title or description of a form.</p>
-            <div class="d-flex flex-wrap align-items-end gap-2 mb-2">
-                <div>
-                    <label for="limit_filename" class="d-block small mb-1">Limit by form title (optional)</label>
-                    <select id="limit_filename" name="limit_filename" class="form-select form-select-sm" style="width:auto;">
-                        <option value="">All forms</option>
-                        { filename_dropdown_options }
-                    </select>
-                </div>
-                <div>
-                    <label for="keyword" class="d-block small mb-1">Search term (optional)</label>
-                    <input id="keyword" type="text" name="keyword" value="{ escape(keyword) }" class="form-control form-control-sm">
-                </div>
-                <button type="submit" class="btn btn-sm btn-primary">Search</button>
-            </div>
-        </form>
-        """
-        delete_all_form = f"""
-        <form method="POST" action="{ url_for('al_interview_list_delete_all') }" onsubmit="return confirm('Delete all your sessions? This cannot be undone.')">
-            <input type="hidden" name="csrf_token" value="{ csrf_token }">
-            <button type="submit" class="btn btn-sm btn-danger">Delete All</button>
-        </form>
-        """
-
-        pagination = '<nav aria-label="Page navigation"><ul class="pagination justify-content-center">'
-        if page > 0:
-            prev_args: dict[str, Any] = {}
-            prev_args["page"] = page - 1
-            if keyword:
-                prev_args["keyword"] = keyword
-            if limit_filename:
-                prev_args["limit_filename"] = limit_filename
-            pagination += f'<li class="page-item"><a class="page-link" href="{ url_for("al_interview_list", **prev_args) }">Previous</a></li>'
-        if len(sessions) >= PAGE_SIZE:
-            next_args: dict[str, Any] = {}
-            next_args["page"] = page + 1
-            if keyword:
-                next_args["keyword"] = keyword
-            if limit_filename:
-                next_args["limit_filename"] = limit_filename
-            pagination += f'<li class="page-item"><a class="page-link" href="{ url_for("al_interview_list", **next_args) }">Next</a></li>'
-        pagination += "</ul></nav>"
-
-        content = f"""
-        <h1 class="da-page-header h3">{ escape(cfg['page_heading']) } { new_form_button }</h1>
-        { page_intro }
-        { search_box }
-        { rows }
-        { pagination }
-        { delete_all_form }
-        """
 
         return render_template_string(
-            PAGE_TEMPLATE, content=content, package_name=_package_name()
+            PAGE_TEMPLATE,
+            cfg=cfg,
+            sessions=session_view_models,
+            filename_options=filename_options,
+            csrf_token=generate_csrf(),
+            page=page,
+            page_size=PAGE_SIZE,
+            keyword=keyword,
+            limit_filename=limit_filename,
+            package_name=_package_name(),
         )
 
     @app.route("/al_interview_list/delete", methods=["POST"])
