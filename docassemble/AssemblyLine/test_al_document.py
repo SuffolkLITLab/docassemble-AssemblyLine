@@ -3,6 +3,7 @@
 import json
 import unittest
 from html import unescape
+from unittest.mock import patch
 from docassemble.base.util import DAFile, DAFileList, DATemplate
 from .al_document import (
     ALAddendumField,
@@ -11,6 +12,7 @@ from .al_document import (
     ALExhibit,
     _javascript_href,
 )
+from docassemble.base.error import DAError
 
 
 class TestJavascriptHref(unittest.TestCase):
@@ -335,6 +337,24 @@ class TestBundleWarnsOnBrokenDocuments(unittest.TestCase):
         warning = bundle.broken_documents_warning_html()
 
         self.assertIn("Pay Stub", warning)
+
+
+class test_concatenate_failure_after_valid_pages(unittest.TestCase):
+    def test_exhibit_returns_none_when_concatenate_raises(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        good_page = FakePdf(filename="good.jpg", title="page")
+        good_page.ok = True
+        exhibit.pages = [good_page]
+        exhibit.start_page = 1
+
+        with patch(
+            "docassemble.AssemblyLine.al_document.pdf_concatenate",
+            side_effect=DAError("concatenate_files: no valid files to concatenate"),
+        ):
+            result = exhibit.as_pdf(add_cover_page=False)
+
+        self.assertIsNone(result)
 
 
 class test_aladdendum(unittest.TestCase):
