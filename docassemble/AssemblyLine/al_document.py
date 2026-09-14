@@ -33,6 +33,7 @@ from docassemble.base.util import (
     showifdef,
     word,
 )
+from docassemble.base.error import DAError
 from docassemble.base.pdfa import pdf_to_pdfa
 from textwrap import wrap
 from math import floor
@@ -3095,14 +3096,20 @@ class ALExhibit(DAObject):
                 f"ALExhibit.as_pdf(): no valid pages for exhibit '{self.title}', skipping"
             )
             return None
-        if add_cover_page:
-            concatenated_pages = pdf_concatenate(
-                self.cover_page, valid_pages, filename=filename, pdfa=pdfa
+        try:
+            if add_cover_page:
+                concatenated_pages = pdf_concatenate(
+                    self.cover_page, valid_pages, filename=filename, pdfa=pdfa
+                )
+            else:
+                concatenated_pages = pdf_concatenate(
+                    valid_pages, filename=filename, pdfa=pdfa
+                )
+        except DAError:
+            log(
+                f"ALExhibit.as_pdf(): pdf_concatenate failed for exhibit '{self.title}' even though its pages looked valid, skipping"
             )
-        else:
-            concatenated_pages = pdf_concatenate(
-                valid_pages, filename=filename, pdfa=pdfa
-            )
+            return None
 
         if add_page_numbers:
             concatenated_pages.bates_number(
@@ -3325,11 +3332,17 @@ class ALExhibitList(DAList):
                 "ALExhibitList.as_pdf(): none of the exhibits have valid pages, nothing to compile"
             )
             return None
-        return pdf_concatenate(
-            exhibit_pdfs,
-            filename=filename,
-            pdfa=pdfa,
-        )
+        try:
+            return pdf_concatenate(
+                exhibit_pdfs,
+                filename=filename,
+                pdfa=pdfa,
+            )
+        except DAError:
+            log(
+                "ALExhibitList.as_pdf(): pdf_concatenate failed even though exhibits looked valid, skipping"
+            )
+            return None
 
     def broken_exhibits(self) -> List["ALExhibit"]:
         """Returns exhibits that are complete but have no valid pages
@@ -3648,17 +3661,29 @@ class ALExhibitDocument(ALDocument):
                     f"ALExhibitDocument.as_pdf(): no valid exhibits for '{self.title}', skipping"
                 )
                 if self.include_table_of_contents:
-                    return pdf_concatenate(
-                        self.table_of_contents, filename=filename, pdfa=pdfa
-                    )
+                    try:
+                        return pdf_concatenate(
+                            self.table_of_contents, filename=filename, pdfa=pdfa
+                        )
+                    except DAError:
+                        log(
+                            f"ALExhibitDocument.as_pdf(): could not build table of contents alone for '{self.title}'"
+                        )
+                        return None
                 return None
             if self.include_table_of_contents:
-                return pdf_concatenate(
-                    self.table_of_contents,
-                    exhibits_pdf,
-                    filename=filename,
-                    pdfa=pdfa,
-                )
+                try:
+                    return pdf_concatenate(
+                        self.table_of_contents,
+                        exhibits_pdf,
+                        filename=filename,
+                        pdfa=pdfa,
+                    )
+                except DAError:
+                    log(
+                        f"ALExhibitDocument.as_pdf(): pdf_concatenate failed combining exhibits with table of contents for '{self.title}'"
+                    )
+                    return None
             return exhibits_pdf
         return None
 
