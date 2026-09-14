@@ -1,12 +1,21 @@
+# do not pre-load
+
 import re
 from datetime import datetime
 from unittest.mock import patch
 
+import pytest
 from jinja2 import Environment
 from markupsafe import Markup
 
-from docassemble.webapp.app_object import app
-from docassemble.AssemblyLine import interview_list_endpoint as endpoint
+try:
+    from docassemble.webapp.app_object import app
+    from docassemble.AssemblyLine import interview_list_endpoint as endpoint
+except SystemExit as ex:
+    pytest.skip(
+        f"requires a running docassemble server: {ex}",
+        allow_module_level=True,
+    )
 
 
 class FakeUser:
