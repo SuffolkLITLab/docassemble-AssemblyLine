@@ -3,7 +3,7 @@
 import json
 import unittest
 from html import unescape
-from docassemble.base.util import DAFile, DAFileList, DATemplate
+from docassemble.base.util import DAFile, DAFileList, DAObject, DATemplate
 from .al_document import (
     ALAddendumField,
     ALDocument,
@@ -98,6 +98,17 @@ class FakeSingleDoc:
         return self._pdf
 
 
+class DeserializedLazyTitle(DAObject):
+    """A lazy template after Docassemble restores its intentionally small pickle."""
+
+    def __init__(self, content):
+        object.__setattr__(self, "instanceName", "document.title")
+        object.__setattr__(self, "content", content)
+
+    def __str__(self):
+        return self.content
+
+
 class FakeExhibit:
     def __init__(self, title):
         self.title = title
@@ -142,6 +153,24 @@ class TestSingleDocumentBundleFilename(unittest.TestCase):
         self.assertEqual(result.attribute_filenames, ["bundle-output.pdf"])
         self.assertEqual(result.mimetype, "application/pdf")
 
+    def test_bundle_renders_a_deserialized_lazy_title_at_the_file_boundary(self):
+        child_pdf = FakePdf()
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeSingleDoc(child_pdf)],
+            title="Initial title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+        object.__setattr__(
+            bundle, "title", DeserializedLazyTitle("Translated bundle title")
+        )
+
+        result = bundle.as_pdf()
+
+        self.assertEqual(result.title, "Translated bundle title")
+        self.assertIsInstance(result.title, str)
+
 
 class TestSingleDocumentFilename(unittest.TestCase):
     def test_document_as_pdf_renames_plain_dafile_to_document_filename(self):
@@ -162,6 +191,25 @@ class TestSingleDocumentFilename(unittest.TestCase):
         self.assertEqual(result.filename, "document-output.pdf")
         self.assertEqual(result.attribute_filenames, ["document-output.pdf"])
         self.assertEqual(result.mimetype, "application/pdf")
+
+    def test_document_renders_a_deserialized_lazy_title_at_the_file_boundary(self):
+        child_pdf = FakePdf()
+        doc = ALDocument(
+            "doc",
+            title="Initial title",
+            filename="document-output.pdf",
+            enabled=True,
+            has_addendum=False,
+        )
+        object.__setattr__(
+            doc, "title", DeserializedLazyTitle("Translated document title")
+        )
+        doc["final"] = child_pdf
+
+        result = doc.as_pdf(refresh=False)
+
+        self.assertEqual(result.title, "Translated document title")
+        self.assertIsInstance(result.title, str)
 
 
 class TestTranslatableDocumentTitles(unittest.TestCase):

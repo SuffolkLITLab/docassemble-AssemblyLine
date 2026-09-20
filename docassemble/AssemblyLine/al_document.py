@@ -1119,7 +1119,7 @@ class ALDocument(DADict):
         if isinstance(main_doc, DAFileCollection):
             main_doc = main_doc.pdf
         if isinstance(main_doc, DAFile):
-            main_doc.title = self.title
+            main_doc.title = str(self.title)
             main_doc.filename = filename
             try:
                 main_doc.set_attributes(filename=filename)
@@ -1137,7 +1137,7 @@ class ALDocument(DADict):
             concatenated = pdf_concatenate(
                 main_doc, addendum_doc, filename=filename, pdfa=pdfa
             )
-            concatenated.title = self.title
+            concatenated.title = str(self.title)
             setattr(self.cache, safe_key, concatenated)
             return concatenated
         else:
@@ -1173,14 +1173,14 @@ class ALDocument(DADict):
                     self.as_list(key=key, refresh=refresh),
                     filename=filename + ".docx",
                 )
-                the_file.title = self.title
+                the_file.title = str(self.title)
                 return the_file
             except:
                 return self.as_pdf(key=key)
 
         if self._is_docx(key=key):
             the_file = self[key].docx
-            the_file.title = self.title
+            the_file.title = str(self.title)
             the_file.set_attributes(filename=filename + ".docx")
             return the_file
 
@@ -1752,7 +1752,7 @@ class ALDocumentBundle(DAList):
                 )
                 return None
             bundle_filename = f"{base_name(self.filename)}{append_suffix}.pdf"
-            pdf.title = self.title
+            pdf.title = str(self.title)
             pdf.filename = bundle_filename
             try:
                 pdf.set_attributes(filename=bundle_filename)
@@ -1776,7 +1776,7 @@ class ALDocumentBundle(DAList):
             elif len(document_pdfs) == 1:
                 pdf = document_pdfs[0]
                 bundle_filename = f"{base_name(self.filename)}{append_suffix}.pdf"
-                pdf.title = self.title
+                pdf.title = str(self.title)
                 pdf.filename = bundle_filename
                 try:
                     pdf.set_attributes(filename=bundle_filename)
@@ -1801,7 +1801,7 @@ class ALDocumentBundle(DAList):
                 offset_vertical=self.page_number_offset_vertical,
                 filename=pdf.filename,
             )
-        pdf.title = self.title
+        pdf.title = str(self.title)
         setattr(self.cache, safe_key, pdf)
 
         if hasattr(self, "default_parity") and not ensure_parity:
@@ -1905,7 +1905,7 @@ class ALDocumentBundle(DAList):
             return None
         zip = zip_file(docs, filename=zipname + ".zip")
         if title == "":
-            zip.title = self.title
+            zip.title = str(self.title)
         else:
             zip.title = title
         setattr(self.cache, zip_key, zip)
@@ -2908,7 +2908,7 @@ class ALDocumentBundle(DAList):
                     self.as_docx_list(key=key, refresh=refresh),
                     filename=filename + ".docx",
                 )
-                the_file.title = self.title
+                the_file.title = str(self.title)
                 return the_file
             except:
                 return self.as_pdf(
