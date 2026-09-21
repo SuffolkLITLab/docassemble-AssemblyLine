@@ -5,7 +5,13 @@ import pickle
 import unittest
 from unittest.mock import Mock
 from html import unescape
-from docassemble.base.util import DAFile, DAFileList, DALazyTemplate, DAObject, DATemplate
+from docassemble.base.util import (
+    DAFile,
+    DAFileList,
+    DALazyTemplate,
+    DAObject,
+    DATemplate,
+)
 from .al_document import (
     ALAddendumField,
     ALDocument,

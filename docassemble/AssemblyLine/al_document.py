@@ -3,7 +3,7 @@ import mimetypes
 import os
 import re
 from html import escape
-from typing import Any, Dict, List, Literal, Union, Callable, Optional
+from typing import Any, Dict, List, Literal, Union, Callable, Optional, TypedDict
 from docassemble.base.util import (
     Address,
     LatitudeLongitude,
@@ -62,6 +62,19 @@ __all__ = [
 ]
 
 DEBUG_MODE = get_config("debug")
+
+
+class _CacheableDocumentTitle(TypedDict):
+    title: str
+
+
+class CacheableDocument(_CacheableDocumentTitle, total=False):
+    """Rendered title and the available download formats for a document."""
+
+    download_filename: str
+    pdf: DAFile
+    docx: DAFile
+    original: Union[DAFile, DAFileList, DAFileCollection]
 
 
 def random_suffix(length: int = 8) -> str:
@@ -2084,7 +2097,7 @@ class ALDocumentBundle(DAList):
         append_matching_suffix: bool = True,
         zip_include_pdf: Optional[bool] = None,
         zip_format: Optional[str] = None,
-    ) -> Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]:
+    ) -> Tuple[List[CacheableDocument], Optional[DAFile], Optional[DAFile]]:
         """
         Generates a cache of all enabled documents in the bundle, and returns it in a structure that can be cached
         and returned for use in a background process.
@@ -2111,7 +2124,7 @@ class ALDocumentBundle(DAList):
             zip_format (Optional[str]): Format of the primary version of each document.
 
         Returns:
-            Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]: A list of dictionaries containing the enabled documents, a zip file of the whole bundle, and a PDF of the whole.
+            Tuple[List[CacheableDocument], Optional[DAFile], Optional[DAFile]]: A list of dictionaries containing document titles, filenames, and files, a zip file of the whole bundle, and a PDF of the whole.
         """
         # reduce idempotency delays
         enabled_docs = self.enabled_documents(refresh=refresh)
@@ -2121,7 +2134,7 @@ class ALDocumentBundle(DAList):
         results = []
 
         for doc in enabled_docs:
-            result = {"title": str(doc.title)}
+            result: CacheableDocument = {"title": str(doc.title)}
             filename_root = os.path.splitext(str(doc.filename))[0]
             got_any_format = False
             if pdf:
