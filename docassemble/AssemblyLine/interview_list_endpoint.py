@@ -24,6 +24,7 @@ from docassemble.base.functions import this_thread, interview_url, log, get_conf
 from docassemble.AssemblyLine.sessions import (
     get_saved_interview_list,
     find_matching_sessions,
+    is_session_owned_by_user,
     delete_interview_sessions,
     rename_interview_answers,
     save_interview_answers,
@@ -33,6 +34,7 @@ from docassemble.AssemblyLine.sessions import (
     local_date,
     config_with_language_fallback,
     get_combined_filename_list,
+    al_session_store_default_filename,
     _package_name,
 )
 
@@ -59,18 +61,31 @@ def _list_config():
             "exclude from interview list", DEFAULT_EXCLUDED_FILENAMES
         ),
     )
+    page_heading = (
+        config_with_language_fallback("page question", "interview page heading")
+        or "In progress forms"
+    )
     return {
-        "page_heading": config_with_language_fallback(
-            "page question", "interview page heading"
+        "page_title": config_with_language_fallback(
+            "page title", "interview page title"
         )
-        or "In progress forms",
-        "page_intro": config_with_language_fallback("interview page pre"),
+        or page_heading,
+        "page_heading": page_heading,
+        "page_intro": config_with_language_fallback("page subquestion")
+        or config_with_language_fallback("interview page pre"),
         "new_form_label": config_with_language_fallback("new form label")
         or "Start a new form",
         "new_form_url": config_with_language_fallback("new form url", "app homepage"),
         "enable_answer_sets": bool(
             get_config("assembly line", {}).get("enable answer sets")
         ),
+        "answer_sets_title": config_with_language_fallback("answer sets title")
+        or "Answer sets",
+        "logo_url": config_with_language_fallback("logo url", "app homepage"),
+        "logo_image_url": config_with_language_fallback("logo image url"),
+        "logo_image_alt": config_with_language_fallback("logo alt") or "",
+        "logo_title_row_1": config_with_language_fallback("logo title row 1"),
+        "logo_title_row_2": config_with_language_fallback("logo title row 2"),
         "exclude_filenames": exclude_filenames,
     }
 
@@ -139,8 +154,19 @@ if "al_interview_list" not in app.view_functions:
         offset = page * PAGE_SIZE
         keyword = request.args.get("keyword", "").strip()
         limit_filename = request.args.get("limit_filename", "").strip()
+        requested_tab = request.args.get("tab", "").strip()
+        if not requested_tab and (keyword or limit_filename):
+            requested_tab = "search"
+        active_tab = (
+            requested_tab
+            if requested_tab in {"in_progress", "answer_sets", "search"}
+            else "in_progress"
+        )
+        if active_tab == "answer_sets" and not cfg["enable_answer_sets"]:
+            active_tab = "in_progress"
+        search_submitted = "keyword" in request.args or "limit_filename" in request.args
 
-        if keyword or limit_filename:
+        if active_tab == "search" and search_submitted:
             sessions = find_matching_sessions(
                 keyword=keyword,
                 filenames={limit_filename} if limit_filename else None,
@@ -150,6 +176,17 @@ if "al_interview_list" not in app.view_functions:
                 limit=PAGE_SIZE,
                 offset=offset,
             )
+        elif active_tab == "answer_sets":
+            sessions = get_saved_interview_list(
+                filename=al_session_store_default_filename,
+                user_id=current_user.id,
+                exclude_current_filename=False,
+                exclude_newly_started_sessions=False,
+                limit=PAGE_SIZE,
+                offset=offset,
+            )
+        elif active_tab == "search":
+            sessions = []
         else:
             sessions = get_saved_interview_list(
                 filename=None,
@@ -160,22 +197,13 @@ if "al_interview_list" not in app.view_functions:
                 limit=PAGE_SIZE,
                 offset=offset,
             )
-            # get_saved_interview_list() has a bug where
-            # exclude_filenames is ignored (it loops over an empty list)
-            sessions = [
-                s
-                for s in sessions
-                if not any(
-                    s["filename"] == excl
-                    or (":" not in excl and s["filename"].startswith(excl))
-                    for excl in cfg["exclude_filenames"]
-                )
-            ]
-
-        session_count = len(sessions)
         session_view_models = [_session_view_model(s) for s in sessions]
 
-        filename_options = get_combined_filename_list(user_id=current_user.id)
+        filename_options = (
+            get_combined_filename_list(user_id=current_user.id)
+            if active_tab == "search"
+            else []
+        )
 
         return render_template_string(
             PAGE_TEMPLATE,
@@ -187,6 +215,8 @@ if "al_interview_list" not in app.view_functions:
             page_size=PAGE_SIZE,
             keyword=keyword,
             limit_filename=limit_filename,
+            active_tab=active_tab,
+            search_submitted=search_submitted,
             package_name=_package_name(),
         )
 
@@ -200,9 +230,10 @@ if "al_interview_list" not in app.view_functions:
         """
         filename = request.form.get("filename")
         session_id = request.form.get("session")
+        active_tab = request.form.get("tab", "in_progress")
         if not filename or not session_id:
             flash("Missing information, could not delete.", "danger")
-            return redirect(url_for("al_interview_list"))
+            return redirect(url_for("al_interview_list", tab=active_tab))
         _set_current_info()
         try:
             user_interviews(
@@ -215,7 +246,7 @@ if "al_interview_list" not in app.view_functions:
         except Exception as e:
             log(f"al_interview_list_delete error: {e}")
             flash("Could not delete that item.", "danger")
-        return redirect(url_for("al_interview_list"))
+        return redirect(url_for("al_interview_list", tab=active_tab))
 
     @app.route("/al_interview_list/delete_all", methods=["POST"])
     @login_required
@@ -247,11 +278,22 @@ if "al_interview_list" not in app.view_functions:
         filename = request.form.get("filename")
         session_id = request.form.get("session")
         new_name = request.form.get("new_name")
+        active_tab = request.form.get("tab", "in_progress")
         if not filename or not session_id or not new_name:
             flash("Missing information, could not rename.", "danger")
-            return redirect(url_for("al_interview_list"))
-        _set_current_info()
+            return redirect(url_for("al_interview_list", tab=active_tab))
         try:
+            if not is_session_owned_by_user(
+                filename=filename,
+                session_id=session_id,
+                user_id=current_user.id,
+            ):
+                log(
+                    f"al_interview_list_rename rejected a session not owned by user {current_user.id}"
+                )
+                flash("Could not rename that item.", "danger")
+                return redirect(url_for("al_interview_list", tab=active_tab))
+            _set_current_info()
             rename_interview_answers(
                 filename=filename, session_id=session_id, new_name=new_name
             )
@@ -259,7 +301,7 @@ if "al_interview_list" not in app.view_functions:
         except Exception as e:
             log(f"al_interview_list_rename error: {e}")
             flash("Could not rename that item.", "danger")
-        return redirect(url_for("al_interview_list"))
+        return redirect(url_for("al_interview_list", tab=active_tab))
 
     @app.route("/al_interview_list/copy_to_answer_set", methods=["POST"])
     @login_required
@@ -272,14 +314,28 @@ if "al_interview_list" not in app.view_functions:
         filename = request.form.get("filename")
         session_id = request.form.get("session")
         new_name = request.form.get("new_name")
+        active_tab = request.form.get("tab", "in_progress")
         original_interview_filename = (
             request.form.get("original_interview_filename") or filename
         )
         if not filename or not session_id or not new_name:
             flash("Missing information, could not copy.", "danger")
-            return redirect(url_for("al_interview_list"))
-        _set_current_info()
+            return redirect(url_for("al_interview_list", tab=active_tab))
         try:
+            if not is_session_owned_by_user(
+                filename=filename,
+                session_id=session_id,
+                user_id=current_user.id,
+            ):
+                log(
+                    f"al_interview_list_copy rejected a session not owned by user {current_user.id}"
+                )
+                flash(
+                    "Sorry, these answers couldn't be copied right now. Try starting a new form instead.",
+                    "danger",
+                )
+                return redirect(url_for("al_interview_list", tab=active_tab))
+            _set_current_info()
             save_interview_answers(
                 source_filename=filename,
                 source_session=session_id,
@@ -293,4 +349,4 @@ if "al_interview_list" not in app.view_functions:
                 "Sorry, these answers couldn't be copied right now. Try starting a new form instead.",
                 "danger",
             )
-        return redirect(url_for("al_interview_list"))
+        return redirect(url_for("al_interview_list", tab=active_tab))
