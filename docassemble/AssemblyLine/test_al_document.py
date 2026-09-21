@@ -10,6 +10,7 @@ from .al_document import (
     ALDocument,
     ALDocumentBundle,
     ALExhibit,
+    ALExhibitList,
     _javascript_href,
 )
 from docassemble.base.error import DAError
@@ -289,9 +290,7 @@ class TestBundleWarnsOnBrokenDocuments(unittest.TestCase):
         )
 
         self.assertTrue(bundle.has_broken_documents())
-        self.assertIn(
-            "did not upload correctly", bundle.broken_documents_warning_html()
-        )
+        self.assertIn("could not be processed", bundle.broken_documents_warning_html())
 
     def test_bundle_all_valid_shows_no_warning(self):
         bundle = ALDocumentBundle(
@@ -337,6 +336,50 @@ class TestBundleWarnsOnBrokenDocuments(unittest.TestCase):
         warning = bundle.broken_documents_warning_html()
 
         self.assertIn("Pay Stub", warning)
+
+
+class TestExhibitBrokenAfterConcatenateFails(unittest.TestCase):
+    def test_marks_itself_broken(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        good_page = FakePdf(filename="good.jpg", title="page")
+        good_page.ok = True
+        exhibit.pages = DAFileList("exhibit.pages")
+        exhibit.pages.append(good_page)
+        exhibit.pages.gathered = True
+        exhibit.start_page = 1
+
+        with patch(
+            "docassemble.AssemblyLine.al_document.pdf_concatenate",
+            side_effect=DAError("concatenate_files: no valid files to concatenate"),
+        ):
+            exhibit.as_pdf(add_cover_page=False)
+
+        self.assertTrue(exhibit.is_broken())
+
+
+class TestBrokenExhibitShowsUpInList(unittest.TestCase):
+    def test_list_finds_it(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Pay Stub"
+        good_page = FakePdf(filename="good.jpg", title="page")
+        good_page.ok = True
+        exhibit.pages = DAFileList("exhibit.pages")
+        exhibit.pages.append(good_page)
+        exhibit.pages.gathered = True
+        exhibit.start_page = 1
+
+        with patch(
+            "docassemble.AssemblyLine.al_document.pdf_concatenate",
+            side_effect=DAError("concatenate_files: no valid files to concatenate"),
+        ):
+            exhibit.as_pdf(add_cover_page=False)
+
+        exhibits = ALExhibitList("exhibits")
+        exhibits.append(exhibit)
+        exhibits.gathered = True
+
+        self.assertIn(exhibit, exhibits.broken_exhibits())
 
 
 class test_concatenate_failure_after_valid_pages(unittest.TestCase):

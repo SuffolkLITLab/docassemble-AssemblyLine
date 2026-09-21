@@ -2244,9 +2244,9 @@ class ALDocumentBundle(DAList):
             return ""
         quoted = [f'"{escape(title)}"' for title in broken_titles]
         if len(quoted) == 1:
-            message = f"{quoted[0]} did not upload correctly and won't be included. Please try uploading it again before you continue."
+            message = f"{quoted[0]} could not be processed and won't be included. Please try uploading it again before you continue."
         else:
-            message = f"{', '.join(quoted[:-1])} and {quoted[-1]} did not upload correctly and won't be included. Please try uploading them again before you continue."
+            message = f"{', '.join(quoted[:-1])} and {quoted[-1]} could not be processed and won't be included. Please try uploading them again before you continue."
         return f'<div class="alert alert-warning" role="alert">{message}</div>'
 
     def download_list_html(
@@ -3035,6 +3035,8 @@ class ALExhibit(DAObject):
         Returns:
             bool: True if this exhibit will get skipped.
         """
+        if getattr(self, "_failed_during_processing", False):
+            return True
         if not getattr(self.pages, "gathered", False):
             return False
         valid_pages = [p for p in self.ocr_pages() if p and p.ok]
@@ -3087,6 +3089,7 @@ class ALExhibit(DAObject):
             safe_key = safe_key + "_page_nums"
 
         if hasattr(self._cache, safe_key):
+            self._failed_during_processing = False
             return getattr(self._cache, safe_key)
         if not filename:
             filename = "exhibits.pdf"
@@ -3109,7 +3112,9 @@ class ALExhibit(DAObject):
             log(
                 f"ALExhibit.as_pdf(): pdf_concatenate failed for exhibit '{self.title}' even though its pages looked valid, skipping"
             )
+            self._failed_during_processing = True
             return None
+        self._failed_during_processing = False
 
         if add_page_numbers:
             concatenated_pages.bates_number(
