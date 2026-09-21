@@ -362,7 +362,16 @@ def _sql_like_prefix(value: str) -> str:
 
 
 def is_session_owned_by_user(filename: str, session_id: str, user_id: int) -> bool:
-    """Return whether a filename/session pair belongs to the specified user."""
+    """Return whether a filename/session pair belongs to the specified user.
+
+    Args:
+        filename (str): The filename of the interview.
+        session_id (str): The session ID to check.
+        user_id (int): The user ID to check ownership for.
+
+    Returns:
+        bool: True if the session belongs to the user, False otherwise.
+    """
     ownership_query = text("""
         SELECT 1
           FROM userdict
