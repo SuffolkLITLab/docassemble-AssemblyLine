@@ -113,7 +113,7 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
     un nuevo proyecto, Create an interview with the wizard: Crea una entrevista con
     el mago, 'Created new Markdown file called ': Creado nuevo archivo de Markdown
     llamado, Croatia: Croacia, Cuba: Cuba, Curaçao: Curazao, Current: Corriente, Cyprus: Chipre,
-  Czechia: Chequia, Decorations: Decoraciones, Default Playground: Patio de juegos
+  Czechia: Chequia, Day: Día, Decorations: Decoraciones, Default Playground: Patio de juegos
     predeterminado, Defined in: Definido en, Delete: Borrar, Delete Account: Eliminar
     cuenta, Delete All: Eliminar todo, Delete account and shared sessions: Eliminar
     cuenta y sesiones compartidas, Delete account but keep shared sessions: Eliminar
@@ -299,7 +299,7 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
   Libya: Libia, License: Licencia, Liechtenstein: Liechtenstein, Limited Permissions: Permisos
     limitados, Link copied to clipboard.: Enlace copiado al portapapeles., Linked folder: Carpeta
     vinculada, Links: Campo de golf, List of ISO-639-1 language codes: Lista de códigos
-    de idioma ISO-639-1, Listen: Escucha, Lithuania: Lituania, Live chat: Chat en
+    de idioma ISO-639-1, Listen: Escuchar, Lithuania: Lituania, Live chat: Chat en
     vivo, Live chat is available: Chat en vivo está disponible, Loading . . .: Cargando
     . . ., 'Loading.  Please wait . . . ': Cargando. Por favor espera . . ., Log: Registro,
   Logs: Troncos, Luxembourg: Luxemburgo, Macao: Macao, Madagascar: Madagascar, Malawi: Malawi,
@@ -311,7 +311,7 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
     nuevos datos con los datos existentes, Methods: Los metodos, Mexico: México, 'Micronesia, Federated States of': 'Micronesia,
     Estados Federados de', Models: Modelos, Modules: Módulos, Modules available in Playground: Módulos
     disponibles en Playground, Modules defined: Modulos definidos, 'Moldova, Republic of': 'Moldavia,
-    República de', Monaco: Mónaco, Mongolia: Mongolia, Monitor: Monitor, Montenegro: Montenegro,
+    República de', Monaco: Mónaco, Mongolia: Mongolia, Monitor: Monitor, Montenegro: Montenegro, Month: Mes,
   Montserrat: Montserrat, Morocco: Marruecos, Move down: Mover hacia abajo, Mozambique: Mozambique,
   Multiselect box: cuadro de selección múltiple, Must be a two-letter code: Debe ser
     un código de dos letras, Must be a valid e-mail address: Debe ser una dirección
@@ -464,7 +464,14 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
   Save your changes to the package information: Guarda los cambios en la información
     del paquete., Saved: Guardado, Saved at: Guardado en, Scan: Escanear, Scan the barcode with your phone's authenticator app and enter the verification code.: Escanee
     el código de barras con la aplicación de autenticación de su teléfono e ingrese
-    el código de verificación., Score: Puntaje, Search: Buscar, Second Subdivision: Segunda
+    el código de verificación., Score: Puntaje,
+  "Change country, selected ${countryName} (${dialCode})": "Cambiar país, seleccionado ${countryName} (${dialCode})",
+  "Select country": "Seleccionar país", "List of countries": "Lista de países", "Clear search": "Borrar búsqueda",
+  "No results found": "No se han encontrado resultados", "1 result found": "1 resultado encontrado",
+  "${count} results found": "Se encontraron ${count} resultados",
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'Este número de teléfono no parece correcto. Tenga en cuenta que un número que no es de EE. UU. necesita un "+" antes del número.',
+  "You have entered %d character.": "Ha escrito %d carácter.", "You have entered %d characters.": "Ha escrito %d caracteres.",
+  Search: Buscar, Second Subdivision: Segunda
     subdivisión, Second factor authentication: Autenticación de segundo factor, Second subdivision: Segunda
     subdivisión, Section: Sección, Sections: Secciones, Security Method: Método de
     seguridad, Select a package: Seleccione un paquete, Select a value between: Seleccione
@@ -699,7 +706,7 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
     archivo desea importar?', 'When you type inside Jinja2 brackets, auto-complete options will appear here.': 'Cuando
     escribas dentro de los corchetes Jinja2, aparecerán aquí las opciones de autocompletar.',
   Wizard: Mago, 'Would you like to reconfigure two-factor authentication?': '¿Te gustaría
-    reconfigurar la autenticación de dos factores?', Yemen: Yemen, Yes: Sí, 'You are available for the following roles: ': 'Estás
+    reconfigurar la autenticación de dos factores?', Year: Año, Yemen: Yemen, Yes: Sí, 'You are available for the following roles: ': 'Estás
     disponible para los siguientes puestos: ', You are not allowed to access this interview.: No
     tienes permiso para acceder a esta entrevista., You are not authorized to access: No
     estás autorizado para acceder, You are now set up with two factor authentication.: Ahora
@@ -860,4 +867,5 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
   t: t, them: ellos, themself: ellos mismos, themselves: ellos mismos, they: ellos,
   to proceed.: para proceder., 'true': cierto, unavailable: indisponible, us: a nosotros,
   v.: v., was saved at: fue guardado en, we: nosotros, x: X, y: y, year: año, yes: sí,
-  you: tú, yourself: tú mismo, yourselves: vosotros, Åland Islands: Islas Åland}
+  you: tú, yourself: tú mismo, yourselves: vosotros, Pause: Pausar, Stop: Detener,
+  Åland Islands: Islas Åland}

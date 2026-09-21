@@ -6,14 +6,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "docassemble.AssemblyLine"
-version = "4.3.0"
+version = "4.8.0"
 description = "Quickly go from a paper court form to a runnable, guided, step-by-step web application powered by Docassemble. Swap out branding and pre-built questions to meet your needs."
 readme = "README.md"
 authors = [
     { name="Suffolk Legal Innovation and Technology Lab", email="litlab@suffolk.edu" },
 ]
 dependencies = [
-    "docassemble.ALToolbox>=0.12.0",
+    "docassemble.ALToolbox>=0.19.0",
     "docassemble.GitHubFeedbackForm>=0.4.1.1",
 ]
 license="MIT"
@@ -62,3 +62,19 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "backports.*"
 ignore_missing_imports = true
+
+[dependency-groups]
+dev = [
+    "docassemble.base==1.9.8",
+    "docassemble.webapp==1.9.8",
+    "pytest>=7.0",
+    "mypy",
+    "pandas-stubs",
+    "sqlalchemy[mypy]>=1.3.0",
+    "types-PyYAML",
+    "types-requests",
+    "types-psycopg2",
+]
+
+[tool.uv]
+exclude-newer-package = {"docassemble.ALToolbox" = false}

@@ -28,6 +28,10 @@ class test_aladdress(unittest.TestCase):
         for field in fields:
             if "zip" in field["field"]:
                 self.assertTrue(field["required"])
+        fields = addr.address_fields(required={"zip": True})
+        for field in fields:
+            if "zip" in field["field"]:
+                self.assertTrue(field["required"])
         fields = addr.address_fields()
         for field in fields:
             if "zip" in field["field"]:
@@ -418,6 +422,19 @@ class TestALIndividual(unittest.TestCase):
             self.individual.pronoun_possessive(item, capitalize=True), "Its fish"
         )
 
+        # Test for when user provides a pronoun string that cannot be parsed
+        # (doesn't follow the required 2-3 slash format), should fall back to using name's target
+        self.individual.pronouns = "custom"
+        self.individual.person_type = "individual"
+        self.individual.name.first = "John"
+        self.individual.name.last = "Smith"
+        # When pronouns can't be parsed, should use "{name}'s {target}"
+        self.assertEqual(self.individual.pronoun_possessive(item), "John Smith's fish")
+        self.assertEqual(
+            self.individual.pronoun_possessive(item, capitalize=True),
+            "John Smith's fish",
+        )
+
     def test_pronoun_subjective(self):
         self.individual.pronouns = None
         self.individual.person_type = "individual"
@@ -573,7 +590,7 @@ class TestALIndividual(unittest.TestCase):
         # Test business case with required parameter
         fields = self.individual.name_fields(
             person_or_business="business",
-            required={"test_individual.name.first": True},
+            required={"first": True},
             title_choices=["a title"],
             suffix_choices=["Jr.", "Sr."],
         )
@@ -600,9 +617,7 @@ class TestALIndividual(unittest.TestCase):
         )  # Should not have required by default
 
         # Test with required parameter
-        fields = self.individual.gender_fields(
-            required={"test_individual.gender": True}
-        )
+        fields = self.individual.gender_fields(required={"gender": True})
         gender_field = fields[0]
         self.assertEqual(gender_field["required"], True)
 
@@ -832,6 +847,29 @@ class test_get_visible_al_nav_items(unittest.TestCase):
             "Preparing_for_Court",
             {"criminal_defense": ["Know Your Rights"]},
         ]
+        self.assertEqual(get_visible_al_nav_items(data), expected)
+
+    def test_hides_section_with_no_visible_subsections(self):
+        data = [
+            {
+                "hidden_section": [
+                    {"subtask": "A hidden subtask", "hidden": True},
+                ]
+            },
+            {
+                "visible_section": [
+                    {"subtask": "A visible subtask", "hidden": False},
+                ]
+            },
+        ]
+        expected = [
+            {
+                "visible_section": [
+                    {"subtask": "A visible subtask"},
+                ]
+            },
+        ]
+
         self.assertEqual(get_visible_al_nav_items(data), expected)
 
 

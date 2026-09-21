@@ -12,22 +12,23 @@ metadata:
 mandatory: True
 code: |
   which_to_test
-  if which_to_test == 'name':
+  if which_to_test == "name":
     users[0].name.first
   else:
-    users[0].name.first = 'John'
-    users[0].name.last = 'Brown'
+    users[0].name.first = "John"
+    users[0].name.last = "Brown"
 
-  if which_to_test == 'address':
+  if which_to_test == "address":
     users[0].address.address
-  elif which_to_test == 'address_no_address':
+  elif which_to_test == "address_no_address":
     users[0].address.has_no_address
-  elif which_to_test == 'contact':
+  elif which_to_test == "contact":
     users[0].phone_number
-  elif which_to_test == 'pronouns':
+  elif which_to_test == "pronouns":
     users[0].pronouns
   all_done
 ---
+id: all-done
 event: all_done
 question: All done!
 subquestion: |
@@ -50,6 +51,7 @@ subquestion: |
   % endif
   % endfor
 ---
+id: which-question-do-you-want-to-test
 question: Which question do you want to test?
 field: which_to_test
 choices:
@@ -59,10 +61,14 @@ choices:
   - Address (with the option to not have one): address_no_address
   - Contact Information: contact
 ---
+id: what-is-your-address
 sets: users[0].address.has_no_address
 question: |
   What is your address?
 fields: 
   - code: |
-      users[0].address_fields(allow_no_address=True, country_code=AL_DEFAULT_COUNTRY, default_state=AL_DEFAULT_STATE)
- 
+      users[0].address_fields(
+        allow_no_address=True,
+        country_code=AL_DEFAULT_COUNTRY,
+        default_state=AL_DEFAULT_STATE,
+      )

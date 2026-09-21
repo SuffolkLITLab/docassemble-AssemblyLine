@@ -188,28 +188,44 @@ code: |
   if al_user_wants_reminders:
     import time
     from random import random
+
     # Avoid all of the interviews using up resources at the same time, vary the start time a bit
-    time.sleep(random()*10)
+    time.sleep(random() * 10)
     log("Running cron")
     for reminder in al_reminders:
-      if today() >= as_datetime(al_reminders[reminder]["date"]) and task_not_yet_performed(f"al_reminder_{reminder}"):
-        if al_user_preferred_reminder_formats.get("email") and task_not_yet_performed(f"al_reminder_{reminder}_email"):
-          if not send_email(to=al_user_reminder_email, template=value(al_reminders[reminder]["email template"]), task=f"al_reminder_{reminder}_email"):
-            log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}")
-        if al_user_preferred_reminder_formats.get("sms") and task_not_yet_performed(f"al_reminder_{reminder}_sms"):
-          if not send_sms(to=al_user_reminder_phone, template=value(al_reminders[reminder]["sms template"]), task=f"al_reminder_{reminder}_sms"):
-            log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}")
+      if today() >= as_datetime(
+        al_reminders[reminder]["date"]
+      ) and task_not_yet_performed(f"al_reminder_{reminder}"):
+        if al_user_preferred_reminder_formats.get(
+          "email"
+        ) and task_not_yet_performed(f"al_reminder_{reminder}_email"):
+          if not send_email(
+            to=al_user_reminder_email,
+            template=value(al_reminders[reminder]["email template"]),
+            task=f"al_reminder_{reminder}_email",
+          ):
+            log(
+              f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}"
+            )
+        if al_user_preferred_reminder_formats.get("sms") and task_not_yet_performed(
+          f"al_reminder_{reminder}_sms"
+        ):
+          if not send_sms(
+            to=al_user_reminder_phone,
+            template=value(al_reminders[reminder]["sms template"]),
+            task=f"al_reminder_{reminder}_sms",
+          ):
+            log(
+              f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}"
+            )
         mark_task_as_performed(f"al_reminder_{reminder}")
   al_reminders_cron_daily = True
 ---
 only sets: al_reminders_evaluate_stop_cron
 code: |
   if al_user_wants_reminders:
-    if all(
-      task_performed(f"al_reminder_{reminder}")
-      for reminder in al_reminders
-    ):
-      allow_cron = False # Stop calling cron on this session once all tasks performed
+    if all(task_performed(f"al_reminder_{reminder}") for reminder in al_reminders):
+      allow_cron = False  # Stop calling cron on this session once all tasks performed
   else:
     allow_cron = False
   al_reminders_evaluate_stop_cron = True
@@ -218,12 +234,28 @@ only sets: al_reminders_sent_initial_test_message
 code: |
   log("Sending confirmation message")
   if al_user_wants_reminders and task_not_yet_performed(f"al_reminder_initial_reminder"):
-    if al_user_preferred_reminder_formats.get("email") and task_not_yet_performed(f"al_reminder_initial_reminder_email"):
-      if not send_email(to=al_user_reminder_email, template=value(al_reminders.initial_email_template), task=f"al_reminder_initial_reminder_email"):
-        log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}")
-    if al_user_preferred_reminder_formats.get("sms") and task_not_yet_performed(f"al_reminder_initial_reminder_sms"):
-      if not send_sms(to=al_user_reminder_phone, template=value(al_reminders.initial_sms_template), task=f"al_reminder_initial_reminder_sms"):
-        log(f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}")
+    if al_user_preferred_reminder_formats.get("email") and task_not_yet_performed(
+      f"al_reminder_initial_reminder_email"
+    ):
+      if not send_email(
+        to=al_user_reminder_email,
+        template=value(al_reminders.initial_email_template),
+        task=f"al_reminder_initial_reminder_email",
+      ):
+        log(
+          f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_email}"
+        )
+    if al_user_preferred_reminder_formats.get("sms") and task_not_yet_performed(
+      f"al_reminder_initial_reminder_sms"
+    ):
+      if not send_sms(
+        to=al_user_reminder_phone,
+        template=value(al_reminders.initial_sms_template),
+        task=f"al_reminder_initial_reminder_sms",
+      ):
+        log(
+          f"{ all_variables(special='metadata').get('title', AL_ORGANIZATION_TITLE) }: Couldn't send reminder to { showifdef('users[0]') } via {al_user_reminder_phone}"
+        )
     mark_task_as_performed(f"al_reminder_initial_reminder")
 
   al_reminders_sent_initial_test_message = True

@@ -11,6 +11,7 @@ code: |
   basic_questions_signature_flow
   show_signatures
 ---
+id: your-signature
 event: show_signatures
 question: |
   Your signature
@@ -23,6 +24,8 @@ subquestion: |
   ${ users[0].signature }
   
   % endif
+attachment:
+  docx template file: sample_word_template.docx
 ---
 code: |
   al_form_requires_digital_signature = False

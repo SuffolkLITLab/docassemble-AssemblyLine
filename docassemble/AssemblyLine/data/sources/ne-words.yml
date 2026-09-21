@@ -111,7 +111,7 @@ ne: {'%(username_or_email)s does not exist': '%(username_or_email)s अवस्
     परियोजना सिर्जना गर्नुहोस्, Create an interview with the wizard: विजार्डसँग अन्तर्वार्ता
     सिर्जना गर्नुहोस्, 'Created new Markdown file called ': 'नयाँ मार्कडाउन फाइल सिर्जना
     गरियो जसलाई भनिन्छ ', Croatia: क्रोएसिया, Cuba: क्युबा, Curaçao: कुराकाओ, Current: हालको,
-  Cyprus: साइप्रस, Czechia: चेकिया, Decorations: सजावटहरू, Default Playground: पूर्वनिर्धारित
+  Cyprus: साइप्रस, Czechia: चेकिया, Day: दिन, Decorations: सजावटहरू, Default Playground: पूर्वनिर्धारित
     खेल मैदान, Defined in: मा परिभाषित, Delete: मेटाउनुहोस्, Delete Account: खाता
     मेटाउनुहोस्, Delete All: सबै मेटाउनुहोस्, Delete account and shared sessions: खाता
     र साझा सत्रहरू मेटाउनुहोस्, Delete account but keep shared sessions: खाता मेटाउनुहोस्
@@ -307,7 +307,7 @@ ne: {'%(username_or_email)s does not exist': '%(username_or_email)s अवस्
     डेटामा मर्ज गर्नुहोस्, Methods: विधिहरू, Mexico: मेक्सिको, 'Micronesia, Federated States of': 'माइक्रोनेसिया,
     संघीय राज्यहरू', Models: मोडेलहरू, Modules: मोड्युलहरू, Modules available in Playground: खेल
     मैदानमा उपलब्ध मोड्युलहरू, Modules defined: मोड्युलहरू परिभाषित गरियो, 'Moldova, Republic of': 'मोल्डोभा,
-    गणतन्त्र', Monaco: मोनाको, Mongolia: मङ्गोलिया, Monitor: मनिटर, Montenegro: मोन्टेनेग्रो,
+    गणतन्त्र', Monaco: मोनाको, Mongolia: मङ्गोलिया, Monitor: मनिटर, Montenegro: मोन्टेनेग्रो, Month: महिना,
   Montserrat: मोन्टसेराट, Morocco: मोरक्को, Move down: तल सार्नुहोस्, Mozambique: मोजाम्बिक,
   Multiselect box: बहुचयन बाकस, Must be a two-letter code: दुई-अक्षरको कोड हुनुपर्छ,
   Must be a valid e-mail address: मान्य इमेल ठेगाना हुनुपर्छ।, Must be in E.164 format.  U.S. phone numbers begin with +1.: E.164
@@ -453,7 +453,14 @@ Resume: जारी राख्नुहोस्, Resume an interview: अन
     जानकारीमा आफ्ना परिवर्तनहरू बचत गर्नुहोस्।, Saved: सुरक्षित गरियो, Saved at: 'बचत
     गरिएको समय:', Scan: स्क्यान गर्नुहोस्, Scan the barcode with your phone's authenticator app and enter the verification code.: आफ्नो
     फोनको प्रमाणक एप प्रयोग गरी बारकोड स्क्यान गर्नुहोस् र प्रमाणिकरण कोड प्रविष्ट
-    गर्नुहोस्।, Score: स्कोर, Search: खोज्नुहोस्, Second Subdivision: दोस्रो उपविभाजन,
+    गर्नुहोस्।, Score: स्कोर,
+  "Change country, selected ${countryName} (${dialCode})": "देश परिवर्तन गर्नुहोस्, हाल चयन गरिएको ${countryName} (${dialCode})",
+  "Select country": "देश चयन गर्नुहोस्", "List of countries": "देशहरूको सूची", "Clear search": "खोजी खाली गर्नुहोस्",
+  "No results found": "कुनै परिणाम फेला परेन", "1 result found": "१ परिणाम फेला पर्यो",
+  "${count} results found": "${count} वटा परिणाम फेला परे",
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'यो फोन नम्बर सही जस्तो देखिँदैन। अमेरिकाबाहिरको नम्बरअघि "+" राख्नुपर्छ भन्ने कुरा ध्यान दिनुहोस्।',
+  "You have entered %d character.": "तपाईंले %d अक्षर प्रविष्ट गर्नुभएको छ।", "You have entered %d characters.": "तपाईंले %d अक्षरहरू प्रविष्ट गर्नुभएको छ।",
+  Search: खोज्नुहोस्, Second Subdivision: दोस्रो उपविभाजन,
   Second factor authentication: दोस्रो कारक प्रमाणीकरण, Second subdivision: दोस्रो
     उपविभाजन, Section: खण्ड, Sections: खण्डहरू, Security Method: सुरक्षा विधि, Select a package: प्याकेज
     चयन गर्नुहोस्, Select a value between: बीचमा मान चयन गर्नुहोस्, Select file: फाइल
@@ -679,7 +686,7 @@ Resume: जारी राख्नुहोस्, Resume an interview: अन
     कुन फाइल आयात गर्न चाहनुहुन्छ?', 'When you type inside Jinja2 brackets, auto-complete options will appear here.': 'जब
     तपाईंले Jinja2 कोष्ठक भित्र टाइप गर्नुहुन्छ, यहाँ स्वत: पूर्ण विकल्पहरू देखा पर्नेछन्।',
   Wizard: विजार्ड, 'Would you like to reconfigure two-factor authentication?': 'के
-    तपाईं दुई-कारक प्रमाणीकरण पुन: कन्फिगर गर्न चाहनुहुन्छ?', Yemen: यमन, Yes: हो,
+    तपाईं दुई-कारक प्रमाणीकरण पुन: कन्फिगर गर्न चाहनुहुन्छ?', Year: वर्ष, Yemen: यमन, Yes: हो,
   'You are available for the following roles: ': 'तपाईं निम्न भूमिकाहरूको लागि उपलब्ध
     हुनुहुन्छ: ', You are not allowed to access this interview.: तपाईंलाई यो अन्तर्वार्तामा
     पहुँच गर्न अनुमति छैन।, You are not authorized to access: तपाईंलाई पहुँच गर्न
@@ -837,5 +844,6 @@ Resume: जारी राख्नुहोस्, Resume an interview: अन
   skip: छोड्नुहोस्, something: केहि, system: प्रणाली, t: ट, them: तिनीहरूलाई, themself: आफैं,
   themselves: आफैं, they: तिनीहरू, to proceed.: अगाडि बढ्न।, 'true': सत्य, unavailable: उपलब्ध
     छैन, us: हामीलाई, v.: वि., was saved at: मा सुरक्षित गरिएको थियो, we: हामी, x: x,
-  y: र, year: वर्ष, yes: हो, you: तिमी, yourself: आफैँ, yourselves: आफैं, Åland Islands: अलान्ड
+  y: र, year: वर्ष, yes: हो, you: तिमी, yourself: आफैँ, yourselves: आफैं, Pause: पज गर्नुहोस्,
+  Stop: रोक्नुहोस्, Åland Islands: अलान्ड
     टापुहरू}

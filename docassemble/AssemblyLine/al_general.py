@@ -138,7 +138,7 @@ class ALAddress(Address):
             allow_no_address (bool): Allow users to specify they don't have an address. Defaults to False.
             ask_if_impounded (Optional[bool]): Whether to ask if the address is impounded. Defaults to False.
             maxlengths (Optional[Dict[str, int]]): A dictionary of field names and their maximum lengths. Defaults to None.
-            required (Dict[str, bool], optional): A dictionary of field names and if they should be required. Default is None (everything but unit and zip is required)
+            required (Dict[str, bool], optional): A dictionary of field names and if they should be required. Default is None (everything but unit and zip is required).
 
         Returns:
             List[Dict[str, Any]]: A list of dictionaries representing address fields.
@@ -275,12 +275,18 @@ class ALAddress(Address):
                 }
             )
 
+        # All 'field' entries start with the full name of the object (i.e. 'users[1].address...'),
+        # so make sure the keys in maxlengths and required have that prefix
+        prefix = self.attr_name("")
+        rename_key = lambda key: key if key.startswith(prefix) else prefix + key
         if maxlengths:
+            maxlengths = {rename_key(k): v for k, v in maxlengths.items()}
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
 
         if required:
+            required = {rename_key(k): v for k, v in required.items()}
             for field in fields:
                 if field["field"] in required:
                     field["required"] = required[field["field"]]
@@ -295,13 +301,13 @@ class ALAddress(Address):
 
         Args:
             language (str, optional): The language in which to format the unit. Defaults to None (which uses system language).
-            require (bool, optional): A flag indicating whether the unit is required. If set to True, the function will
+            require (bool, optional): A flag indicating whether the unit is required. If set to True, the function will.
                                     raise an error if the unit attribute does not exist. Defaults to False.
-            bare (bool, optional): A flag indicating whether to add the word 'Unit' before the unit number. If set to
+            bare (bool, optional): A flag indicating whether to add the word 'Unit' before the unit number. If set to.
                                 True, the function will not add 'Unit' regardless of other conditions. Defaults to False.
 
         Returns:
-            str:
+            str:.
                 The formatted unit. If the unit attribute does not exist and require is set to False, this will be an
                 empty string. If the unit attribute exists and is not None or an empty string, the function will return
                 the unit number, possibly prefixed with 'Unit'. If the unit attribute exists and is None or an empty
@@ -636,7 +642,7 @@ class ALAddress(Address):
         Warning: currently the normalized address will not be redacted if the address is impounded.
 
         Returns:
-            Union[Address, "ALAddress"]:
+            Union[Address, "ALAddress"]:.
                 Normalized address if geocoding is successful, otherwise
                 the original address.
         """
@@ -658,12 +664,12 @@ class ALAddress(Address):
         2. The country set in the global config for the server.
 
         Args:
-            country_code (str, optional): ISO-3166-1 alpha-2 code to override the country attribute of
-                the Address object. For valid codes, refer to:
-                https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements
+            country_code (str, optional): ISO-3166-1 alpha-2 code to override the country attribute of.
+                the Address object. For valid codes, refer to:.
+                https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements.
 
         Returns:
-            str: The full state name corresponding to the state abbreviation. If an error occurs
+            str: The full state name corresponding to the state abbreviation. If an error occurs.
             or the full name cannot be determined, returns the state abbreviation.
         """
         if country_code:
@@ -694,8 +700,8 @@ class ALAddressList(DAList):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super(ALAddressList, self).init(*pargs, **kwargs)
         self.object_type = ALAddress
@@ -722,8 +728,8 @@ class ALNameList(DAList):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super().init(*pargs, **kwargs)
         self.object_type = IndividualName
@@ -746,8 +752,8 @@ class ALPeopleList(DAList):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super(ALPeopleList, self).init(*pargs, **kwargs)
         self.object_type = ALIndividual
@@ -778,27 +784,49 @@ class ALPeopleList(DAList):
             comma_string=comma_string,
         )
 
-    def familiar(self, **kwargs) -> str:
-        """Provide a list of familiar forms of names of individuals.
+    def familiar(
+        self, unique_names: Optional[list] = None, default: Optional[str] = None
+    ) -> str:
+        """Provide a list of familiar forms of names of individuals, in the
+        most familiar way possible while preserving uniqueness. When possible,
+        it will return just the first name of each individual.
+
+        See ALIndividual.familiar for how the familiar form of each individual is determined.
 
         Args:
-            **kwargs: Keyword arguments to pass to the familiar method.
+            unique_names (list): A list of unique names to check input against.
+            default (str): The default name to use if a unique name is not available.
         Returns:
             str: Formatted string of familiar names.
         """
-        return comma_and_list([person.familiar(**kwargs) for person in self])
+        return comma_and_list(
+            [
+                person.familiar(unique_names=unique_names, default=default)
+                for person in self
+            ]
+        )
 
-    def familiar_or(self, **kwargs) -> str:
-        """Provide a list of familiar forms of names of individuals separated by 'or'.
+    def familiar_or(
+        self, unique_names: Optional[list] = None, default: Optional[str] = None
+    ) -> str:
+        """Provide a list of familiar forms of names of individuals separated by 'or',
+        using the most familiar form possible while preserving uniqueness. When possible, it will return just the first name of each individual.
+
+        See ALIndividual.familiar for how the familiar form of each individual is determined.
 
         Args:
-            **kwargs: Keyword arguments to pass to the familiar method.
+            unique_names (list): A list of unique names to check input against.
+            default (str): The default name to use if a unique name is not available.
 
         Returns:
             str: Formatted string of familiar names separated by 'or'.
         """
         return comma_and_list(
-            [person.familiar(**kwargs) for person in self], and_string=word("or")
+            [
+                person.familiar(unique_names=unique_names, default=default)
+                for person in self
+            ],
+            and_string=word("or"),
         )
 
     def short_list(self, limit: int, truncate_string: str = ", et al.") -> str:
@@ -816,7 +844,9 @@ class ALPeopleList(DAList):
         else:
             return comma_and_list(self)
 
-    def full_names(self, comma_string=", ", and_string=word("and")) -> str:
+    def full_names(
+        self, comma_string: str = ", ", and_string: Optional[str] = None
+    ) -> str:
         """Return a formatted list of full names of individuals.
 
         Args:
@@ -826,6 +856,8 @@ class ALPeopleList(DAList):
         Returns:
             str: Formatted string of full names.
         """
+        if not and_string:
+            and_string = word("and")
         return comma_and_list(
             [
                 (
@@ -913,8 +945,8 @@ class ALIndividual(Individual):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super(ALIndividual, self).init(*pargs, **kwargs)
         # Initialize the attributes that are themselves objects. Requirement to work with Docassemble
@@ -1070,7 +1102,7 @@ class ALIndividual(Individual):
         Avoid using. Only used in 209A.
 
         Args:
-            new_letters (str): The new letters to add to the existing list of letters
+            new_letters (str): The new letters to add to the existing list of letters.
         """
         # TODO: move to 209A package
         if hasattr(self, "child_letters"):
@@ -1125,7 +1157,7 @@ class ALIndividual(Individual):
                 Default is True.
             show_title: (bool, optional): Determines if the name's title (e.g., Mr., Ms.) should be included in the prompts.
                 Default is False.
-            title_choices (Union[List[str], Callable], optional): A list or callable of title options to use in the prompts. Default is defined as a list
+            title_choices (Union[List[str], Callable], optional): A list or callable of title options to use in the prompts. Default is defined as a list.
                 of common titles in English-speaking countries, or overridden by value of global `al_name_titles`.
             show_if (Union[str, Dict[str, str], None], optional): Condition to determine which fields to show.
                 It can be a string, a dictionary with conditions, or None. Default is None.
@@ -1197,17 +1229,6 @@ class ALIndividual(Individual):
                 for field in fields:
                     field["show if"] = show_if
 
-            if maxlengths:
-                for field in fields:
-                    if field["field"] in maxlengths:
-                        field["maxlength"] = maxlengths[field["field"]]
-
-            if required:
-                for field in fields:
-                    if field["field"] in required:
-                        field["required"] = required[field["field"]]
-
-            return fields
         elif person_or_business == "business":
             fields = [
                 {
@@ -1218,17 +1239,6 @@ class ALIndividual(Individual):
             if show_if:
                 fields[0]["show if"] = show_if
 
-            if maxlengths:
-                for field in fields:
-                    if field["field"] in maxlengths:
-                        field["maxlength"] = maxlengths[field["field"]]
-
-            if required:
-                for field in fields:
-                    if field["field"] in required:
-                        field["required"] = required[field["field"]]
-
-            return fields
         else:
             # Note: the labels are template block objects: if they are keys,
             # they should be converted to strings first
@@ -1291,17 +1301,23 @@ class ALIndividual(Individual):
                 }
             )
 
-            if maxlengths:
-                for field in fields:
-                    if field["field"] in maxlengths:
-                        field["maxlength"] = maxlengths[field["field"]]
+        # All 'field' entries start with the full name of the object (i.e. 'users[1].address...'),
+        # so make sure the keys in maxlengths and required have that prefix
+        prefix = self.attr_name("name.")
+        rename_key = lambda key: key if key.startswith(prefix) else prefix + key
+        if maxlengths:
+            maxlengths = {rename_key(k): v for k, v in maxlengths.items()}
+            for field in fields:
+                if field["field"] in maxlengths:
+                    field["maxlength"] = maxlengths[field["field"]]
 
-            if required:
-                for field in fields:
-                    if field["field"] in required:
-                        field["required"] = required[field["field"]]
+        if required:
+            required = {rename_key(k): v for k, v in required.items()}
+            for field in fields:
+                if field["field"] in required:
+                    field["required"] = required[field["field"]]
 
-            return fields
+        return fields
 
     def address_fields(
         self,
@@ -1327,7 +1343,7 @@ class ALIndividual(Individual):
             allow_no_address (bool): Whether to permit entries with no address. Defaults to False.
             ask_if_impounded (bool): Whether to ask if the address is impounded. Defaults to False.
             maxlengths (Dict[str, int], optional): A dictionary of field names and their maximum lengths. Default is None.
-            required (Dict[str, bool], optional): A dictionary of field names and if they should be required. Default is None (everything but unit and zip is required)
+            required (Dict[str, bool], optional): A dictionary of field names and if they should be required. Default is None (everything but unit and zip is required).
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for addresses.
@@ -1402,12 +1418,18 @@ class ALIndividual(Individual):
         if show_if:
             fields[0]["show if"] = show_if
 
+        # All 'field' entries start with the full name of the object (i.e. 'users[1].address...'),
+        # so make sure the keys in maxlengths and required have that prefix
+        prefix = self.attr_name("")
+        rename_key = lambda key: key if key.startswith(prefix) else prefix + key
         if maxlengths:
+            maxlengths = {rename_key(k): v for k, v in maxlengths.items()}
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
 
         if required:
+            required = {rename_key(k): v for k, v in required.items()}
             for field in fields:
                 if field["field"] in required:
                     field["required"] = required[field["field"]]
@@ -1564,12 +1586,18 @@ class ALIndividual(Individual):
         if show_if:
             fields[0]["show if"] = show_if
 
+        # All 'field' entries start with the full name of the object (i.e. 'users[1].address...'),
+        # so make sure the keys in maxlengths and required have that prefix
+        prefix = self.attr_name("")
+        rename_key = lambda key: key if key.startswith(prefix) else prefix + key
         if maxlengths:
+            maxlengths = {rename_key(k): v for k, v in maxlengths.items()}
             for field in fields:
                 if field["field"] in maxlengths:
                     field["maxlength"] = maxlengths[field["field"]]
 
         if required:
+            required = {rename_key(k): v for k, v in required.items()}
             for field in fields:
                 if field["field"] in required:
                     field["required"] = required[field["field"]]
@@ -1581,7 +1609,7 @@ class ALIndividual(Individual):
         Get the human-readable version of the individual's selected language.
 
         Returns:
-            str: The human-readable version of the language. If 'other' is selected,
+            str: The human-readable version of the language. If 'other' is selected,.
             it returns the value in `language_other`. Otherwise, it uses the
             `language_name` function.
         """
@@ -1854,7 +1882,7 @@ class ALIndividual(Individual):
 
         Args:
             target (str): The target word to follow the pronoun.
-            **kwargs: Additional keyword arguments that can be passed to modify the behavior. These might include:
+            **kwargs: Additional keyword arguments that can be passed to modify the behavior. These might include:.
                 - `default` (Optional[str]): The default word to use if the pronoun is not defined, e.g., "the agent". If not defined, the default term is the user's name.
                 - `person` (Optional[Union[str, int]]): Whether to use a first, second, or third person pronoun. Can be one of 1/"1p", 2/"2p", or 3/"3p" (default is 3). See [upstream documentation](https://docassemble.org/docs/objects.html#language%20methods) for more information.
 
@@ -1914,7 +1942,7 @@ class ALIndividual(Individual):
             if len(pronouns_to_use) > 0:
                 output = "/".join(pronouns_to_use)
             else:
-                output = default
+                output = f"{default}'s {target}"
         elif hasattr(self, "person_type") and self.person_type in [
             "business",
             "organization",
@@ -1928,7 +1956,7 @@ class ALIndividual(Individual):
             else:
                 output = their(target, **kwargs)
         else:
-            output = default
+            output = f"{default}'s {target}"
 
         if "capitalize" in kwargs and kwargs["capitalize"]:
             return capitalize(output)
@@ -2167,7 +2195,7 @@ class ALIndividual(Individual):
         the first name, even if middle, last, or suffix are defined.
 
         Returns:
-            str: The individual'
+            str: The individual'.
         """
         if hasattr(self, "person_type") and self.person_type in [
             "business",
@@ -2428,7 +2456,7 @@ def is_sms_enabled() -> bool:
     See https://docassemble.org/docs/config.html#twilio for more info.
 
     Returns:
-        bool: True if there is a non-empty Twilio config on the server, False otherwise
+        bool: True if there is a non-empty Twilio config on the server, False otherwise.
     """
     twilio_config = get_config("twilio")
     if isinstance(twilio_config, list):
@@ -2568,7 +2596,7 @@ def has_parsable_pronouns(pronouns: str) -> bool:
     Returns True if the pronouns string can be parsed into a dictionary of pronouns.
 
     Args:
-        pronouns: a string of pronouns in the format "objective/subjective/possessive"
+        pronouns: a string of pronouns in the format "objective/subjective/possessive".
 
     Returns:
         True if the pronouns string can be parsed into a dictionary of pronouns, False otherwise
@@ -2585,10 +2613,10 @@ def parse_custom_pronouns(pronouns: str) -> Dict[str, str]:
     Parses a custom pronoun string into a dictionary of pronouns.
 
     Args:
-        pronouns: a string of pronouns in the format "objective/subjective/possessive"
+        pronouns: a string of pronouns in the format "objective/subjective/possessive".
 
     Returns:
-        a dictionary of pronouns in the format {"o": objective, "s": subjective, "p": possessive}
+        a dictionary of pronouns in the format {"o": objective, "s": subjective, "p": possessive}.
     """
     # test for presence of either 2 or 3 /'s
     if not (2 <= pronouns.count("/") <= 3):
@@ -2620,7 +2648,7 @@ def get_visible_al_nav_items(
     ]
 
     Args:
-        nav_items: a list of nav items
+        nav_items: a list of nav items.
 
     Returns:
         a list of nav items with hidden items removed
@@ -2636,8 +2664,11 @@ def get_visible_al_nav_items(
         # For dictionaries at top level
         item_copy = deepcopy(item)
         if not str(item_copy.pop("hidden", "False")).lower() == "true":  # if not hidden
+            has_subsections = False
+            has_visible_subsections = False
             for key, val in item_copy.items():
                 if isinstance(val, list):  # if value of a key is a list
+                    has_subsections = True
                     new_sublist: List[Union[str, dict]] = []
                     for subitem in val:
                         # Add subitem strings as-is
@@ -2651,7 +2682,13 @@ def get_visible_al_nav_items(
                         ):
                             new_sublist.append(subitem)
                     item_copy[key] = new_sublist
-            new_list.append(item_copy)
+                    has_visible_subsections = has_visible_subsections or bool(
+                        new_sublist
+                    )
+
+            # Do not show a section expander when all of its subsections are hidden.
+            if not has_subsections or has_visible_subsections:
+                new_list.append(item_copy)
         continue
 
     return new_list

@@ -18,7 +18,7 @@ comment: |
       new form label: Start a new form
       new form url: https://courtformsonline.org
       logo url: null # Defaults to `app homepage`
-      logo image url: https://app.yourserver.org/packagestatic/docassemble.AssemblyLine/ma_logo.png
+      logo image url: https://app.example.org/packagestatic/docassemble.AssemblyLine/ma_logo.png
       logo image alt: Logo
       answer sets title: Answer sets
       logo title row 1: null # Defaults to `interview page title`
@@ -92,6 +92,7 @@ comment: |
 ---
 include:
   - docassemble.ALToolbox:display_template.yml
+  - docassemble.ALToolbox:translation_strings.yml
 ---
 # clear playground errors
 objects:
@@ -126,7 +127,7 @@ objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="")
 ---
 code: |
-  al_logo.alt_text = "" # Patch for old sessions
+  al_logo.alt_text = ""  # Patch for old sessions
 ---
 # This block is a placeholder and will be replaced by the definition below
 sections:
@@ -136,21 +137,19 @@ sections:
 progressive: False
 ---
 # A code block is the only way to show navigation with custom labels (mako isn't allowed in `sections`)
-mandatory: True
 code: |
   nav.set_sections(
-      [
-        {
-          "section_in_progress_forms": PAGE_QUESTION or PAGE_TITLE or word("In progress forms")
-        },
-        {
-          "section_answer_sets": ANSWER_SETS_TITLE or word("Answer sets")
-        },
-        {
-          "section_search": word("Search")
-        },
-        ]
+    [
+      {
+        "section_in_progress_forms": PAGE_QUESTION
+        or PAGE_TITLE
+        or word("In progress forms")
+      },
+      {"section_answer_sets": ANSWER_SETS_TITLE or word("Answer sets")},
+      {"section_search": word("Search")},
+    ]
   )
+  set_sections_once = True
 ---
 # These override the `metadata` above
 default screen parts:
@@ -160,7 +159,7 @@ default screen parts:
     % elif showifdef("AL_ORGANIZATION_TITLE"):
     ${ AL_ORGANIZATION_TITLE }
     % else:
-    ${ get_config("app name", "CourtFormsOnline") }
+    ${ get_config("appname", "docassemble") }
     % endif
   short title: |
     % if PAGE_TITLE:
@@ -168,7 +167,7 @@ default screen parts:
     % elif showifdef("AL_ORGANIZATION_TITLE"):
     ${ AL_ORGANIZATION_TITLE }
     % else:
-    ${ get_config("app name", "CourtFormsOnline") }
+    ${ get_config("appname", "docassemble") }
     % endif
   title url: |
     % if LOGO_URL:
@@ -188,9 +187,9 @@ default screen parts:
     <span class="title-container">
       <span class="al-logo">
     % if LOGO_IMAGE_URL:
-        <img src="${ LOGO_IMAGE_URL }" alt="${ LOGO_IMAGE_ALT }"/>
+        <img src="${ LOGO_IMAGE_URL }" alt="${ LOGO_IMAGE_ALT or '' }"/>
     % else:
-        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text or '' }"/>
     % endif
       </span>
       <span class="al-title">
@@ -199,7 +198,7 @@ default screen parts:
     % elif showifdef("AL_ORGANIZATION_TITLE"):
         <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>    
     % else:
-        <span class="title-row-1">${ get_config("app name", "CourtFormsOnline") }</span>    
+        <span class="title-row-1">${ get_config("appname", "docassemble") }</span>    
     % endif
     % if LOGO_TITLE_ROW_2:
         <span class="title-row-2">${ LOGO_TITLE_ROW_2 }</span>
@@ -214,9 +213,9 @@ default screen parts:
     <span class="title-container">
       <span class="al-logo">
     % if LOGO_IMAGE_URL:
-        <img src="${ LOGO_IMAGE_URL }" alt="${ LOGO_IMAGE_ALT }"/>
+        <img src="${ LOGO_IMAGE_URL }" alt="${ LOGO_IMAGE_ALT or '' }"/>
     % else:
-        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text }"/>
+        <img src="${ al_logo.url_for() }" alt="${ al_logo.alt_text or '' }"/>
     % endif
       </span>
       <span class="al-title">
@@ -225,7 +224,7 @@ default screen parts:
     % elif showifdef("AL_ORGANIZATION_TITLE"):
         <span class="title-row-1">${ AL_ORGANIZATION_TITLE }</span>    
     % else:
-        <span class="title-row-1">${ get_config("app name", "CourtFormsOnline") }</span>    
+        <span class="title-row-1">${ get_config("appname", "docassemble") }</span>    
     % endif
     % if LOGO_TITLE_ROW_2:
         <span class="title-row-2">${ LOGO_TITLE_ROW_2 }</span>
@@ -239,9 +238,10 @@ default screen parts:
 ---
 mandatory: True
 code: |
+  set_sections_once
   if not user_logged_in():
     command("signin")
-  if get_config("assembly line",{}).get("enable answer sets"):
+  if get_config("assembly line", {}).get("enable answer sets"):
     nav.unhide()
   else:
     nav.hide()
@@ -269,14 +269,15 @@ subquestion: |
   ${ session_list_html(answers = find_matching_sessions(filenames={limit_filename} if limit_filename else None, keyword=search_keyword), filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }
 
   % else:
-  ${ session_list_html(filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }
+  <% current_page_sessions = get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, exclude_filenames=al_sessions_to_exclude_from_interview_list, limit=20, offset=session_page*20, exclude_newly_started_sessions=True) %>
+  ${ session_list_html(answers=current_page_sessions, filename=None, limit=20, offset=session_page*20, exclude_filenames=al_sessions_to_exclude_from_interview_list, exclude_newly_started_sessions=True) }
 
   <nav aria-label="Page navigation">
     <ul class="pagination justify-content-center">
   % if session_page > 0:
       <li class="page-item"><a class="page-link" href="${ url_action("update_page_event", page_increment=-1) }">Previous</a></li>
   % endif
-  % if len(get_saved_interview_list(filename=None, filename_to_exclude=al_session_store_default_filename, exclude_filenames=al_sessions_to_exclude_from_interview_list, limit=20, offset=session_page*20, exclude_newly_started_sessions=True)) >= 20:
+  % if len(current_page_sessions) >= 20:
       <li class="page-item"><a class="page-link" href="${ url_action("update_page_event", page_increment=1) }">Next</a></li>
   % endif
     </ul>
@@ -316,6 +317,7 @@ script:
       });
   </script>
 ---
+id: search-if-pagequestion
 continue button field: section_search
 section: section_search
 question: |
@@ -376,14 +378,12 @@ continue button label: |
 ---
 code: |
   save_interview_answers(
-      source_filename=action_argument("filename"),
-      source_session=action_argument("session"),
-      metadata={
-        "title": al_sessions_copy_as_answer_set_label
-      },
-      original_interview_filename=action_argument("original_interview_filename"),        
-      )
-  log("Copied answers", "success")      
+    source_filename=action_argument("filename"),
+    source_session=action_argument("session"),
+    metadata={"title": al_sessions_copy_as_answer_set_label},
+    original_interview_filename=action_argument("original_interview_filename"),
+  )
+  log("Copied answers", "success")
   interview_list_copy_action = True
 ---
 id: rename answer
@@ -400,25 +400,43 @@ only sets:
 code: |
   al_sessions_snapshot_new_label
   try:
-      rename_interview_answers(action_argument("filename"), action_argument("session"), new_name = al_sessions_snapshot_new_label)
-      log(f"New name saved", "success")
-      session_page = 0 # Take back to first page where the renamed session will appear
+    rename_interview_answers(
+      action_argument("filename"),
+      action_argument("session"),
+      new_name=al_sessions_snapshot_new_label,
+    )
+    log(f"New name saved", "success")
+    session_page = 0  # Take back to first page where the renamed session will appear
   except:
-      log("Problem saving new name", "danger")
+    log("Problem saving new name", "danger")
   interview_list_rename_action = True
 ---
 code: |
-  interview_list(action="delete", filename=action_argument("filename"), session=action_argument("session"))  
+  interview_list(
+    action="delete",
+    filename=action_argument("filename"),
+    session=action_argument("session"),
+  )
   log("Deleted answers", "success")
   interview_list_delete_session = True
 ---
 code: |
   try:
-      interview_list(action="delete_all", query=(~DA.Or(DA.Sessions.filename == f"{current_context().current_package}:al_saved_sessions_store.yml", DA.Sessions.filename == "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml")))
-      log("Deleted answers", "success")
+    interview_list(
+      action="delete_all",
+      query=(
+        ~DA.Or(
+          DA.Sessions.filename
+          == f"{current_context().current_package}:al_saved_sessions_store.yml",
+          DA.Sessions.filename
+          == "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml",
+        )
+      ),
+    )
+    log("Deleted answers", "success")
   except Exception as ex:
-      log("Problem deleting answers", "danger")
-      log(f"Problem deleting answers for a user: {ex}")
+    log("Problem deleting answers", "danger")
+    log(f"Problem deleting answers for a user: {ex}")
   interview_list_delete_all = True
 ---
 ########### Get customized text values from configuration file ###################################33
@@ -439,7 +457,7 @@ code: |
   LOGO_IMAGE_URL = config_with_language_fallback("logo image url")
 ---
 code: |
-  LOGO_IMAGE_ALT = config_with_language_fallback("logo alt")
+  LOGO_IMAGE_ALT = config_with_language_fallback("logo alt") or ""
 ---
 code: |
   NEW_FORM_LABEL = config_with_language_fallback("new form label")
@@ -458,19 +476,19 @@ code: |
 ---
 code: |
   al_sessions_to_exclude_from_interview_list = (
-      get_config("assembly line", {})
-      .get("interview list", {})
-      .get(
-          "exclude from interview list",
-          get_config("assembly line", {}).get(
-              "exclude from interview list",
-              [
-                  "docassemble.ALDashboard",
-                  "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml",
-                  "docassemble.AssemblyLine:data/questions/interview_list.yml",
-              ],
-          ),
-      )
+    get_config("assembly line", {})
+    .get("interview list", {})
+    .get(
+      "exclude from interview list",
+      get_config("assembly line", {}).get(
+        "exclude from interview list",
+        [
+          "docassemble.ALDashboard",
+          "docassemble.AssemblyLine:data/questions/al_saved_sessions_store.yml",
+          "docassemble.AssemblyLine:data/questions/interview_list.yml",
+        ],
+      ),
+    )
   )
 ---
 event: delete_results_action

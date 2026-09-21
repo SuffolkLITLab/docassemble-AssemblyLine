@@ -1,8 +1,51 @@
 # do not pre-load
 
+import json
+import pickle
 import unittest
-from docassemble.base.util import DAFile
-from .al_document import ALDocument, ALDocumentBundle, ALAddendumField
+from unittest.mock import Mock
+from html import unescape
+from docassemble.base.util import (
+    DAFile,
+    DAFileList,
+    DALazyTemplate,
+    DAObject,
+    DATemplate,
+)
+from .al_document import (
+    ALAddendumField,
+    ALDocument,
+    ALDocumentBundle,
+    ALExhibit,
+    _javascript_href,
+)
+
+
+class TestJavascriptHref(unittest.TestCase):
+    def test_escapes_javascript_strings_inside_html_href(self):
+        result = _javascript_href(
+            "aldocument_send_action",
+            "template_request.requestee_bundles['4167e36be7f04794ad30770e865afe68']",
+            "_ignore_al_wants_editable_bundle",
+            "_ignore_al_doc_email_bundle",
+        )
+
+        self.assertEqual(
+            result,
+            "javascript:aldocument_send_action("
+            "&quot;template_request.requestee_bundles[&#x27;4167e36be7f04794ad30770e865afe68&#x27;]&quot;,"
+            "&quot;_ignore_al_wants_editable_bundle&quot;,"
+            "&quot;_ignore_al_doc_email_bundle&quot;)",
+        )
+
+    def test_preserves_javascript_value_types(self):
+        result = unescape(_javascript_href("send", "None", None, ["pdf", "docx"]))
+        args_json = result.removeprefix("javascript:send(").removesuffix(")")
+
+        self.assertEqual(
+            json.loads(f"[{args_json}]"),
+            ["None", None, ["pdf", "docx"]],
+        )
 
 
 class test_dont_assume_pdf(unittest.TestCase):
@@ -33,6 +76,350 @@ class test_dont_assume_pdf(unittest.TestCase):
         new_list = al_doc_bundle.as_editable_list()
         self.assertEqual(len(new_list), 2)
         pass
+
+
+class FakePdf(DAFile):
+    def __init__(self, filename="file.pdf", title="child"):
+        self.instanceName = "fake_pdf"
+        self.has_nonrandom_instance_name = True
+        self.filename = filename
+        self.title = title
+        self.attribute_filenames = []
+        self.mimetype = None
+
+    def set_attributes(self, **kwargs):
+        if "filename" in kwargs:
+            self.attribute_filenames.append(kwargs["filename"])
+
+    def set_mimetype(self, mimetype):
+        self.mimetype = mimetype
+
+
+class FakeSingleDoc:
+    def __init__(self, pdf):
+        self._pdf = pdf
+
+    def is_enabled(self, refresh=True):
+        return True
+
+    def as_pdf(self, **kwargs):
+        return self._pdf
+
+
+class DeserializedLazyTitle(DAObject):
+    """A lazy template after Docassemble restores its intentionally small pickle."""
+
+    def __init__(self, content):
+        object.__setattr__(self, "instanceName", "document.title")
+        object.__setattr__(self, "content", content)
+
+    def __str__(self):
+        return self.content
+
+
+class FakeExhibit:
+    def __init__(self, title):
+        self.title = title
+
+
+class FakeDocWithBrokenExhibits:
+    def __init__(self, broken, broken_titles=None):
+        self._broken = broken
+        if broken_titles is not None:
+            self._broken_titles = broken_titles
+        elif broken:
+            self._broken_titles = ["Broken Exhibit"]
+        else:
+            self._broken_titles = []
+
+    def is_enabled(self, refresh=True):
+        return True
+
+    def has_broken_exhibits(self):
+        return self._broken
+
+    def broken_exhibits(self):
+        return [FakeExhibit(title) for title in self._broken_titles]
+
+
+class TestSingleDocumentBundleFilename(unittest.TestCase):
+    def test_bundle_as_pdf_renames_single_document_to_bundle_filename(self):
+        child_pdf = FakePdf()
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeSingleDoc(child_pdf)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        result = bundle.as_pdf()
+
+        self.assertIs(result, child_pdf)
+        self.assertEqual(result.title, "Bundle title")
+        self.assertEqual(result.filename, "bundle-output.pdf")
+        self.assertEqual(result.attribute_filenames, ["bundle-output.pdf"])
+        self.assertEqual(result.mimetype, "application/pdf")
+
+    def test_bundle_renders_a_deserialized_lazy_title_at_the_file_boundary(self):
+        child_pdf = FakePdf()
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeSingleDoc(child_pdf)],
+            title="Initial title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+        object.__setattr__(
+            bundle, "title", DeserializedLazyTitle("Translated bundle title")
+        )
+
+        result = bundle.as_pdf()
+
+        self.assertEqual(result.title, "Translated bundle title")
+        self.assertIsInstance(result.title, str)
+
+
+class TestSingleDocumentFilename(unittest.TestCase):
+    def test_document_as_pdf_renames_plain_dafile_to_document_filename(self):
+        child_pdf = FakePdf()
+        doc = ALDocument(
+            "doc",
+            title="Document title",
+            filename="document-output.pdf",
+            enabled=True,
+            has_addendum=False,
+        )
+        doc["final"] = child_pdf
+
+        result = doc.as_pdf(refresh=False)
+
+        self.assertIs(result, child_pdf)
+        self.assertEqual(result.title, "Document title")
+        self.assertEqual(result.filename, "document-output.pdf")
+        self.assertEqual(result.attribute_filenames, ["document-output.pdf"])
+        self.assertEqual(result.mimetype, "application/pdf")
+
+    def test_document_renders_a_deserialized_lazy_title_at_the_file_boundary(self):
+        child_pdf = FakePdf()
+        doc = ALDocument(
+            "doc",
+            title="Initial title",
+            filename="document-output.pdf",
+            enabled=True,
+            has_addendum=False,
+        )
+        object.__setattr__(
+            doc, "title", DeserializedLazyTitle("Translated document title")
+        )
+        doc["final"] = child_pdf
+
+        result = doc.as_pdf(refresh=False)
+
+        self.assertEqual(result.title, "Translated document title")
+        self.assertIsInstance(result.title, str)
+
+
+class TestTranslatableDocumentTitles(unittest.TestCase):
+    def test_background_download_title_survives_pickle(self):
+        title = DALazyTemplate("document.title")
+        title.source_content = Mock()
+        title.source_content.text.return_value = "Translated document title"
+        title.userdict = {}
+        title.tempvars = {}
+        document = ALDocument(
+            "document",
+            title="Initial title",
+            filename="document.pdf",
+            enabled=True,
+            has_addendum=False,
+        )
+        object.__setattr__(document, "title", title)
+        document["final"] = FakePdf()
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[document],
+            filename="bundle",
+            enabled=True,
+        )
+
+        response = bundle.get_cacheable_documents(refresh=False)
+        documents, _, _ = pickle.loads(pickle.dumps(response))
+
+        self.assertIsInstance(documents[0]["title"], str)
+        self.assertEqual(documents[0]["title"], "Translated document title")
+        self.assertEqual(documents[0]["pdf"].title, "Translated document title")
+
+    def test_get_titles_returns_rendered_strings(self):
+        document = ALDocument(
+            "document",
+            title=DATemplate(content="Translated document title"),
+            filename="document",
+            enabled=True,
+        )
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[document],
+            filename="bundle",
+            enabled=True,
+        )
+
+        titles = bundle.get_titles()
+
+        self.assertEqual(titles, ["Translated document title"])
+        self.assertIsInstance(titles[0], str)
+
+
+class TestExhibitTableOfContentsPageNumbers(unittest.TestCase):
+    def setUp(self):
+        self.exhibit = ALExhibit("exhibit")
+        self.exhibit.start_page = 2
+
+    def test_includes_current_exhibit_cover_once(self):
+        self.assertEqual(self.exhibit.toc_page_number(), 3)
+
+        self.exhibit.start_page = 4
+        self.assertEqual(self.exhibit.toc_page_number(), 5)
+
+    def test_omits_cover_page_when_disabled(self):
+        self.assertEqual(
+            self.exhibit.toc_page_number(include_cover_page=False),
+            2,
+        )
+
+    def test_adjusts_for_multi_page_table_of_contents(self):
+        self.assertEqual(self.exhibit.toc_page_number(toc_pages=2), 4)
+
+
+class TestBundleSkipsBrokenDocument(unittest.TestCase):
+    def test_partial_failure_still_works(self):
+        good_pdf = FakePdf(filename="good.pdf", title="Good doc")
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeSingleDoc(None), FakeSingleDoc(good_pdf)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        result = bundle.as_pdf()
+
+        self.assertIsNotNone(result)
+
+    def test_all_broken_returns_none(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeSingleDoc(None), FakeSingleDoc(None)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        result = bundle.as_pdf()
+
+        self.assertIsNone(result)
+
+
+class TestExhibitWithNoValidPages(unittest.TestCase):
+    def test_exhibit_with_no_pages_returns_none(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        exhibit.pages = []
+        exhibit.start_page = 1
+
+        result = exhibit.as_pdf()
+
+        self.assertIsNone(result)
+
+
+class TestExhibitIsBroken(unittest.TestCase):
+    def test_valid_pages_and_gathered_is_not_broken(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        good_page = FakePdf(filename="good.pdf", title="page")
+        good_page.ok = True
+        exhibit.pages = DAFileList("exhibit.pages")
+        exhibit.pages.append(good_page)
+        exhibit.pages.gathered = True
+
+        self.assertFalse(exhibit.is_broken())
+
+    def test_no_valid_pages_and_gathered_is_broken(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        exhibit.pages = DAFileList("exhibit.pages")
+        exhibit.pages.gathered = True
+
+        self.assertTrue(exhibit.is_broken())
+
+    def test_no_pages_and_not_gathered_is_not_broken(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        exhibit.pages = DAFileList("exhibit.pages")
+        exhibit.pages.gathered = False
+
+        self.assertFalse(exhibit.is_broken())
+
+
+class TestBundleWarnsOnBrokenDocuments(unittest.TestCase):
+    def test_bundle_with_broken_exhibit_doc_shows_warning(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeDocWithBrokenExhibits(broken=True)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        self.assertTrue(bundle.has_broken_documents())
+        self.assertIn(
+            "did not upload correctly", bundle.broken_documents_warning_html()
+        )
+
+    def test_bundle_all_valid_shows_no_warning(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeDocWithBrokenExhibits(broken=False)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        self.assertFalse(bundle.has_broken_documents())
+        self.assertEqual(bundle.broken_documents_warning_html(), "")
+
+    def test_bundle_detects_broken_document_in_nested_bundle(self):
+        inner_bundle = ALDocumentBundle(
+            "inner_bundle",
+            elements=[FakeDocWithBrokenExhibits(broken=True)],
+            title="Inner",
+            filename="inner.pdf",
+            enabled=True,
+        )
+        outer_bundle = ALDocumentBundle(
+            "outer_bundle",
+            elements=[inner_bundle],
+            title="Outer",
+            filename="outer.pdf",
+            enabled=True,
+        )
+
+        self.assertTrue(outer_bundle.has_broken_documents())
+
+    def test_warning_names_the_broken_exhibit(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[
+                FakeDocWithBrokenExhibits(broken=True, broken_titles=["Pay Stub"])
+            ],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+
+        warning = bundle.broken_documents_warning_html()
+
+        self.assertIn("Pay Stub", warning)
 
 
 class test_aladdendum(unittest.TestCase):

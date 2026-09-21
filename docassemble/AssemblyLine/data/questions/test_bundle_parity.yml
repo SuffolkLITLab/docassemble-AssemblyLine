@@ -58,11 +58,18 @@ attachment:
     Test content
 ---
 mandatory: True
+id: interview order
+code: |
+  the_field
+  download_event
+---
+id: about-to-make-a-pdf
 question: |
   About to make a PDF
 continue button field: the_field
 ---
-mandatory: True
+id: download
+event: download_event
 question: |
   Download
 subquestion: |

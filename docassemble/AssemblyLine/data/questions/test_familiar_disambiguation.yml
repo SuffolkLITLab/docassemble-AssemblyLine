@@ -8,6 +8,7 @@ code: |
   children.gather(number=1)
   show_familiar_child
 ---
+id: well-call-the-child-childrenfamiliaruni
 event: show_familiar_child
 question: |
   We'll call the child "${ children.familiar(unique_names=users) }"

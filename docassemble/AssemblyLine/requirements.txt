@@ -1,9 +1,0 @@
-docassemble.base>=1.3
-docassemble.webapp
-mypy
-pandas-stubs
-sqlalchemy[mypy]
-types-PyYAML
-PyGithub
-types-requests
-types-psycopg2

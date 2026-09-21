@@ -113,7 +113,7 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
     un nouveau projet, Create an interview with the wizard: Créez une interview avec
     le magicien, 'Created new Markdown file called ': 'Création d''un nouveau fichier
     Markdown appelé ', Croatia: Croatie, Cuba: Cuba, Curaçao: Curaçao, Current: Actuel,
-  Cyprus: Chypre, Czechia: Tchéquie, Decorations: Décorations, Default Playground: Terrain
+  Cyprus: Chypre, Czechia: Tchéquie, Day: Jour, Decorations: Décorations, Default Playground: Terrain
     de jeu par défaut, Defined in: Défini dans, Delete: Supprimer, Delete Account: Supprimer
     le compte, Delete All: Supprimer tout, Delete account and shared sessions: Supprimer
     le compte et les sessions partagées, Delete account but keep shared sessions: Supprimer
@@ -317,7 +317,7 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
   'Micronesia, Federated States of': 'Micronésie, États fédérés de', Models: Modèles,
   Modules: Modules, Modules available in Playground: Modules disponibles dans Playground,
   Modules defined: Modules définis, 'Moldova, Republic of': 'Moldavie, République
-    de', Monaco: Monaco, Mongolia: Mongolie, Monitor: Moniteur, Montenegro: Monténégro,
+    de', Monaco: Monaco, Mongolia: Mongolie, Monitor: Moniteur, Montenegro: Monténégro, Month: Mois,
   Montserrat: Montserrat, Morocco: Maroc, Move down: Descendre, Mozambique: Mozambique,
   Multiselect box: boîte à sélection multiple, Must be a two-letter code: Doit être
     un code à deux lettres, Must be a valid e-mail address: Doit être une adresse
@@ -456,7 +456,7 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
     un compte développeur, Resend Confirmation Email: Renvoyer l'e-mail de confirmation,
   Resend email confirmation email: Renvoyer l'e-mail de confirmation, Reset Password: Réinitialiser
     le mot de passe, Reset e-mail confirmation: Réinitialiser la confirmation par
-    e-mail, Reset password: Réinitialiser le mot de passe, Restart: Redémarrage, Restarting: Redémarrage,
+    e-mail, Reset password: Réinitialiser le mot de passe, Restart: Recommencer, Restarting: Redémarrage,
   Resume: Reanudar, Resume an interview: Reprendre un entretien, Retry: Réessayer, Return: Retour,
   Retype New Password: Retapez le nouveau mot de passe, Retype Password: Retaper le
     mot de passe, Role: Rôle, Romania: Roumanie, Room: Chambre, Run: Courir, Running in other tab.: Exécution
@@ -471,7 +471,14 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
     vos modifications apportées aux informations du colis, Saved: Enregistré, Saved at: Enregistré
     à, Scan: Balayage, Scan the barcode with your phone's authenticator app and enter the verification code.: Scannez
     le code-barres avec l'application d'authentification de votre téléphone et saisissez
-    le code de vérification., Score: Score, Search: Recherche, Second Subdivision: Deuxième
+    le code de vérification., Score: Score,
+  "Change country, selected ${countryName} (${dialCode})": "Changer de pays, ${countryName} sélectionné (${dialCode})",
+  "Select country": "Sélectionner un pays", "List of countries": "Liste des pays", "Clear search": "Effacer la recherche",
+  "No results found": "Aucun résultat trouvé", "1 result found": "1 résultat trouvé",
+  "${count} results found": "${count} résultats trouvés",
+  'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'Ce numéro de téléphone ne semble pas correct. Notez qu’un numéro non américain doit être précédé d’un "+".',
+  "You have entered %d character.": "Vous avez saisi %d caractère.", "You have entered %d characters.": "Vous avez saisi %d caractères.",
+  Search: Recherche, Second Subdivision: Deuxième
     subdivision, Second factor authentication: Authentification à deux facteurs, Second subdivision: Deuxième
     subdivision, Section: Section, Sections: Sections, Security Method: Méthode de
     sécurité, Select a package: Sélectionnez un forfait, Select a value between: Sélectionnez
@@ -712,7 +719,7 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
     fichier souhaitez-vous importer ?', 'When you type inside Jinja2 brackets, auto-complete options will appear here.': 'Lorsque
     vous saisissez du texte entre les crochets Jinja2, des options de saisie automatique
     s''affichent ici.', Wizard: Magicien, 'Would you like to reconfigure two-factor authentication?': 'Souhaitez-vous
-    reconfigurer l''authentification à deux facteurs ?', Yemen: Yémen, Yes: Oui, 'You are available for the following roles: ': 'Vous
+    reconfigurer l''authentification à deux facteurs ?', Year: Année, Yemen: Yémen, Yes: Oui, 'You are available for the following roles: ': 'Vous
     êtes disponible pour les rôles suivants : ', You are not allowed to access this interview.: Vous
     n'êtes pas autorisé à accéder à cet entretien., You are not authorized to access: Vous
     n'êtes pas autorisé à accéder, You are now set up with two factor authentication.: L'authentification
@@ -875,4 +882,4 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
   themself: eux-mêmes, themselves: eux-mêmes, they: ils, to proceed.: pour continuer.,
   'true': vrai, unavailable: indisponible, us: nous, v.: v., was saved at: a été sauvé
     à, we: nous, x: x, y: et, year: année, yes: Oui, you: toi, yourself: toi-même,
-  yourselves: vous-mêmes, Åland Islands: Îles Åland}
+  yourselves: vous-mêmes, Pause: Pause, Stop: Arrêter, Åland Islands: Îles Åland}

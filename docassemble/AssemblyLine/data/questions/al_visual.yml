@@ -1,9 +1,18 @@
 ---
+include:
+  - docassemble.ALToolbox:translation_strings.yml
+---
+imports:
+  - json
+  - html
+---
 objects:
   - al_logo: DAStaticFile.using(filename="ma_logo.png", alt_text="")
 ---
 code: |
-  al_logo.alt_text = "" # Per accessibility recommendations, best to leave alt text off a logo
+  al_logo.alt_text = (
+    ""  # Per accessibility recommendations, best to leave alt text off a logo
+  )
 ---
 default screen parts:
   title: |
@@ -75,9 +84,7 @@ features:
 ---
 initial: True
 code: |
-  menu_items = [
-    item for item in al_menu_items if not item.get("hidden", False)
-  ]
+  menu_items = [item for item in al_menu_items if not item.get("hidden", False)]
 ---
 code: |
   al_menu_items_custom_items = []
@@ -89,8 +96,8 @@ code: |
 reconsider: True
 variable name: al_menu_items_default_items
 data from code:
-  - url: 
-      url_ask(['al_start_over_confirmation','al_start_over'])
+  - url: |
+      html.escape("javascript:(function(){if(window.confirm(" + json.dumps(str(al_start_over_confirmation_question) + "\n\n" + str(al_start_over_confirmation_subquestion)) + ")){window.location.assign(" + json.dumps(url_of('new_session')) + ");}})();void(0)", quote=True)
     label: str(al_start_over_string)
     hidden: _internal.get('steps') < 2
   - url: |
@@ -110,13 +117,37 @@ data from code:
     label: str(al_load_answer_set_string)
     hidden: not get_config('assembly line',{}).get('enable answer sets')
   - url: |
-      url_action('al_error_action_download_screen')
-    label: str(al_download_answer_set_string)
-    hidden: (not get_config('assembly line',{}).get('enable answer set imports')) or (_internal.get('steps') < 2)
+      url_ask(["al_sessions_json_file", {"recompute": ["al_sessions_import_json"]}, "al_sessions_load_status"])
+    label: str(al_import_answer_set_string)
+    hidden: |
+      not (
+        (
+          get_config('assembly line',{}).get('enable answer sets')
+          and get_config('assembly line',{}).get('enable answer set imports')
+        )
+        or (user_logged_in() and user_has_privilege('admin'))
+      )
 ---
 template: al_start_over_string
 content: >-
   Start over
+---
+template: al_start_over_confirmation_question
+content: >-
+  Do you want to start over?
+---
+template: al_start_over_confirmation_subquestion
+content: |
+  % if not user_logged_in():
+  You may lose access to your current answers. Make sure you have downloaded
+  any forms that you need.
+  % else:
+  You can still access your current answers by visiting the "My interviews"
+  page.
+  % endif
+
+  Confirm to start a new copy of the form you are working on, or cancel if
+  you want to keep working.
 ---
 template: al_exit_logout_string
 content: >-
@@ -134,9 +165,9 @@ template: al_load_answer_set_string
 content: >-
   Load answer set
 ---
-template: al_download_answer_set_string
+template: al_import_answer_set_string
 content: >-
-  Download answer set
+  Import answer set
 ---
 event: al_exit_logout
 code: |
@@ -144,7 +175,7 @@ code: |
 ---
 event: al_start_over
 code: |
-  command('new_session')
+  command("new_session")
 ---
 code: |
   enable_al_nav_sections = False
@@ -161,7 +192,7 @@ code: |
   send_icon = "envelope"
 ---
 code: |
-  # Override this in your package where possible, so that 
+  # Override this in your package where possible, so that
   # features that depend on the package name will work
   # from the playground
   package_name = str(current_context().package)
@@ -170,8 +201,8 @@ code: |
   # github_repo_name is used to direct issue feedback to the right repository
   # Normally you will customize this in your package
   if package_name and not "playground" in package_name:
-    github_repo_name = package_name.replace('.','-')
-  else:    
+    github_repo_name = package_name.replace(".", "-")
+  else:
     github_repo_name = "docassemble-AssemblyLine"
 ---
 code: |
@@ -187,8 +218,11 @@ code: |
   # then `github_user` should be `suffolklitlab`
 
   # defaults to the "default repository owner" value in the global configuration, under the "github issues" section
-  
-  github_user = get_config("github issues",{}).get("default repository owner","").strip() or "suffolklitlab"
+
+  github_user = (
+    get_config("github issues", {}).get("default repository owner", "").strip()
+    or "suffolklitlab"
+  )
 ---
 code: |
   # github_about_user is used to lookup the last commit date on the default about page
@@ -258,7 +292,7 @@ fields:
     show if:
       variable: al_how_share_link
       is: email_or_sms
-  - Message: tell_a_friend_message
+  - "Message <span class='visually-hidden'>to friend</span>": tell_a_friend_message
     datatype: area
     default: |
       Hi, I wanted to let you know about a free website that I learned about:
@@ -266,7 +300,7 @@ fields:
       help you, too. Check it out at the link in this message:       
     js show if: |
       val("al_how_share_link") === "email_or_sms" && val("al_sharing_type") === "tell_friend"
-  - Message: share_interview_answers_message
+  - "Message <span class='visually-hidden'>with answers</span>": share_interview_answers_message
     datatype: area
     default: |
       Hi, I wanted to share my progress on a form on "${ AL_ORGANIZATION_TITLE }".
@@ -288,10 +322,12 @@ back button label: |
 ---
 code: |
   sharing_choices = [
-      {"tell_friend": word("Tell a friend about this website")},
+    {"tell_friend": word("Tell a friend about this website")},
   ]
   if showifdef("multi_user", False):
-      sharing_choices.append({"share_answers": word("Share my answers and progress with someone")})
+    sharing_choices.append(
+      {"share_answers": word("Share my answers and progress with someone")}
+    )
 ---
 id: Results of sharing
 continue button field: al_share_results
@@ -316,17 +352,29 @@ need:
   - al_share_answers_message_template
   - al_tell_a_friend_message_template
 code: |
-  if al_how_share_link == 'email_or_sms':
+  if al_how_share_link == "email_or_sms":
     if phone_number_is_valid(share_interview_contact_method):
       if al_sharing_type == "tell_friend":
-        success = send_sms(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
+        success = send_sms(
+          to=share_interview_contact_method,
+          template=al_tell_a_friend_message_template,
+        )
       else:
-        success = send_sms(to=share_interview_contact_method, template=al_share_answers_message_template)
+        success = send_sms(
+          to=share_interview_contact_method,
+          template=al_share_answers_message_template,
+        )
     else:
       if al_sharing_type == "tell_friend":
-        success = send_email(to=share_interview_contact_method, template=al_tell_a_friend_message_template)
+        success = send_email(
+          to=share_interview_contact_method,
+          template=al_tell_a_friend_message_template,
+        )
       else:
-        success = send_email(to=share_interview_contact_method, template=al_share_answers_message_template)
+        success = send_email(
+          to=share_interview_contact_method,
+          template=al_share_answers_message_template,
+        )
   al_did_share_form = True
 ---
 ##########
@@ -370,7 +418,7 @@ code: |
 code: |
   res = github_modified_date(github_about_user, github_about_repo_name)
   if res:
-    package_updated_on = res.format('yyyy-MM-dd')
+    package_updated_on = res.format("yyyy-MM-dd")
   else:
     package_updated_on = None
 ---
@@ -396,17 +444,16 @@ content: |
   "${all_variables(special='metadata').get('title','').rstrip()}" version 
   `${ package_version_number }`; AssemblyLine version `${ al_version }`.
 
-  % if interview_metadata.get("main_interview_key"):
+  <% MAIN_METADATA = all_variables(special='metadata') %>
+  % if "original_form" not in MAIN_METADATA and interview_metadata.get("main_interview_key"):
     <%
       MAIN_METADATA = interview_metadata[interview_metadata["main_interview_key"]]
     %>
-  % elif len(interview_metadata) > 1:    
+  % elif "original_form" not in MAIN_METADATA and len(interview_metadata) > 1:
     <% 
       del(interview_metadata["main_interview_key"]) # DADict creates the key on lookup above
       MAIN_METADATA = next(iter(interview_metadata.values())) 
     %>
-  % else:
-    <% MAIN_METADATA = all_variables(special='metadata') %>
   % endif
   <% ORIGINAL_FORMS = MAIN_METADATA.get("original_form", []) if isinstance(MAIN_METADATA.get("original_form"), list) else ([MAIN_METADATA.get("original_form", "")] if MAIN_METADATA.get("original_form") else []) %>
 
@@ -435,18 +482,9 @@ content: |
 ---
 id: start a new session
 question: |
-  Do you want to start over?
+  ${ al_start_over_confirmation_question }
 subquestion: |
-  % if not user_logged_in():
-  You may lose access to your current answers. Make sure you have downloaded
-  any forms that you need.
-  % else:
-  You can still access your current answers by visiting the "My interviews"
-  page.
-  % endif
-  
-  Click "Start over" to start a new copy of the form you are working on,
-  or "Back" if you want to keep working.
+  ${ al_start_over_confirmation_subquestion }
 back button label: |
   Back
 continue button label: |
@@ -485,17 +523,16 @@ decoration: bug
 question: |
   Something went wrong
 subquestion: |
-  % if interview_metadata.get("main_interview_key"):
+  <% MAIN_METADATA = all_variables(special='metadata') %>
+  % if "original_form" not in MAIN_METADATA and interview_metadata.get("main_interview_key"):
     <%
       MAIN_METADATA = interview_metadata[interview_metadata["main_interview_key"]]
     %>
-  % elif len(interview_metadata) > 1:    
+  % elif "original_form" not in MAIN_METADATA and len(interview_metadata) > 1:
     <% 
       del(interview_metadata["main_interview_key"]) # DADict creates the key on lookup above
       MAIN_METADATA = next(iter(interview_metadata.values())) 
     %>
-  % else:
-    <% MAIN_METADATA = all_variables(special='metadata') %>
   % endif
   <% ORIGINAL_FORMS = MAIN_METADATA.get("original_form", []) if isinstance(MAIN_METADATA.get("original_form"), list) else ([MAIN_METADATA.get("original_form", "")] if MAIN_METADATA.get("original_form") else []) %>
 
@@ -536,17 +573,25 @@ buttons:
   - Start over: new_session
 ---
 code: |
-  al_show_email_to_user_on_errors = get_config("assembly line", {}).get("show email to user on errors")
+  al_show_email_to_user_on_errors = get_config("assembly line", {}).get(
+    "show email to user on errors"
+  )
 ---
 code: |
-  al_enable_incomplete_downloads = get_config("assembly line", {}).get("enable incomplete downloads")
+  al_enable_incomplete_downloads = get_config("assembly line", {}).get(
+    "enable incomplete downloads"
+  )
 ---
 code: |
-  al_enable_error_action_feedback_link = get_config("assembly line", {}).get("enable error action feedback link")
+  al_enable_error_action_feedback_link = get_config("assembly line", {}).get(
+    "enable error action feedback link"
+  )
 ---
 code: |
   # Provide a list of strings
-  al_custom_error_options = get_config("assembly line", {}).get("custom error actions",[])
+  al_custom_error_options = get_config("assembly line", {}).get(
+    "custom error actions", []
+  )
 ---
 event: al_error_action_download_screen
 id: emergency download screen

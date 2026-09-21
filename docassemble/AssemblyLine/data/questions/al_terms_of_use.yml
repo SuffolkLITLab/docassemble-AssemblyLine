@@ -1,9 +1,7 @@
 ---
 template: al_terms_of_use
-subject: ""
+subject: Terms of Use and Privacy Policy
 content: |
-  <h2 class="h5">Terms of Use and Privacy Policy</h2>
-
   This website is free to use. 
   % if get_config("default title") and get_config("default title") != "docassemble":
   ${ get_config("default title") }

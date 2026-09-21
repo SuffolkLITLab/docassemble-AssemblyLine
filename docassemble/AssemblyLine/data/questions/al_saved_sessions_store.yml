@@ -16,6 +16,7 @@ modules:
 mandatory: True
 code: |
   multi_user = True
+  show_saved_answer_set
 ---
 features:
   css:
@@ -23,7 +24,8 @@ features:
   question help button: True
   navigation back button: False
 ---
-mandatory: True
+id: saved-answer-set-if-allvariablesspecial
+event: show_saved_answer_set
 question: |
   Saved answer set
   % if all_variables(special='titles').get('sub'):
@@ -60,7 +62,11 @@ continue button label: |
   :save: Save changes
 ---
 code: |
-  rename_interview_answers(current_context().filename, current_context().session, new_name = al_sessions_snapshot_new_label)
+  rename_interview_answers(
+    current_context().filename,
+    current_context().session,
+    new_name=al_sessions_snapshot_new_label,
+  )
   log("New name saved", "success")
   al_sessions_rename_session = True
 ---

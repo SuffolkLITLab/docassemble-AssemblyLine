@@ -31,9 +31,8 @@ from docassemble.base.util import (
     validation_error,
     word,
 )
-from docassemble.webapp.db_object import init_sqlalchemy
 from sqlalchemy.sql import text
-from docassemble.base.functions import server, safe_json, serializable_dict
+from docassemble.base.functions import safe_json, serializable_dict
 from .al_document import (
     ALDocument,
     ALDocumentBundle,
@@ -46,6 +45,33 @@ import os
 import re
 import hashlib
 import struct
+
+try:
+    from docassemble.base.hooks import write_answer_json as _write_answer_json
+except ModuleNotFoundError as err:
+    if err.name != "docassemble.base.hooks":
+        raise
+    # docassemble < 1.10 exposes webapp hooks through the legacy server object.
+    from docassemble.base.functions import server as _legacy_server
+
+    def _write_answer_json(*args, **kwargs):
+        return _legacy_server.write_answer_json(*args, **kwargs)
+
+
+try:
+    from docassemble.webapp.db import (
+        get_session as _get_session,
+        session_scope as _session_scope,
+    )
+except ModuleNotFoundError as err:
+    if err.name != "docassemble.webapp.db":
+        raise
+    # docassemble < 1.10 uses a SQLAlchemy engine instead of session context managers.
+    from docassemble.webapp.db_object import init_sqlalchemy
+
+    _legacy_db = init_sqlalchemy()
+    _get_session = _legacy_db.connect
+    _session_scope = _legacy_db.begin
 
 try:
     import zoneinfo  # type: ignore
@@ -79,8 +105,6 @@ __all__ = [
     "update_current_session_metadata",
     "update_session_metadata",
 ]
-
-db = init_sqlalchemy()
 
 al_sessions_variables_to_remove: Set = {
     # Internal fields
@@ -216,7 +240,7 @@ def _package_name(package_name: Optional[str] = None):
     docassemble.ALWeaver.advertise_capabilities
 
     Args:
-        package_name (str, optional): The package name to process. If `None`, will use the existing package name `__name__` instead
+        package_name (str, optional): The package name to process. If `None`, will use the existing package name `__name__` instead.
 
     Returns:
         str: The package name without the current module name.
@@ -237,7 +261,7 @@ def is_file_like(obj: Any) -> bool:
     Return True if the object is a file-like object.
 
     Args:
-        obj (Any): The object to test
+        obj (Any): The object to test.
 
     Returns:
         bool: True if the object is a file-like object.
@@ -273,12 +297,12 @@ def set_interview_metadata(
     - variable_count
 
     Args:
-        filename (str): The filename of the interview to add metadata for
-        session_id (str): The session ID of the interview to add metadata for
-        data (Dict): The metadata to add
+        filename (str): The filename of the interview to add metadata for.
+        session_id (str): The session ID of the interview to add metadata for.
+        data (Dict): The metadata to add.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
     """
-    server.write_answer_json(
+    _write_answer_json(
         session_id, filename, safe_json(data), tags=metadata_key_name, persistent=True
     )
 
@@ -290,12 +314,12 @@ def get_interview_metadata(
     We implement this with the docassemble jsonstorage table and a dedicated `tag` which defaults to `metadata`.
 
     Args:
-        filename (str): The filename of the interview to retrieve metadata for
-        session_id (str): The session ID of the interview to retrieve metadata for
+        filename (str): The filename of the interview to retrieve metadata for.
+        session_id (str): The session ID of the interview to retrieve metadata for.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
 
     Returns:
-        Dict[str, Any]: The metadata associated with the interview
+        Dict[str, Any]: The metadata associated with the interview.
     """
     sql = text("""
         SELECT data
@@ -304,14 +328,14 @@ def get_interview_metadata(
            AND tags        = :tags
            AND key         = :session_id
         """)
-    with db.connect() as con:
-        row = con.execute(
+    with _get_session() as session:
+        row = session.execute(
             sql,
             {"filename": filename, "tags": metadata_key_name, "session_id": session_id},
         ).fetchone()
 
-    if row:
-        return row[0]  # row is a RowMapping/tuple; data is column 0
+        if row:
+            return row[0]  # row is a RowMapping/tuple; data is column 0
     return {}
 
 
@@ -345,7 +369,7 @@ def get_saved_interview_list(
         offset (int, optional): The offset to start returning results from. Defaults to 0.
         filename_to_exclude (str, optional): The filename to exclude from the results. Defaults to "".
         exclude_current_filename (bool, optional): Whether to exclude the current filename from the results. Defaults to True.
-        exclude_filenames (Optional[List[str]], optional): List of filenames to exclude. Defaults to None. If the `filename` does not contain a `:` it will be treated as a prefix, allowing you to filter out whole packages (e.g., any path starting with docassemble.ALDashboard or docassemble.playground)
+        exclude_filenames (Optional[List[str]], optional): List of filenames to exclude. Defaults to None. If the `filename` does not contain a `:` it will be treated as a prefix, allowing you to filter out whole packages (e.g., any path starting with docassemble.ALDashboard or docassemble.playground).
         exclude_newly_started_sessions (bool, optional): Whether to exclude sessions that are still on "step 1". Defaults to False.
 
     Returns:
@@ -373,6 +397,12 @@ def get_saved_interview_list(
     filenames_to_exclude.extend([current_filename, filename_to_exclude])
 
     query_draft = """
+        WITH filtered_userdict AS (
+            SELECT userdict.indexno as indexno, userdict.key as key, userdict.modtime as modtime, userdict.user_id as user_id, userdict.filename as filename
+            FROM userdict JOIN userdictkeys ON userdict.key = userdictkeys.key
+            -- userdictkeys.user_id has an index, that's why we need the join
+            WHERE (userdictkeys.user_id = :user_id or :user_id is null)
+        )
         SELECT * FROM (
             SELECT DISTINCT ON (userdict.key) userdict.indexno
                 ,userdict.filename as filename
@@ -388,13 +418,13 @@ def get_saved_interview_list(
                 ,jsonstorage.data->'original_interview_filename' as original_interview_filename
                 ,jsonstorage.data->'answer_count' as answer_count
                 ,jsonstorage.data as data
-            FROM userdict 
+            FROM filtered_userdict as userdict
             NATURAL JOIN 
             (
             SELECT  key
                     ,MAX(modtime) AS modtime
                     ,COUNT(key)   AS num_keys
-            FROM userdict
+            FROM filtered_userdict as userdict
             GROUP BY  key
             ) mostrecent
             LEFT JOIN userdictkeys
@@ -447,8 +477,9 @@ def get_saved_interview_list(
             log("Asked to get interview list for user that is not logged in")
             return []
 
-    with db.connect() as con:
-        rs = con.execute(
+    sessions = []
+    with _get_session() as session:
+        rs = session.execute(
             get_sessions_query,
             {
                 "metadata": metadata_key_name,
@@ -463,9 +494,8 @@ def get_saved_interview_list(
                 ),  # We need to pass a value to the query, but it's treated as a flag
             },
         )
-    sessions = []
-    for session in rs:
-        sessions.append(dict(session._mapping))
+        for row in rs:
+            sessions.append(dict(row._mapping))
 
     return sessions
 
@@ -490,7 +520,7 @@ def find_matching_sessions(
     The keyword search is case-insensitive and will match any part of the metadata column values.
 
     Args:
-        keyword (str): The keyword to search for in the metadata
+        keyword (str): The keyword to search for in the metadata.
         metadata_column_names (List[str], optional): The names of the metadata columns to search. If not provided, defaults to ["title", "auto_title", "description"].
         filenames (List[str], optional): The filename or filenames of the interviews to retrieve sessions for.
         user_id (Union[int, str, None], optional): The user ID to retrieve sessions for. Defaults to current user. Specify "all" if you want and have the necessary privileges to search all sessions.
@@ -504,12 +534,12 @@ def find_matching_sessions(
         global_search_allowed_roles (Union[Set[str],List[str]], optional): A list or set of roles that are allowed to search all sessions. Defaults to {'admin','developer', 'advocate'}. 'admin' and 'developer' are always allowed to search all sessions.
         metadata_filters (Optional[Dict[str, Tuple[Any, str, Optional[str]]]], optional): A dictionary of metadata column names and their corresponding filter tuples.
             Each tuple should contain (value, operator, cast_type).
-            - value: The value to compare against
-            - operator: One of '=', '!=', '<', '<=', '>', '>=', 'LIKE', 'ILIKE'
-            - cast_type: Optional. One of 'int', 'float', or None for string (default)
+            - value: The value to compare against.
+            - operator: One of '=', '!=', '<', '<=', '>', '>=', 'LIKE', 'ILIKE'.
+            - cast_type: Optional. One of 'int', 'float', or None for string (default).
 
     Returns:
-        List[Dict[str, Any]]: A list of saved sessions for the specified filename that match the search keyword and metadata filters
+        List[Dict[str, Any]]: A list of saved sessions for the specified filename that match the search keyword and metadata filters.
 
     Example:
     ```python
@@ -585,6 +615,12 @@ def find_matching_sessions(
         filename_condition = "TRUE"  # If no filenames are provided, this condition does not filter anything.
 
     get_sessions_query = text(f"""
+        WITH filtered_userdict AS (
+            SELECT userdict.indexno as indexno, userdict.key as key, userdict.modtime as modtime, userdict.user_id as user_id, userdict.filename as filename
+            FROM userdict JOIN userdictkeys ON userdict.key = userdictkeys.key
+            -- userdictkeys.user_id has an index, that's why we need the join
+            WHERE (userdictkeys.user_id = :user_id or :user_id is null)
+        )
         SELECT * FROM (
             SELECT DISTINCT ON (userdict.key) userdict.indexno,
                     userdict.filename as filename,
@@ -594,10 +630,10 @@ def find_matching_sessions(
                     userdict.key as key,
                     {', '.join(f"jsonstorage.data->>{repr(column)} as {column}" for column in metadata_column_names)},
                     jsonstorage.data as data
-            FROM userdict 
+            FROM filtered_userdict as userdict
             NATURAL JOIN (
                 SELECT key, MAX(modtime) AS modtime, COUNT(key) AS num_keys
-                FROM userdict
+                FROM filtered_userdict as userdict
                 GROUP BY key
             ) mostrecent
             LEFT JOIN userdictkeys ON userdictkeys.key = userdict.key
@@ -665,12 +701,12 @@ def find_matching_sessions(
         for column, val_tuple in metadata_filters.items():
             parameters[f"{column}_filter"] = val_tuple[0]
 
-    with db.connect() as con:
-        rs = con.execute(get_sessions_query, parameters)
-
     sessions = []
-    for session in rs:
-        sessions.append(dict(session._mapping))
+    with _get_session() as session:
+        rs = session.execute(get_sessions_query, parameters)
+
+        for row in rs:
+            sessions.append(dict(row._mapping))
 
     return sessions
 
@@ -720,8 +756,8 @@ def delete_interview_sessions(
 
     log(f"Deleting sessions with {user_id} {filename_to_exclude} {current_filename}")
 
-    with db.connect() as connection:
-        connection.execute(
+    with _session_scope() as session:
+        session.execute(
             delete_sessions_query,
             {
                 "user_id": user_id,
@@ -867,10 +903,10 @@ def nice_interview_title(
     4. Finally, return "Untitled interview" or translated phrase from system-wide words.yml
 
     Args:
-        answer (Dict[str, str]): The answer dictionary to get the interview title from
+        answer (Dict[str, str]): The answer dictionary to get the interview title from.
 
     Returns:
-        str: The human readable interview title
+        str: The human readable interview title.
     """
     if answer.get("filename"):
         for interview in system_interviews:
@@ -892,10 +928,10 @@ def pascal_to_zwspace(text: str) -> str:
     with word breaks on small viewports.
 
     Args:
-        text (str): The text to insert zero-width spaces into
+        text (str): The text to insert zero-width spaces into.
 
     Returns:
-        str: The text with zero-width spaces inserted
+        str: The text with zero-width spaces inserted.
     """
     re_outer = re.compile(r"([^A-Z ])([A-Z])")
     re_inner = re.compile(r"(?<!^)([A-Z])([^A-Z])")
@@ -909,11 +945,11 @@ def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True) -> s
     If exclude_identical, return empty string when title is the same as the subtitle.
 
     Args:
-        answer (Dict[str, str]): The answer dictionary to get the interview subtitle from
+        answer (Dict[str, str]): The answer dictionary to get the interview subtitle from.
         exclude_identical (bool, optional): If True, excludes the subtitle if it is identical to the title. Defaults to True.
 
     Returns:
-        str: The human readable interview subtitle
+        str: The human readable interview subtitle.
     """
     if answer.get("title"):
         return pascal_to_zwspace(answer["title"])
@@ -932,10 +968,10 @@ def radial_progress(answer: Dict[str, Union[str, int]]) -> str:
     Return HTML for a radial progress bar, or the number of steps if progress isn't available in the metadata.
 
     Args:
-        answer (Dict[str, Union[str, int]]): The answer dictionary to get the interview progress from
+        answer (Dict[str, Union[str, int]]): The answer dictionary to get the interview progress from.
 
     Returns:
-        str: the HTML as a string
+        str: the HTML as a string.
     """
     if not answer.get("progress"):
         return f"Page {answer.get('steps') or answer.get('num_keys') or 1}"
@@ -961,10 +997,10 @@ def local_date(utcstring: Optional[str]) -> DADateTime:
     Return a localized date from a UTC string.
 
     Args:
-        utcstring (Optional[str]): The UTC string to convert to a localized date
+        utcstring (Optional[str]): The UTC string to convert to a localized date.
 
     Returns:
-        DADateTime: The localized date
+        DADateTime: The localized date.
     """
     if not utcstring:
         return DADateTime()
@@ -1009,7 +1045,7 @@ def session_list_html(
         metadata_key_name (str, optional): Name of the metadata key. Defaults to "metadata".
         filename_to_exclude (str, optional): Name of the file to exclude. Defaults to `al_session_store_default_filename`.
         exclude_current_filename (bool, optional): If True, excludes the current filename. Defaults to True.
-        exclude_filenames (Optional[List[str]], optional): List of filenames to exclude. Defaults to None. If the `filename` does not contain a `:` it will be treated as a prefix, allowing you to filter out whole packages (e.g., any path starting with docassemble.ALDashboard or docassemble.playground)
+        exclude_filenames (Optional[List[str]], optional): List of filenames to exclude. Defaults to None. If the `filename` does not contain a `:` it will be treated as a prefix, allowing you to filter out whole packages (e.g., any path starting with docassemble.ALDashboard or docassemble.playground).
         exclude_newly_started_sessions (bool, optional): If True, excludes newly started sessions. Defaults to False.
         name_label (str, optional): Label for the session name/title. Defaults to translated word "Title".
         date_label (str, optional): Label for the date column. Defaults to translated word "Date modified".
@@ -1025,7 +1061,7 @@ def session_list_html(
         show_copy_button (bool, optional): If True, show a copy button for answer sets. Defaults to True.
         limit (int, optional): Limit for the number of sessions returned. Defaults to 50.
         offset (int, optional): Offset for the session list. Defaults to 0.
-        answers (Optional[List[Dict[str, Any]], optional): A list of answers to format and display. Defaults to showing all sessions for the current user.
+        answers (Optional[List[Dict[str, Any]]], optional): A list of answers to format and display. Defaults to showing all sessions for the current user.
 
 
     Returns:
@@ -1160,9 +1196,9 @@ def rename_interview_answers(
     metadata that may be present.
 
     Args:
-        filename (str): The filename of the interview to rename
-        session_id (str): The session ID of the interview to rename
-        new_name (str): The new name to set for the interview
+        filename (str): The filename of the interview to rename.
+        session_id (str): The session ID of the interview to rename.
+        new_name (str): The new name to set for the interview.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
 
     If exception is raised in set_session_variables, this will silently fail but log the error.
@@ -1198,7 +1234,7 @@ def set_current_session_metadata(
     Set metadata for the current session, such as the title, in an unencrypted database entry.
 
     Args:
-        data (Dict[str, Any]): The metadata to set
+        data (Dict[str, Any]): The metadata to set.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
     """
     return set_interview_metadata(
@@ -1217,7 +1253,7 @@ def rename_current_session(
     metadata that might be present.
 
     Args:
-        new_name (str): The new name to set for the interview
+        new_name (str): The new name to set for the interview.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
     """
     return rename_interview_answers(
@@ -1349,6 +1385,7 @@ def get_filtered_session_variables(
     all_vars = {k: v for k, v in all_vars.items() if k not in variables_to_filter}
 
     items_to_check = list(all_vars.items())
+    visited = set()
 
     while items_to_check:
         key, value = items_to_check.pop()
@@ -1357,6 +1394,10 @@ def get_filtered_session_variables(
         if is_file_like(value):
             del all_vars[key]
             continue
+
+        if id(value) in visited:
+            continue
+        visited.add(id(value))
 
         if isinstance(value, DAObject):
             # docassemble overrides both __dir__ and __getattr__ for reasons unknown
@@ -1523,7 +1564,7 @@ def export_interview_variables(
         additional_variables_to_filter (Union[Set, List[str], None], optional): List or set of additional variables to exclude. Defaults to None.
 
     Returns:
-        DAFile: DAFile with a JSON representation of the answers
+        DAFile: DAFile with a JSON representation of the answers.
     """
     if not output:
         output = DAFile()
@@ -1638,11 +1679,11 @@ def get_filenames_having_sessions(
     sql_all = text("SELECT DISTINCT filename FROM userdict")
     sql_user = text("SELECT DISTINCT filename FROM userdict WHERE user_id = :user_id")
 
-    with db.connect() as conn:
+    with _get_session() as session:
         if user_id is None:
-            rows = conn.execute(sql_all).mappings().all()
+            rows = session.execute(sql_all).mappings().all()
         else:
-            rows = conn.execute(sql_user, {"user_id": user_id}).mappings().all()
+            rows = session.execute(sql_user, {"user_id": user_id}).mappings().all()
 
     return [row["filename"] for row in rows]
 
@@ -1714,7 +1755,7 @@ def update_session_metadata(
 
     # 2) Derive two signed 32‑bit ints from MD5(session_id|filename|tags)
     key_string = f"{session_id}|{filename}|{metadata_key_name}"
-    digest = hashlib.md5(key_string.encode("utf-8")).digest()
+    digest = hashlib.md5(key_string.encode("utf-8"), usedforsecurity=False).digest()
     high_u32, low_u32 = struct.unpack(">II", digest[:8])
 
     def to_signed_32(x: int) -> int:
@@ -1723,48 +1764,47 @@ def update_session_metadata(
     h1 = to_signed_32(high_u32)
     h2 = to_signed_32(low_u32)
 
-    with db.connect() as con:
-        # Wrap in a transaction so the advisory lock holds until COMMIT
-        with con.begin():
-            # 3) Acquire the advisory lock on (h1,h2)
-            con.execute(
-                text("SELECT pg_advisory_xact_lock(:h1, :h2)"),
-                {"h1": h1, "h2": h2},
-            )
+    # The advisory lock and upsert must share one transaction.
+    with _session_scope() as session:
+        # 3) Acquire the advisory lock on (h1,h2)
+        session.execute(
+            text("SELECT pg_advisory_xact_lock(:h1, :h2)"),
+            {"h1": h1, "h2": h2},
+        )
 
-            # 4) Try UPDATE first, using CAST() instead of ::jsonb
-            update_sql = text("""
-                UPDATE jsonstorage
-                   SET data = jsonstorage.data || CAST(:data AS jsonb)
-                 WHERE key = :session_id
-                   AND filename = :filename
-                   AND tags = :tags
+        # 4) Try UPDATE first, using CAST() instead of ::jsonb
+        update_sql = text("""
+            UPDATE jsonstorage
+               SET data = jsonstorage.data || CAST(:data AS jsonb)
+             WHERE key = :session_id
+               AND filename = :filename
+               AND tags = :tags
+        """)
+        result = session.execute(
+            update_sql,
+            {
+                "data": json_data_string,
+                "session_id": session_id,
+                "filename": filename,
+                "tags": metadata_key_name,
+            },
+        )
+
+        # 5) If nothing was updated, INSERT
+        if (result.rowcount or 0) == 0:
+            insert_sql = text("""
+                INSERT INTO jsonstorage (key, filename, tags, data)
+                VALUES (:session_id, :filename, :tags, CAST(:data AS jsonb))
             """)
-            result = con.execute(
-                update_sql,
+            session.execute(
+                insert_sql,
                 {
-                    "data": json_data_string,
                     "session_id": session_id,
                     "filename": filename,
                     "tags": metadata_key_name,
+                    "data": json_data_string,
                 },
             )
-
-            # 5) If nothing was updated, INSERT
-            if (result.rowcount or 0) == 0:
-                insert_sql = text("""
-                    INSERT INTO jsonstorage (key, filename, tags, data)
-                    VALUES (:session_id, :filename, :tags, CAST(:data AS jsonb))
-                """)
-                con.execute(
-                    insert_sql,
-                    {
-                        "session_id": session_id,
-                        "filename": filename,
-                        "tags": metadata_key_name,
-                        "data": json_data_string,
-                    },
-                )
 
 
 def update_current_session_metadata(
@@ -1779,7 +1819,7 @@ def update_current_session_metadata(
 
     Args:
         data (Dict[str, Any]): A dictionary of metadata to add or update.
-        metadata_key_name (str, optional): The tag for the metadata in the
+        metadata_key_name (str, optional): The tag for the metadata in the.
                                            jsonstorage table. Defaults to "metadata".
     """
     return update_session_metadata(

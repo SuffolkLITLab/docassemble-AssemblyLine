@@ -34,8 +34,8 @@ class ALCourt(Court):
         """Create a new court object.
 
         Args:
-            *pargs: Standard DAObject positional arguments
-            **kwargs: Standard DAObject keyword arguments
+            *pargs: Standard DAObject positional arguments.
+            **kwargs: Standard DAObject keyword arguments.
         """
         super().init(*pargs, **kwargs)
         if "address" not in kwargs:
@@ -58,11 +58,11 @@ class ALCourt(Court):
 
         Returns:
             List[Dict[str, Any]] - a list of dictionaries, each of which contains
-                the following keys:
-                    - latitude: float
-                    - longitude: float
-                    - info: str
-                    - icon: str (optional)
+                the following keys:.
+                    - latitude: float.
+                    - longitude: float.
+                    - info: str.
+                    - icon: str (optional).
         """
         the_info = str(self.name)
         the_info += "  [NEWLINE]  " + self.address.block()
@@ -83,7 +83,7 @@ class ALCourt(Court):
         list.
 
         Returns:
-            str: string representing the court's name, with city if needed to disambiguate
+            str: string representing the court's name, with city if needed to disambiguate.
         """
         # Avoid forcing the interview to define the court's address
         if hasattr(self, "address") and hasattr(self.address, "city"):
@@ -99,7 +99,7 @@ class ALCourt(Court):
         More concise version without description; suitable for a responsive case.
 
         Returns:
-            str: string representing the court's name and address
+            str: string representing the court's name and address.
         """
         return f"**{ self.short_label() }**[BR]{ self.address.on_one_line() }"
 
@@ -110,7 +110,7 @@ class ALCourt(Court):
         buttons.
 
         Returns:
-            str: string representing the court's name and description
+            str: string representing the court's name and description.
         """
         all_info = f"**{ self.short_label() }**"
         if hasattr(self, "address"):
@@ -127,8 +127,8 @@ class ALCourt(Court):
         with existing attributes or methods of DAObject
 
         Args:
-            df_row: Pandas Series object
-            ensure_lat_long: bool, whether to use Google Maps to geocode the address if we don't have coordinates
+            df_row: Pandas Series object.
+            ensure_lat_long: bool, whether to use Google Maps to geocode the address if we don't have coordinates.
         """
         # A few columns we expect to see:
         # name
@@ -219,8 +219,8 @@ class ALCourtLoader(DAObject):
         """Create a new courtloader object.
 
         Args:
-            *pargs: Standard DAObject positional arguments
-            **kwargs: Standard DAObject keyword arguments
+            *pargs: Standard DAObject positional arguments.
+            **kwargs: Standard DAObject keyword arguments.
         """
         super().init(*pargs, **kwargs)
         self.package = docassemble.base.functions.this_thread.current_question.package
@@ -253,7 +253,7 @@ class ALCourtLoader(DAObject):
             column_name (str): The name of the column in the dataframe.
 
         Returns:
-            Set[str]:
+            Set[str]:.
                 - A set containing unique values from the specified column.
                 - Returns an empty set if the column does not exist or an error occurs.
         """
@@ -272,7 +272,7 @@ class ALCourtLoader(DAObject):
             column_name (str): The name of the column in the dataframe.
 
         Returns:
-            Set[str]: A list of all unique values in the specified row in the given spreadsheet
+            Set[str]: A list of all unique values in the specified row in the given spreadsheet.
         """
         return self.unique_column_values(column_name)
 
@@ -341,7 +341,7 @@ class ALCourtLoader(DAObject):
             county_column (str, optional): Column heading which contains county name. Defaults to "address_county".
             display_column (str, optional): Column heading used for display in the drop-down. Defaults to "name".
             search_string (Optional[str], optional): A keyword to filter the list of results. Defaults to None.
-            search_columns (Optional[Union[List[str], str]], optional): Columns to aggregate and search across with
+            search_columns (Optional[Union[List[str], str]], optional): Columns to aggregate and search across with.
                 the search_string in a case-insensitive manner. Defaults to None.
 
         Returns:
@@ -370,12 +370,12 @@ class ALCourtLoader(DAObject):
         is determined by the `display_column`.
 
         Args:
-            court_types (Optional[Union[List[str], str]]): Exact string match or matches used to filter results
+            court_types (Optional[Union[List[str], str]]): Exact string match or matches used to filter results.
                 (inclusive). Examples include "District" or ["Municipal","Superior"].
             column (str, optional): Column heading to search. Defaults to "department".
             display_column (str, optional): Column heading used for display in the drop-down. Defaults to "name".
             search_string (Optional[str], optional): A keyword to filter the list of results. Defaults to None.
-            search_columns (Optional[Union[List[str], str]], optional): Columns to aggregate and search across with
+            search_columns (Optional[Union[List[str], str]], optional): Columns to aggregate and search across with.
                 the search_string in a case-insensitive manner. Defaults to None.
 
         Returns:

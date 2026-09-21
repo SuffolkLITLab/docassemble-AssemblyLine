@@ -12,3 +12,4 @@ jobs:
     name: Run python only unit tests
     steps:
       - uses: SuffolkLITLab/ALActions/pythontests@main
+      

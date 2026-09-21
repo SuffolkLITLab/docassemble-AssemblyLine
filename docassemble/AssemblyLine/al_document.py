@@ -1,7 +1,9 @@
-import re
-import os
+import json
 import mimetypes
-from typing import Any, Dict, List, Literal, Union, Callable, Optional
+import os
+import re
+from html import escape
+from typing import Any, Dict, List, Literal, Union, Callable, Optional, TypedDict
 from docassemble.base.util import (
     Address,
     LatitudeLongitude,
@@ -60,6 +62,19 @@ __all__ = [
 ]
 
 DEBUG_MODE = get_config("debug")
+
+
+class _CacheableDocumentTitle(TypedDict):
+    title: str
+
+
+class CacheableDocument(_CacheableDocumentTitle, total=False):
+    """Rendered title and the available download formats for a document."""
+
+    download_filename: str
+    pdf: DAFile
+    docx: DAFile
+    original: Union[DAFile, DAFileList, DAFileCollection]
 
 
 def random_suffix(length: int = 8) -> str:
@@ -175,6 +190,14 @@ def html_safe_str(the_string: str) -> str:
     return re.sub(r"[^A-Za-z0-9]+", "_", the_string)
 
 
+def _javascript_href(function_name: str, *args: Any) -> str:
+    """Build a JavaScript URL that is safe to use in an HTML href attribute."""
+    return escape(
+        f"javascript:{function_name}({','.join(json.dumps(arg) for arg in args)})",
+        quote=True,
+    )
+
+
 def table_row(title: str, button_htmls: List[str] = []) -> str:
     """
     Generate an HTML row string for an AL document-styled table.
@@ -208,10 +231,10 @@ def pdf_page_parity(pdf_path: str) -> Literal["even", "odd"]:
     if it is not divisible by 2.
 
     Args:
-        pdf_path (str): Path to the PDF in the filesystem
+        pdf_path (str): Path to the PDF in the filesystem.
 
     Returns:
-        Literal["even", "odd"]: The parity of the number of pages in the PDF
+        Literal["even", "odd"]: The parity of the number of pages in the PDF.
     """
     with pikepdf.open(pdf_path) as pdf:
         num_pages = len(pdf.pages)
@@ -225,7 +248,7 @@ def add_blank_page(pdf_path: str) -> None:
     Add a blank page to the end of a PDF.
 
     Args:
-        pdf_path (str): Path to the PDF in the filesystem
+        pdf_path (str): Path to the PDF in the filesystem.
     """
     # Load the PDF
     with pikepdf.open(pdf_path, allow_overwriting_input=True) as pdf:
@@ -254,7 +277,7 @@ class ALAddendumField(DAObject):
 
     Attributes:
         field_name (str): The name of a docassemble variable that this object represents.
-        overflow_trigger (Union[int, bool]): Specifies the limit after which the text is truncated and moved
+        overflow_trigger (Union[int, bool]): Specifies the limit after which the text is truncated and moved.
             to an addendum. If set to `True`, it will always overflow. If set to `False`, it will never overflow.
             An integer value represents the maximum character count before overflow.
 
@@ -271,8 +294,8 @@ class ALAddendumField(DAObject):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super().init(*pargs, **kwargs)
 
@@ -398,10 +421,10 @@ class ALAddendumField(DAObject):
             preserve_newlines (bool): Determines whether newlines are preserved in the "safe" text.
                 Defaults to False, which means all newlines are removed. This allows more text to appear
                 before being sent to the addendum.
-            _original_value (Any): for speed reasons, you can provide the full text and just use this
+            _original_value (Any): for speed reasons, you can provide the full text and just use this.
                 method to determine if the overflow trigger is exceeded. If no _original_value is
                 provided, this method will determine it using the value_if_defined() method.
-            preserve_words (bool): If True, the algorithm will try to preserve whole words when
+            preserve_words (bool): If True, the algorithm will try to preserve whole words when.
                 truncating the text. If False, the algorithm will truncate the text at the overflow
                 trigger, regardless of whether it is in the middle of a word.
 
@@ -446,15 +469,15 @@ class ALAddendumField(DAObject):
             preserve_newlines (bool): Determines whether newlines are preserved in the "safe" text.
                 Defaults to False, which means all newlines are removed. This allows more text to appear
                 before being sent to the addendum.
-            _original_value (Any): for speed reasons, you can provide the full text and just use this
+            _original_value (Any): for speed reasons, you can provide the full text and just use this.
                 method to determine if the overflow trigger is exceeded. If no _original_value is
                 provided, this method will determine it using the value_if_defined() method.
-            preserve_words (bool): If True, the algorithm will try to preserve whole words when
+            preserve_words (bool): If True, the algorithm will try to preserve whole words when.
                 truncating the text. If False, the algorithm will truncate the text at the overflow
                 trigger, regardless of whether it is in the middle of a word.
 
         Returns:
-            Union[str, List[Any]]: Either a string representing the overflow message or the original value
+            Union[str, List[Any]]: Either a string representing the overflow message or the original value.
         """
         if _original_value:
             val = _original_value
@@ -501,7 +524,7 @@ class ALAddendumField(DAObject):
             preserve_newlines (bool): Determines whether newlines are preserved in the "safe" text.
                 Defaults to False, which means all newlines are removed. This allows more text to appear
                 before being sent to the addendum.
-            _original_value (Optional[str]): For speed reasons, you can provide the full text and just use this
+            _original_value (Optional[str]): For speed reasons, you can provide the full text and just use this.
                 method to determine if the overflow trigger is exceeded. If no `_original_value` is
                 provided, this method will determine it using the `value_if_defined()` method.
             preserve_words (bool): Indicates whether words should be preserved in their entirety without being split.
@@ -784,7 +807,7 @@ class ALAddendumFieldDict(DAOrderedDict):
     Adding a new entry will implicitly set the `field_name` attribute of the field
 
     Attributes:
-        style (str): Determines the display behavior. If set to "overflow_only",
+        style (str): Determines the display behavior. If set to "overflow_only",.
                      only the overflow text will be displayed.
     """
 
@@ -792,8 +815,8 @@ class ALAddendumFieldDict(DAOrderedDict):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super(ALAddendumFieldDict, self).init(*pargs, **kwargs)
         self.object_type = ALAddendumField
@@ -812,9 +835,9 @@ class ALAddendumFieldDict(DAOrderedDict):
         its own field name by setting the `field_name` attribute.
 
         Args:
-            *pargs: List of arguments to use to create the dict entry. The 0th arg is
+            *pargs: List of arguments to use to create the dict entry. The 0th arg is.
                 also used to set the `field_name` attribute.
-            **kwargs: List of keyword arguments used to create the dict entry
+            **kwargs: List of keyword arguments used to create the dict entry.
 
         Returns:
           The new dictionary entry created
@@ -829,7 +852,7 @@ class ALAddendumFieldDict(DAOrderedDict):
         Populate the dictionary using a list of field data.
 
         Args:
-            data (list): List of dictionaries containing ield data with keys "field_name"
+            data (list): List of dictionaries containing ield data with keys "field_name".
                 and "overflow_trigger".
         """
         for entry in data:
@@ -843,7 +866,7 @@ class ALAddendumFieldDict(DAOrderedDict):
         Fetch a list of fields that are defined.
 
         Args:
-            style (str, optional): If set to "overflow_only", only the fields with overflow values
+            style (str, optional): If set to "overflow_only", only the fields with overflow values.
                 will be returned. Defaults to "overflow_only".
 
         Returns:
@@ -937,14 +960,23 @@ class ALDocument(DADict):
     on the final download screen.
 
     Attributes:
-        filename (str): name used for output PDF
-        title (str): display name for the output PDF
+        filename (str): name used for output PDF.
+        title (str): display name for the output PDF.
         enabled (bool): if this document should be created. See examples.
-        addendum (DAFile | DAFileCollection): (optional) an attachment block
-        overflow_fields (ALAddendumField): (optional) ALAddendumFieldDict
+        addendum (DAFile | DAFileCollection): (optional) an attachment block.
+        overflow_fields (ALAddendumField): (optional) ALAddendumFieldDict.
           instance. These values will be used to detect and handle overflow.
-        has_addendum (bool): (optional) Defaults to False. Set to True if the
+        has_addendum (bool): (optional) Defaults to False. Set to True if the.
           document could have overflow, like for a PDF template.
+        default_overflow_message (str): The message appended to truncated text when it overflows.
+          to the addendum. Defaults to `"..."`. This is used as the fallback whenever
+          `overflow_message=None` is passed to :meth:`safe_value`,.
+          :meth:`overflow_value`, or :meth:`original_or_overflow_message`.
+          Override per-document by setting `my_doc.default_overflow_message`.
+        suffix_to_append (str): When the document key matches this value, it is appended to.
+          the output filename to distinguish it from other versions. Defaults to `"preview"`
+          so the preview version is saved as e.g. `myDoc_preview.pdf` while the final
+          version is saved as `myDoc.pdf`.
 
     Note:
         The `enabled` attribute should always be defined by a code block or the
@@ -1036,8 +1068,8 @@ class ALDocument(DADict):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super(ALDocument, self).init(*pargs, **kwargs)
         self.initializeAttribute("overflow_fields", ALAddendumFieldDict)
@@ -1099,7 +1131,8 @@ class ALDocument(DADict):
 
         if isinstance(main_doc, DAFileCollection):
             main_doc = main_doc.pdf
-            main_doc.title = self.title
+        if isinstance(main_doc, DAFile):
+            main_doc.title = str(self.title)
             main_doc.filename = filename
             try:
                 main_doc.set_attributes(filename=filename)
@@ -1117,7 +1150,7 @@ class ALDocument(DADict):
             concatenated = pdf_concatenate(
                 main_doc, addendum_doc, filename=filename, pdfa=pdfa
             )
-            concatenated.title = self.title
+            concatenated.title = str(self.title)
             setattr(self.cache, safe_key, concatenated)
             return concatenated
         else:
@@ -1153,14 +1186,14 @@ class ALDocument(DADict):
                     self.as_list(key=key, refresh=refresh),
                     filename=filename + ".docx",
                 )
-                the_file.title = self.title
+                the_file.title = str(self.title)
                 return the_file
             except:
                 return self.as_pdf(key=key)
 
         if self._is_docx(key=key):
             the_file = self[key].docx
-            the_file.title = self.title
+            the_file.title = str(self.title)
             the_file.set_attributes(filename=filename + ".docx")
             return the_file
 
@@ -1254,14 +1287,16 @@ class ALDocument(DADict):
         Args:
             field_name (str): The name of the field to check.
             overflow_message (str): A short message to go on the page where text is cutoff.
+                If `None`, falls back to `self.default_overflow_message`
+                (`"..."` by default).
             input_width (int): The width, in characters, of the input box. Defaults to 80.
             preserve_newlines (bool): Determines whether newlines are preserved in the "safe" text.
                 Defaults to False, which means all newlines are removed. This allows more text to appear
                 before being sent to the addendum.
-            _original_value (Any): for speed reasons, you can provide the full text and just use this
+            _original_value (Any): for speed reasons, you can provide the full text and just use this.
                 method to determine if the overflow trigger is exceeded. If no _original_value is
                 provided, this method will determine it using the value_if_defined() method.
-            preserve_words (bool): If True, the algorithm will try to preserve whole words when
+            preserve_words (bool): If True, the algorithm will try to preserve whole words when.
                 truncating the text. If False, the algorithm will truncate the text at the overflow
                 trigger, regardless of whether it is in the middle of a word.
 
@@ -1292,7 +1327,9 @@ class ALDocument(DADict):
 
         Args:
             field_name (str): The name of the field to retrieve the safe value from.
-            overflow_message (Optional[str]): Message to display when the field value overflows. Defaults to the class's default overflow message.
+            overflow_message (Optional[str]): Message appended when the field value is truncated.
+                If `None`, falls back to `self.default_overflow_message`
+                (`"..."` by default).
             preserve_newlines (bool): Whether to maintain newlines in the output. Defaults to False.
             input_width (int): The expected input width, used for formatting. Defaults to 80.
             preserve_words (bool): Whether to avoid splitting words during formatting. Defaults to True.
@@ -1322,7 +1359,9 @@ class ALDocument(DADict):
 
         Args:
             field_name (str): The name of the field to retrieve the overflow value from.
-            overflow_message (Optional[str]): Message to display when the field value overflows. Defaults to the object's default overflow message.
+            overflow_message (Optional[str]): Message appended when the safe portion of the field.
+                value is truncated. If `None`, falls back to `self.default_overflow_message`
+                (`"..."` by default).
             preserve_newlines (bool): Whether to maintain newlines in the output. Defaults to False.
             input_width (int): The expected input width, used for formatting. Defaults to 80.
             preserve_words (bool): Whether to avoid splitting words during formatting. Defaults to True.
@@ -1397,8 +1436,8 @@ class ALStaticDocument(DAStaticFile):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super().init(*pargs, **kwargs)
         self.has_addendum = False
@@ -1509,7 +1548,7 @@ class ALStaticDocument(DAStaticFile):
         This method provides a workaround for problems generating thumbnails.
 
         Args:
-            **kwargs: Args to pass to DAFile's show function
+            **kwargs: Args to pass to DAFile's show function.
 
         Returns:
             DAFile: Displayable version of the document.
@@ -1522,7 +1561,7 @@ class ALStaticDocument(DAStaticFile):
         """Check if the document is enabled.
 
         Args:
-            **kwargs: Unused (for signature compatibility only)
+            **kwargs: Unused (for signature compatibility only).
 
         Returns:
             bool: True if the document is enabled, otherwise False.
@@ -1548,7 +1587,68 @@ class ALDocumentBundle(DAList):
         enabled (bool, optional): Determines if the bundle is active. Defaults to True.
         auto_gather (bool, optional): Automatically gathers attributes. Defaults to False.
         gathered (bool, optional): Specifies if attributes have been gathered. Defaults to True.
-        default_parity (Optional[Literal["even", "odd"]]): Default parity to enforce on the PDF. Defaults to None.
+        default_parity (Optional[Literal["even", "odd"]]): Default parity to enforce on the PDF.
+            When set, :meth:`as_pdf` will append a blank page if necessary to reach the desired.
+            parity. Defaults to `None` (no enforcement).
+        suffix_to_append (str): When the document key matches this value, it is appended to the.
+            output filename to distinguish it from other versions. Defaults to `"preview"`
+            so the preview bundle is saved as e.g. `bundle_preview.pdf` while the final is
+            saved as `bundle.pdf`.
+        view_label (DALazyTemplate): Template providing the label for "View" buttons in.
+            :meth:`download_list_html`. Defined generically in `ql_baseline.yml`; resolves to.
+            `"View"` (or its translation). Override by assigning a new template to
+            `your_bundle.view_label` in your interview YAML.
+        download_label (DALazyTemplate): Template providing the label for "Download" buttons in.
+            :meth:`download_list_html`. Defined generically in `ql_baseline.yml`; resolves to.
+            `"Download"` (or its translation).
+        send_label (DALazyTemplate): Template providing the label for "Send" buttons in.
+            :meth:`download_list_html`, :meth:`send_email_table_row`, and.
+            :meth:`send_button_to_html`. Defined generically in `ql_baseline.yml`; resolves to.
+            `"Send"` (or its translation).
+        zip_label (DALazyTemplate): Template providing the label for the "Download all" zip.
+            button in :meth:`download_list_html`. Defined generically in `al_document.yml`;.
+            resolves to `"Download all"` (or its translation).
+        full_pdf_label (DALazyTemplate): Template providing the label for the "Download as one.
+            PDF" button in :meth:`download_list_html`. Defined generically in.
+            `al_document.yml`; resolves to `"Download as one PDF"` (or its translation).
+        send_email_template (DALazyTemplate): Template used as the default email subject and.
+            body in :meth:`send_email` when `template=None`. Defined generically in.
+            `al_document.yml`. The subject defaults to
+            `"Your <document> document from <app> is ready"` and the body to
+            `"Your document is attached. Visit <homepage> to learn more."`
+            Override by assigning a new template block to `your_bundle.send_email_template`
+            in your interview YAML.
+        get_email_copy (DALazyTemplate): Template providing the header text for the email input.
+            section rendered by :meth:`send_button_html`. Defined generically in.
+            `al_document.yml`; resolves to `"Get a copy of the documents in email"`
+            (or its translation).
+        email_input_label (DALazyTemplate): Template providing the label for the email input
+            field in :meth:`send_button_html`. Defined generically in
+            `ql_baseline.yml`; resolves to `"Email"` (or its translation).
+        email_alt_text (DALazyTemplate): Template providing the alt text for the email input
+            field. Defined generically in `ql_baseline.yml`; resolves to
+            `"Email address for document"` (or its translation).
+        include_editable_documents (DALazyTemplate): Template providing the label for the.
+            "include editable copy" checkbox in :meth:`send_button_html`. Defined generically.
+            in `al_document.yml`; resolves to `"Include an editable copy"`
+            (or its translation).
+        add_page_numbers (bool): If `True`, Bates-style page numbers are stamped onto the.
+            merged PDF produced by :meth:`as_pdf`. Defaults to `False`.
+        page_number_prefix (str): Text prepended to each stamped page number (e.g. `"EX-"`).
+            Defaults to `""`.
+        page_number_start (int): The first page number used when stamping page numbers.
+            Defaults to `1`.
+        page_number_digits (int): Minimum number of digits in each stamped page number;.
+            shorter numbers are left-padded with zeros. Defaults to `5`.
+        page_number_area (Optional[str]): Location on the page where numbers are stamped.
+            Accepted values: `"TOP_LEFT"`, `"TOP_RIGHT"`, `"BOTTOM_LEFT"`,.
+            `"BOTTOM_RIGHT"`. Defaults to `None` (bottom-right).
+        page_number_font_size (float): Font size in points for stamped page numbers.
+            Defaults to `10`.
+        page_number_offset_horizontal (float): Horizontal inset in pixels from the nearest.
+            page edge for stamped page numbers. Defaults to `15`.
+        page_number_offset_vertical (float): Vertical inset in pixels from the nearest page.
+            edge for stamped page numbers. Defaults to `15`.
 
     Examples:
         Given three documents: `Cover page`, `Main motion form`, and `Notice of Interpreter Request`,
@@ -1573,14 +1673,15 @@ class ALDocumentBundle(DAList):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super().init(*pargs, **kwargs)
         if "auto_gather" not in kwargs:
             self.auto_gather = False
         if "gathered" not in kwargs:
             self.gathered = True
+        self._set_default_attributes()
         self.initializeAttribute("cache", DALazyAttribute)
         self.always_enabled = hasattr(self, "enabled") and self.enabled
         # Pre-cache some DALazyTemplates we set up to aid translation that won't
@@ -1588,6 +1689,24 @@ class ALDocumentBundle(DAList):
         if not hasattr(self, "suffix_to_append"):
             # When the key is "preview", append it to the file name
             self.suffix_to_append = "preview"
+
+    def _set_default_attributes(self) -> None:
+        if not hasattr(self, "add_page_numbers"):
+            self.add_page_numbers = False
+        if not hasattr(self, "page_number_prefix"):
+            self.page_number_prefix = ""
+        if not hasattr(self, "page_number_start"):
+            self.page_number_start = 1
+        if not hasattr(self, "page_number_digits"):
+            self.page_number_digits = 5
+        if not hasattr(self, "page_number_area"):
+            self.page_number_area = None
+        if not hasattr(self, "page_number_font_size"):
+            self.page_number_font_size = 10
+        if not hasattr(self, "page_number_offset_horizontal"):
+            self.page_number_offset_horizontal = 15
+        if not hasattr(self, "page_number_offset_vertical"):
+            self.page_number_offset_vertical = 15
 
     def as_pdf(
         self,
@@ -1606,7 +1725,7 @@ class ALDocumentBundle(DAList):
             pdfa (bool): If True, generates a PDF/A compliant document, defaults to False.
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
                                             Used primarily to enhance automated tests.
-            ensure_parity (Optional[Literal["even", "odd"]]): Ensures the number of pages in the PDF is even or odd. If omitted,
+            ensure_parity (Optional[Literal["even", "odd"]]): Ensures the number of pages in the PDF is even or odd. If omitted,.
                 no parity is enforced. Defaults to None.
 
         Returns:
@@ -1634,21 +1753,68 @@ class ALDocumentBundle(DAList):
             # In the case of no enabled files, avoid errors
             return None
         elif len(files) == 1:
-            # This case is simplest--we do not need to process the document at this level
             pdf = files[0].as_pdf(
                 key=key,
                 refresh=refresh,
                 pdfa=pdfa,
                 append_matching_suffix=append_matching_suffix,
             )
-            pdf.title = self.title
+            if pdf is None:
+                log(
+                    f"ALDocumentBundle.as_pdf(): '{files[0].title}' in bundle '{self.title}' has no valid PDF, skipping"
+                )
+                return None
+            bundle_filename = f"{base_name(self.filename)}{append_suffix}.pdf"
+            pdf.title = str(self.title)
+            pdf.filename = bundle_filename
+            try:
+                pdf.set_attributes(filename=bundle_filename)
+                pdf.set_mimetype("application/pdf")
+            except:
+                pass
         else:
-            pdf = pdf_concatenate(
-                [document.as_pdf(key=key, refresh=refresh) for document in files],
-                filename=f"{base_name(self.filename)}{append_suffix}.pdf",
-                pdfa=pdfa,
+            document_pdfs = [
+                p
+                for p in (
+                    document.as_pdf(key=key, refresh=refresh) for document in files
+                )
+                if p is not None
+            ]
+            if len(document_pdfs) < len(files):
+                log(
+                    f"ALDocumentBundle.as_pdf(): {len(files) - len(document_pdfs)} of {len(files)} documents in bundle '{self.title}' have no valid PDF, skipping them"
+                )
+            if len(document_pdfs) == 0:
+                return None
+            elif len(document_pdfs) == 1:
+                pdf = document_pdfs[0]
+                bundle_filename = f"{base_name(self.filename)}{append_suffix}.pdf"
+                pdf.title = str(self.title)
+                pdf.filename = bundle_filename
+                try:
+                    pdf.set_attributes(filename=bundle_filename)
+                    pdf.set_mimetype("application/pdf")
+                except:
+                    pass
+            else:
+                pdf = pdf_concatenate(
+                    document_pdfs,
+                    filename=f"{base_name(self.filename)}{append_suffix}.pdf",
+                    pdfa=pdfa,
+                )
+        if hasattr(self, "add_page_numbers") and self.add_page_numbers:
+            self._set_default_attributes()
+            pdf.bates_number(
+                prefix=self.page_number_prefix,
+                start=self.page_number_start,
+                digits=self.page_number_digits,
+                area=self.page_number_area,
+                font_size=self.page_number_font_size,
+                offset_horizontal=self.page_number_offset_horizontal,
+                offset_vertical=self.page_number_offset_vertical,
+                filename=pdf.filename,
             )
-        pdf.title = self.title
+        pdf.title = str(self.title)
         setattr(self.cache, safe_key, pdf)
 
         if hasattr(self, "default_parity") and not ensure_parity:
@@ -1674,8 +1840,10 @@ class ALDocumentBundle(DAList):
         Returns:
             str: String representation of the PDF.
         """
-        # Could be triggered in many different places unintentionally: don't refresh
-        return str(self.as_pdf(refresh=False))
+        pdf = self.as_pdf(refresh=False)
+        if pdf is None:
+            return ""
+        return str(pdf)
 
     def as_zip(
         self,
@@ -1685,9 +1853,11 @@ class ALDocumentBundle(DAList):
         title: str = "",
         format: Optional[str] = "pdf",
         include_pdf: Optional[bool] = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Returns a zip file containing all enabled documents in the bundle in the specified format.
+
+        Returns None if there are no valid documents to include in the zip.
 
         Args:
             key (str): Identifier for the document version, default is "final".
@@ -1718,24 +1888,37 @@ class ALDocumentBundle(DAList):
         if format == "docx":
             docs = []
             for doc in self.enabled_documents(refresh=refresh):
-                docs.append(doc.as_docx(key=key, refresh=refresh))
+                docx_doc = doc.as_docx(key=key, refresh=refresh)
+                if docx_doc is not None:
+                    docs.append(docx_doc)
+                else:
+                    log(f"'{doc.title}' has no usable DOCX, leaving it out of the zip")
                 if include_pdf and doc._is_docx():
-                    docs.append(doc.as_pdf(key=key, pdfa=pdfa, refresh=refresh))
+                    pdf_doc = doc.as_pdf(key=key, pdfa=pdfa, refresh=refresh)
+                    if pdf_doc is not None:
+                        docs.append(pdf_doc)
         elif format == "original":
-            # We don't try to convert to PDF if format=="original" (for things like XLSX files)
+            # We don't try to convert to PDF if format=="original"(for things like XLSX files)
             docs = [doc[key] for doc in self.enabled_documents(refresh=refresh)]
         else:
             docs = [
-                doc.as_pdf(
-                    key=key,
-                    refresh=refresh,
-                    pdfa=pdfa,
+                pdf
+                for pdf in (
+                    doc.as_pdf(
+                        key=key,
+                        refresh=refresh,
+                        pdfa=pdfa,
+                    )
+                    for doc in self.enabled_documents(refresh=refresh)
                 )
-                for doc in self.enabled_documents(refresh=refresh)
+                if pdf is not None
             ]
+        if not docs:
+            log(f"as_zip(): no valid documents to include for bundle '{self.title}'")
+            return None
         zip = zip_file(docs, filename=zipname + ".zip")
         if title == "":
-            zip.title = self.title
+            zip.title = str(self.title)
         else:
             zip.title = title
         setattr(self.cache, zip_key, zip)
@@ -1817,7 +2000,7 @@ class ALDocumentBundle(DAList):
             if isinstance(document, ALDocumentBundle):
                 flat_list.extend(document.get_titles(key=key, refresh=refresh))
             else:
-                flat_list.append(document.title)
+                flat_list.append(str(document.title))
         return flat_list
 
     def as_pdf_list(
@@ -1825,6 +2008,8 @@ class ALDocumentBundle(DAList):
     ) -> List[DAFile]:
         """
         Returns all enabled documents in the bundle as individual PDFs, even from nested bundles.
+
+        Documents that have no valid PDF are omitted from the list.
 
         Args:
             key (str): Identifier for the document version, default is "final".
@@ -1835,8 +2020,12 @@ class ALDocumentBundle(DAList):
             List[DAFile]: List of enabled documents as individual PDFs.
         """
         return [
-            doc.as_pdf(key=key, refresh=refresh, pdfa=pdfa)
-            for doc in self.enabled_documents(refresh=refresh)
+            pdf
+            for pdf in (
+                doc.as_pdf(key=key, refresh=refresh, pdfa=pdfa)
+                for doc in self.enabled_documents(refresh=refresh)
+            )
+            if pdf is not None
         ]
 
     def as_docx_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
@@ -1844,6 +2033,8 @@ class ALDocumentBundle(DAList):
         Generates a list of enabled documents from the bundle represented as DOCX files.
 
         If a particular document can't be represented as a DOCX, its original format or a PDF is returned.
+
+        Documents that have no valid DOCX are omitted from the list.
 
         Args:
             key (str): Identifier for the document version, default is "final".
@@ -1853,8 +2044,12 @@ class ALDocumentBundle(DAList):
             List[DAFile]: List of documents represented as DOCX files or in their original format.
         """
         return [
-            doc.as_docx(key=key, refresh=refresh)
-            for doc in self.enabled_documents(refresh=refresh)
+            docx
+            for docx in (
+                doc.as_docx(key=key, refresh=refresh)
+                for doc in self.enabled_documents(refresh=refresh)
+            )
+            if docx is not None
         ]
 
     def as_editable_list(
@@ -1898,7 +2093,7 @@ class ALDocumentBundle(DAList):
         append_matching_suffix: bool = True,
         zip_include_pdf: Optional[bool] = None,
         zip_format: Optional[str] = None,
-    ) -> Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]:
+    ) -> Tuple[List[CacheableDocument], Optional[DAFile], Optional[DAFile]]:
         """
         Generates a cache of all enabled documents in the bundle, and returns it in a structure that can be cached
         and returned for use in a background process.
@@ -1925,7 +2120,7 @@ class ALDocumentBundle(DAList):
             zip_format (Optional[str]): Format of the primary version of each document.
 
         Returns:
-            Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]: A list of dictionaries containing the enabled documents, a zip file of the whole bundle, and a PDF of the whole
+            Tuple[List[CacheableDocument], Optional[DAFile], Optional[DAFile]]: A list of dictionaries containing document titles, filenames, and files, a zip file of the whole bundle, and a PDF of the whole.
         """
         # reduce idempotency delays
         enabled_docs = self.enabled_documents(refresh=refresh)
@@ -1935,8 +2130,9 @@ class ALDocumentBundle(DAList):
         results = []
 
         for doc in enabled_docs:
-            result = {"title": doc.title}
+            result: CacheableDocument = {"title": str(doc.title)}
             filename_root = os.path.splitext(str(doc.filename))[0]
+            got_any_format = False
             if pdf:
                 result["pdf"] = doc.as_pdf(
                     key=key,
@@ -1944,17 +2140,38 @@ class ALDocumentBundle(DAList):
                     pdfa=pdfa,
                     append_matching_suffix=append_matching_suffix,
                 )
-                result["download_filename"] = filename_root + ".pdf"
+                if result["pdf"] is not None:
+                    result["download_filename"] = filename_root + ".pdf"
+                    got_any_format = True
+                else:
+                    log(
+                        f"get_cacheable_documents(): '{doc.title}' produced no valid PDF"
+                    )
+                    del result["pdf"]
             if docx and doc._is_docx(key=key):
                 result["docx"] = doc.as_docx(
                     key=key,
                     refresh=refresh,
                     append_matching_suffix=append_matching_suffix,
                 )
-                result["download_filename"] = filename_root + ".docx"
+                if result["docx"] is not None:
+                    result["download_filename"] = filename_root + ".docx"
+                    got_any_format = True
+                else:
+                    log(
+                        f"get_cacheable_documents(): '{doc.title}' produced no valid DOCX"
+                    )
+                    del result["docx"]
             if original:
                 result["original"] = doc[key]
                 result["download_filename"] = doc.filename
+                got_any_format = True
+
+            if not got_any_format:
+                log(
+                    f"get_cacheable_documents(): '{doc.title}' didn't produce a valid file in any requested format, skipping entirely"
+                )
+                continue
 
             try:
                 # If it's possible, set the file extension to the actual filetype
@@ -1995,6 +2212,51 @@ class ALDocumentBundle(DAList):
 
         return results, bundled_zip, bundled_pdf
 
+    def has_broken_documents(self) -> bool:
+        """
+        Checks if anything in this bundle, including any content inside a nested
+        bundle, failed to process and will be silently skipped.
+
+        Returns:
+            bool: True if any document or nested bundle has broken content.
+        """
+        return len(self.broken_exhibit_titles()) > 0
+
+    def broken_exhibit_titles(self) -> List[str]:
+        """
+        Returns the titles of any broken exhibits in this bundle, including
+        ones inside nested bundles.
+
+        Returns:
+            List[str]: Titles of exhibits that will be skipped.
+        """
+        titles: List[str] = []
+        for document in self.enabled_documents():
+            if hasattr(document, "broken_exhibits"):
+                for exhibit in document.broken_exhibits():
+                    titles.append(getattr(exhibit, "title", None) or "an exhibit")
+            if isinstance(document, ALDocumentBundle):
+                titles.extend(document.broken_exhibit_titles())
+        return titles
+
+    def broken_documents_warning_html(self) -> str:
+        """
+        Builds the warning banner shown on the download screen if any document in
+        this bundle has broken content.
+
+        Returns:
+            str: The warning HTML, or an empty string if nothing is broken.
+        """
+        broken_titles = self.broken_exhibit_titles()
+        if not broken_titles:
+            return ""
+        quoted = [f'"{escape(title)}"' for title in broken_titles]
+        if len(quoted) == 1:
+            message = f"{quoted[0]} did not upload correctly and won't be included. Please try uploading it again before you continue."
+        else:
+            message = f"{', '.join(quoted[:-1])} and {quoted[-1]} did not upload correctly and won't be included. Please try uploading them again before you continue."
+        return f'<div class="alert alert-warning" role="alert">{message}</div>'
+
     def download_list_html(
         self,
         key: str = "final",
@@ -2030,15 +2292,23 @@ class ALDocumentBundle(DAList):
             refresh (bool): Flag to reconsider the 'enabled' attribute, default is True.
             pdfa (bool): Flag to return documents in PDF/A format, default is False.
             include_zip (bool): Flag to include a zip option, default is True.
-            view_label (str): Label for the 'view' button, default is self.view_label or "View".
+            view_label (str): Label for the 'view' button. If `None`, falls back to.
+                `self.view_label` (a translatable template defined in `ql_baseline.yml`,
+                defaulting to `"View"`).
             view_icon (str): Icon for the 'view' button, default is "eye".
-            download_label (str): Label for the 'download' button, default is self.download_label or "Download".
+            download_label (str): Label for the 'download' button. If `None`, falls back to.
+                `self.download_label` (a translatable template defined in `ql_baseline.yml`,
+                defaulting to `"Download"`).
             download_icon (str): Icon for the 'download' button, default is "download".
-            send_label (str): Label for the 'send' button. Default is self.send_label or "Send".
+            send_label (str): Label for the 'send' button. If `None`, falls back to.
+                `self.send_label` (a translatable template defined in `ql_baseline.yml`,
+                defaulting to `"Send"`).
             send_icon (str): Fontawesome icon for the 'send' button. Default is "envelope".
-            zip_label (Optional[str]): Label for the zip option. If not provided, uses the generic template for `self.zip_label` ("Download all").
+            zip_label (Optional[str]): Label for the zip button. If `None`, falls back to.
+                `self.zip_label` (a translatable template defined in `al_document.yml`,
+                defaulting to `"Download all"`).
             zip_icon (str): Icon for the zip option, default is "file-archive".
-            zip_row_label (str, optional): Text to go in the left-most column
+            zip_row_label (str, optional): Text to go in the left-most column.
                 of the table's zip row. Will default to the value of `self.title`.
             append_matching_suffix (bool): Flag to determine if matching suffix should be appended to file name, default is True.
             include_email (bool): Flag to include an option, default is False.
@@ -2083,7 +2353,8 @@ class ALDocumentBundle(DAList):
                 zip_format=zip_format,
             )
 
-        html = f'<div class="container al_table al_doc_table" id="{ html_safe_str(self.instanceName) }">'
+        html = self.broken_documents_warning_html()
+        html += f'<div class="container al_table al_doc_table" id="{ html_safe_str(self.instanceName) }">'
 
         for result in downloadable_files:
             title = result["title"]
@@ -2103,7 +2374,7 @@ class ALDocumentBundle(DAList):
                 download_doc.url_for(
                     attachment=True, display_filename=download_filename
                 ),
-                label=download_label,
+                label=f'{download_label} <span class="visually-hidden">{title}</span>',
                 icon=download_icon,
                 color="primary",
                 size="md",
@@ -2118,7 +2389,7 @@ class ALDocumentBundle(DAList):
                     result["pdf"].url_for(
                         attachment=False, display_filename=view_filename
                     ),
-                    label=view_label,
+                    label=f'{view_label} <span class="visually-hidden">{title}</span>',
                     icon=view_icon,
                     color="secondary",
                     size="md",
@@ -2215,6 +2486,10 @@ class ALDocumentBundle(DAList):
         else:
             the_file = self.as_pdf(key=key, pdfa=pdfa)
 
+        if the_file is None:
+            log(f"bundle '{self.title}' has nothing to download")
+            return ""
+
         doc_download_button = action_button_html(
             the_file.url_for(attachment=True),
             label=download_label,
@@ -2262,7 +2537,9 @@ class ALDocumentBundle(DAList):
 
         Args:
             key (str): A key used to identify which version of the ALDocument to send. Defaults to "final".
-            send_label (str): Label for the 'send' button. Default is "Send".
+            send_label (str): Label for the 'send' button. If `None`, falls back to.
+                `self.send_label` (a translatable template defined in `ql_baseline.yml`,
+                defaulting to `"Send"`).
             send_icon (str): Icon for the 'send' button. Default is "envelope".
 
         Returns:
@@ -2279,17 +2556,18 @@ class ALDocumentBundle(DAList):
         al_email_input_id = "_ignore_al_doc_email_" + name
         al_send_button_id = "al_send_email_button_" + name
 
-        javascript_string = (
-            f"javascript:aldocument_send_action("
-            f"'{self.attr_name('send_email_action_event')}',"
-            f"'{al_wants_editable_input_id}','{al_email_input_id}')"
+        javascript_string = _javascript_href(
+            "aldocument_send_action",
+            str(self.attr_name("send_email_action_event")),
+            al_wants_editable_input_id,
+            al_email_input_id,
         )
 
         # Label "email" and input field for the 1st column of the table row
         input_html = f"""
         <span class="al_email_input_container {name} form-group da-field-container da-field-container-datatype-email">
           <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">Email</label>
-          <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control al_doc_email_field al_button" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
+          <input value="{user_info().email if user_logged_in() else ''}" alt="{str(self.email_alt_text)}" class="form-control al_doc_email_field al_button" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
         </span>
         """
 
@@ -2324,9 +2602,11 @@ class ALDocumentBundle(DAList):
 
         Args:
             email (str): The recipient's email address.
-            editable (bool, optional): Flag indicating if the bundle is editable. Defaults to False. (deprecated; use preferred_formats instead)
+            editable (bool, optional): Flag indicating if the bundle is editable. Defaults to False. (deprecated; use preferred_formats instead).
             template_name (str, optional): The name of the template to be used. Defaults to an empty string.
-            label (str, optional): The label for the button. Defaults to "Send".
+            label (str, optional): The label for the button. If `None`, falls back to.
+                `self.send_label` (a translatable template defined in `ql_baseline.yml`,
+                defaulting to `"Send"`).
             icon (str, optional): The Fontawesome icon for the button. Defaults to "envelope".
             color (str, optional): The Bootstrap color of the button. Defaults to "primary".
             key (str, optional): A key used to identify which version of the ALDocument to send. Defaults to "final".
@@ -2343,23 +2623,23 @@ class ALDocumentBundle(DAList):
         name = html_safe_str(self.instanceName) + random_suffix()
         al_send_button_id = "al_send_email_to_button_" + name
 
+        formats_value: Optional[Union[str, List[str]]]
         if isinstance(preferred_formats, (list, tuple)):
-            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in preferred_formats) + "]"
+            formats_value = [str(fmt) for fmt in preferred_formats]
         elif preferred_formats:
-            formats_js = f"'{preferred_formats}'"
+            formats_value = str(preferred_formats)
         else:
-            formats_js = "null"
+            formats_value = None
 
-        javascript_string = (
-            f"javascript:aldocument_send_to_action("
-            f"'{self.attr_name('send_email_to_action_event')}',"
-            f"'{editable}',"
-            f"'{email}',"
-            f"'{al_send_button_id}',"
-            f"'{template_name}',"
-            f"'{key}',"
-            f"{formats_js}"
-            f")"
+        javascript_string = _javascript_href(
+            "aldocument_send_to_action",
+            str(self.attr_name("send_email_to_action_event")),
+            str(editable),
+            str(email),
+            al_send_button_id,
+            str(template_name),
+            str(key),
+            formats_value,
         )
         send_button = action_button_html(
             javascript_string,
@@ -2378,9 +2658,11 @@ class ALDocumentBundle(DAList):
         key: str = "final",
         show_editable_checkbox: bool = True,
         template_name: str = "",
-        label: str = "Send",
+        label: Optional[str] = None,
         icon: str = "envelope",
         preferred_formats: Optional[Union[str, List[str]]] = None,
+        email_legend_class: str = "h4",
+        email_label: Optional[str] = None,
     ) -> str:
         """
         Generate HTML for an input box and button that allows someone to send the bundle
@@ -2391,19 +2673,28 @@ class ALDocumentBundle(DAList):
 
         Args:
             key (str, optional): A key used to identify which version of the ALDocument to send. Defaults to "final".
-            show_editable_checkbox (bool, optional): Flag indicating if the checkbox
+            show_editable_checkbox (bool, optional): Flag indicating if the checkbox.
                 for deciding the inclusion of an editable (Word) copy should be displayed.
                 Defaults to True. If preferred_formats = ["pdf"], this will be ignored and no checkbox will be shown.
-            template_name (str, optional): Name of the template variable that is used to fill
+            template_name (str, optional): Name of the template variable that is used to fill.
                 the email contents. By default, the `x.send_email_template` template will be used.
             label (str, optional): The label for the button. Defaults to "Send".
-            icon (str, optional): The Fontawesome icon for the button. Defaults
+            icon (str, optional): The Fontawesome icon for the button. Defaults.
                 to "envelope".
             preferred_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
+            email_legend_class (str, optional): CSS class applied to the email.
+                section legend. Defaults to "h4".
+            email_label (str, optional): The label for the email input. Defaults to "Email".
 
         Returns:
             str: The generated HTML string for the input box and button.
         """
+        if label is None:
+            label = str(self.send_label) or word("Send")
+
+        if email_label is None:
+            email_label = str(self.email_input_label) or word("Email")
+
         if not self.has_enabled_documents():
             return ""  # Don't let people email an empty set of documents
 
@@ -2418,28 +2709,21 @@ class ALDocumentBundle(DAList):
         al_email_input_id = "_ignore_al_doc_email_" + name
         al_send_button_id = "al_send_email_button_" + name
 
-        if isinstance(preferred_formats, (list, tuple)):
-            formats_js = "[" + ",".join(f"'{fmt}'" for fmt in preferred_formats) + "]"
-        elif preferred_formats:
-            formats_js = f"'{preferred_formats}'"
-        else:
-            formats_js = "null"
-
-        javascript_string = (
-            f"javascript:aldocument_send_action("
-            f"'{self.attr_name('send_email_action_event')}',"
-            f"'{al_wants_editable_input_id}',"
-            f"'{al_email_input_id}',"
-            f"'{template_name}',"
-            f"'{key}',"
-            f"{formats_js}"
-            ")"
+        formats_value = [str(fmt) for fmt in preferred_formats]
+        javascript_string = _javascript_href(
+            "aldocument_send_action",
+            str(self.attr_name("send_email_action_event")),
+            al_wants_editable_input_id,
+            al_email_input_id,
+            str(template_name),
+            str(key),
+            formats_value,
         )
 
         # Container of whole email section with header
         return_str = f"""
   <fieldset class="al_send_bundle al_send_section_alone {html_safe_str(self.instanceName)}" id="al_send_bundle_{name}" name="al_send_bundle_{name}">
-    <legend class="h4 al_doc_email_header">{str(self.get_email_copy)}</legend> 
+    <legend class="{email_legend_class} al_doc_email_header">{str(self.get_email_copy)}</legend> 
     """
         # "Editable" checkbox
         if (
@@ -2462,8 +2746,8 @@ class ALDocumentBundle(DAList):
   <div class="al_email_container">
   
     <span class="al_email_address {html_safe_str(self.instanceName)} container form-group row da-field-container da-field-container-datatype-email">
-      <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">Email</label>
-      <input value="{user_info().email if user_logged_in() else ''}" alt="Email address for document" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
+      <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">{email_label}</label>
+      <input value="{user_info().email if user_logged_in() else ''}" alt="{str(self.email_alt_text)}" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
     </span>
     
     {action_button_html(javascript_string, label=label, icon=icon, color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}
@@ -2490,8 +2774,15 @@ class ALDocumentBundle(DAList):
         Args:
             to (Any): The email address, list of email addresses, or list of Individuals with a .email attribute to send to.
             key (str, optional): Specifies which version of the document to send. Defaults to "final".
-            editable (bool, optional): If True, sends the editable documents. Defaults to False. (Deprecated)
-            template (Any): The template variable for the subject and body of the email, similar to da `send_email` `template` variable.
+            editable (bool, optional): If True, sends the editable documents. Defaults to False. (Deprecated).
+            template (Any, optional): The template variable for the subject and body of the email,.
+                similar to the `template` parameter of docassemble's `send_email` function.
+                If `None`, falls back to `self.send_email_template`, a template defined
+                generically in `al_document.yml`. Its subject defaults to
+                `"Your <document> document from <app> is ready"` and its body to
+                `"Your document is attached. Visit <homepage> to learn more."`
+                Override it by assigning a new template block to `your_bundle.send_email_template`
+                in your interview YAML.
             preferred_formats (str): Specifies the format of the files to send. Can be "pdf" or "docx", or a list of these formats. Overrides deprecated `editable` keyword.
             **kwargs: Additional parameters to pass to the da `send_email` function.
 
@@ -2520,7 +2811,12 @@ class ALDocumentBundle(DAList):
 
             if "docx" in allowed:
                 primary = item.as_docx(key=key)
-                attachments.append(primary)
+                if primary is not None:
+                    attachments.append(primary)
+                else:
+                    log(
+                        f"send_email(): '{item.title}' has no valid DOCX, skipping from an email"
+                    )
 
             if "pdf" in allowed:
                 if not (
@@ -2528,7 +2824,13 @@ class ALDocumentBundle(DAList):
                     and hasattr(primary, "extension")
                     and primary.extension == "pdf"
                 ):
-                    attachments.append(item.as_pdf(key=key))
+                    pdf_doc = item.as_pdf(key=key)
+                    if pdf_doc is not None:
+                        attachments.append(pdf_doc)
+                    else:
+                        log(
+                            f"send_email(): '{item.title}' has no valid PDF, skipping from an email"
+                        )
 
         return send_email(
             to=to,
@@ -2591,9 +2893,11 @@ class ALDocumentBundle(DAList):
         key: str = "final",
         refresh: bool = True,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Convert the enabled documents to a single DOCX file or PDF file if conversion fails.
+
+        Returns None if none of the enabled documents produced a valid file.
 
         Args:
             key (str, optional): The key to identify enabled documents. Defaults to "final".
@@ -2613,7 +2917,7 @@ class ALDocumentBundle(DAList):
                     self.as_docx_list(key=key, refresh=refresh),
                     filename=filename + ".docx",
                 )
-                the_file.title = self.title
+                the_file.title = str(self.title)
                 return the_file
             except:
                 return self.as_pdf(
@@ -2645,18 +2949,18 @@ class ALExhibit(DAObject):
 
     Attributes:
         pages (list): List of individual DAFiles representing uploaded images or documents.
-        cover_page (DAFile | DAFileCollection): (optional) A DAFile or DAFileCollection object created by an `attachment:` block
+        cover_page (DAFile | DAFileCollection): (optional) A DAFile or DAFileCollection object created by an `attachment:` block.
           Will typically say something like "Exhibit 1"
-        label (str): A label, like "A" or "1" for this exhibit in the cover page and table of contents
-        starting_page (int): first page number to use in table of contents
+        label (str): A label, like "A" or "1" for this exhibit in the cover page and table of contents.
+        starting_page (int): first page number to use in table of contents.
     """
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super().init(*pargs, **kwargs)
         self.initializeAttribute("_cache", DALazyAttribute)
@@ -2727,27 +3031,56 @@ class ALExhibit(DAObject):
             pages.append(page)
         return pages
 
+    def is_broken(self) -> bool:
+        """
+        Returns True if this exhibit's pages finished gathering but none of
+        them are currently valid, meaning as_pdf() will silently skip it.
+
+        Checks pages.gathered rather than the `complete` property, since
+        `complete` is a gathering trigger that always returns True and can
+        force docassemble to gather undefined attributes as a side effect
+
+        Returns:
+            bool: True if this exhibit will get skipped.
+        """
+        if not getattr(self.pages, "gathered", False):
+            return False
+        valid_pages = [p for p in self.ocr_pages() if p and p.ok]
+        return len(valid_pages) == 0
+
     def as_pdf(
         self,
         *,
         refresh: bool = False,
-        prefix: str = "",
         pdfa: bool = False,
         add_page_numbers: bool = True,
+        page_number_prefix: str = "",
+        page_number_digits: int = 5,
+        page_number_area=None,
+        page_number_font_size: float = 10,
+        page_number_offset_horizontal: float = 15,
+        page_number_offset_vertical: float = 15,
         add_cover_page: bool = True,
         filename: Optional[str] = None,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Generates a PDF version of the exhibit, with optional features like Bates numbering or a cover page.
+
+        Returns None if no valid pages were available to include.
 
         Note that these are keyword only parameters, not positional.
 
         Args:
-            refresh (bool): If True, forces the exhibit to refresh before generating the PDF. (unused, provided for signature compatibility)
-            prefix (str): Prefix for Bates numbering if 'add_page_numbers' is True.
+            refresh (bool): If True, forces the exhibit to refresh before generating the PDF. (unused, provided for signature compatibility).
             pdfa (bool): If True, the generated PDF will be in PDF/A format.
             add_page_numbers (bool): If True, apply Bates numbering starting from 'self.start_page'.
+            page_number_prefix (str): If add_page_numbers is True, this gets added to the beginning on the bates number each page (e.g. `EX-`).
+            page_number_digits (int): How many digits (i.e. leading 0s) that the bates number will have.
+            page_number_area (str): Where on the page the bates number will go ("TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT" (default)).
+            page_number_font_size (float): How big the bates page number will be in points (default is 10).
+            page_number_offset_horizontal (float): The number of pixels that the bates page number is offset from the left / right of the page.
+            page_number_offset_vertical (float): The number of pixels that the bates page number is offset from the top / bottom of the page.
             add_cover_page (bool): If True, prepend the exhibit with a cover page.
             filename (Optional[str]): Custom filename for the generated PDF. Default is "exhibits.pdf".
             append_matching_suffix (bool): If True, appends a suffix to the filename based on certain matching criteria.
@@ -2765,17 +3098,31 @@ class ALExhibit(DAObject):
             return getattr(self._cache, safe_key)
         if not filename:
             filename = "exhibits.pdf"
+        valid_pages = [p for p in self.ocr_pages() if p and p.ok]
+        if not valid_pages:
+            log(
+                f"ALExhibit.as_pdf(): no valid pages for exhibit '{self.title}', skipping"
+            )
+            return None
         if add_cover_page:
             concatenated_pages = pdf_concatenate(
-                self.cover_page, self.ocr_pages(), filename=filename, pdfa=pdfa
+                self.cover_page, valid_pages, filename=filename, pdfa=pdfa
             )
         else:
             concatenated_pages = pdf_concatenate(
-                self.ocr_pages(), filename=filename, pdfa=pdfa
+                valid_pages, filename=filename, pdfa=pdfa
             )
 
         if add_page_numbers:
-            concatenated_pages.bates_number(prefix=prefix, start=self.start_page)
+            concatenated_pages.bates_number(
+                start=self.start_page,
+                prefix=page_number_prefix,
+                digits=page_number_digits,
+                area=page_number_area,
+                font_size=page_number_font_size,
+                offset_horizontal=page_number_offset_horizontal,
+                offset_vertical=page_number_offset_vertical,
+            )
 
         setattr(self._cache, safe_key, concatenated_pages)
         return getattr(self._cache, safe_key)
@@ -2788,6 +3135,24 @@ class ALExhibit(DAObject):
             int: Total page count.
         """
         return self.pages.num_pages()
+
+    def toc_page_number(
+        self, toc_pages: int = 1, include_cover_page: bool = True
+    ) -> int:
+        """Return the page where this exhibit's uploaded content begins.
+
+        ``start_page`` already includes the initial one-page table of contents and
+        every preceding exhibit cover. Adjust it only for additional TOC pages and
+        this exhibit's own cover page.
+
+        Args:
+            toc_pages (int): Actual or estimated number of TOC pages.
+            include_cover_page (bool): Whether this exhibit has a cover page.
+
+        Returns:
+            int: The physical page number of the exhibit's first uploaded page.
+        """
+        return self.start_page + toc_pages - 1 + int(include_cover_page)
 
     @property
     def complete(self) -> bool:
@@ -2871,7 +3236,7 @@ class ALExhibitList(DAList):
 
     Attributes:
         maximum_size (int): The maximum allowed size in bytes of the entire document.
-        maximum_size_per_doc (int): The maximum allowed size in bytes per document in the list
+        maximum_size_per_doc (int): The maximum allowed size in bytes per document in the list.
         auto_label (bool): If True, automatically numbers exhibits for cover page and table of contents. Defaults to True.
         auto_labeler (Callable): An optional function or lambda to transform the exhibit's index to a label.
                                  Uses A..Z labels by default.
@@ -2882,8 +3247,8 @@ class ALExhibitList(DAList):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super().init(*pargs, **kwargs)
         if not hasattr(self, "auto_label"):
@@ -2909,16 +3274,30 @@ class ALExhibitList(DAList):
         filename="file.pdf",
         pdfa: bool = False,
         add_page_numbers: bool = False,
+        page_number_prefix: str = "",
+        page_number_digits: int = 5,
+        page_number_area=None,
+        page_number_font_size: float = 10,
+        page_number_offset_horizontal: float = 15,
+        page_number_offset_vertical: float = 15,
         toc_pages: int = 0,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Compiles all exhibits in the list into a single PDF.
+
+        Returns None if none of the exhibits produced valid pages to include.
 
         Args:
             filename (str): Desired filename for the generated PDF.
             pdfa (bool): If True, generates the PDF in PDF/A format.
             add_page_numbers (bool): If True, adds page numbers to the generated PDF.
+            page_number_prefix (str): What the bates number added to each page should start with (e.g. `EX-`).
+            page_number_digits (int): How many digits (i.e. leading 0s) that the bates number will have.
+            page_number_area (str): Where on the page the bates number will go ("TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT" (default)).
+            page_number_font_size (float): How big the bates page number will be in points (default is 10).
+            page_number_offset_horizontal (float): The number of pixels that the bates page number is offset from the left / right of the page.
+            page_number_offset_vertical (float): The number of pixels that the bates page number is offset from the top / bottom of the page.
             toc_pages (int): Expected number of pages in the table of contents.
             append_matching_suffix (bool): If True, appends matching suffix to the filename.
 
@@ -2930,29 +3309,74 @@ class ALExhibitList(DAList):
                 exhibit.cover_page
         if self.include_table_of_contents and toc_pages != 1:
             self._update_page_numbers(toc_guess_pages=toc_pages)
-        return pdf_concatenate(
-            [
+        if not page_number_prefix and self.bates_prefix:
+            page_number_prefix = self.bates_prefix
+        exhibit_pdfs = [
+            pdf
+            for pdf in (
                 exhibit.as_pdf(
                     add_cover_page=self.include_exhibit_cover_pages,
                     add_page_numbers=add_page_numbers,
-                    prefix=self.bates_prefix,
+                    page_number_prefix=page_number_prefix,
+                    page_number_digits=page_number_digits,
+                    page_number_area=page_number_area,
+                    page_number_font_size=page_number_font_size,
+                    page_number_offset_horizontal=page_number_offset_horizontal,
+                    page_number_offset_vertical=page_number_offset_vertical,
+                    pdfa=pdfa,
                 )
                 for exhibit in self
-            ],
+            )
+            if pdf is not None
+        ]
+        if not exhibit_pdfs:
+            log(
+                "ALExhibitList.as_pdf(): none of the exhibits have valid pages, nothing to compile"
+            )
+            return None
+        return pdf_concatenate(
+            exhibit_pdfs,
             filename=filename,
             pdfa=pdfa,
         )
 
+    def broken_exhibits(self) -> List["ALExhibit"]:
+        """Returns exhibits that are complete but have no valid pages
+
+        Returns:
+            List[ALExhibit]: The exhibits that will get skipped.
+        """
+        if not self.gathered:
+            return []
+        return [exhibit for exhibit in self if exhibit.is_broken()]
+
+    def has_broken_exhibits(self) -> bool:
+        """True if any exhibit in this list will be skipped
+
+        Returns:
+            bool: True if at least one exhibit has no valid pages.
+        """
+        return len(self.broken_exhibits()) > 0
+
     def size_in_bytes(self) -> int:
         """
         Calculates the total size in bytes of all exhibits in the list.
+
+        Pages that fail to load are skipped rather than raising an exception,
+        so the total may be an undercount if any page couldn't be read.
 
         Returns:
             int: Total size of all exhibits in bytes.
         """
         full_size = 0
         for exhibit in self.complete_elements():
-            full_size += sum((a_page.size_in_bytes() for a_page in exhibit.pages))
+            for a_page in exhibit.pages:
+                try:
+                    full_size += a_page.size_in_bytes()
+                except Exception:
+                    log(
+                        f"ALExhibitList.size_in_bytes(): could not get size for a page in exhibit '{exhibit.title}', skipping it"
+                    )
         return full_size
 
     def _update_labels(self, auto_labeler: Optional[Callable] = None) -> None:
@@ -3025,10 +3449,10 @@ class ALExhibitDocument(ALDocument):
     or an exhibit list, complete with an optional table of contents and page numbering.
 
     Attributes:
-        exhibits (ALExhibitList): A list of ALExhibit documents. Each item represents
+        exhibits (ALExhibitList): A list of ALExhibit documents. Each item represents.
                                   a distinct exhibit, which can span multiple pages.
         table_of_contents (DAFile or DAFileCollection): Generated by an `attachment:` block.
-        _cache (DAFile): A cached version of the exhibit list. Caching is used due to
+        _cache (DAFile): A cached version of the exhibit list. Caching is used due to.
                          potential long processing times.
         include_table_of_contents (bool): Indicates if a table of contents should be generated.
         include_exhibit_cover_pages (bool): Determines if cover pages should accompany each exhibit.
@@ -3068,19 +3492,26 @@ class ALExhibitDocument(ALDocument):
     has_addendum: bool
     auto_labeler: Callable
     auto_ocr: bool
+    # Deprecated
     bates_prefix: str
     maximum_size: int
     maximum_size_per_doc: int
     suffix_to_append: str
     exhibits: ALExhibitList
     table_of_contents: DAFile
+    page_number_prefix: str
+    page_number_digits: int
+    page_number_area: str | None
+    page_number_font_size: float
+    page_number_offset_horizontal: float
+    page_number_offset_vertical: float
 
     def init(self, *pargs, **kwargs) -> None:
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super().init(*pargs, **kwargs)
         self.initializeAttribute("exhibits", ALExhibitList)
@@ -3088,8 +3519,6 @@ class ALExhibitDocument(ALDocument):
             self.exhibits.auto_labeler = self.auto_labeler
         if hasattr(self, "auto_ocr"):
             self.exhibits.auto_ocr = self.auto_ocr
-        if hasattr(self, "bates_prefix"):
-            self.exhibits.bates_prefix = self.bates_prefix
         if hasattr(self, "include_exhibit_cover_pages"):
             self.exhibits.include_exhibit_cover_pages = self.include_exhibit_cover_pages
         else:
@@ -3107,12 +3536,29 @@ class ALExhibitDocument(ALDocument):
         else:
             self.include_table_of_contents = True
             self.exhibits.include_table_of_contents = True
+        if hasattr(self, "bates_prefix"):
+            self.exhibits.bates_prefix = self.bates_prefix
         if not hasattr(self, "add_page_numbers"):
             self.add_page_numbers = False
+        self._set_default_attributes()
         self.has_addendum = False
         if not hasattr(self, "suffix_to_append"):
             # When the key is "preview", append it to the file name
             self.suffix_to_append = "preview"
+
+    def _set_default_attributes(self) -> None:
+        if not hasattr(self, "page_number_prefix"):
+            self.page_number_prefix = ""
+        if not hasattr(self, "page_number_digits"):
+            self.page_number_digits = 5
+        if not hasattr(self, "page_number_area"):
+            self.page_number_area = None
+        if not hasattr(self, "page_number_font_size"):
+            self.page_number_font_size = 10
+        if not hasattr(self, "page_number_offset_horizontal"):
+            self.page_number_offset_horizontal = 15
+        if not hasattr(self, "page_number_offset_vertical"):
+            self.page_number_offset_vertical = 15
 
     def has_overflow(self) -> bool:
         """
@@ -3165,9 +3611,11 @@ class ALExhibitDocument(ALDocument):
         refresh: bool = True,
         pdfa: bool = False,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Render the document as a PDF.
+
+        Returns None if no valid exhibits were available to include.
 
         Args:
             key (str): Identifier key for the document. Default is "final".
@@ -3188,31 +3636,67 @@ class ALExhibitDocument(ALDocument):
             filename = base_name(self.filename) + ".pdf"
 
         if len(self.exhibits):
+            self._set_default_attributes()
+            exhibits_pdf = self.exhibits.as_pdf(
+                add_page_numbers=self.add_page_numbers,
+                page_number_prefix=self.page_number_prefix,
+                page_number_digits=self.page_number_digits,
+                page_number_area=self.page_number_area,
+                page_number_font_size=self.page_number_font_size,
+                page_number_offset_horizontal=self.page_number_offset_horizontal,
+                page_number_offset_vertical=self.page_number_offset_vertical,
+                toc_pages=(
+                    self.table_of_contents.num_pages()
+                    if self.include_table_of_contents
+                    else 0
+                ),
+                pdfa=pdfa,
+            )
+            if exhibits_pdf is None:
+                log(
+                    f"ALExhibitDocument.as_pdf(): no valid exhibits for '{self.title}', skipping"
+                )
+                if self.include_table_of_contents:
+                    return pdf_concatenate(
+                        self.table_of_contents, filename=filename, pdfa=pdfa
+                    )
+                return None
             if self.include_table_of_contents:
-                toc_pages = self.table_of_contents.num_pages()
                 return pdf_concatenate(
                     self.table_of_contents,
-                    self.exhibits.as_pdf(
-                        add_page_numbers=self.add_page_numbers, toc_pages=toc_pages
-                    ),
+                    exhibits_pdf,
                     filename=filename,
                     pdfa=pdfa,
                 )
-            else:
-                return self.exhibits.as_pdf(
-                    add_page_numbers=self.add_page_numbers,
-                    filename=filename,
-                    pdfa=pdfa,
-                )
+            return exhibits_pdf
+        return None
+
+    def has_broken_exhibits(self) -> bool:
+        """True if any exhibit in this document will be silently skipped
+
+        Returns:
+            bool: True if at least one exhibit has no valid pages.
+        """
+        return self.exhibits.has_broken_exhibits()
+
+    def broken_exhibits(self) -> List["ALExhibit"]:
+        """Returns exhibits that are complete but have no valid pages
+
+        Returns:
+            List[ALExhibit]: The exhibits that will get skipped.
+        """
+        return self.exhibits.broken_exhibits()
 
     def as_docx(
         self,
         key: str = "final",
         refresh: bool = True,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Despite the name, renders the document as a PDF. Provided for signature compatibility.
+
+        Returns None if no valid exhibits were available to include.
 
         Args:
             key (str, optional): Identifier key for the document. Default is "final".
@@ -3241,8 +3725,8 @@ class ALTableDocument(ALDocument):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super().init(*pargs, **kwargs)
         self.has_addendum = False
@@ -3304,12 +3788,12 @@ class ALTableDocument(ALDocument):
 
         Args:
             key (str): Identifier key for the document, mainly for compatibility with ALDocument.
-            refresh (bool): For signature compatibility
-            pdfa (bool): For signature compatibility
-            append_matching_suffix (bool): For signature compatibility
+            refresh (bool): For signature compatibility.
+            pdfa (bool): For signature compatibility.
+            append_matching_suffix (bool): For signature compatibility.
 
         Returns:
-            DAFile: The table rendered as an XLSX spreadsheet
+            DAFile: The table rendered as an XLSX spreadsheet.
         """
         if not hasattr(self, "suffix_to_append"):
             # When the key is "preview", append it to the file name
@@ -3333,12 +3817,12 @@ class ALTableDocument(ALDocument):
 
         Args:
             key (str): Identifier key for the document, mainly for compatibility with ALDocument.
-            refresh (bool): For signature compatibility
-            pdfa (bool): For signature compatibility
-            append_matching_suffix (bool): For signature compatibility
+            refresh (bool): For signature compatibility.
+            pdfa (bool): For signature compatibility.
+            append_matching_suffix (bool): For signature compatibility.
 
         Returns:
-            DAFile: The table rendered as an XLSX spreadsheet
+            DAFile: The table rendered as an XLSX spreadsheet.
         """
         return self.as_pdf()
 
@@ -3358,8 +3842,8 @@ class ALUntransformedDocument(ALDocument):
         """Standard DAObject init method.
 
         Args:
-            *pargs: Positional arguments
-            **kwargs: Keyword arguments
+            *pargs: Positional arguments.
+            **kwargs: Keyword arguments.
         """
         super().init(*pargs, **kwargs)
         self.has_addendum = False
@@ -3456,7 +3940,7 @@ class ALDocumentUpload(ALUntransformedDocument):
 def unpack_dafilelist(the_file: DAFileList) -> DAFile:
     """Creates a plain DAFile out of the first item in a DAFileList
     Args:
-        the_file (DAFileList): an item representing an uploaded document in a Docassemble interview
+        the_file (DAFileList): an item representing an uploaded document in a Docassemble interview.
 
     Returns:
         A DAFile representing the first item in the DAFileList, with a fixed instanceName attribute.
