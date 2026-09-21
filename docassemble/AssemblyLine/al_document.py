@@ -3,7 +3,7 @@ import mimetypes
 import os
 import re
 from html import escape
-from typing import Any, Dict, List, Literal, Union, Callable, Optional
+from typing import Any, Dict, List, Literal, Union, Callable, Optional, TypedDict
 from docassemble.base.util import (
     Address,
     LatitudeLongitude,
@@ -62,6 +62,19 @@ __all__ = [
 ]
 
 DEBUG_MODE = get_config("debug")
+
+
+class _CacheableDocumentTitle(TypedDict):
+    title: str
+
+
+class CacheableDocument(_CacheableDocumentTitle, total=False):
+    """Rendered title and the available download formats for a document."""
+
+    download_filename: str
+    pdf: DAFile
+    docx: DAFile
+    original: Union[DAFile, DAFileList, DAFileCollection]
 
 
 def random_suffix(length: int = 8) -> str:
@@ -1119,7 +1132,7 @@ class ALDocument(DADict):
         if isinstance(main_doc, DAFileCollection):
             main_doc = main_doc.pdf
         if isinstance(main_doc, DAFile):
-            main_doc.title = self.title
+            main_doc.title = str(self.title)
             main_doc.filename = filename
             try:
                 main_doc.set_attributes(filename=filename)
@@ -1137,7 +1150,7 @@ class ALDocument(DADict):
             concatenated = pdf_concatenate(
                 main_doc, addendum_doc, filename=filename, pdfa=pdfa
             )
-            concatenated.title = self.title
+            concatenated.title = str(self.title)
             setattr(self.cache, safe_key, concatenated)
             return concatenated
         else:
@@ -1173,14 +1186,14 @@ class ALDocument(DADict):
                     self.as_list(key=key, refresh=refresh),
                     filename=filename + ".docx",
                 )
-                the_file.title = self.title
+                the_file.title = str(self.title)
                 return the_file
             except:
                 return self.as_pdf(key=key)
 
         if self._is_docx(key=key):
             the_file = self[key].docx
-            the_file.title = self.title
+            the_file.title = str(self.title)
             the_file.set_attributes(filename=filename + ".docx")
             return the_file
 
@@ -1752,7 +1765,7 @@ class ALDocumentBundle(DAList):
                 )
                 return None
             bundle_filename = f"{base_name(self.filename)}{append_suffix}.pdf"
-            pdf.title = self.title
+            pdf.title = str(self.title)
             pdf.filename = bundle_filename
             try:
                 pdf.set_attributes(filename=bundle_filename)
@@ -1776,7 +1789,7 @@ class ALDocumentBundle(DAList):
             elif len(document_pdfs) == 1:
                 pdf = document_pdfs[0]
                 bundle_filename = f"{base_name(self.filename)}{append_suffix}.pdf"
-                pdf.title = self.title
+                pdf.title = str(self.title)
                 pdf.filename = bundle_filename
                 try:
                     pdf.set_attributes(filename=bundle_filename)
@@ -1801,7 +1814,7 @@ class ALDocumentBundle(DAList):
                 offset_vertical=self.page_number_offset_vertical,
                 filename=pdf.filename,
             )
-        pdf.title = self.title
+        pdf.title = str(self.title)
         setattr(self.cache, safe_key, pdf)
 
         if hasattr(self, "default_parity") and not ensure_parity:
@@ -1905,7 +1918,7 @@ class ALDocumentBundle(DAList):
             return None
         zip = zip_file(docs, filename=zipname + ".zip")
         if title == "":
-            zip.title = self.title
+            zip.title = str(self.title)
         else:
             zip.title = title
         setattr(self.cache, zip_key, zip)
@@ -2084,7 +2097,7 @@ class ALDocumentBundle(DAList):
         append_matching_suffix: bool = True,
         zip_include_pdf: Optional[bool] = None,
         zip_format: Optional[str] = None,
-    ) -> Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]:
+    ) -> Tuple[List[CacheableDocument], Optional[DAFile], Optional[DAFile]]:
         """
         Generates a cache of all enabled documents in the bundle, and returns it in a structure that can be cached
         and returned for use in a background process.
@@ -2111,7 +2124,7 @@ class ALDocumentBundle(DAList):
             zip_format (Optional[str]): Format of the primary version of each document.
 
         Returns:
-            Tuple[List[Dict[str, DAFile]], Optional[DAFile], Optional[DAFile]]: A list of dictionaries containing the enabled documents, a zip file of the whole bundle, and a PDF of the whole.
+            Tuple[List[CacheableDocument], Optional[DAFile], Optional[DAFile]]: A list of dictionaries containing document titles, filenames, and files, a zip file of the whole bundle, and a PDF of the whole.
         """
         # reduce idempotency delays
         enabled_docs = self.enabled_documents(refresh=refresh)
@@ -2121,7 +2134,7 @@ class ALDocumentBundle(DAList):
         results = []
 
         for doc in enabled_docs:
-            result = {"title": doc.title}
+            result: CacheableDocument = {"title": str(doc.title)}
             filename_root = os.path.splitext(str(doc.filename))[0]
             got_any_format = False
             if pdf:
@@ -2908,7 +2921,7 @@ class ALDocumentBundle(DAList):
                     self.as_docx_list(key=key, refresh=refresh),
                     filename=filename + ".docx",
                 )
-                the_file.title = self.title
+                the_file.title = str(self.title)
                 return the_file
             except:
                 return self.as_pdf(
