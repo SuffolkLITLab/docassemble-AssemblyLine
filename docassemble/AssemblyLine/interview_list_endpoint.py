@@ -7,8 +7,19 @@ from flask_login import login_required, current_user
 from flask_wtf.csrf import generate_csrf
 from markupsafe import Markup
 
-from docassemble.webapp.app_object import app
-from docassemble.webapp.server import user_interviews
+try:
+    from docassemble.webapp.flask_app import flaskapp as app
+except ModuleNotFoundError as err:
+    if err.name not in {"docassemble.webapp.flask_app"}:
+        raise
+    # docassemble < 1.10 exposes app from the legacy module.
+    from docassemble.webapp.app_object import app
+
+try:
+    from docassemble.base.hooks import user_interviews
+except (ModuleNotFoundError, ImportError):
+    # docassemble < 1.10 keeps user_interviews in the legacy server module.
+    from docassemble.webapp.server import user_interviews
 from docassemble.base.functions import this_thread, interview_url, log, get_config
 from docassemble.AssemblyLine.sessions import (
     get_saved_interview_list,

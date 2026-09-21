@@ -9,9 +9,12 @@ from jinja2 import Environment
 from markupsafe import Markup
 
 try:
-    from docassemble.webapp.app_object import app
+    try:
+        from docassemble.webapp.flask_app import flaskapp as app
+    except ModuleNotFoundError:
+        from docassemble.webapp.app_object import app
     from docassemble.AssemblyLine import interview_list_endpoint as endpoint
-except SystemExit as ex:
+except (SystemExit, ModuleNotFoundError) as ex:
     pytest.skip(
         f"requires a running docassemble server: {ex}",
         allow_module_level=True,
