@@ -1,9 +1,11 @@
 # do not pre-load
 
 import json
+import pickle
 import unittest
+from unittest.mock import Mock
 from html import unescape
-from docassemble.base.util import DAFile, DAFileList, DAObject, DATemplate
+from docassemble.base.util import DAFile, DAFileList, DALazyTemplate, DAObject, DATemplate
 from .al_document import (
     ALAddendumField,
     ALDocument,
@@ -213,6 +215,35 @@ class TestSingleDocumentFilename(unittest.TestCase):
 
 
 class TestTranslatableDocumentTitles(unittest.TestCase):
+    def test_background_download_title_survives_pickle(self):
+        title = DALazyTemplate("document.title")
+        title.source_content = Mock()
+        title.source_content.text.return_value = "Translated document title"
+        title.userdict = {}
+        title.tempvars = {}
+        document = ALDocument(
+            "document",
+            title="Initial title",
+            filename="document.pdf",
+            enabled=True,
+            has_addendum=False,
+        )
+        object.__setattr__(document, "title", title)
+        document["final"] = FakePdf()
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[document],
+            filename="bundle",
+            enabled=True,
+        )
+
+        response = bundle.get_cacheable_documents(refresh=False)
+        documents, _, _ = pickle.loads(pickle.dumps(response))
+
+        self.assertIsInstance(documents[0]["title"], str)
+        self.assertEqual(documents[0]["title"], "Translated document title")
+        self.assertEqual(documents[0]["pdf"].title, "Translated document title")
+
     def test_get_titles_returns_rendered_strings(self):
         document = ALDocument(
             "document",

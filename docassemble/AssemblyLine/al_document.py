@@ -2121,7 +2121,7 @@ class ALDocumentBundle(DAList):
         results = []
 
         for doc in enabled_docs:
-            result = {"title": doc.title}
+            result = {"title": str(doc.title)}
             filename_root = os.path.splitext(str(doc.filename))[0]
             got_any_format = False
             if pdf:
