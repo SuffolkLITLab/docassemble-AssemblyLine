@@ -3027,6 +3027,8 @@ class ALExhibit(DAObject):
         """
         Returns True if this exhibit's pages finished gathering but none of
         them are currently valid, meaning as_pdf() will silently skip it.
+        Also returns True if a page looked valid but failed during actual
+        PDF processing, even if pages are otherwise present and valid.
 
         Checks pages.gathered rather than the `complete` property, since
         `complete` is a gathering trigger that always returns True and can
@@ -3108,9 +3110,9 @@ class ALExhibit(DAObject):
                 concatenated_pages = pdf_concatenate(
                     valid_pages, filename=filename, pdfa=pdfa
                 )
-        except DAError:
+        except DAError as err:
             log(
-                f"ALExhibit.as_pdf(): pdf_concatenate failed for exhibit '{self.title}' even though its pages looked valid, skipping"
+                f"ALExhibit.as_pdf(): pdf_concatenate failed for exhibit '{self.title}' even though its pages looked valid, skipping ({err})"
             )
             self._failed_during_processing = True
             return None
@@ -3343,9 +3345,9 @@ class ALExhibitList(DAList):
                 filename=filename,
                 pdfa=pdfa,
             )
-        except DAError:
+        except DAError as err:
             log(
-                "ALExhibitList.as_pdf(): pdf_concatenate failed even though exhibits looked valid, skipping"
+                f"ALExhibitList.as_pdf(): pdf_concatenate failed even though exhibits looked valid, skipping ({err})"
             )
             return None
 
@@ -3670,9 +3672,9 @@ class ALExhibitDocument(ALDocument):
                         return pdf_concatenate(
                             self.table_of_contents, filename=filename, pdfa=pdfa
                         )
-                    except DAError:
+                    except DAError as err:
                         log(
-                            f"ALExhibitDocument.as_pdf(): could not build table of contents alone for '{self.title}'"
+                            f"ALExhibitDocument.as_pdf(): could not build table of contents alone for '{self.title}' ({err})"
                         )
                         return None
                 return None
@@ -3684,9 +3686,9 @@ class ALExhibitDocument(ALDocument):
                         filename=filename,
                         pdfa=pdfa,
                     )
-                except DAError:
+                except DAError as err:
                     log(
-                        f"ALExhibitDocument.as_pdf(): pdf_concatenate failed combining exhibits with table of contents for '{self.title}'"
+                        f"ALExhibitDocument.as_pdf(): pdf_concatenate failed combining exhibits with table of contents for '{self.title}' ({err})"
                     )
                     return None
             return exhibits_pdf
