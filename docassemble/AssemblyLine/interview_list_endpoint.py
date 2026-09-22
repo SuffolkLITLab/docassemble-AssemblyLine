@@ -200,7 +200,10 @@ if "al_interview_list" not in app.view_functions:
         session_view_models = [_session_view_model(s) for s in sessions]
 
         filename_options = (
-            get_combined_filename_list(user_id=current_user.id)
+            get_combined_filename_list(
+                user_id=current_user.id,
+                exclude_filenames=cfg["exclude_filenames"],
+            )
             if active_tab == "search"
             else []
         )

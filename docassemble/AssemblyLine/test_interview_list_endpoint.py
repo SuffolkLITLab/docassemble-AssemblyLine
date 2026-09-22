@@ -346,7 +346,10 @@ def test_blank_search_tab_does_not_query_sessions():
 
     mock_list.assert_not_called()
     mock_search.assert_not_called()
-    mock_filenames.assert_called_once_with(user_id=FakeUser.id)
+    mock_filenames.assert_called_once_with(
+        user_id=FakeUser.id,
+        exclude_filenames=base_context()["cfg"]["exclude_filenames"],
+    )
     assert mock_render.call_args.kwargs["search_submitted"] is False
 
 
@@ -495,3 +498,55 @@ def test_session_queries_apply_custom_exact_and_package_exclusions_before_paging
     assert "docassemble.CustomDashboard" not in parameters["filenames_to_exclude"]
     assert parameters["limit"] == 20
     assert parameters["offset"] == 40
+
+
+def test_get_filenames_having_sessions_uses_userdictkeys():
+    db_session = MagicMock()
+    db_session.execute.return_value.mappings.return_value.all.return_value = [
+        {"filename": "docassemble.playground1:test.yml"}
+    ]
+
+    session_context = MagicMock()
+    session_context.__enter__.return_value = db_session
+
+    with patch.object(session_helpers, "_get_session", return_value=session_context):
+        filenames = session_helpers.get_filenames_having_sessions(user_id=FakeUser.id)
+
+    query, params = db_session.execute.call_args.args
+    query_text = str(query)
+
+    assert "FROM userdictkeys AS k" in query_text
+    assert "k.user_id = :user_id" in query_text
+    assert "EXISTS" in query_text
+    assert params == {"user_id": FakeUser.id}
+    assert filenames == ["docassemble.playground1:test.yml"]
+
+
+def test_get_combined_filename_list_applies_exclusions():
+    with patch.object(
+        session_helpers,
+        "get_filenames_having_sessions",
+        return_value=[
+            "docassemble.playground1:test.yml",
+            "custom:excluded.yml",
+            "docassemble.CustomDashboard:data/questions/default.yml",
+        ],
+    ), patch.object(
+        session_helpers,
+        "interview_menu",
+        return_value=[
+            {
+                "filename": "docassemble.playground1:test.yml",
+                "title": "Test Interview",
+            }
+        ],
+    ):
+        result = session_helpers.get_combined_filename_list(
+            user_id=FakeUser.id,
+            exclude_filenames=[
+                "docassemble.CustomDashboard",
+                "custom:excluded.yml",
+            ],
+        )
+
+    assert result == [{"docassemble.playground1:test.yml": "Test Interview"}]

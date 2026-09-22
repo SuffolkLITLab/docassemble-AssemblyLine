@@ -1744,7 +1744,18 @@ def get_filenames_having_sessions(
             return []
 
     sql_all = text("SELECT DISTINCT filename FROM userdict")
-    sql_user = text("SELECT DISTINCT filename FROM userdict WHERE user_id = :user_id")
+
+    sql_user = text("""
+    SELECT DISTINCT k.filename
+    FROM userdictkeys AS k
+    WHERE k.user_id = :user_id
+      AND EXISTS (
+          SELECT 1
+          FROM userdict AS u
+          WHERE u.key = k.key
+            AND u.filename = k.filename
+      )
+    """)
 
     with _get_session() as session:
         if user_id is None:
@@ -1758,6 +1769,7 @@ def get_filenames_having_sessions(
 def get_combined_filename_list(
     user_id: Optional[Union[int, str]] = None,
     global_search_allowed_roles: Optional[Union[Set[str], List[str]]] = None,
+    exclude_filenames: Optional[List[str]] = None,
 ) -> List[Dict[str, str]]:
     """
     Get a list of all filenames that have sessions saved for a given user. If it is possible
@@ -1770,6 +1782,7 @@ def get_combined_filename_list(
     Args:
         user_id (Optional[Union[int, str]], optional): User ID to get the list of filenames for. Defaults to current logged in user. Use "all" to get all filenames.
         global_search_allowed_roles (Optional[Union[Set[str], List[str]]], optional): Roles that are allowed to search for all sessions. Defaults to admin, developer, and advocate.
+        exclude_filenames (Optional[List[str]], optional): Filenames or package prefixes to exclude. Defaults to None.
 
     Returns:
         List[Dict[str, str]]: List of filenames that have sessions saved for the user.
@@ -1781,6 +1794,16 @@ def get_combined_filename_list(
     )
 
     users_filenames = get_filenames_having_sessions(user_id=user_id)
+    exact_excluded, package_excluded = _split_excluded_filenames(exclude_filenames)
+
+    users_filenames = [
+        filename
+        for filename in users_filenames
+        if filename not in exact_excluded
+        and not any(
+            filename.startswith(package_prefix) for package_prefix in package_excluded
+        )
+    ]
     interview_filenames = interview_menu()
     combined_interviews = []
     for user_interview in users_filenames:
