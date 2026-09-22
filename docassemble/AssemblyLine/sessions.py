@@ -866,7 +866,8 @@ def interview_list_html(
             """
         table += f"""
         <td>{ as_datetime(answer.get("modtime")) }</td>
-        <td>Page { answer.get("steps") or answer.get("num_keys") }"""
+        <td>{word("Page")} { answer.get("steps") or answer.get("num_keys") }</td>
+        """
         if display_interview_title:
             table += f"""
                  <br/>{answer.get("original_interview_filename") or answer.get("filename") or "" }
@@ -974,7 +975,7 @@ def radial_progress(answer: Dict[str, Union[str, int]]) -> str:
         str: the HTML as a string.
     """
     if not answer.get("progress"):
-        return f"Page {answer.get('steps') or answer.get('num_keys') or 1}"
+        return f"{word('Page')} {answer.get('steps') or answer.get('num_keys') or 1}"
 
     # For simulation purposes, assume a form is complete at page 30
     progress: int = (
