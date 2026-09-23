@@ -40,15 +40,15 @@ def catchall_options(value: Any, *raw_items: Any) -> DACatchAll:
 
     Example usage in a DOCX template:
 
-    ```
-    {{ my_catchall_field | catchall_options("code1: label1", "code2: label2") }}
+    ```jinja2
+    {{ users[0].preferred_contact | catchall_options("email: Email", "phone: Phone") }}
 
-    {{ my_catchall_field_2 | catchall_options({"code1": "label1"}, {"code2": "label2"}) }}
+    {{ users[0].preferred_contact | catchall_options({"email": "Email"}, {"phone": "Phone"}) }}
     ```
 
     Example in an interview with `features: use catchall: True` turned on:
 
-    ```
+    ```yaml
     ---
     if: |
         hasattr(x, "_catchall_options")
@@ -107,11 +107,11 @@ def catchall_label(value: Any, label: str) -> DACatchAll:
     catchall field in the user interface.
 
     Example usage in a DOCX template:
-    ```
-    {{ my_catchall_field | catchall_label("My Custom Label") }}
+    ```jinja2
+    {{ users[0].preferred_contact | catchall_label("Preferred contact method") }}
     ```
     Example in an interview with `features: use catchall: True` turned on:
-    ```
+    ```yaml
     ---
     generic object: DACatchAll
     question: |
@@ -140,8 +140,8 @@ def catchall_datatype(value: Any, datatype: str) -> DACatchAll:
     catchall field.
 
     Example usage in a DOCX template:
-    ```
-    {{ my_catchall_field | catchall_datatype("radio") }}
+    ```jinja2
+    {{ users[0].monthly_income | catchall_datatype("currency") }}
     ```
 
     Args:
@@ -164,8 +164,8 @@ def catchall_question(value: Any, question: str) -> DACatchAll:
     related to the catchall field.
 
     Example usage in a DOCX template:
-    ```
-    {{ my_catchall_field | catchall_question("What additional information do you need?") }}
+    ```jinja2
+    {{ users[0].preferred_contact | catchall_question("How would you like to be contacted?") }}
     ```
 
     Args:
@@ -188,8 +188,8 @@ def catchall_subquestion(value: Any, subquestion: str) -> DACatchAll:
     related to the catchall field.
 
     Example usage in a DOCX template:
-    ```
-    {{ my_catchall_field | catchall_subquestion("Please provide additional details.") }}
+    ```jinja2
+    {{ users[0].monthly_income | catchall_subquestion("Enter your income before taxes for a typical month.") }}
     ```
 
     Args:
@@ -218,8 +218,8 @@ def catchall_complete(
     Each argument after `value` corresponds to the similarly named `catchall_` function.
 
     Example usage in a DOCX template:
-    ```
-    {{ my_catchall_field | catchall_complete(question="What additional information do you need?", subquestion="Be specific", label="no label") }}
+    ```jinja2
+    {{ users[0].monthly_income | catchall_complete(question="What is your monthly income?", subquestion="Enter the amount before taxes.", label="Monthly income", datatype="currency") }}
     ```
 
     Args:
@@ -287,42 +287,42 @@ def if_final(
 
     Example:
         Contents of test_if_final.docx:
-        ```jinja
-        {{ users[0].signature | if_final }}
-        ```
+    ```jinja
+    {{ users[0].signature | if_final }}
+    ```
 
         Returns "[ signature ]" if `i` (passed to the context of the attachment block) is not "final",
         otherwise the actual value of `users[0].signature`.
 
-        ```yaml
-        ---
-        include:
-        - assembly_line.yml
-        ---
-        mandatory: True
-        code: |
-            preview_screen
-            final_screen
-        ---
-        question: |
-            Here is what it looks like unsigned
-        subquestion: |
-            ${ test_if_final_attachment.as_pdf(key="preview") }
-        continue button field: preview_screen
-        ---
-        question: |
-            Here is what it looks like signed
-        subquestion: |
-            ${ test_if_final_attachment.as_pdf(key="final") }
-        event: final_screen
-        ---
-        objects:
-            - test_if_final_attachment: ALDocument.using(title="test_if_final", filename="test_if_final")
-        ---
-        attachment:
-            variable name: test_if_final_attachment[i]
-            docx template file: test_if_final.docx
-        ```
+    ```yaml
+    ---
+    include:
+    - assembly_line.yml
+    ---
+    mandatory: True
+    code: |
+        preview_screen
+        final_screen
+    ---
+    question: |
+        Here is what it looks like unsigned
+    subquestion: |
+        ${ test_if_final_attachment.as_pdf(key="preview") }
+    continue button field: preview_screen
+    ---
+    question: |
+        Here is what it looks like signed
+    subquestion: |
+        ${ test_if_final_attachment.as_pdf(key="final") }
+    event: final_screen
+    ---
+    objects:
+        - test_if_final_attachment: ALDocument.using(title="test_if_final", filename="test_if_final")
+    ---
+    attachment:
+        variable name: test_if_final_attachment[i]
+        docx template file: test_if_final.docx
+    ```
 
     Args:
         context (Jinja2Context): The Jinja2 context, automatically passed by the `pass_context` decorator.
@@ -370,6 +370,18 @@ def catchall_fields_code(value: Any) -> List[Dict[str, Any]]:
         value (DACatchAll): The DACatchAll object containing the question and options.
     Returns:
         List[Dict[str, Any]]: A dictionary containing the Docassemble code for the catchall question.
+
+    Example:
+        In an interview with `features: use catchall: True`, build fields for
+        the undefined value represented by `x`:
+
+    ```yaml
+    generic object: DACatchAll
+    question: |
+      Please enter the missing information
+    fields:
+      - code: catchall_fields_code(x)
+    ```
     """
     if isinstance(value, DACatchAll):
         choices = value._catchall_options if hasattr(value, "_catchall_options") else []

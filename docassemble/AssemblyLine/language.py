@@ -37,6 +37,15 @@ def get_local_languages_yaml() -> str:
 
     Returns:
         str: the path to the local languages.yml file if it exists, otherwise the path to the languages.yml file.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      from docassemble.AssemblyLine.language import get_local_languages_yaml
+      languages_path = get_local_languages_yaml()
+    ```
     """
     try:
         local_yaml = path_and_mimetype("data/sources/languages.yml")[0]
@@ -67,6 +76,22 @@ def get_tuples(
     Returns:
         A list of tuples representing the language name, followed by language ISO 639-1 code.
 
+    Example:
+        With the standard AssemblyLine `languages.yml`, the value of
+        `language_choices` contains each language’s native name and code:
+
+        **Input (interview YAML)**
+
+    ```yaml
+    code: |
+      language_choices = get_tuples(["en", "es"])
+    ```
+
+        **Output**
+
+    ```text
+    [('English', 'en'), ('Español', 'es')]
+    ```
     """
     if not languages_path:
         languages_path = get_local_languages_yaml()
@@ -120,6 +145,13 @@ def get_language_list_dropdown(
         extra_class: additional classes to add to the link.
     Returns:
       A string containing the HTML for a dropdown menu for language selection.
+
+    Example:
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ get_language_list_dropdown(lang_codes=["en", "es"], current=get_language()) }
+    ```
     """
     list_start = f"""<li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle { extra_class }" href="#" id="languageSelector" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Language selection">
@@ -150,7 +182,8 @@ def get_language_list_dropdown(
 def get_language_list_dropdown_item(
     language: Tuple[str, str], link: bool = True, event_name="al_change_language"
 ) -> str:
-    """Given an ordered tuple, returns a link to the current interview with lang=language code and the link title
+    """
+    Given an ordered tuple, returns a link to the current interview with lang=language code and the link title
     given in the first part of the tuple.
 
     Args:
@@ -160,6 +193,15 @@ def get_language_list_dropdown_item(
 
     Returns:
         str: A string containing the HTML for a dropdown menu item for language selection.
+
+    Example:
+        Use inside the corresponding HTML list or dropdown menu:
+
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ get_language_list_dropdown_item(("Español", "es")) }
+    ```
     """
 
     if link:
@@ -191,6 +233,13 @@ def get_language_list(
 
     Returns:
         A string containing the HTML for an unordered inline list of language selection.
+
+    Example:
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ get_language_list(lang_codes=["en", "es"], current=get_language()) }
+    ```
     """
     if not languages_path:
         languages_path = get_local_languages_yaml()
@@ -213,7 +262,8 @@ def get_language_list(
 
 
 def get_language_list_item(language, link=True, event_name="al_change_language") -> str:
-    """Given an ordered tuple, returns a link to the current interview with lang=language code and the link title
+    """
+    Given an ordered tuple, returns a link to the current interview with lang=language code and the link title
     given in the first part of the tuple.
 
     Args:
@@ -223,6 +273,15 @@ def get_language_list_item(language, link=True, event_name="al_change_language")
 
     Returns:
         str: A string containing the HTML for an unordered inline list item for language selection.
+
+    Example:
+        Use inside the corresponding HTML list or dropdown menu:
+
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ get_language_list_item(("Español", "es")) }
+    ```
     """
     li_start = '<li class="list-inline-item">'
     li_end = "</li>"

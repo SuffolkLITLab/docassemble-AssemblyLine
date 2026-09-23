@@ -266,6 +266,14 @@ def is_file_like(obj: Any) -> bool:
 
     Returns:
         bool: True if the object is a file-like object.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      is_upload = is_file_like(supporting_document.file)
+    ```
     """
     if isinstance(
         obj,
@@ -289,7 +297,8 @@ def is_file_like(obj: Any) -> bool:
 def set_interview_metadata(
     filename: str, session_id: str, data: Dict, metadata_key_name="metadata"
 ) -> None:
-    """Add searchable interview metadata for the specified filename and session ID.
+    """
+    Add searchable interview metadata for the specified filename and session ID.
     Intended to be used to add an interview title, etc.
     Standardized metadata dictionary:
     - title
@@ -302,6 +311,15 @@ def set_interview_metadata(
         session_id (str): The session ID of the interview to add metadata for.
         data (Dict): The metadata to add.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
+
+    Example:
+        With `saved_filename` and `saved_session_id` identifying the saved
+        session selected by the user, in an interview code block:
+
+    ```yaml
+    code: |
+      set_interview_metadata(saved_filename, saved_session_id, {"title": "Housing forms"})
+    ```
     """
     _write_answer_json(
         session_id, filename, safe_json(data), tags=metadata_key_name, persistent=True
@@ -311,7 +329,8 @@ def set_interview_metadata(
 def get_interview_metadata(
     filename: str, session_id: str, metadata_key_name: str = "metadata"
 ) -> Dict[str, Any]:
-    """Retrieve the unencrypted metadata associated with an interview.
+    """
+    Retrieve the unencrypted metadata associated with an interview.
     We implement this with the docassemble jsonstorage table and a dedicated `tag` which defaults to `metadata`.
 
     Args:
@@ -321,6 +340,15 @@ def get_interview_metadata(
 
     Returns:
         Dict[str, Any]: The metadata associated with the interview.
+
+    Example:
+        With `saved_filename` and `saved_session_id` identifying the saved
+        session selected by the user, in an interview code block:
+
+    ```yaml
+    code: |
+      saved_metadata = get_interview_metadata(saved_filename, saved_session_id)
+    ```
     """
     sql = text("""
         SELECT data
@@ -362,7 +390,8 @@ def _sql_like_prefix(value: str) -> str:
 
 
 def is_session_owned_by_user(filename: str, session_id: str, user_id: int) -> bool:
-    """Return whether a filename/session pair belongs to the specified user.
+    """
+    Return whether a filename/session pair belongs to the specified user.
 
     Args:
         filename (str): The filename of the interview.
@@ -371,6 +400,15 @@ def is_session_owned_by_user(filename: str, session_id: str, user_id: int) -> bo
 
     Returns:
         bool: True if the session belongs to the user, False otherwise.
+
+    Example:
+        With `saved_filename` and `saved_session_id` identifying the saved
+        session selected by the user, in an interview code block:
+
+    ```yaml
+    code: |
+      owns_session = is_session_owned_by_user(saved_filename, saved_session_id, user_info().id)
+    ```
     """
     ownership_query = text("""
         SELECT 1
@@ -406,7 +444,8 @@ def get_saved_interview_list(
     exclude_filenames: Optional[List[str]] = None,
     exclude_newly_started_sessions: bool = False,
 ) -> List[Dict[str, Any]]:
-    """Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
+    """
+    Get a list of saved sessions for the specified filename. If the save_interview_answers function was used
     to add metadata, the result list will include columns containing the metadata.
     If the user is a developer or administrator, setting user_id = None will list all interviews on the server. Otherwise,
     the user is limited to their own sessions.
@@ -430,6 +469,14 @@ def get_saved_interview_list(
 
     Returns:
         List[Dict[str, Any]]: A list of saved sessions for the specified filename.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      answer_sets = get_saved_interview_list(user_id=user_info().id)
+    ```
     """
     if offset < 0:
         offset = 0
@@ -564,7 +611,8 @@ def find_matching_sessions(
     global_search_allowed_roles: Optional[Union[Set[str], List[str]]] = None,
     metadata_filters: Optional[Dict[str, Tuple[Any, str, Optional[str]]]] = None,
 ) -> List[Dict[str, Any]]:
-    """Get a list of sessions where the metadata for the session matches the provided keyword search terms and metadata filters.
+    """
+    Get a list of sessions where the metadata for the session matches the provided keyword search terms and metadata filters.
     This function is designed to be used in a search interface where the user can search for sessions by keyword and specific metadata values.
     The keyword search is case-insensitive and will match any part of the metadata column values.
 
@@ -604,6 +652,14 @@ def find_matching_sessions(
         )
 
         {"owner": ("samantha", "ILIKE", None), "age": (30, ">=", "int"), "status": ("%complete%", "LIKE", None)}
+    ```
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      matching_sessions = find_matching_sessions("housing", user_id=user_info().id)
     ```
     """
     if not metadata_column_names:
@@ -792,6 +848,16 @@ def delete_interview_sessions(
         user_id (Optional[int], optional): The user ID to delete sessions for. Defaults to None.
         filename_to_exclude (str, optional): The filename to exclude from the results. Defaults to al_session_store_default_filename.
         exclude_current_filename (bool, optional): Whether to exclude the current filename from the results. Defaults to True.
+
+    Example:
+        After asking the user to confirm deletion with a yes/no field named
+        `confirmed_delete_sessions`, in the deletion action’s code block:
+
+    ```yaml
+    code: |
+      if confirmed_delete_sessions:
+          delete_interview_sessions(user_id=user_info().id)
+    ```
     """
     if not user_logged_in():
         log(
@@ -854,7 +920,8 @@ def interview_list_html(
     show_view_button: bool = True,
     answers: Optional[List[Dict[str, Any]]] = None,
 ) -> str:
-    """Return a string containing an HTML-formatted table with the list of saved answers
+    """
+    Return a string containing an HTML-formatted table with the list of saved answers
     associated with the specified filename.
 
     Designed to return a list of "answer sets" and by default clicking a title will
@@ -886,6 +953,15 @@ def interview_list_html(
 
     Returns:
         str: HTML-formatted table containing the list of saved answers.
+
+    Example:
+        On a signed-in user’s interview screen:
+
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ interview_list_html(user_id=user_info().id) }
+    ```
     """
     # TODO: Currently, using the `word()` function for translation, but templates
     # might be more flexible
@@ -975,6 +1051,17 @@ def nice_interview_title(
 
     Returns:
         str: The human readable interview title.
+
+    Example:
+        Import `nice_interview_title` explicitly from
+        `docassemble.AssemblyLine.sessions` before using this example.
+        Given a nonempty `saved_sessions` list returned by `get_saved_interview_list()`:
+
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ nice_interview_title(saved_sessions[0]) }
+    ```
     """
     if answer.get("filename"):
         for interview in system_interviews:
@@ -1000,6 +1087,15 @@ def pascal_to_zwspace(text: str) -> str:
 
     Returns:
         str: The text with zero-width spaces inserted.
+
+    Example:
+        Import `pascal_to_zwspace` explicitly from
+        `docassemble.AssemblyLine.sessions` before using this example.
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ pascal_to_zwspace("HousingCourtForms") }
+    ```
     """
     re_outer = re.compile(r"([^A-Z ])([A-Z])")
     re_inner = re.compile(r"(?<!^)([A-Z])([^A-Z])")
@@ -1018,6 +1114,15 @@ def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True) -> s
 
     Returns:
         str: The human readable interview subtitle.
+
+    Example:
+        Given a nonempty `saved_sessions` list returned by `get_saved_interview_list()`:
+
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ nice_interview_subtitle(saved_sessions[0]) }
+    ```
     """
     if answer.get("title"):
         return pascal_to_zwspace(answer["title"])
@@ -1040,6 +1145,17 @@ def radial_progress(answer: Dict[str, Union[str, int]]) -> str:
 
     Returns:
         str: the HTML as a string.
+
+    Example:
+        Import `radial_progress` explicitly from
+        `docassemble.AssemblyLine.sessions` before using this example.
+        Given a nonempty `saved_sessions` list returned by `get_saved_interview_list()`:
+
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ radial_progress(saved_sessions[0]) }
+    ```
     """
     if not answer.get("progress"):
         return f"{word('Page')} {answer.get('steps') or answer.get('num_keys') or 1}"
@@ -1069,6 +1185,15 @@ def local_date(utcstring: Optional[str]) -> DADateTime:
 
     Returns:
         DADateTime: The localized date.
+
+    Example:
+        Import `local_date` explicitly from
+        `docassemble.AssemblyLine.sessions` before using this example.
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ local_date("2026-01-15 14:30:00") }
+    ```
     """
     if not utcstring:
         return DADateTime()
@@ -1103,7 +1228,8 @@ def session_list_html(
     offset: int = 0,
     answers: Optional[List[Dict[str, Any]]] = None,
 ) -> str:
-    """Return a string containing an HTML-formatted table with the list of user sessions.
+    """
+    Return a string containing an HTML-formatted table with the list of user sessions.
     While interview_list_html() is for answer sets, this feature is for standard
     user sessions. The results exclude the answer set filename by default.
 
@@ -1134,6 +1260,15 @@ def session_list_html(
 
     Returns:
         str: HTML-formatted table containing the list of user sessions.
+
+    Example:
+        On a signed-in user’s interview screen:
+
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ session_list_html(user_id=user_info().id) }
+    ```
     """
     if not answers:
         answers = get_saved_interview_list(
@@ -1260,7 +1395,8 @@ def rename_interview_answers(
     new_name: str,
     metadata_key_name: str = "metadata",
 ) -> None:
-    """Update the 'title' metadata of an interview, as stored in the dedicated `metadata` column, without touching other
+    """
+    Update the 'title' metadata of an interview, as stored in the dedicated `metadata` column, without touching other
     metadata that may be present.
 
     Args:
@@ -1270,6 +1406,15 @@ def rename_interview_answers(
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
 
     If exception is raised in set_session_variables, this will silently fail but log the error.
+
+    Example:
+        With `saved_filename` and `saved_session_id` identifying the saved
+        session selected by the user, in an interview code block:
+
+    ```yaml
+    code: |
+      rename_interview_answers(saved_filename, saved_session_id, "My housing forms")
+    ```
     """
     update_session_metadata(
         filename,
@@ -1304,6 +1449,14 @@ def set_current_session_metadata(
     Args:
         data (Dict[str, Any]): The metadata to set.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      set_current_session_metadata({"title": "My housing forms"})
+    ```
     """
     return set_interview_metadata(
         current_context().filename,
@@ -1317,12 +1470,21 @@ def rename_current_session(
     new_name: str,
     metadata_key_name: str = "metadata",
 ) -> None:
-    """Update the "title" metadata entry for the current session without changing any other
+    """
+    Update the "title" metadata entry for the current session without changing any other
     metadata that might be present.
 
     Args:
         new_name (str): The new name to set for the interview.
         metadata_key_name (str, optional): The name of the metadata key. Defaults to "metadata".
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      rename_current_session("My housing forms")
+    ```
     """
     return rename_interview_answers(
         current_context().filename,
@@ -1357,6 +1519,14 @@ def save_interview_answers(
 
     Returns:
         str: ID of the new session.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      saved_session_id = save_interview_answers(metadata={"title": "My household"})
+    ```
     """
     # Avoid using mutable default parameter
     if not variables_to_filter:
@@ -1436,6 +1606,14 @@ def get_filtered_session_variables(
 
     Returns:
         Dict[str, Any]: A dictionary of filtered session variables.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      saved_answers = get_filtered_session_variables(additional_variables_to_filter=["temporary_access_code"])
+    ```
     """
     if not variables_to_filter:
         variables_to_filter = al_sessions_variables_to_remove
@@ -1516,6 +1694,14 @@ def get_filtered_session_variables_string(
 
     Returns:
         str: A JSON-formatted string of filtered session variables.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      answers_json = get_filtered_session_variables_string()
+    ```
     """
     simple_vars = serializable_dict(
         get_filtered_session_variables(
@@ -1551,6 +1737,15 @@ def load_interview_answers(
 
     Returns:
         Optional[Union[int, bool]]: ID of the newly created session if `new_session` is True, otherwise True or False based on success.
+
+    Example:
+        With `saved_filename` and `saved_session_id` identifying the saved
+        session selected by the user, in an interview code block:
+
+    ```yaml
+    code: |
+      load_interview_answers(saved_filename, saved_session_id)
+    ```
     """
 
     old_variables = get_filtered_session_variables(
@@ -1593,6 +1788,15 @@ def load_interview_json(
 
     Returns:
         Optional[Union[int, bool]]: ID of the newly created session if `new_session` is True, otherwise True or False based on success.
+
+    Example:
+        After the user chooses to import `answers_json`, in the import action’s
+        code block (this replaces matching answers in the current session):
+
+    ```yaml
+    code: |
+      load_interview_json(answers_json)
+    ```
     """
     json_processed = json.loads(json_string)
 
@@ -1633,6 +1837,14 @@ def export_interview_variables(
 
     Returns:
         DAFile: DAFile with a JSON representation of the answers.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      answers_file = export_interview_variables()
+    ```
     """
     if not output:
         output = DAFile()
@@ -1658,6 +1870,14 @@ def is_valid_json(json_string: str) -> bool:
 
     Returns:
         bool: True if the string is a valid JSON, otherwise it raises a validation error and returns False.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      valid_answers = is_valid_json(answers_json)
+    ```
     """
     try:
         json.loads(json_string)
@@ -1670,7 +1890,8 @@ def is_valid_json(json_string: str) -> bool:
 def config_with_language_fallback(
     config_key: str, top_level_config_key: Optional[str] = None
 ) -> Optional[str]:
-    """Returns the value of a config key under `assembly line` `interview list` with options to fallback
+    """
+    Returns the value of a config key under `assembly line` `interview list` with options to fallback
     to an alternative key at the top level of the global configuration.
 
     Used in interview_list.yml to allow overriding some of the labels in the interview list
@@ -1691,6 +1912,13 @@ def config_with_language_fallback(
 
     Returns:
         str: The value of the config key, or the alternative key, or None.
+
+    Example:
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ config_with_language_fallback("page title") }
+    ```
     """
     interview_list_config = get_config("assembly line", {}).get("interview list", {})
     if interview_list_config.get(config_key):
@@ -1709,7 +1937,8 @@ def get_filenames_having_sessions(
     user_id: Optional[Union[int, str]] = None,
     global_search_allowed_roles: Optional[Union[Set[str], List[str]]] = None,
 ) -> List[str]:
-    """Get a list of all filenames that have sessions saved for a given user, in order
+    """
+    Get a list of all filenames that have sessions saved for a given user, in order
     to help show the user a good list of interviews to filter search results.
 
     Args:
@@ -1718,6 +1947,15 @@ def get_filenames_having_sessions(
 
     Returns:
         List[str]: List of filenames that have sessions saved for the user.
+
+    Example:
+        With `saved_filename` and `saved_session_id` identifying the saved
+        session selected by the user, in an interview code block:
+
+    ```yaml
+    code: |
+      saved_filenames = get_filenames_having_sessions(user_id=user_info().id)
+    ```
     """
     if not global_search_allowed_roles:
         global_search_allowed_roles = {"admin", "developer", "advocate"}
@@ -1787,6 +2025,14 @@ def get_combined_filename_list(
 
     Returns:
         List[Dict[str, str]]: List of filenames that have sessions saved for the user.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      interview_choices = get_combined_filename_list(user_id=user_info().id)
+    ```
     """
     if not global_search_allowed_roles:
         global_search_allowed_roles = {"admin", "developer", "advocate"}
@@ -1840,6 +2086,15 @@ def update_session_metadata(
         session_id:         The ID of the session to update.
         data:               A dict of metadata to add or update.
         metadata_key_name:  The tag for the metadata in jsonstorage. Defaults to "metadata".
+
+    Example:
+        With `saved_filename` and `saved_session_id` identifying the saved
+        session selected by the user, in an interview code block:
+
+    ```yaml
+    code: |
+      update_session_metadata(saved_filename, saved_session_id, {"subtitle": "Ready to review"})
+    ```
     """
     # 1) Prepare JSON payload
     json_data_string = json.dumps(safe_json(data))
@@ -1912,6 +2167,14 @@ def update_current_session_metadata(
         data (Dict[str, Any]): A dictionary of metadata to add or update.
         metadata_key_name (str, optional): The tag for the metadata in the.
                                            jsonstorage table. Defaults to "metadata".
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      update_current_session_metadata({"subtitle": "Ready to review"})
+    ```
     """
     return update_session_metadata(
         filename=current_context().filename,

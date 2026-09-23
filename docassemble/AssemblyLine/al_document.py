@@ -78,7 +78,8 @@ class CacheableDocument(_CacheableDocumentTitle, total=False):
 
 
 def random_suffix(length: int = 8) -> str:
-    """Return a random string for use in unique IDs.
+    """
+    Return a random string for use in unique IDs.
 
     Note: this is powerful enough for the expected usecase of distinguishing a few
     HTML elements from each other, but not cryptographically secure or as strong as
@@ -88,6 +89,16 @@ def random_suffix(length: int = 8) -> str:
         length (int): The length of the random string to generate. Defaults to 8.
     Returns:
         str: A random string of lowercase letters and digits.
+
+    Example:
+        Import `random_suffix` explicitly from
+        `docassemble.AssemblyLine.al_document` before using this example.
+        In an interview code block:
+
+    ```yaml
+    code: |
+      download_id = random_suffix(length=8)
+    ```
     """
     alphabet = string.ascii_lowercase + string.digits
     return "".join(secrets.choice(alphabet) for _ in range(length))
@@ -102,6 +113,16 @@ def base_name(filename: str) -> str:
 
     Returns:
         str: The base name of the file without its extension.
+
+    Example:
+        Import `base_name` explicitly from
+        `docassemble.AssemblyLine.al_document` before using this example.
+        In an interview code block:
+
+    ```yaml
+    code: |
+      document_name = base_name("petition.pdf")
+    ```
     """
     return os.path.splitext(filename)[0]
 
@@ -118,6 +139,14 @@ def label(dictionary: dict) -> str:
 
     Returns:
         str: The value of the first dictionary item or an empty string if not found.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      column_heading = label({"name": "Full name"})
+    ```
     """
     try:
         return next(iter(dictionary.values()), "")
@@ -137,6 +166,14 @@ def key(dictionary: dict) -> str:
 
     Returns:
         str: The key of the first dictionary item or an empty string if not found.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      column_attribute = key({"name": "Full name"})
+    ```
     """
     try:
         return next(iter(dictionary.keys()), "")
@@ -157,6 +194,21 @@ def safeattr(object: Any, key: str) -> str:
 
     Note:
         The `location` attribute of an Address object or any LatitudeLongitude attribute of a DAObject is always skipped.
+
+    Example:
+        Show an email address only if it is already defined:
+
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ safeattr(users[0], "email") }
+    ```
+
+        In a DOCX template (Jinja2):
+
+    ```jinja2
+    {{ safeattr(users[0], "email") }}
+    ```
     """
     try:
         if isinstance(object, dict) or isinstance(object, DADict):
@@ -186,6 +238,16 @@ def html_safe_str(the_string: str) -> str:
 
     Returns:
         str: A string that's safe for use as an HTML class or ID.
+
+    Example:
+        Import `html_safe_str` explicitly from
+        `docassemble.AssemblyLine.al_document` before using this example.
+        In an interview code block:
+
+    ```yaml
+    code: |
+      html_id = html_safe_str("Your documents")
+    ```
     """
     return re.sub(r"[^A-Za-z0-9]+", "_", the_string)
 
@@ -208,6 +270,16 @@ def table_row(title: str, button_htmls: List[str] = []) -> str:
 
     Returns:
         str: An HTML string representing a row in an AL document-styled table.
+
+    Example:
+        Import `table_row` explicitly from
+        `docassemble.AssemblyLine.al_document` before using this example.
+        With `table_row` imported from `docassemble.AssemblyLine.al_document`,
+        add a row with a download button in question text (Mako):
+
+    ```mako
+    ${ table_row("Petition", [action_button_html(petition.as_pdf().url_for(attachment=True), label="Download", icon="download")]) }
+    ```
     """
     html = (
         f'\n\t<div class="row al_doc_table_row">'
@@ -235,6 +307,16 @@ def pdf_page_parity(pdf_path: str) -> Literal["even", "odd"]:
 
     Returns:
         Literal["even", "odd"]: The parity of the number of pages in the PDF.
+
+    Example:
+        Import `pdf_page_parity` explicitly from
+        `docassemble.AssemblyLine.al_document` before using this example.
+        In an interview code block:
+
+    ```yaml
+    code: |
+      page_parity = pdf_page_parity(petition.as_pdf().path())
+    ```
     """
     with pikepdf.open(pdf_path) as pdf:
         num_pages = len(pdf.pages)
@@ -249,6 +331,17 @@ def add_blank_page(pdf_path: str) -> None:
 
     Args:
         pdf_path (str): Path to the PDF in the filesystem.
+
+    Example:
+        Import `add_blank_page` explicitly from
+        `docassemble.AssemblyLine.al_document` before using this example.
+        In an interview code block:
+
+    ```yaml
+    code: |
+      combined_pdf = al_user_bundle.as_pdf()
+      add_blank_page(combined_pdf.path())
+    ```
     """
     # Load the PDF
     with pikepdf.open(pdf_path, allow_overwriting_input=True) as pdf:
@@ -288,14 +381,35 @@ class ALAddendumField(DAObject):
 
     Note:
         The attributes `headers` and `field_style` are planned for future releases and are not currently implemented.
+
+    Example:
+        On an ALDocument named `petition` with `has_addendum=True`, configure
+        the interview variable `reasons` to overflow after 640 characters:
+
+    ```yaml
+    code: |
+      petition.overflow_fields["reasons"].overflow_trigger = 640
+      petition.overflow_fields["reasons"].label = "Reasons for the request"
+      petition.overflow_fields.gathered = True
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        code: |
+          petition.overflow_fields["reasons"].overflow_trigger = 640
+        ```
         """
         super().init(*pargs, **kwargs)
 
@@ -329,6 +443,29 @@ class ALAddendumField(DAObject):
 
         Returns:
             Any: The portion of the variable exceeding the content safe for display, considered as overflow.
+
+        Example:
+            With `reasons = "I need more time to move."` and
+            `petition.overflow_fields["reasons"].overflow_trigger = 16`:
+            Calling the field directly uses an empty overflow marker by default.
+
+            **Input (Mako)**
+
+        ```mako
+        ${ petition.overflow_fields["reasons"].overflow_value() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ petition.overflow_fields["reasons"].overflow_value() }}
+        ```
+
+            **Output**
+
+        ```text
+        to move.
+        ```
         """
         # Handle a Boolean overflow first
         if isinstance(self.overflow_trigger, bool):
@@ -389,6 +526,14 @@ class ALAddendumField(DAObject):
 
         Returns:
             int: The maximum number of lines accommodated by the input width.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          lines_that_fit = petition.overflow_fields["reasons"].max_lines()
+        ```
         """
         return floor(self.overflow_trigger / input_width)
 
@@ -401,6 +546,21 @@ class ALAddendumField(DAObject):
 
         Returns:
             Any: The whole value of the field, irrespective of overflow.
+
+        Example:
+            Use after configuring the field in `petition.overflow_fields`.
+
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ petition.overflow_fields["reasons"].value() }
+        ```
+
+            In a DOCX template (Jinja2):
+
+        ```jinja2
+        {{ petition.overflow_fields["reasons"].value() }}
+        ```
         """
         return self.value_if_defined()
 
@@ -430,6 +590,14 @@ class ALAddendumField(DAObject):
 
         Returns:
             bool: True if the value's length exceeds the overflow trigger, False otherwise.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_has_overflow = petition.overflow_fields["reasons"].has_overflow()
+        ```
         """
         if _original_value:
             val = _original_value
@@ -478,6 +646,29 @@ class ALAddendumField(DAObject):
 
         Returns:
             Union[str, List[Any]]: Either a string representing the overflow message or the original value.
+
+        Example:
+            With `reasons = "I need more time to move."` and
+            `petition.overflow_fields["reasons"].overflow_trigger = 16`:
+            Calling the field directly uses an empty overflow marker by default.
+
+            **Input (Mako)**
+
+        ```mako
+        ${ petition.overflow_fields["reasons"].original_or_overflow_message(overflow_message="See addendum.") }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ petition.overflow_fields["reasons"].original_or_overflow_message(overflow_message="See addendum.") }}
+        ```
+
+            **Output**
+
+        ```text
+        See addendum.
+        ```
         """
         if _original_value:
             val = _original_value
@@ -531,6 +722,29 @@ class ALAddendumField(DAObject):
 
         Returns:
             Union[str, List[Any]]: The portion of the variable that fits within the overflow trigger.
+
+        Example:
+            With `reasons = "I need more time to move."` and
+            `petition.overflow_fields["reasons"].overflow_trigger = 16`:
+            Calling the field directly uses an empty overflow marker by default.
+
+            **Input (Mako)**
+
+        ```mako
+        ${ petition.overflow_fields["reasons"].safe_value() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ petition.overflow_fields["reasons"].safe_value() }}
+        ```
+
+            **Output**
+
+        ```text
+        I need more time
+        ```
         """
         # Handle simplest case first
         if _original_value:
@@ -605,6 +819,21 @@ class ALAddendumField(DAObject):
 
         Returns:
             Any: The value of the field if it exists, otherwise an empty string.
+
+        Example:
+            Use after configuring the field in `petition.overflow_fields`.
+
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ petition.overflow_fields["reasons"].value_if_defined() }
+        ```
+
+            In a DOCX template (Jinja2):
+
+        ```jinja2
+        {{ petition.overflow_fields["reasons"].value_if_defined() }}
+        ```
         """
         return showifdef(self.field_name, "")
 
@@ -637,6 +866,14 @@ class ALAddendumField(DAObject):
 
         Note:
             The "location" attribute of an Address object is always skipped in the column list.
+
+        Example:
+            After configuring `users` as an overflow field on `petition`:
+
+        ```yaml
+        code: |
+          addendum_columns = petition.overflow_fields["users"].columns()
+        ```
         """
         if not skip_attributes:
             skip_attributes = {"complete"}
@@ -691,6 +928,14 @@ class ALAddendumField(DAObject):
 
         Returns:
             str: The type category of the value.
+
+        Example:
+            After configuring `users` as an overflow field on `petition`:
+
+        ```yaml
+        code: |
+          field_kind = petition.overflow_fields["users"].type()
+        ```
         """
         value = self.value_if_defined()
         if isinstance(value, list) or isinstance(value, DAList):
@@ -709,6 +954,14 @@ class ALAddendumField(DAObject):
 
         Returns:
             bool: True if the field contains a list, otherwise False.
+
+        Example:
+            After configuring `users` as an overflow field on `petition`:
+
+        ```yaml
+        code: |
+          field_is_list = petition.overflow_fields["users"].is_list()
+        ```
         """
         return self.type() == "object_list" or self.type() == "list"
 
@@ -718,6 +971,14 @@ class ALAddendumField(DAObject):
 
         Returns:
             bool: True if the field contains a list of dictionaries or objects, otherwise False.
+
+        Example:
+            After configuring `users` as an overflow field on `petition`:
+
+        ```yaml
+        code: |
+          field_contains_people = petition.overflow_fields["users"].is_object_list()
+        ```
         """
         return self.type() == "object_list"
 
@@ -731,6 +992,13 @@ class ALAddendumField(DAObject):
 
         Returns:
             str: A markdown representation of the overflow values.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ petition.overflow_fields["users"].overflow_markdown() }
+        ```
         """
         columns = self.columns()
         if not columns:
@@ -789,6 +1057,13 @@ class ALAddendumField(DAObject):
 
         Returns:
             A docx template with the inserted table.
+
+        Example:
+            In a DOCX addendum, give the path to your table template:
+
+        ```jinja2
+        {{p petition.overflow_fields["users"].overflow_docx(path="addendum_table.docx") }}
+        ```
         """
         return include_docx_template(
             path, columns=self.columns(), rows=self.overflow_value()
@@ -809,14 +1084,36 @@ class ALAddendumFieldDict(DAOrderedDict):
     Attributes:
         style (str): Determines the display behavior. If set to "overflow_only",.
                      only the overflow text will be displayed.
+
+    Example:
+        Configure the overflow fields on an ALDocument named `petition`:
+
+    ```yaml
+    code: |
+      petition.overflow_fields.from_list([
+          {"field_name": "reasons", "overflow_trigger": 640},
+          {"field_name": "users", "overflow_trigger": 2},
+      ])
+      petition.overflow_fields.gathered = True
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation. The `petition.overflow_fields` attribute is an ALAddendumFieldDict.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - petition: ALDocument.using(title="Petition", filename="petition", enabled=True, has_addendum=True)
+        ```
         """
         super(ALAddendumFieldDict, self).init(*pargs, **kwargs)
         self.object_type = ALAddendumField
@@ -841,6 +1138,15 @@ class ALAddendumFieldDict(DAOrderedDict):
 
         Returns:
           The new dictionary entry created
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          petition.overflow_fields.initializeObject("reasons", ALAddendumField)
+          petition.overflow_fields["reasons"].overflow_trigger = 640
+        ```
         """
         the_key = pargs[0]
         newobj = super().initializeObject(*pargs, **kwargs)
@@ -854,6 +1160,18 @@ class ALAddendumFieldDict(DAOrderedDict):
         Args:
             data (list): List of dictionaries containing ield data with keys "field_name".
                 and "overflow_trigger".
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          petition.overflow_fields.from_list([
+              {"field_name": "reasons", "overflow_trigger": 640},
+              {"field_name": "users", "overflow_trigger": 2},
+          ])
+          petition.overflow_fields.gathered = True
+        ```
         """
         for entry in data:
             new_field = self.initializeObject(entry["field_name"], ALAddendumField)
@@ -871,6 +1189,14 @@ class ALAddendumFieldDict(DAOrderedDict):
 
         Returns:
             list: List of defined fields based on the specified style.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          addendum_fields = petition.overflow_fields.defined_fields()
+        ```
         """
         if style == "overflow_only":
             return [field for field in self.values() if len(field.overflow_value())]
@@ -883,6 +1209,14 @@ class ALAddendumFieldDict(DAOrderedDict):
 
         Returns:
             list: A list of fields with overflow values.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          overflow_fields = petition.overflow_fields.overflow()
+        ```
         """
         return self.defined_fields(style="overflow_only")
 
@@ -892,6 +1226,14 @@ class ALAddendumFieldDict(DAOrderedDict):
 
         Returns:
             bool: True if at least one field overflows, False otherwise.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_has_overflow = petition.overflow_fields.has_overflow()
+        ```
         """
         for field in self.values():
             if field.overflow_value():
@@ -986,90 +1328,113 @@ class ALDocument(DADict):
         variable that is posed to the interview user to work around this
         limitation.
 
-    Examples: # TODO: the code blocks aren't working right yet on the Docusaurus page.
+    Examples:
+        Define an always-enabled petition with preview and final versions. With
+        `assembly_line.yml` included, `users[0]` is the first ALIndividual in
+        the `users` ALPeopleList. This attachment uses Mako:
 
-        Simple use where the document is always enabled and will have no addendum
-        --------------------------------------------------------------------------
-        ```yaml
-        ---
-        objects:
-          - my_doc: ALDocument.using(filename="myDoc.pdf", title="myDoc", enabled=True)
-        ---
-        attachment:
-          variable name: my_doc[i]  # This same template will be used for the `preview` and `final` keys
-          content: |
-            Here is some content
+    ```yaml
+    objects:
+      - petition: ALDocument.using(filename="petition.pdf", title="Petition", enabled=True)
+    ---
+    attachment:
+      variable name: petition[i]
+      content: |
+        # Petition
 
-            % if i == 'final':
-            ${ users[0].signature }
-            % elif i == 'preview':
-            [ Your signature here ]
-            % endif
-        ```
+        I, ${ users[0].name_full() }, request the relief described below.
 
-        Enable a document conditionally
-        --------------------------------
-        ```yaml
-        ---
-        # See that `enabled` is not defined here
-        objects:
-          - affidavit_of_indigency: ALDocument.using(filename="affidavit-of-indigency.pdf", title="Affidavit of Indigency")
-        ---
-        code: |
-          affidavit_of_indigency.enabled = ask_indigency_questions and is_indigent
-        ```
+        ${ users[0].signature_if_final(i) }
+    ---
+    event: review_petition
+    question: |
+      Review your petition before signing
+    subquestion: |
+      ${ petition.as_pdf(key="preview") }
+    ---
+    event: download_petition
+    question: |
+      Download your signed petition
+    subquestion: |
+      ${ petition.as_pdf() }
+    ```
 
-        An example enabling with a question posed to the interview user
-        ----------------------------------------------------------------
-        You should always use a code block or an object block to set the "enabled" status;
-        Use an intermediate variable if you want to ask the user directly whether or not to include a document.
-        ```yaml
-        ---
-        question: |
-          Do you want the extra document included?
-        fields:
-          - no label: include_extra_document
-            datatype: yesnoradio
-        ---
-        code: |
-          extra_document.enabled = include_extra_document
-        ---
-        attachment:
-            variable name: extra_document[i] # This same template will be used for `final` and `preview`
-            docx template file: extra_document.docx
-        ```
+        For a DOCX template, replace the attachment's `content` with
+        `docx template file: petition.docx`. Inside that file, use Jinja2:
 
-        For a document that may need an addendum, you must specify this when the object is created
-        or in a mandatory code block. The addendum will only be triggered if the document has "overflow"
-        in one of the fields that you specify.
-        ```
-        ---
-        objects:
-          - my_doc: ALDocument.using(filename="myDoc.pdf", title="myDoc", enabled=True, has_addendum=True)
-        ---
-        attachment:
-            variable name: my_doc[i]
-            ...
-        ---
-        generic object: ALDocument
-        attachment:
-          variable name: x.addendum
-          docx template file: docx_addendum.docx
-        ---
-        code: |
-          my_doc.overflow_fields['big_text_variable'].overflow_trigger = 640 # Characters
-          my_doc.overflow_fields['big_text_variable'].label = "Big text label" # Optional - you may use in your addendum
-          my_doc.overflow_fields['list_of_objects_variable'].overflow_trigger = 4 # Items in the list
-          my_doc.overflow_fields.gathered = True
-        ```
+    ```jinja2
+    I, {{ users[0].name_full() }}, request the relief described below.
+
+    {{ users[0].signature_if_final(i) }}
+    ```
+
+        To make a document optional, derive `enabled` from a separate answer.
+        Ask about `include_extra_document` rather than asking about `enabled`
+        directly, because the bundle refreshes `enabled` when assembling:
+
+    ```yaml
+    objects:
+      - extra_document: ALDocument.using(filename="extra_document.pdf", title="Additional statement")
+    ---
+    question: |
+      Do you want to include an additional statement?
+    fields:
+      - Include a statement: include_extra_document
+        datatype: yesnoradio
+    ---
+    code: |
+      extra_document.enabled = include_extra_document
+    ---
+    attachment:
+      variable name: extra_document[i]
+      docx template file: extra_document.docx
+    ```
+
+        For a PDF template with a limited-size text field, configure overflow
+        and define an addendum. In this example, `reasons` is a gathered text
+        answer, and `reasons_field` is the field name in `petition.pdf`, stored
+        in your package's `data/templates` directory:
+
+    ```yaml
+    objects:
+      - petition: ALDocument.using(filename="petition.pdf", title="Petition", enabled=True, has_addendum=True)
+    ---
+    code: |
+      petition.overflow_fields["reasons"].overflow_trigger = 640
+      petition.overflow_fields["reasons"].label = "Reasons for the request"
+      petition.overflow_fields.gathered = True
+    ---
+    attachment:
+      variable name: petition[i]
+      pdf template file: petition.pdf
+      fields:
+        - reasons_field: ${ petition.safe_value("reasons") }
+    ---
+    attachment:
+      variable name: petition.addendum
+      content: |
+        # Additional reasons
+
+        ${ petition.overflow_value("reasons") }
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - petition: ALDocument.using(title="Petition", filename="petition", enabled=True)
+        ```
         """
         super(ALDocument, self).init(*pargs, **kwargs)
         self.initializeAttribute("overflow_fields", ALAddendumFieldDict)
@@ -1101,6 +1466,19 @@ class ALDocument(DADict):
 
         Returns:
             DAFile: Assembled document in PDF format, possibly combined with addendum.
+
+        Example:
+            Link to the assembled petition on the download screen (Mako):
+
+        ```mako
+        ${ petition.as_pdf() }
+        ```
+
+            Use the attachment’s preview version on a review screen:
+
+        ```mako
+        ${ petition.as_pdf(key="preview") }
+        ```
         """
         # Trigger some stuff up front to avoid idempotency problems
         self.title
@@ -1175,6 +1553,13 @@ class ALDocument(DADict):
 
         Returns:
             DAFile: Assembled document in DOCX or PDF format.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ petition.as_docx() }
+        ```
         """
         if append_matching_suffix and key == self.suffix_to_append:
             filename = f"{base_name(self.filename)}_{key}"
@@ -1226,6 +1611,14 @@ class ALDocument(DADict):
 
         Returns:
             List[DAFile]: List containing the main document and possibly its addendum.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_files = petition.as_list()
+        ```
         """
         if refresh:
             if self.has_addendum and self.has_overflow():
@@ -1245,6 +1638,14 @@ class ALDocument(DADict):
 
         Returns:
             bool: True if an addendum is needed, False otherwise.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          petition_needs_addendum = petition.need_addendum()
+        ```
         """
         return (
             hasattr(self, "has_addendum") and self.has_addendum and self.has_overflow()
@@ -1256,6 +1657,14 @@ class ALDocument(DADict):
 
         Returns:
             bool: True if there are overflow fields, False otherwise.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_has_overflow = petition.has_overflow()
+        ```
         """
         return self.overflow_fields.has_overflow()
 
@@ -1265,6 +1674,14 @@ class ALDocument(DADict):
 
         Returns:
             list: List of overflow fields.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          overflow_fields = petition.overflow()
+        ```
         """
         return self.overflow_fields.overflow()
 
@@ -1302,6 +1719,29 @@ class ALDocument(DADict):
 
         Returns:
             Union[str, List[Any]]: Either the original value or the overflow message, never a truncated value.
+
+        Example:
+            With `reasons = "I need more time to move."` and
+            `petition.overflow_fields["reasons"].overflow_trigger = 16`:
+            `petition` uses the default overflow marker (`"..."`).
+
+            **Input (Mako)**
+
+        ```mako
+        ${ petition.original_or_overflow_message("reasons", overflow_message="See addendum.") }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ petition.original_or_overflow_message("reasons", overflow_message="See addendum.") }}
+        ```
+
+            **Output**
+
+        ```text
+        See addendum.
+        ```
         """
         if overflow_message is None:
             overflow_message = self.default_overflow_message
@@ -1336,6 +1776,29 @@ class ALDocument(DADict):
 
         Returns:
             str: The "safe" value of the specified field.
+
+        Example:
+            With `reasons = "I need more time to move."` and
+            `petition.overflow_fields["reasons"].overflow_trigger = 16`:
+            `petition` uses the default overflow marker (`"..."`).
+
+            **Input (Mako)**
+
+        ```mako
+        ${ petition.safe_value("reasons") }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ petition.safe_value("reasons") }}
+        ```
+
+            **Output**
+
+        ```text
+        I need more...
+        ```
         """
         if overflow_message is None:
             overflow_message = self.default_overflow_message
@@ -1368,6 +1831,29 @@ class ALDocument(DADict):
 
         Returns:
             str: The "overflow" value of the specified field.
+
+        Example:
+            With `reasons = "I need more time to move."` and
+            `petition.overflow_fields["reasons"].overflow_trigger = 16`:
+            `petition` uses the default overflow marker (`"..."`).
+
+            **Input (Mako)**
+
+        ```mako
+        ${ petition.overflow_value("reasons") }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ petition.overflow_value("reasons") }}
+        ```
+
+            **Output**
+
+        ```text
+        time to move.
+        ```
         """
         if overflow_message is None:
             overflow_message = self.default_overflow_message
@@ -1392,6 +1878,14 @@ class ALDocument(DADict):
 
         Returns:
             bool: True if the document is enabled, otherwise False.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_is_enabled = petition.is_enabled()
+        ```
         """
         if hasattr(self, "always_enabled") and self.always_enabled:
             return True
@@ -1418,26 +1912,43 @@ class ALStaticDocument(DAStaticFile):
         filename (str): Path to the file within `/data/static/`.
         title (str): Title displayed as a row when invoking `download_list_html()` method from ALDocumentBundle.
 
-    Examples:
-        Add a static PDF file to a document bundle.
-        .. code-block:: yaml
-          ---
-          objects:
-            - static_test: ALStaticDocument.using(title="Static Test", filename="static.pdf", enabled=True)
-          ---
-          objects:
-            - bundle: ALDocumentBundle.using(elements=[static_test], filename="bundle", title="Documents to download now")
 
     Todo:
         Consider handling files in `/data/templates` if deemed useful, potentially by copying into a DAFile using `pdf_concatenate()`.
+
+    Example:
+        Place `instructions.pdf` in your package’s `data/static` directory,
+        then add it to the user’s download bundle:
+
+    ```yaml
+    objects:
+      - instructions: ALStaticDocument.using(title="Instructions", filename="instructions.pdf", enabled=True)
+      - al_user_bundle: ALDocumentBundle.using(elements=[instructions], filename="user_bundle", title="Your documents", enabled=True)
+    ---
+    event: download
+    question: |
+      Download your instructions
+    subquestion: |
+      ${ al_user_bundle.download_list_html() }
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - instructions: ALStaticDocument.using(title="Instructions", filename="instructions.pdf", enabled=True)
+        ```
         """
         super().init(*pargs, **kwargs)
         self.has_addendum = False
@@ -1468,6 +1979,14 @@ class ALStaticDocument(DAStaticFile):
 
         Returns:
             List[DAStaticFile]: A list containing this document.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_files = instructions.as_list()
+        ```
         """
         return [self]
 
@@ -1491,6 +2010,13 @@ class ALStaticDocument(DAStaticFile):
 
         Returns:
             Union[DAStaticFile, DAFile]: The document in PDF format.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ instructions.as_pdf() }
+        ```
         """
         if not filename:
             filename = self.filename
@@ -1512,6 +2038,13 @@ class ALStaticDocument(DAStaticFile):
 
         Returns:
             Union[DAStaticFile, DAFile]: The document in DOCX or PDF format.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ instructions.as_docx() }
+        ```
         """
         if self._is_docx():
             return self
@@ -1552,19 +2085,35 @@ class ALStaticDocument(DAStaticFile):
 
         Returns:
             DAFile: Displayable version of the document.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ instructions.show() }
+        ```
         """
         # TODO: this explicit conversion shouldn't be needed
         # Workaround for problem generating thumbnails without it
         return pdf_concatenate(self).show(**kwargs)
 
     def is_enabled(self, **kwargs) -> bool:
-        """Check if the document is enabled.
+        """
+        Check if the document is enabled.
 
         Args:
             **kwargs: Unused (for signature compatibility only).
 
         Returns:
             bool: True if the document is enabled, otherwise False.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_is_enabled = instructions.is_enabled()
+        ```
         """
         return self.enabled
 
@@ -1650,31 +2199,39 @@ class ALDocumentBundle(DAList):
         page_number_offset_vertical (float): Vertical inset in pixels from the nearest page.
             edge for stamped page numbers. Defaults to `15`.
 
-    Examples:
-        Given three documents: `Cover page`, `Main motion form`, and `Notice of Interpreter Request`,
-        bundle them as follows:
-        ```
-        bundle = ALDocumentBundle(elements=[cover_page, main_motion, notice_of_request],
-                                  filename="documents_bundle", title="Document Set")
-        ```
+    Example:
+        After defining `petition` and `instructions` as documents, add them
+        to the bundle and display download and email controls:
 
-        Convert the bundle to a PDF:
-        ```
-        combined_pdf = bundle.as_pdf()
-        ```
-
-        Convert the bundle to a zip archive containing individual PDFs:
-        ```
-        zipped_files = bundle.as_zip()
-        ```
+    ```yaml
+    objects:
+      - al_user_bundle: ALDocumentBundle.using(elements=[petition, instructions], filename="user_bundle.pdf", title="Your documents", enabled=True)
+    ---
+    event: download
+    question: |
+      Your documents are ready
+    subquestion: |
+      ${ al_user_bundle.download_list_html() }
+      ${ al_user_bundle.send_button_html() }
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - al_user_bundle: ALDocumentBundle.using(elements=[petition, instructions], title="Your documents", filename="user_bundle", enabled=True)
+        ```
         """
         super().init(*pargs, **kwargs)
         if "auto_gather" not in kwargs:
@@ -1730,6 +2287,19 @@ class ALDocumentBundle(DAList):
 
         Returns:
             Optional[DAFile]: Combined PDF file or None if no documents are enabled.
+
+        Example:
+            Link to the final combined PDF on the download screen (Mako):
+
+        ```mako
+        ${ al_user_bundle.as_pdf() }
+        ```
+
+            On a review screen, use the preview version before the user signs:
+
+        ```mako
+        ${ al_user_bundle.as_pdf(key="preview") }
+        ```
         """
         safe_key = space_to_underscore(key)
         if pdfa:
@@ -1869,6 +2439,19 @@ class ALDocumentBundle(DAList):
 
         Returns:
             DAFile: A zip file containing the enabled documents.
+
+        Example:
+            Offer a ZIP of the final PDFs on the download screen (Mako):
+
+        ```mako
+        ${ al_user_bundle.as_zip() }
+        ```
+
+            Include editable versions where available alongside the PDFs:
+
+        ```mako
+        ${ al_user_bundle.as_zip(format="docx", include_pdf=True) }
+        ```
         """
         if format is None:
             format = "pdf"
@@ -1934,6 +2517,13 @@ class ALDocumentBundle(DAList):
 
         Returns:
             Optional[DAFile]: Preview PDF file or None if no documents are enabled.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ al_user_bundle.preview() }
+        ```
         """
         return self.as_pdf(key="preview", refresh=refresh)
 
@@ -1946,6 +2536,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             bool: True if there's at least one enabled document, otherwise False.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          has_documents_to_download = al_user_bundle.has_enabled_documents()
+        ```
         """
         return any(document.is_enabled(refresh=refresh) for document in self.elements)
 
@@ -1958,6 +2556,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             List[Any]: List of enabled documents.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          enabled_documents_result = al_user_bundle.enabled_documents()
+        ```
         """
         return [
             document
@@ -1975,6 +2581,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             List[DAFile]: Flattened list of enabled documents.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          download_files = al_user_bundle.as_flat_list()
+        ```
         """
         # Iterate through the list of self.templates
         # Unpack the list of documents at each step so this can be concatenated into a single list
@@ -1998,6 +2612,23 @@ class ALDocumentBundle(DAList):
 
         Returns:
             List[str]: Titles of the enabled documents.
+
+        Example:
+            With enabled documents titled "Petition" and "Instructions", in that
+            order, in `al_user_bundle`, the value of `document_titles` is:
+
+            **Input (interview YAML)**
+
+        ```yaml
+        code: |
+          document_titles = al_user_bundle.get_titles()
+        ```
+
+            **Output**
+
+        ```text
+        ['Petition', 'Instructions']
+        ```
         """
         flat_list = []
         for document in self.enabled_documents(refresh=refresh):
@@ -2022,6 +2653,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             List[DAFile]: List of enabled documents as individual PDFs.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          pdf_files = al_user_bundle.as_pdf_list()
+        ```
         """
         return [
             pdf
@@ -2046,6 +2685,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             List[DAFile]: List of documents represented as DOCX files or in their original format.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          editable_files = al_user_bundle.as_docx_list()
+        ```
         """
         return [
             docx
@@ -2070,6 +2717,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             List[DAFile]: Flat list of documents in DOCX or RTF formats or their original format.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          editable_files = al_user_bundle.as_editable_list()
+        ```
         """
         docs = self.as_flat_list(key=key, refresh=refresh)
         editable = []
@@ -2125,6 +2780,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             Tuple[List[CacheableDocument], Optional[DAFile], Optional[DAFile]]: A list of dictionaries containing document titles, filenames, and files, a zip file of the whole bundle, and a PDF of the whole.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          cached_documents = al_user_bundle.get_cacheable_documents()
+        ```
         """
         # reduce idempotency delays
         enabled_docs = self.enabled_documents(refresh=refresh)
@@ -2223,6 +2886,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             bool: True if any document or nested bundle has broken content.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          has_unreadable_uploads = al_user_bundle.has_broken_documents()
+        ```
         """
         return len(self.broken_exhibit_titles()) > 0
 
@@ -2233,6 +2904,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             List[str]: Titles of exhibits that will be skipped.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          unreadable_exhibit_titles = al_user_bundle.broken_exhibit_titles()
+        ```
         """
         titles: List[str] = []
         for document in self.enabled_documents():
@@ -2250,6 +2929,13 @@ class ALDocumentBundle(DAList):
 
         Returns:
             str: The warning HTML, or an empty string if nothing is broken.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ al_user_bundle.broken_documents_warning_html() }
+        ```
         """
         broken_titles = self.broken_exhibit_titles()
         if not broken_titles:
@@ -2324,6 +3010,31 @@ class ALDocumentBundle(DAList):
 
         Returns:
             str: HTML representation of a table with documents and their associated actions.
+
+        Example:
+            On the download screen, offer individual files and a combined PDF:
+
+        ```yaml
+        event: download
+        question: |
+          Your documents are ready
+        subquestion: |
+          ${ al_user_bundle.download_list_html(include_full_pdf=True) }
+        ```
+
+            To offer editable files where available, use
+            `${ al_user_bundle.download_list_html(format="docx") }` instead.
+
+            When you use background processing (recommended for multiple documents in a single bundle),
+            you can use the `use_previously_cached_files` parameter to speed up the download screen:
+
+        ```yaml
+        event: download
+        question: |
+            Your documents are ready
+        subquestion: |
+            ${ al_user_bundle.download_list_html(use_previously_cached_files=True) }
+        ```
         """
         if not view_label:
             view_label = str(self.view_label) or word("View")
@@ -2481,6 +3192,15 @@ class ALDocumentBundle(DAList):
 
         Returns:
             str: HTML representation of a table with documents and their associated actions.
+
+        Example:
+            For an older interview that uses this method (Mako):
+
+        ```mako
+        ${ al_user_bundle.download_html() }
+        ```
+
+            For new interviews, use `${ al_user_bundle.download_list_html() }`.
         """
         log(
             "ALDocumentBundle.download_html is deprecated; use download_list_html instead"
@@ -2548,6 +3268,13 @@ class ALDocumentBundle(DAList):
 
         Returns:
             str: The generated HTML string for the table row.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ al_user_bundle.send_email_table_row() }
+        ```
         """
         if not send_label:
             send_label = str(self.send_label) or word("Send")
@@ -2618,6 +3345,13 @@ class ALDocumentBundle(DAList):
 
         Returns:
             str: The generated HTML string for the button.
+
+        Example:
+            Offer a send button addressed to the first user’s gathered email:
+
+        ```mako
+        ${ al_user_bundle.send_button_to_html(users[0].email, label="Email my documents") }
+        ```
         """
         if label is None:
             label = str(self.send_label) or word("Send")
@@ -2692,6 +3426,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             str: The generated HTML string for the input box and button.
+
+        Example:
+            Let the user enter an email address and choose whether to include
+            editable files on the download screen:
+
+        ```mako
+        ${ al_user_bundle.send_button_html(preferred_formats=["pdf", "docx"]) }
+        ```
         """
         if label is None:
             label = str(self.send_label) or word("Send")
@@ -2792,6 +3534,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             bool: Indicates if the email was sent successfully.
+
+        Example:
+            In the code block for the user’s send-email action:
+
+        ```yaml
+        code: |
+          email_sent = al_user_bundle.send_email(to=users[0].email)
+        ```
         """
         if editable is not None:
             log(
@@ -2874,6 +3624,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             bool: Indicates if the bundle and its child documents are enabled.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_is_enabled = al_user_bundle.is_enabled()
+        ```
         """
         self_enabled = self._is_self_enabled(refresh=refresh)
         return self_enabled and self.has_enabled_documents(refresh=refresh)
@@ -2910,6 +3668,13 @@ class ALDocumentBundle(DAList):
 
         Returns:
             DAFile: A DAFile object containing the concatenated DOCX or PDF file.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ al_user_bundle.as_docx() }
+        ```
         """
         if append_matching_suffix and key == self.suffix_to_append:
             filename = f"{base_name(self.filename)}_{key}"
@@ -2943,6 +3708,14 @@ class ALDocumentBundle(DAList):
 
         Returns:
             List[DAFile]: A list of enabled DAFile objects.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_files = al_user_bundle.as_list()
+        ```
         """
         return self.as_flat_list(key=key, refresh=refresh)
 
@@ -2957,14 +3730,37 @@ class ALExhibit(DAObject):
           Will typically say something like "Exhibit 1"
         label (str): A label, like "A" or "1" for this exhibit in the cover page and table of contents.
         starting_page (int): first page number to use in table of contents.
+
+    Example:
+        With `exhibit_attachment` declared as an ALExhibitDocument, its
+        `exhibits` attribute is an ALExhibitList and each entry is an ALExhibit:
+
+    ```yaml
+    question: |
+      Upload your first exhibit
+    fields:
+      - Description: exhibit_attachment.exhibits[0].title
+      - Files: exhibit_attachment.exhibits[0].pages
+        datatype: files
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation. Each entry in `exhibit_attachment.exhibits` is an ALExhibit.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - exhibit_attachment: ALExhibitDocument.using(title="Exhibits", filename="exhibits")
+        ```
         """
         super().init(*pargs, **kwargs)
         self.initializeAttribute("_cache", DALazyAttribute)
@@ -3007,6 +3803,14 @@ class ALExhibit(DAObject):
 
         Returns:
             bool: True iff OCR process has finished on all pages.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          exhibit_text_is_ready = exhibit_attachment.exhibits[0].ocr_ready()
+        ```
         """
         if hasattr(self, "ocr_status") and not self.ocr_status.ready():
             return False
@@ -3020,6 +3824,14 @@ class ALExhibit(DAObject):
 
         Returns:
             List[DAFile]: List of pages, either OCR-processed or original.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          searchable_pages = exhibit_attachment.exhibits[0].ocr_pages()
+        ```
         """
         if (
             hasattr(self, "ocr_version")
@@ -3046,6 +3858,14 @@ class ALExhibit(DAObject):
 
         Returns:
             bool: True if this exhibit will get skipped.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          exhibit_is_unreadable = exhibit_attachment.exhibits[0].is_broken()
+        ```
         """
         if not getattr(self.pages, "gathered", False):
             return False
@@ -3091,6 +3911,13 @@ class ALExhibit(DAObject):
 
         Returns:
             DAFile: PDF representation of the exhibit.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ exhibit_attachment.exhibits[0].as_pdf() }
+        ```
         """
         safe_key = "_file"
         if pdfa:
@@ -3137,13 +3964,22 @@ class ALExhibit(DAObject):
 
         Returns:
             int: Total page count.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          exhibit_page_count = exhibit_attachment.exhibits[0].num_pages()
+        ```
         """
         return self.pages.num_pages()
 
     def toc_page_number(
         self, toc_pages: int = 1, include_cover_page: bool = True
     ) -> int:
-        """Return the page where this exhibit's uploaded content begins.
+        """
+        Return the page where this exhibit's uploaded content begins.
 
         ``start_page`` already includes the initial one-page table of contents and
         every preceding exhibit cover. Adjust it only for additional TOC pages and
@@ -3155,6 +3991,14 @@ class ALExhibit(DAObject):
 
         Returns:
             int: The physical page number of the exhibit's first uploaded page.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          exhibit_start_page = exhibit_attachment.exhibits[0].toc_page_number()
+        ```
         """
         return self.start_page + toc_pages - 1 + int(include_cover_page)
 
@@ -3167,6 +4011,15 @@ class ALExhibit(DAObject):
         Indicates if the exhibit is complete.
 
         NOTE: This property always returns True after triggering the required attributes.
+
+        Example:
+            Gather the first exhibit’s title and uploaded pages in an interview
+            code block. This is a property, so do not add parentheses:
+
+        ```yaml
+        code: |
+          first_exhibit_complete = exhibit_attachment.exhibits[0].complete
+        ```
         """
         self.title
         self.pages.gather()
@@ -3202,6 +4055,22 @@ def ocrmypdf_task(
 
     Raises:
         subprocess.TimeoutExpired: If the ocrmypdf process takes longer than an hour.
+
+    Example:
+        Inside a background event, use `from_file` and `to_pdf` supplied by
+        `background_action()`; `to_pdf` must be an initialized DAFile:
+
+    ```yaml
+    event: al_exhibit_ocr_pages_bg
+    code: |
+      from_file = action_argument("from_file")
+      to_pdf = action_argument("to_pdf")
+      background_response(ocrmypdf_task(from_file, to_pdf))
+    ```
+
+        AssemblyLine’s `al_document.yml` already provides this event. For
+        normal exhibit interviews, enable `auto_ocr` on the exhibit document
+        instead of adding a second event.
     """
     if not from_file or not to_pdf:
         log(
@@ -3245,14 +4114,34 @@ class ALExhibitList(DAList):
         auto_labeler (Callable): An optional function or lambda to transform the exhibit's index to a label.
                                  Uses A..Z labels by default.
         auto_ocr (bool): If True, automatically starts OCR processing for uploaded exhibits. Defaults to False.
+
+    Example:
+        After gathering the exhibits on an ALExhibitDocument named
+        `exhibit_attachment`, display the combined file:
+
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ exhibit_attachment.exhibits.as_pdf() }
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation. The `exhibit_attachment.exhibits` attribute is an ALExhibitList.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - exhibit_attachment: ALExhibitDocument.using(title="Exhibits", filename="exhibits")
+        ```
         """
         super().init(*pargs, **kwargs)
         if not hasattr(self, "auto_label"):
@@ -3307,6 +4196,13 @@ class ALExhibitList(DAList):
 
         Returns:
             DAFile: A single PDF containing all exhibits.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ exhibit_attachment.exhibits.as_pdf() }
+        ```
         """
         if self.include_exhibit_cover_pages:
             for exhibit in self:
@@ -3345,20 +4241,38 @@ class ALExhibitList(DAList):
         )
 
     def broken_exhibits(self) -> List["ALExhibit"]:
-        """Returns exhibits that are complete but have no valid pages
+        """
+        Returns exhibits that are complete but have no valid pages
 
         Returns:
             List[ALExhibit]: The exhibits that will get skipped.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          unreadable_exhibits = exhibit_attachment.exhibits.broken_exhibits()
+        ```
         """
         if not self.gathered:
             return []
         return [exhibit for exhibit in self if exhibit.is_broken()]
 
     def has_broken_exhibits(self) -> bool:
-        """True if any exhibit in this list will be skipped
+        """
+        True if any exhibit in this list will be skipped
 
         Returns:
             bool: True if at least one exhibit has no valid pages.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          has_unreadable_exhibits = exhibit_attachment.exhibits.has_broken_exhibits()
+        ```
         """
         return len(self.broken_exhibits()) > 0
 
@@ -3371,6 +4285,14 @@ class ALExhibitList(DAList):
 
         Returns:
             int: Total size of all exhibits in bytes.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          exhibit_upload_size = exhibit_attachment.exhibits.size_in_bytes()
+        ```
         """
         full_size = 0
         for exhibit in self.complete_elements():
@@ -3403,6 +4325,14 @@ class ALExhibitList(DAList):
 
         Returns:
             bool: True if all exhibits are OCRed or if OCR hasn't started. False otherwise.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          exhibit_text_is_ready = exhibit_attachment.exhibits.ocr_ready()
+        ```
         """
         ready = True
         for exhibit in self.elements:
@@ -3438,6 +4368,15 @@ class ALExhibitList(DAList):
         """
         Callback function executed after the entire list of exhibits is collected.
         Manages auto-labeling and initiates OCR if necessary.
+
+        Example:
+            Docassemble calls this hook after gathering the list. In an interview,
+            trigger gathering rather than calling the hook yourself:
+
+        ```yaml
+        code: |
+          exhibit_attachment.exhibits.gather()
+        ```
         """
         if len(self):
             self._update_page_numbers()
@@ -3468,7 +4407,7 @@ class ALExhibitDocument(ALDocument):
           (considering potential filesize constraints on emails).
 
     Examples:
-    ```
+    ```yaml
     ---
     objects:
       - exhibit_attachment: ALExhibitDocument.using(title="Exhibits", filename="exhibits" )
@@ -3483,7 +4422,7 @@ class ALExhibitDocument(ALDocument):
     ```
 
     Example of using a custom label function, https://docassemble.org/docs/functions.html#item_label:
-    ```
+    ```yaml
     ---
     objects:
       - exhibit_attachment: ALExhibitDocument.using(title="Exhibits", filename="exhibits" , auto_labeler=item_label)
@@ -3511,11 +4450,21 @@ class ALExhibitDocument(ALDocument):
     page_number_offset_vertical: float
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - exhibit_attachment: ALExhibitDocument.using(title="Exhibits", filename="exhibits")
+        ```
         """
         super().init(*pargs, **kwargs)
         self.initializeAttribute("exhibits", ALExhibitList)
@@ -3572,6 +4521,14 @@ class ALExhibitDocument(ALDocument):
 
         Returns:
             bool: Always False for this implementation.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_has_overflow = exhibit_attachment.has_overflow()
+        ```
         """
         return False
 
@@ -3581,6 +4538,14 @@ class ALExhibitDocument(ALDocument):
 
         Returns:
             bool: True if all exhibits have been OCRed or if the OCR process hasn't been initiated.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          exhibit_text_is_ready = exhibit_attachment.ocr_ready()
+        ```
         """
         return self.exhibits.ocr_ready()
 
@@ -3606,6 +4571,14 @@ class ALExhibitDocument(ALDocument):
 
         Returns:
             List[DAFile]: A list containing the document.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_files = exhibit_attachment.as_list()
+        ```
         """
         return [self]
 
@@ -3631,6 +4604,13 @@ class ALExhibitDocument(ALDocument):
 
         Returns:
             DAFile: The document rendered as a PDF.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ exhibit_attachment.as_pdf() }
+        ```
         """
         if not hasattr(self, "suffix_to_append"):
             self.suffix_to_append = "preview"
@@ -3676,18 +4656,36 @@ class ALExhibitDocument(ALDocument):
         return None
 
     def has_broken_exhibits(self) -> bool:
-        """True if any exhibit in this document will be silently skipped
+        """
+        True if any exhibit in this document will be silently skipped
 
         Returns:
             bool: True if at least one exhibit has no valid pages.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          has_unreadable_exhibits = exhibit_attachment.has_broken_exhibits()
+        ```
         """
         return self.exhibits.has_broken_exhibits()
 
     def broken_exhibits(self) -> List["ALExhibit"]:
-        """Returns exhibits that are complete but have no valid pages
+        """
+        Returns exhibits that are complete but have no valid pages
 
         Returns:
             List[ALExhibit]: The exhibits that will get skipped.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          unreadable_exhibits = exhibit_attachment.broken_exhibits()
+        ```
         """
         return self.exhibits.broken_exhibits()
 
@@ -3709,6 +4707,13 @@ class ALExhibitDocument(ALDocument):
 
         Returns:
             DAFile: The document rendered as a PDF.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ exhibit_attachment.as_docx() }
+        ```
         """
         return self.as_pdf()
 
@@ -3723,14 +4728,44 @@ class ALTableDocument(ALDocument):
         suffix_to_append (str): Suffix that can be appended to file names, defaulting to "preview".
         file (DAFile, optional): Reference to the generated file (can be PDF, DOCX, etc.).
         table (???): Represents the actual table data. Type and attributes need more context to document.
+
+    Example:
+        In an interview:
+
+    ```yaml
+    objects:
+      - people_table: ALTableDocument.using(title="People", filename="people", enabled=True)
+    ---
+    table: people_table.table
+    rows: users
+    columns:
+      - Name: row_item.name_full()
+      - Address: row_item.address.on_one_line()
+    ---
+    event: download_people
+    question: |
+      Download the list of people
+    subquestion: |
+      ${ people_table.as_docx() }
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - people_table: ALTableDocument.using(title="People", filename="people", enabled=True)
+        ```
         """
         super().init(*pargs, **kwargs)
         self.has_addendum = False
@@ -3746,6 +4781,14 @@ class ALTableDocument(ALDocument):
 
         Returns:
             bool: Always False for this implementation.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_has_overflow = people_table.has_overflow()
+        ```
         """
         return False
 
@@ -3775,6 +4818,14 @@ class ALTableDocument(ALDocument):
 
         Returns:
             List[DAFile]: A list containing the document.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_files = people_table.as_list()
+        ```
         """
         return [self[key]]
 
@@ -3798,6 +4849,13 @@ class ALTableDocument(ALDocument):
 
         Returns:
             DAFile: The table rendered as an XLSX spreadsheet.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ people_table.as_pdf() }
+        ```
         """
         if not hasattr(self, "suffix_to_append"):
             # When the key is "preview", append it to the file name
@@ -3827,6 +4885,13 @@ class ALTableDocument(ALDocument):
 
         Returns:
             DAFile: The table rendered as an XLSX spreadsheet.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ people_table.as_docx() }
+        ```
         """
         return self.as_pdf()
 
@@ -3840,14 +4905,36 @@ class ALUntransformedDocument(ALDocument):
     Attributes:
         has_addendum (bool): A flag indicating the presence of an addendum in the document.
         suffix_to_append (str): Suffix that can be appended to file names, defaulting to "preview".
+
+    Example:
+        Wrap an existing DAFile named `uploaded_file` so it can be included
+        in an ALDocumentBundle:
+
+    ```yaml
+    objects:
+      - supporting_document: ALUntransformedDocument.using(title="Supporting document", filename="supporting_document", enabled=True)
+    ---
+    code: |
+      supporting_document["final"] = uploaded_file
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - supporting_document: ALUntransformedDocument.using(title="Supporting document", filename="supporting_document", enabled=True)
+        ```
         """
         super().init(*pargs, **kwargs)
         self.has_addendum = False
@@ -3862,6 +4949,14 @@ class ALUntransformedDocument(ALDocument):
 
         Returns:
             bool: Always False for this implementation.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_has_overflow = supporting_document.has_overflow()
+        ```
         """
         return False
 
@@ -3877,6 +4972,14 @@ class ALUntransformedDocument(ALDocument):
 
         Returns:
             List[DAFile]: A list containing the document.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          document_files = supporting_document.as_list()
+        ```
         """
         return [self[key]]
 
@@ -3901,6 +5004,13 @@ class ALUntransformedDocument(ALDocument):
 
         Returns:
             DAFile: The original, untransformed document.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ supporting_document.as_pdf() }
+        ```
         """
         return self[key]
 
@@ -3922,6 +5032,13 @@ class ALUntransformedDocument(ALDocument):
 
         Returns:
             DAFile: The original, untransformed document.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ supporting_document.as_docx() }
+        ```
         """
         return self[key]
 
@@ -3930,6 +5047,20 @@ class ALDocumentUpload(ALUntransformedDocument):
     """
     Simplified class to handle uploaded documents, without any of the complexity of the
     ALExhibitDocument class.
+
+    Example:
+        In an interview:
+
+    ```yaml
+    objects:
+      - supporting_document: ALDocumentUpload.using(title="Supporting document", filename="supporting_document", enabled=True)
+    ---
+    question: |
+      Upload your supporting document
+    fields:
+      - Document: supporting_document.file
+        datatype: file
+    ```
     """
 
     def __getitem__(self, key):
@@ -3942,12 +5073,21 @@ class ALDocumentUpload(ALUntransformedDocument):
 
 
 def unpack_dafilelist(the_file: DAFileList) -> DAFile:
-    """Creates a plain DAFile out of the first item in a DAFileList
+    """
+    Creates a plain DAFile out of the first item in a DAFileList
     Args:
         the_file (DAFileList): an item representing an uploaded document in a Docassemble interview.
 
     Returns:
         A DAFile representing the first item in the DAFileList, with a fixed instanceName attribute.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      supporting_file = unpack_dafilelist(uploaded_files)
+    ```
     """
     if isinstance(the_file, DAFileList):
         temp_name = the_file.instanceName
