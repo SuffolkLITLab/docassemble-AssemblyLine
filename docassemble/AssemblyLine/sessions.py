@@ -91,6 +91,7 @@ __all__ = [
     "get_interview_metadata",
     "get_saved_interview_list",
     "interview_list_html",
+    "is_session_owned_by_user",
     "is_file_like",
     "is_valid_json",
     "load_interview_answers",
@@ -339,6 +340,61 @@ def get_interview_metadata(
     return {}
 
 
+def _split_excluded_filenames(
+    exclude_filenames: Optional[List[str]],
+) -> Tuple[List[str], List[str]]:
+    """Separate exact interview filenames from package-prefix exclusions."""
+    exact_filenames: List[str] = []
+    package_prefixes: List[str] = []
+    for excluded_filename in exclude_filenames or []:
+        if not excluded_filename:
+            continue
+        if ":" in excluded_filename:
+            exact_filenames.append(excluded_filename)
+        else:
+            package_prefixes.append(excluded_filename)
+    return exact_filenames, package_prefixes
+
+
+def _sql_like_prefix(value: str) -> str:
+    """Turn a literal string prefix into a parameter for a SQL LIKE clause."""
+    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
+
+
+def is_session_owned_by_user(filename: str, session_id: str, user_id: int) -> bool:
+    """Return whether a filename/session pair belongs to the specified user.
+
+    Args:
+        filename (str): The filename of the interview.
+        session_id (str): The session ID to check.
+        user_id (int): The user ID to check ownership for.
+
+    Returns:
+        bool: True if the session belongs to the user, False otherwise.
+    """
+    ownership_query = text("""
+        SELECT 1
+          FROM userdict
+          JOIN userdictkeys ON userdict.key = userdictkeys.key
+         WHERE userdict.filename = :filename
+           AND userdict.key = :session_id
+           AND userdictkeys.user_id = :user_id
+         LIMIT 1
+        """)
+    with _get_session() as session:
+        return (
+            session.execute(
+                ownership_query,
+                {
+                    "filename": filename,
+                    "session_id": session_id,
+                    "user_id": user_id,
+                },
+            ).fetchone()
+            is not None
+        )
+
+
 def get_saved_interview_list(
     filename: Optional[str] = al_session_store_default_filename,
     user_id: Union[int, str, None] = None,
@@ -386,14 +442,9 @@ def get_saved_interview_list(
         current_filename = ""
     if not filename_to_exclude:
         filename_to_exclude = ""
-    filenames_to_exclude: List[str] = []
-    packages_to_exclude: List[str] = []
-    if exclude_filenames:
-        for f in filenames_to_exclude:
-            if f and (":" not in f):
-                packages_to_exclude.append(f)
-            else:
-                filenames_to_exclude.append(f)
+    filenames_to_exclude, packages_to_exclude = _split_excluded_filenames(
+        exclude_filenames
+    )
     filenames_to_exclude.extend([current_filename, filename_to_exclude])
 
     query_draft = """
@@ -438,15 +489,12 @@ def get_saved_interview_list(
             """
     if packages_to_exclude:
         query_draft += (
-            """
-            AND (:packages_to_exclude IS NULL OR NOT (
-            """
+            "\n            AND NOT ("
             + " OR ".join(
-                [f"userdict.filename LIKE '{name}%'" for name in packages_to_exclude]
+                f"userdict.filename LIKE :excluded_package_{index} ESCAPE '\\'"
+                for index in range(len(packages_to_exclude))
             )
-            + """
-            ))
-        """
+            + ")\n"
         )
     query_draft += """
             ORDER BY userdict.key, modtime DESC
@@ -479,21 +527,22 @@ def get_saved_interview_list(
 
     sessions = []
     with _get_session() as session:
-        rs = session.execute(
-            get_sessions_query,
+        parameters = {
+            "metadata": metadata_key_name,
+            "user_id": user_id,
+            "filename": filename,
+            "limit": limit,
+            "offset": offset,
+            "filenames_to_exclude": tuple(filenames_to_exclude),
+            "exclude_newly_started_sessions": exclude_newly_started_sessions,
+        }
+        parameters.update(
             {
-                "metadata": metadata_key_name,
-                "user_id": user_id,
-                "filename": filename,
-                "limit": limit,
-                "offset": offset,
-                "filenames_to_exclude": tuple(filenames_to_exclude),
-                "exclude_newly_started_sessions": exclude_newly_started_sessions,
-                "packages_to_exclude": (
-                    None if not packages_to_exclude else "present"
-                ),  # We need to pass a value to the query, but it's treated as a flag
-            },
+                f"excluded_package_{index}": _sql_like_prefix(package_prefix)
+                for index, package_prefix in enumerate(packages_to_exclude)
+            }
         )
+        rs = session.execute(get_sessions_query, parameters)
         for row in rs:
             sessions.append(dict(row._mapping))
 
@@ -529,7 +578,7 @@ def find_matching_sessions(
         offset (int, optional): The offset to start returning results from. Defaults to 0.
         filename_to_exclude (str, optional): The filename to exclude from the results. Defaults to "".
         exclude_current_filename (bool, optional): Whether to exclude the current filename from the results. Defaults to True.
-        exclude_filenames (Optional[List[str]], optional): A list of filenames to exclude from the results. Defaults to None.
+        exclude_filenames (Optional[List[str]], optional): A list of filenames to exclude from the results. Defaults to None. Entries without a `:` are treated as package prefixes.
         exclude_newly_started_sessions (bool, optional): Whether to exclude sessions that are still on "step 1". Defaults to False.
         global_search_allowed_roles (Union[Set[str],List[str]], optional): A list or set of roles that are allowed to search all sessions. Defaults to {'admin','developer', 'advocate'}. 'admin' and 'developer' are always allowed to search all sessions.
         metadata_filters (Optional[Dict[str, Tuple[Any, str, Optional[str]]]], optional): A dictionary of metadata column names and their corresponding filter tuples.
@@ -614,6 +663,20 @@ def find_matching_sessions(
     else:
         filename_condition = "TRUE"  # If no filenames are provided, this condition does not filter anything.
 
+    filenames_to_exclude, packages_to_exclude = _split_excluded_filenames(
+        exclude_filenames
+    )
+    package_exclusion_condition = "TRUE"
+    if packages_to_exclude:
+        package_exclusion_condition = (
+            "NOT ("
+            + " OR ".join(
+                f"userdict.filename LIKE :excluded_package_{index} ESCAPE '\\'"
+                for index in range(len(packages_to_exclude))
+            )
+            + ")"
+        )
+
     get_sessions_query = text(f"""
         WITH filtered_userdict AS (
             SELECT userdict.indexno as indexno, userdict.key as key, userdict.modtime as modtime, userdict.user_id as user_id, userdict.filename as filename
@@ -641,6 +704,7 @@ def find_matching_sessions(
             WHERE (userdictkeys.user_id = :user_id OR :user_id is NULL)
               AND {filename_condition}
               AND (userdict.filename NOT IN :filenames_to_exclude)
+              AND ({package_exclusion_condition})
               AND (NOT :exclude_newly_started_sessions OR num_keys > 1)
               AND ({metadata_search_conditions})
             ORDER BY userdict.key, modtime DESC
@@ -658,9 +722,6 @@ def find_matching_sessions(
         current_filename = ""
     if not filename_to_exclude:
         filename_to_exclude = ""
-    filenames_to_exclude = []
-    if exclude_filenames:
-        filenames_to_exclude.extend(exclude_filenames)
     filenames_to_exclude.extend([current_filename, filename_to_exclude])
     if user_id is None:
         if user_logged_in():
@@ -690,6 +751,12 @@ def find_matching_sessions(
         "filenames_to_exclude": tuple(filenames_to_exclude),
         "exclude_newly_started_sessions": exclude_newly_started_sessions,
     }
+    parameters.update(
+        {
+            f"excluded_package_{index}": _sql_like_prefix(package_prefix)
+            for index, package_prefix in enumerate(packages_to_exclude)
+        }
+    )
 
     # Add filename parameters
     if filenames:
@@ -866,7 +933,8 @@ def interview_list_html(
             """
         table += f"""
         <td>{ as_datetime(answer.get("modtime")) }</td>
-        <td>Page { answer.get("steps") or answer.get("num_keys") }"""
+        <td>{word("Page")} { answer.get("steps") or answer.get("num_keys") }</td>
+        """
         if display_interview_title:
             table += f"""
                  <br/>{answer.get("original_interview_filename") or answer.get("filename") or "" }
@@ -974,7 +1042,7 @@ def radial_progress(answer: Dict[str, Union[str, int]]) -> str:
         str: the HTML as a string.
     """
     if not answer.get("progress"):
-        return f"Page {answer.get('steps') or answer.get('num_keys') or 1}"
+        return f"{word('Page')} {answer.get('steps') or answer.get('num_keys') or 1}"
 
     # For simulation purposes, assume a form is complete at page 30
     progress: int = (
@@ -1677,7 +1745,18 @@ def get_filenames_having_sessions(
             return []
 
     sql_all = text("SELECT DISTINCT filename FROM userdict")
-    sql_user = text("SELECT DISTINCT filename FROM userdict WHERE user_id = :user_id")
+
+    sql_user = text("""
+    SELECT DISTINCT k.filename
+    FROM userdictkeys AS k
+    WHERE k.user_id = :user_id
+      AND EXISTS (
+          SELECT 1
+          FROM userdict AS u
+          WHERE u.key = k.key
+            AND u.filename = k.filename
+      )
+    """)
 
     with _get_session() as session:
         if user_id is None:
@@ -1691,6 +1770,7 @@ def get_filenames_having_sessions(
 def get_combined_filename_list(
     user_id: Optional[Union[int, str]] = None,
     global_search_allowed_roles: Optional[Union[Set[str], List[str]]] = None,
+    exclude_filenames: Optional[List[str]] = None,
 ) -> List[Dict[str, str]]:
     """
     Get a list of all filenames that have sessions saved for a given user. If it is possible
@@ -1703,6 +1783,7 @@ def get_combined_filename_list(
     Args:
         user_id (Optional[Union[int, str]], optional): User ID to get the list of filenames for. Defaults to current logged in user. Use "all" to get all filenames.
         global_search_allowed_roles (Optional[Union[Set[str], List[str]]], optional): Roles that are allowed to search for all sessions. Defaults to admin, developer, and advocate.
+        exclude_filenames (Optional[List[str]], optional): Filenames or package prefixes to exclude. Defaults to None.
 
     Returns:
         List[Dict[str, str]]: List of filenames that have sessions saved for the user.
@@ -1714,6 +1795,16 @@ def get_combined_filename_list(
     )
 
     users_filenames = get_filenames_having_sessions(user_id=user_id)
+    exact_excluded, package_excluded = _split_excluded_filenames(exclude_filenames)
+
+    users_filenames = [
+        filename
+        for filename in users_filenames
+        if filename not in exact_excluded
+        and not any(
+            filename.startswith(package_prefix) for package_prefix in package_excluded
+        )
+    ]
     interview_filenames = interview_menu()
     combined_interviews = []
     for user_interview in users_filenames:
