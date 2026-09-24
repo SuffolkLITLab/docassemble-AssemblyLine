@@ -33,6 +33,7 @@ from docassemble.base.util import (
     showifdef,
     word,
 )
+from docassemble.base.error import DAError
 from docassemble.base.pdfa import pdf_to_pdfa
 from textwrap import wrap
 from math import floor
@@ -2256,9 +2257,9 @@ class ALDocumentBundle(DAList):
             return ""
         quoted = [f'"{escape(title)}"' for title in broken_titles]
         if len(quoted) == 1:
-            message = f"{quoted[0]} did not upload correctly and won't be included. Please try uploading it again before you continue."
+            message = f"{quoted[0]} could not be processed and won't be included. Please try uploading it again before you continue."
         else:
-            message = f"{', '.join(quoted[:-1])} and {quoted[-1]} did not upload correctly and won't be included. Please try uploading them again before you continue."
+            message = f"{', '.join(quoted[:-1])} and {quoted[-1]} could not be processed and won't be included. Please try uploading them again before you continue."
         return f'<div class="alert alert-warning" role="alert">{message}</div>'
 
     def download_list_html(
@@ -3039,6 +3040,8 @@ class ALExhibit(DAObject):
         """
         Returns True if this exhibit's pages finished gathering but none of
         them are currently valid, meaning as_pdf() will silently skip it.
+        Also returns True if a page looked valid but failed during actual
+        PDF processing, even if pages are otherwise present and valid.
 
         Checks pages.gathered rather than the `complete` property, since
         `complete` is a gathering trigger that always returns True and can
@@ -3047,6 +3050,8 @@ class ALExhibit(DAObject):
         Returns:
             bool: True if this exhibit will get skipped.
         """
+        if getattr(self, "_failed_during_processing", False):
+            return True
         if not getattr(self.pages, "gathered", False):
             return False
         valid_pages = [p for p in self.ocr_pages() if p and p.ok]
@@ -3099,6 +3104,7 @@ class ALExhibit(DAObject):
             safe_key = safe_key + "_page_nums"
 
         if hasattr(self._cache, safe_key):
+            self._failed_during_processing = False
             return getattr(self._cache, safe_key)
         if not filename:
             filename = "exhibits.pdf"
@@ -3108,14 +3114,22 @@ class ALExhibit(DAObject):
                 f"ALExhibit.as_pdf(): no valid pages for exhibit '{self.title}', skipping"
             )
             return None
-        if add_cover_page:
-            concatenated_pages = pdf_concatenate(
-                self.cover_page, valid_pages, filename=filename, pdfa=pdfa
+        try:
+            if add_cover_page:
+                concatenated_pages = pdf_concatenate(
+                    self.cover_page, valid_pages, filename=filename, pdfa=pdfa
+                )
+            else:
+                concatenated_pages = pdf_concatenate(
+                    valid_pages, filename=filename, pdfa=pdfa
+                )
+        except DAError as err:
+            log(
+                f"ALExhibit.as_pdf(): pdf_concatenate failed for exhibit '{self.title}' even though its pages looked valid, skipping ({err})"
             )
-        else:
-            concatenated_pages = pdf_concatenate(
-                valid_pages, filename=filename, pdfa=pdfa
-            )
+            self._failed_during_processing = True
+            return None
+        self._failed_during_processing = False
 
         if add_page_numbers:
             concatenated_pages.bates_number(
@@ -3338,11 +3352,17 @@ class ALExhibitList(DAList):
                 "ALExhibitList.as_pdf(): none of the exhibits have valid pages, nothing to compile"
             )
             return None
-        return pdf_concatenate(
-            exhibit_pdfs,
-            filename=filename,
-            pdfa=pdfa,
-        )
+        try:
+            return pdf_concatenate(
+                exhibit_pdfs,
+                filename=filename,
+                pdfa=pdfa,
+            )
+        except DAError as err:
+            log(
+                f"ALExhibitList.as_pdf(): pdf_concatenate failed even though exhibits looked valid, skipping ({err})"
+            )
+            return None
 
     def broken_exhibits(self) -> List["ALExhibit"]:
         """Returns exhibits that are complete but have no valid pages
@@ -3661,17 +3681,29 @@ class ALExhibitDocument(ALDocument):
                     f"ALExhibitDocument.as_pdf(): no valid exhibits for '{self.title}', skipping"
                 )
                 if self.include_table_of_contents:
-                    return pdf_concatenate(
-                        self.table_of_contents, filename=filename, pdfa=pdfa
-                    )
+                    try:
+                        return pdf_concatenate(
+                            self.table_of_contents, filename=filename, pdfa=pdfa
+                        )
+                    except DAError as err:
+                        log(
+                            f"ALExhibitDocument.as_pdf(): could not build table of contents alone for '{self.title}' ({err})"
+                        )
+                        return None
                 return None
             if self.include_table_of_contents:
-                return pdf_concatenate(
-                    self.table_of_contents,
-                    exhibits_pdf,
-                    filename=filename,
-                    pdfa=pdfa,
-                )
+                try:
+                    return pdf_concatenate(
+                        self.table_of_contents,
+                        exhibits_pdf,
+                        filename=filename,
+                        pdfa=pdfa,
+                    )
+                except DAError as err:
+                    log(
+                        f"ALExhibitDocument.as_pdf(): pdf_concatenate failed combining exhibits with table of contents for '{self.title}' ({err})"
+                    )
+                    return None
             return exhibits_pdf
         return None
 
