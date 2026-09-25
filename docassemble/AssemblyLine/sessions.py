@@ -1949,8 +1949,8 @@ def get_filenames_having_sessions(
         List[str]: List of filenames that have sessions saved for the user.
 
     Example:
-        With `saved_filename` and `saved_session_id` identifying the saved
-        session selected by the user, in an interview code block:
+        In an interview code block, to list filenames with saved sessions for
+        the current logged-in user:
 
     ```yaml
     code: |

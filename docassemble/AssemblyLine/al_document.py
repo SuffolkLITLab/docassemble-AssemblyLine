@@ -4044,7 +4044,7 @@ def ocrmypdf_task(
     If the source file is an image (e.g., png, jpg, jpeg, gif), this function sets the image DPI to 300.
     For non-image files, the text in the file is skipped during OCR.
 
-    This function is designed to be executed as a background task (id: al_exhibit_ocr_pages_bg).
+    This function is designed to be executed as a background task (event: al_exhibit_ocr_pages).
 
     Args:
         from_file (Union[DAFile, DAFileList]): The source file or list of files to be OCR-processed.
@@ -4061,7 +4061,7 @@ def ocrmypdf_task(
         `background_action()`; `to_pdf` must be an initialized DAFile:
 
     ```yaml
-    event: al_exhibit_ocr_pages_bg
+    event: al_exhibit_ocr_pages
     code: |
       from_file = action_argument("from_file")
       to_pdf = action_argument("to_pdf")
