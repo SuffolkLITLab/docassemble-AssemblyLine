@@ -376,6 +376,9 @@ fields:
 continue button label: |
   :save: Save copy
 ---
+event: interview_list_copy_action
+# Gather the name before Docassemble consumes this event from the action queue.
+need: al_sessions_copy_as_answer_set_label
 code: |
   save_interview_answers(
     source_filename=action_argument("filename"),
@@ -384,7 +387,6 @@ code: |
     original_interview_filename=action_argument("original_interview_filename"),
   )
   log("Copied answers", "success")
-  interview_list_copy_action = True
 ---
 id: rename answer
 question: |
