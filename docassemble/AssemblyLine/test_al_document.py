@@ -13,6 +13,7 @@ from docassemble.base.util import (
     DAObject,
     DATemplate,
 )
+from docassemble.base.error import DAAttributeError
 from .al_document import (
     ALAddendumField,
     ALDocument,
@@ -143,6 +144,119 @@ class FakeDocWithBrokenExhibits:
 
     def broken_exhibits(self):
         return [FakeExhibit(title) for title in self._broken_titles]
+
+
+class FakeEnabledDocument:
+    def __init__(self, events, enabled=True):
+        self.events = events
+        self.enabled = enabled
+
+    def is_enabled(self, refresh=True):
+        self.events.append(("is_enabled", refresh))
+        return self.enabled
+
+
+class GatheringProbeBundle(ALDocumentBundle):
+    """A real ALDocumentBundle with a small, observable gather implementation."""
+
+    def init(self, *pargs, **kwargs):
+        self.events = kwargs.pop("events")
+        self.gathered_document = kwargs.pop("gathered_document")
+        super().init(*pargs, **kwargs)
+
+    def gather(self, *pargs, **kwargs):
+        self.events.append("gather")
+        self.elements.append(self.gathered_document)
+        self.gathered = True
+        return True
+
+
+class TestBundleGatheringSemantics(unittest.TestCase):
+    def test_defined_false_does_not_trigger_gathering(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[],
+            auto_gather=False,
+            gathered=False,
+            enabled=True,
+        )
+
+        self.assertFalse(bundle.gathered)
+        self.assertEqual(bundle.enabled_documents(refresh=False), [])
+        self.assertFalse(bundle.gathered)
+
+    def test_missing_gathered_marker_is_requested_by_iteration(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[],
+            auto_gather=False,
+            gathered=False,
+            enabled=True,
+        )
+        bundle.reset_gathered()
+
+        self.assertFalse(hasattr(bundle, "gathered"))
+        with self.assertRaises(DAAttributeError):
+            bundle.has_enabled_documents(refresh=False)
+
+    def test_auto_gather_runs_before_document_filtering(self):
+        for method_name in ("has_enabled_documents", "enabled_documents"):
+            events = []
+            document = FakeEnabledDocument(events)
+            bundle = GatheringProbeBundle(
+                "bundle",
+                elements=[],
+                auto_gather=True,
+                gathered=False,
+                enabled=True,
+                events=events,
+                gathered_document=document,
+            )
+
+            result = getattr(bundle, method_name)(refresh=False)
+
+            if method_name == "has_enabled_documents":
+                self.assertTrue(result)
+            else:
+                self.assertEqual(result, [document])
+            self.assertEqual(events, ["gather", ("is_enabled", False)])
+
+    def test_disabled_nested_bundle_does_not_gather_during_enablement(self):
+        events = []
+        document = FakeEnabledDocument(events)
+        nested = GatheringProbeBundle(
+            "nested",
+            elements=[],
+            auto_gather=True,
+            gathered=False,
+            enabled=False,
+            events=events,
+            gathered_document=document,
+        )
+        outer = ALDocumentBundle(
+            "outer",
+            elements=[nested],
+            enabled=True,
+        )
+
+        self.assertFalse(outer.is_enabled(refresh=False))
+        self.assertEqual(events, [])
+
+    def test_membership_replacement_is_used_by_first_output(self):
+        first_pdf = FakePdf(filename="first.pdf")
+        second_pdf = FakePdf(filename="second.pdf")
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeSingleDoc(first_pdf)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+        bundle.elements = [FakeSingleDoc(second_pdf)]
+
+        result = bundle.as_pdf()
+
+        self.assertIs(result, second_pdf)
 
 
 class TestSingleDocumentBundleFilename(unittest.TestCase):
