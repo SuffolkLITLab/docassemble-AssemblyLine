@@ -1,3 +1,4 @@
+# do not pre-load
 """Exercise the copy action with Docassemble's real interview engine.
 
 Creating an answer set assembles another interview. On Docassemble 1.9.8,
