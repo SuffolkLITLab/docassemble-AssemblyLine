@@ -18,6 +18,15 @@ def find_font_file_by_name(font_name: str, search_dirs: List[str]) -> Optional[s
 
     Returns:
         Optional[str]: The full path to the font file if found; otherwise, None.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      from docassemble.AssemblyLine.sign import find_font_file_by_name
+      signature_font_path = find_font_file_by_name("DejaVuSans", ["/usr/share/fonts/truetype"])
+    ```
     """
     # Append '.ttf' if necessary.
     if not font_name.lower().endswith(".ttf"):
@@ -51,6 +60,15 @@ def get_font(
 
     Returns:
         ImageFont.ImageFont: The loaded font instance.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      from docassemble.AssemblyLine.sign import get_font
+      signature_font = get_font(font_name="DejaVuSans", font_size=48)
+    ```
     """
     search_dirs: List[str] = ["/var/www/.fonts", "/usr/share/fonts/truetype"]
 
@@ -113,6 +131,19 @@ def create_signature(
         signature_prefix (str): The signature prefix to use (e.g., "/s/" or "s/"). Defaults to "/s/".
         font_name (Optional[str]): The font's full path or name (without path). Defaults to None.
         font_size (int): The size of the font to be used. Defaults to 48.
+
+    Example:
+        After the user chooses to use a typed signature, create its DAFile
+        in an interview code block:
+
+    ```yaml
+    code: |
+      from docassemble.AssemblyLine.sign import create_signature
+      users[0].signature = DAFile("users[0].signature", filename="signature.png")
+      users[0].signature.initialize()
+      create_signature(users[0].name_full(), users[0].signature.path())
+      users[0].signature.commit()
+    ```
     """
     # Construct the signature text.
     signature_text = f"{signature_prefix} {name}" if signature_prefix.strip() else name

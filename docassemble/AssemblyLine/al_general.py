@@ -84,6 +84,22 @@ def safe_subdivision_type(country_code: str) -> Optional[str]:
 
     Returns:
         Optional[str]: The subdivision type for the country with the given country code.
+
+    Example:
+        The value of `address_region_label` for a US address:
+
+        **Input (interview YAML)**
+
+    ```yaml
+    code: |
+      address_region_label = safe_subdivision_type("US")
+    ```
+
+        **Output**
+
+    ```text
+    State
+    ```
     """
     try:
         return subdivision_type(country_code)
@@ -105,6 +121,32 @@ class ALAddress(Address):
         zip (str): The zip code where the person lives.
         country (str): The country where the person lives.
         impounded (Optional[bool]): Whether the address is impounded.
+
+    Example:
+        With `assembly_line.yml` included, `users` is an ALPeopleList,
+        `users[0]` is an ALIndividual, and `users[0].address` is an ALAddress.
+        For a custom list, declare it with an `objects` block as shown below.
+        Use these question blocks in your interview flow:
+
+    ```yaml
+    objects:
+      - users: ALPeopleList
+    ---
+    question: |
+      What is your name?
+    fields:
+      - code: users[0].name_fields()
+    ---
+    question: |
+      Where do you live?
+    fields:
+      - code: users[0].address.address_fields()
+    ---
+    question: |
+      Check your information
+    subquestion: |
+      ${ users[0].familiar() } lives at ${ users[0].address.on_one_line() }.
+    ```
     """
 
     def address_fields(
@@ -152,6 +194,16 @@ class ALAddress(Address):
 
             - Link to ISO-3166-1 alpha-2 codes:
             [Officially assigned code elements](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2#Officially_assigned_code_elements).
+
+        Example:
+            In an interview:
+
+        ```yaml
+        question: |
+          Where do you live?
+        fields:
+          - code: users[0].address.address_fields(default_state="MA")
+        ```
         """
         # make sure the state name still returns a meaningful value if the interview country
         # differs from the server's country.
@@ -312,6 +364,29 @@ class ALAddress(Address):
                 empty string. If the unit attribute exists and is not None or an empty string, the function will return
                 the unit number, possibly prefixed with 'Unit'. If the unit attribute exists and is None or an empty
                 string, the function will return an empty string.
+
+        Example:
+            With `users[0].address.address = "123 Main Street"`, `.unit = "2"`,
+            `.city = "Boston"`, `.state = "MA"`, `.zip = "02108"`, and `.country = "US"`
+            on the same address object, and English formatting:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].address.formatted_unit() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].address.formatted_unit() }}
+        ```
+
+            **Output**
+
+        ```text
+        Unit 2
+        ```
         """
         if (
             not hasattr(self, "unit")
@@ -364,7 +439,8 @@ class ALAddress(Address):
         long_state: bool = False,
         show_impounded: bool = False,
     ) -> str:
-        """Returns a one-line formatted address, primarily for geocoding.
+        """
+        Returns a one-line formatted address, primarily for geocoding.
 
         Args:
             language (str, optional): Language for the address format.
@@ -377,6 +453,25 @@ class ALAddress(Address):
 
         Returns:
             str: The one-line formatted address.
+
+        Example:
+            With `users[0].address.address = "123 Main Street"`, `.unit = "2"`,
+            `.city = "Boston"`, `.state = "MA"`, `.zip = "02108"`, and `.country = "US"`
+            on the same address object, and English formatting:
+            The value of `address_text` contains Docassemble line-break markers.
+
+            **Input (interview YAML)**
+
+        ```yaml
+        code: |
+          address_text = users[0].address.block()
+        ```
+
+            **Output**
+
+        ```text
+        123 Main Street [NEWLINE] Unit 2 [NEWLINE] Boston, MA 02108
+        ```
         """
         if docassemble.base.functions.this_thread.evaluation_context == "docx":
             line_breaker = '</w:t><w:br/><w:t xml:space="preserve">'
@@ -473,7 +568,8 @@ class ALAddress(Address):
         bare: bool = False,
         show_impounded: bool = False,
     ) -> str:
-        """Returns the first line of the address, including the unit number if it exists.
+        """
+        Returns the first line of the address, including the unit number if it exists.
 
         Args:
             language (str, optional): Language for the address format.
@@ -482,6 +578,29 @@ class ALAddress(Address):
 
         Returns:
             str: The first line of the address.
+
+        Example:
+            With `users[0].address.address = "123 Main Street"`, `.unit = "2"`,
+            `.city = "Boston"`, `.state = "MA"`, `.zip = "02108"`, and `.country = "US"`
+            on the same address object, and English formatting:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].address.line_one() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].address.line_one() }}
+        ```
+
+            **Output**
+
+        ```text
+        123 Main Street, Unit 2
+        ```
         """
         if not show_impounded and (hasattr(self, "impounded") and self.impounded):
             return str(self.impounded_output_label)
@@ -512,7 +631,8 @@ class ALAddress(Address):
         long_state: bool = False,
         show_impounded: bool = False,
     ) -> str:
-        """Returns the second line of the address, including city, state, and postal code.
+        """
+        Returns the second line of the address, including city, state, and postal code.
 
         Args:
             language (str, optional): Language for the address format.
@@ -521,6 +641,29 @@ class ALAddress(Address):
 
         Returns:
             str: The second line of the address.
+
+        Example:
+            With `users[0].address.address = "123 Main Street"`, `.unit = "2"`,
+            `.city = "Boston"`, `.state = "MA"`, `.zip = "02108"`, and `.country = "US"`
+            on the same address object, and English formatting:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].address.line_two() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].address.line_two() }}
+        ```
+
+            **Output**
+
+        ```text
+        Boston, MA 02108
+        ```
         """
         if not show_impounded and (hasattr(self, "impounded") and self.impounded):
             return str(self.impounded_output_label)
@@ -557,7 +700,8 @@ class ALAddress(Address):
         long_state: bool = False,
         show_impounded: bool = False,
     ) -> str:
-        """Returns a one-line formatted address.
+        """
+        Returns a one-line formatted address.
 
         Args:
             include_unit (bool): If True, includes the unit in the formatted address. Defaults to True.
@@ -571,6 +715,29 @@ class ALAddress(Address):
 
         Returns:
             str: The one-line formatted address.
+
+        Example:
+            With `users[0].address.address = "123 Main Street"`, `.unit = "2"`,
+            `.city = "Boston"`, `.state = "MA"`, `.zip = "02108"`, and `.country = "US"`
+            on the same address object, and English formatting (default country US):
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].address.on_one_line() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].address.on_one_line() }}
+        ```
+
+            **Output**
+
+        ```text
+        123 Main Street, Unit 2, Boston, MA 02108
+        ```
         """
         if not show_impounded and (hasattr(self, "impounded") and self.impounded):
             return str(self.impounded_output_label)
@@ -631,10 +798,11 @@ class ALAddress(Address):
         return output
 
     def normalized_address(self) -> Union[Address, "ALAddress"]:
-        """Try geocoding the address, returning the normalized version if successful.
+        """
+        Try geocoding the address, returning the normalized version if successful.
 
         If geocoding is successful, the method returns the "long" normalized version
-        of the address. All methods, such as `my_address.normalized_address().block()`, are
+        of the address. All methods, such as `users[0].address.normalized_address().block()`, are
         still available on the returned object. However, note that the returned object will
         be a standard Address object, not an ALAddress object. If geocoding fails, it returns
         the version of the address as entered by the user.
@@ -645,6 +813,21 @@ class ALAddress(Address):
             Union[Address, "ALAddress"]:.
                 Normalized address if geocoding is successful, otherwise
                 the original address.
+
+        Example:
+            Format the returned address after attempting geocoding:
+
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ users[0].address.normalized_address().on_one_line() }
+        ```
+
+            In a DOCX template (Jinja2):
+
+        ```jinja2
+        {{ users[0].address.normalized_address().on_one_line() }}
+        ```
         """
         try:
             self.geocode()
@@ -655,7 +838,8 @@ class ALAddress(Address):
         return self
 
     def state_name(self, country_code: Optional[str] = None) -> str:
-        """Returns the full state name based on the state abbreviation.
+        """
+        Returns the full state name based on the state abbreviation.
 
         If a `country_code` is provided, it will override the country attribute of the Address
         object. Otherwise, the method uses, in order:
@@ -671,6 +855,29 @@ class ALAddress(Address):
         Returns:
             str: The full state name corresponding to the state abbreviation. If an error occurs.
             or the full name cannot be determined, returns the state abbreviation.
+
+        Example:
+            With `users[0].address.address = "123 Main Street"`, `.unit = "2"`,
+            `.city = "Boston"`, `.state = "MA"`, `.zip = "02108"`, and `.country = "US"`
+            on the same address object, and English formatting:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].address.state_name() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].address.state_name() }}
+        ```
+
+            **Output**
+
+        ```text
+        Massachusetts
+        ```
         """
         if country_code:
             return state_name(self.state, country_code=country_code)
@@ -689,19 +896,45 @@ class ALAddress(Address):
 
 
 class ALAddressList(DAList):
-    """A class to store a list of ALAddress objects.
+    """
+    A class to store a list of ALAddress objects.
 
     Extends the DAList class and specifically caters to ALAddress objects.
     It provides methods to initialize the list and get a string representation
     of the list in a formatted manner.
+
+    Example:
+        The list is initialized on each ALIndividual. After gathering an entry:
+
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ users[0].previous_addresses[0].on_one_line() }
+    ```
+
+        In a DOCX template (Jinja2):
+
+    ```jinja2
+    {{ users[0].previous_addresses[0].on_one_line() }}
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - previous_addresses: ALAddressList
+        ```
         """
         super(ALAddressList, self).init(*pargs, **kwargs)
         self.object_type = ALAddress
@@ -719,17 +952,43 @@ class ALAddressList(DAList):
 
 
 class ALNameList(DAList):
-    """A class to store a list of IndividualName objects.
+    """
+    A class to store a list of IndividualName objects.
 
     Extends the DAList class and is tailored for IndividualName objects.
+
+    Example:
+        The list is initialized on each ALIndividual. After gathering an entry:
+
+        In question or Markdown attachment text (Mako):
+
+    ```mako
+    ${ users[0].previous_names[0] }
+    ```
+
+        In a DOCX template (Jinja2):
+
+    ```jinja2
+    {{ users[0].previous_names[0] }}
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation. Each person’s `previous_names` and `aliases` are ALNameLists.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - users: ALPeopleList
+        ```
         """
         super().init(*pargs, **kwargs)
         self.object_type = IndividualName
@@ -744,16 +1003,54 @@ class ALNameList(DAList):
 
 
 class ALPeopleList(DAList):
-    """Class to store a list of ALIndividual objects, representing people.
+    """
+    Class to store a list of ALIndividual objects, representing people.
 
-    For example, defendants, plaintiffs, or children."""
+    For example, defendants, plaintiffs, or children.
+
+    Example:
+        With `assembly_line.yml` included, `users` is an ALPeopleList,
+        `users[0]` is an ALIndividual, and `users[0].address` is an ALAddress.
+        For a custom list, declare it with an `objects` block as shown below.
+        Use these question blocks in your interview flow:
+
+    ```yaml
+    objects:
+      - users: ALPeopleList
+    ---
+    question: |
+      What is your name?
+    fields:
+      - code: users[0].name_fields()
+    ---
+    question: |
+      Where do you live?
+    fields:
+      - code: users[0].address.address_fields()
+    ---
+    question: |
+      Check your information
+    subquestion: |
+      ${ users[0].familiar() } lives at ${ users[0].address.on_one_line() }.
+    ```
+    """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - users: ALPeopleList
+        ```
         """
         super(ALPeopleList, self).init(*pargs, **kwargs)
         self.object_type = ALIndividual
@@ -761,7 +1058,8 @@ class ALPeopleList(DAList):
     def names_and_addresses_on_one_line(
         self, comma_string: str = "; ", bare=False
     ) -> str:
-        """Provide names and addresses of individuals on one line.
+        """
+        Provide names and addresses of individuals on one line.
 
         Args:
             comma_string (str, optional): The string to use between name-address pairs. Defaults to '; '.
@@ -769,6 +1067,19 @@ class ALPeopleList(DAList):
 
         Returns:
             str: Formatted string of names followed by addresses.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ users.names_and_addresses_on_one_line() }
+        ```
+
+            In a DOCX template (Jinja2):
+
+        ```jinja2
+        {{ users.names_and_addresses_on_one_line() }}
+        ```
         """
         return comma_and_list(
             [
@@ -787,7 +1098,8 @@ class ALPeopleList(DAList):
     def familiar(
         self, unique_names: Optional[list] = None, default: Optional[str] = None
     ) -> str:
-        """Provide a list of familiar forms of names of individuals, in the
+        """
+        Provide a list of familiar forms of names of individuals, in the
         most familiar way possible while preserving uniqueness. When possible,
         it will return just the first name of each individual.
 
@@ -798,6 +1110,29 @@ class ALPeopleList(DAList):
             default (str): The default name to use if a unique name is not available.
         Returns:
             str: Formatted string of familiar names.
+
+        Example:
+            With a gathered `users` list containing Alex Morgan Rivera, Jordan
+            Chen, and Taylor Brooks, in that order, with no suffixes or preferred
+            names, and the interview language set to English:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users.familiar() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users.familiar() }}
+        ```
+
+            **Output**
+
+        ```text
+        Alex, Jordan, and Taylor
+        ```
         """
         return comma_and_list(
             [
@@ -809,7 +1144,8 @@ class ALPeopleList(DAList):
     def familiar_or(
         self, unique_names: Optional[list] = None, default: Optional[str] = None
     ) -> str:
-        """Provide a list of familiar forms of names of individuals separated by 'or',
+        """
+        Provide a list of familiar forms of names of individuals separated by 'or',
         using the most familiar form possible while preserving uniqueness. When possible, it will return just the first name of each individual.
 
         See ALIndividual.familiar for how the familiar form of each individual is determined.
@@ -820,6 +1156,29 @@ class ALPeopleList(DAList):
 
         Returns:
             str: Formatted string of familiar names separated by 'or'.
+
+        Example:
+            With a gathered `users` list containing Alex Morgan Rivera, Jordan
+            Chen, and Taylor Brooks, in that order, with no suffixes or preferred
+            names, and the interview language set to English:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users.familiar_or() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users.familiar_or() }}
+        ```
+
+            **Output**
+
+        ```text
+        Alex, Jordan, or Taylor
+        ```
         """
         return comma_and_list(
             [
@@ -830,7 +1189,8 @@ class ALPeopleList(DAList):
         )
 
     def short_list(self, limit: int, truncate_string: str = ", et al.") -> str:
-        """Return a subset of the list, truncated with 'et al.' if it exceeds a given limit.
+        """
+        Return a subset of the list, truncated with 'et al.' if it exceeds a given limit.
 
         Args:
             limit (int): The maximum number of items to display before truncating.
@@ -838,6 +1198,29 @@ class ALPeopleList(DAList):
 
         Returns:
             str: Formatted string of names, truncated if needed.
+
+        Example:
+            With a gathered `users` list containing Alex Morgan Rivera, Jordan
+            Chen, and Taylor Brooks, in that order, with no suffixes or preferred
+            names, and the interview language set to English:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users.short_list(limit=2) }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users.short_list(limit=2) }}
+        ```
+
+            **Output**
+
+        ```text
+        Alex M. Rivera and Jordan Chen, et al.
+        ```
         """
         if len(self) > limit:
             return comma_and_list(self[:limit]) + truncate_string
@@ -847,7 +1230,8 @@ class ALPeopleList(DAList):
     def full_names(
         self, comma_string: str = ", ", and_string: Optional[str] = None
     ) -> str:
-        """Return a formatted list of full names of individuals.
+        """
+        Return a formatted list of full names of individuals.
 
         Args:
             comma_string (str, optional): The string to use between names. Defaults to ','.
@@ -855,6 +1239,29 @@ class ALPeopleList(DAList):
 
         Returns:
             str: Formatted string of full names.
+
+        Example:
+            With a gathered `users` list containing Alex Morgan Rivera, Jordan
+            Chen, and Taylor Brooks, in that order, with no suffixes or preferred
+            names, and the interview language set to English:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users.full_names() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users.full_names() }}
+        ```
+
+            **Output**
+
+        ```text
+        Alex Morgan Rivera, Jordan Chen, and Taylor Brooks
+        ```
         """
         if not and_string:
             and_string = word("and")
@@ -872,7 +1279,8 @@ class ALPeopleList(DAList):
         )
 
     def pronoun_reflexive(self, **kwargs) -> str:
-        """Returns the appropriate reflexive pronoun for the list of people, depending
+        """
+        Returns the appropriate reflexive pronoun for the list of people, depending
         on the `person` keyword argument and the number of items in the list.
 
         If the list is singular, return the reflexive pronoun for the first item in the list.
@@ -885,6 +1293,29 @@ class ALPeopleList(DAList):
 
         Returns:
             str: The reflexive pronoun for the list.
+
+        Example:
+            With a gathered `users` list containing Alex Morgan Rivera, Jordan
+            Chen, and Taylor Brooks, in that order, with no suffixes or preferred
+            names, and the interview language set to English:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users.pronoun_reflexive(person=3) }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users.pronoun_reflexive(person=3) }}
+        ```
+
+            **Output**
+
+        ```text
+        themselves
+        ```
         """
         person = str(kwargs.get("person", self.get_point_of_view()))
 
@@ -913,7 +1344,8 @@ class ALPeopleList(DAList):
 
 
 class ALIndividual(Individual):
-    """Used to represent an Individual on the assembly line project.
+    """
+    Used to represent an Individual on the assembly line project.
 
     This class extends the Individual class and adds more tailored attributes and methods
     relevant for the assembly line project. Specifically, it has attributes for previous addresses,
@@ -931,6 +1363,32 @@ class ALIndividual(Individual):
     Note:
         Objects as attributes should not be passed directly to the constructor due to
         initialization requirements in the Docassemble framework. See the `init` method.
+
+    Example:
+        With `assembly_line.yml` included, `users` is an ALPeopleList,
+        `users[0]` is an ALIndividual, and `users[0].address` is an ALAddress.
+        For a custom list, declare it with an `objects` block as shown below.
+        Use these question blocks in your interview flow:
+
+    ```yaml
+    objects:
+      - users: ALPeopleList
+    ---
+    question: |
+      What is your name?
+    fields:
+      - code: users[0].name_fields()
+    ---
+    question: |
+      Where do you live?
+    fields:
+      - code: users[0].address.address_fields()
+    ---
+    question: |
+      Check your information
+    subquestion: |
+      ${ users[0].familiar() } lives at ${ users[0].address.on_one_line() }.
+    ```
     """
 
     previous_addresses: ALAddressList
@@ -942,11 +1400,21 @@ class ALIndividual(Individual):
     preferred_name: IndividualName
 
     def init(self, *pargs, **kwargs) -> None:
-        """Standard DAObject init method.
+        """
+        Standard DAObject init method.
 
         Args:
             *pargs: Positional arguments.
             **kwargs: Keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation. Each entry, such as `users[0]`, is an ALIndividual.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - users: ALPeopleList
+        ```
         """
         super(ALIndividual, self).init(*pargs, **kwargs)
         # Initialize the attributes that are themselves objects. Requirement to work with Docassemble
@@ -971,13 +1439,30 @@ class ALIndividual(Individual):
             self.initializeAttribute("preferred_name", IndividualName)
 
     def signature_if_final(self, i: str) -> Union[DAFile, str]:
-        """Returns the individual's signature if `i` is "final", which usually means we are assembling the final version of the document (as opposed to a preview).
+        """
+        Returns the individual's signature if `i` is "final", which usually means we are assembling the final version of the document (as opposed to a preview).
 
         Args:
             i (str): The condition which, if set to "final", returns the signature.
 
         Returns:
             Union[DAFile, str]: The signature if the condition is met, otherwise an empty string.
+
+        Example:
+            Use in an attachment whose variable name is `petition[i]`. The `i`
+            value distinguishes the final document from its preview.
+
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ users[0].signature_if_final(i) }
+        ```
+
+            In a DOCX template (Jinja2):
+
+        ```jinja2
+        {{ users[0].signature_if_final(i) }}
+        ```
         """
         if i == "final":
             return self.signature
@@ -987,7 +1472,8 @@ class ALIndividual(Individual):
     def phone_numbers(
         self, country: Optional[str] = None, show_impounded: bool = False
     ) -> str:
-        """Fetches and formats the phone numbers of the individual.
+        """
+        Fetches and formats the phone numbers of the individual.
 
         Supports the following attributes:
 
@@ -1003,6 +1489,29 @@ class ALIndividual(Individual):
 
         Returns:
             str: Formatted string of phone numbers.
+
+        Example:
+            With `users[0].mobile_number = "2025550123"` and
+            `users[0].phone_number = "2025550198"`, no other phone numbers, and
+            `users[0].phone_impounded = False`, both numbers are labeled:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].phone_numbers(country="US") }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].phone_numbers(country="US") }}
+        ```
+
+            **Output**
+
+        ```text
+        (202) 555-0123 (cell), (202) 555-0198 (other)
+        ```
         """
         nums = []
         if hasattr(self, "mobile_number") and self.mobile_number:
@@ -1072,10 +1581,24 @@ class ALIndividual(Individual):
         assert False  # We should never get here, no default return is necessary
 
     def contact_methods(self) -> str:
-        """Generates a formatted string of all provided contact methods.
+        """
+        Generates a formatted string of all provided contact methods.
 
         Returns:
             str: A formatted string indicating the available methods to contact the individual.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ users[0].contact_methods() }
+        ```
+
+            In a DOCX template (Jinja2):
+
+        ```jinja2
+        {{ users[0].contact_methods() }}
+        ```
         """
         methods = []
         if self.phone_numbers():
@@ -1097,12 +1620,21 @@ class ALIndividual(Individual):
         )
 
     def merge_letters(self, new_letters: str) -> None:
-        """If the Individual has a child_letters attribute, add the new letters to the existing list
+        """
+        If the Individual has a child_letters attribute, add the new letters to the existing list
 
         Avoid using. Only used in 209A.
 
         Args:
             new_letters (str): The new letters to add to the existing list of letters.
+
+        Example:
+            For a legacy 209A interview that uses `child_letters`:
+
+        ```yaml
+        code: |
+          users[0].merge_letters("ab")
+        ```
         """
         # TODO: move to 209A package
         if hasattr(self, "child_letters"):
@@ -1111,10 +1643,24 @@ class ALIndividual(Individual):
             self.child_letters = filter_letters(new_letters)
 
     def formatted_age(self) -> str:
-        """Calculates and formats the age of the individual based on their birthdate.
+        """
+        Calculates and formats the age of the individual based on their birthdate.
 
         Returns:
             str: Formatted age string that shows the most relevant time unit; for example, if under 2 years, it will return "X months".
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ users[0].formatted_age() }
+        ```
+
+            In a DOCX template (Jinja2):
+
+        ```jinja2
+        {{ users[0].formatted_age() }}
+        ```
         """
         dd = date_difference(self.birthdate)
         if dd.years >= 2:
@@ -1126,10 +1672,26 @@ class ALIndividual(Individual):
         return "%d days" % (int(dd.days),)
 
     def normalized_address(self) -> Union[Address, ALAddress]:
-        """Fetches the normalized version of the address.
+        """
+        Fetches the normalized version of the address.
 
         Returns:
             Union[Address, ALAddress]: The normalized address object.
+
+        Example:
+            Format the returned address after attempting geocoding:
+
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ users[0].normalized_address().on_one_line() }
+        ```
+
+            In a DOCX template (Jinja2):
+
+        ```jinja2
+        {{ users[0].normalized_address().on_one_line() }}
+        ```
         """
         return self.address.normalized_address()
 
@@ -1172,6 +1734,16 @@ class ALIndividual(Individual):
         Note:
             If `person_or_business` is set to None, the method will offer the end user a choice
             and will set appropriate "show ifs" conditions for each type.
+
+        Example:
+            In an interview:
+
+        ```yaml
+        question: |
+          What is your name?
+        fields:
+          - code: users[0].name_fields(show_suffix=True)
+        ```
         """
         if title_options:
             log(
@@ -1347,6 +1919,16 @@ class ALIndividual(Individual):
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for addresses.
+
+        Example:
+            In an interview:
+
+        ```yaml
+        question: |
+          Where do you live?
+        fields:
+          - code: users[0].address_fields(default_state="MA")
+        ```
         """
         # TODO make this more flexible to work w/ homeless individuals and
         # international addresses
@@ -1386,6 +1968,16 @@ class ALIndividual(Individual):
 
         Note:
             self-described will provide an input that overrides the value of `gender` and is not persisted.
+
+        Example:
+            In an interview:
+
+        ```yaml
+        question: |
+          What is your gender?
+        fields:
+          - code: users[0].gender_fields(show_help=True)
+        ```
         """
         if not choices:
             choices = [
@@ -1460,6 +2052,16 @@ class ALIndividual(Individual):
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for pronouns.
+
+        Example:
+            In an interview:
+
+        ```yaml
+        question: |
+          What pronouns do you use?
+        fields:
+          - code: users[0].pronoun_fields(show_unknown=True)
+        ```
         """
         if choices:
             shuffled_choices = choices
@@ -1519,6 +2121,23 @@ class ALIndividual(Individual):
 
         Returns:
             set: A set of strings representing the individual's pronouns.
+
+        Example:
+            With `users[0].pronouns = "they/them/theirs"`, the value of
+            `selected_pronouns` is a Python set:
+
+            **Input (interview YAML)**
+
+        ```yaml
+        code: |
+          selected_pronouns = users[0].get_pronouns()
+        ```
+
+            **Output**
+
+        ```text
+        {'they/them/theirs'}
+        ```
         """
         if hasattr(self, "pronouns") and isinstance(self.pronouns, str):
             return {self.pronouns}
@@ -1536,6 +2155,27 @@ class ALIndividual(Individual):
 
         Returns:
             str: A formatted string of the individual's pronouns.
+
+        Example:
+            With `users[0].pronouns = "they/them/theirs"`:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].list_pronouns() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].list_pronouns() }}
+        ```
+
+            **Output**
+
+        ```text
+        they/them/theirs
+        ```
         """
         return comma_list(sorted(self.get_pronouns()))
 
@@ -1559,6 +2199,16 @@ class ALIndividual(Individual):
 
         Returns:
             List[Dict[str, str]]: A list of dictionaries with field prompts for language preferences.
+
+        Example:
+            In an interview:
+
+        ```yaml
+        question: |
+          What language do you prefer?
+        fields:
+          - code: users[0].language_fields()
+        ```
         """
         if not choices:
             choices = [
@@ -1612,6 +2262,27 @@ class ALIndividual(Individual):
             str: The human-readable version of the language. If 'other' is selected,.
             it returns the value in `language_other`. Otherwise, it uses the
             `language_name` function.
+
+        Example:
+            With `users[0].language = "es"`:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].language_name() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].language_name() }}
+        ```
+
+            **Output**
+
+        ```text
+        Spanish
+        ```
         """
         if self.language == "other":
             return self.language_other
@@ -1625,6 +2296,17 @@ class ALIndividual(Individual):
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Example:
+            In a DOCX template, conditionally include text based on the gathered gender:
+
+        ```jinja2
+        {% if users[0].gender_male %}
+        [ X ]
+        {% else %}
+        [   ]
+        {% endif %}
+        ```
         """
         return self.gender.lower() == "male"
 
@@ -1635,6 +2317,17 @@ class ALIndividual(Individual):
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Example:
+            In a DOCX template, conditionally include text based on the gathered gender:
+
+        ```jinja2
+        {% if users[0].gender_female %}
+        [ X ]
+        {% else %}
+        [   ]
+        {% endif %}
+        ```
         """
         return self.gender.lower() == "female"
 
@@ -1645,6 +2338,17 @@ class ALIndividual(Individual):
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Example:
+            In a DOCX template, conditionally include text based on the gathered gender:
+
+        ```jinja2
+        {% if users[0].gender_other %}
+        [ X ]
+        {% else %}
+        [   ]
+        {% endif %}
+        ```
         """
         return (self.gender != "male") and (self.gender != "female")
 
@@ -1655,6 +2359,17 @@ class ALIndividual(Individual):
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Example:
+            In a DOCX template, conditionally include text based on the gathered gender:
+
+        ```jinja2
+        {% if users[0].gender_nonbinary %}
+        [ X ]
+        {% else %}
+        [   ]
+        {% endif %}
+        ```
         """
         return self.gender.lower() == "nonbinary"
 
@@ -1665,6 +2380,17 @@ class ALIndividual(Individual):
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Example:
+            In a DOCX template, conditionally include text based on the gathered gender:
+
+        ```jinja2
+        {% if users[0].gender_unknown %}
+        [ X ]
+        {% else %}
+        [   ]
+        {% endif %}
+        ```
         """
         return self.gender.lower() == "unknown"
 
@@ -1675,6 +2401,17 @@ class ALIndividual(Individual):
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Example:
+            In a DOCX template, conditionally include text based on the gathered gender:
+
+        ```jinja2
+        {% if users[0].gender_undisclosed %}
+        [ X ]
+        {% else %}
+        [   ]
+        {% endif %}
+        ```
         """
         return self.gender.lower() == "prefer-not-to-say"
 
@@ -1685,6 +2422,17 @@ class ALIndividual(Individual):
 
         Used to assist with checkbox filling in PDFs with "skip undefined"
         turned on.
+
+        Example:
+            In a DOCX template, conditionally include text based on the gathered gender:
+
+        ```jinja2
+        {% if users[0].gender_self_described %}
+        [ X ]
+        {% else %}
+        [   ]
+        {% endif %}
+        ```
         """
         return self.gender not in [
             "prefer-not-to-say",
@@ -1697,6 +2445,20 @@ class ALIndividual(Individual):
     def contact_fields(self) -> None:
         """
         Return field prompts for other contact info
+
+        Example:
+            This method is a placeholder and returns `None`. Use explicit fields instead:
+
+        ```yaml
+        question: |
+          How can we contact you?
+        fields:
+          - Email: users[0].email
+            datatype: email
+            required: False
+          - Mobile phone: users[0].mobile_number
+            required: False
+        ```
         """
         pass
 
@@ -1706,6 +2468,29 @@ class ALIndividual(Individual):
         Returns the initials of the individual as a string.
 
         For example, "Quinten K Steenhuis" would return "QKS".
+
+        Example:
+            With `users[0].name.first = "Alex"`, `users[0].name.middle = "Morgan"`,
+            and `users[0].name.last = "Rivera"`, and no suffix or preferred name:
+            `initials` is a property, so do not add parentheses.
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].initials }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].initials }}
+        ```
+
+            **Output**
+
+        ```text
+        AMR
+        ```
         """
         return f"{self.name.first[:1]}{self.name.middle[:1] if hasattr(self.name,'middle') else ''}{self.name.last[:1] if hasattr(self.name, 'last') else ''}"
 
@@ -1729,6 +2514,19 @@ class ALIndividual(Individual):
 
         Returns:
             str: The formatted address block.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ users[0].address_block() }
+        ```
+
+            In a DOCX template (Jinja2):
+
+        ```jinja2
+        {{ users[0].address_block() }}
+        ```
         """
         if docassemble.base.functions.this_thread.evaluation_context == "docx":
             if isinstance(self.address, ALAddress):
@@ -1775,7 +2573,8 @@ class ALIndividual(Individual):
                 )
 
     def pronoun(self, **kwargs) -> str:
-        """Returns an objective pronoun as appropriate, based on the user's `pronouns` attribute or `gender` attribute.
+        """
+        Returns an objective pronoun as appropriate, based on the user's `pronouns` attribute or `gender` attribute.
 
         The pronoun could be "I", "you," "her," "him," "it," or "them", or a user-provided pronoun.
         If the user has selected multiple pronouns, each will appear, separated by a "/".
@@ -1789,6 +2588,28 @@ class ALIndividual(Individual):
                     - default (Optional[str]): The default word to use if the pronoun is not defined, e.g. "the agent". If not defined, the default term is the user's name.
         Returns:
             str: The appropriate pronoun.
+
+        Example:
+            With `users[0].pronouns = "they/them/theirs"`, an English interview,
+            and a third-person reference to `users[0]` (not the special `user` object):
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].pronoun(person=3) }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].pronoun(person=3) }}
+        ```
+
+            **Output**
+
+        ```text
+        them
+        ```
         """
         person = str(kwargs.get("person", self.get_point_of_view()))
 
@@ -1859,13 +2680,36 @@ class ALIndividual(Individual):
         return output
 
     def pronoun_objective(self, **kwargs) -> str:
-        """Returns the same pronoun as the `pronoun()` method.
+        """
+        Returns the same pronoun as the `pronoun()` method.
 
         Args:
             **kwargs: Additional keyword arguments.
 
         Returns:
             str: The appropriate objective pronoun.
+
+        Example:
+            With `users[0].pronouns = "they/them/theirs"`, an English interview,
+            and a third-person reference to `users[0]` (not the special `user` object):
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].pronoun_objective(person=3) }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].pronoun_objective(person=3) }}
+        ```
+
+            **Output**
+
+        ```text
+        them
+        ```
         """
         return self.pronoun(**kwargs)
 
@@ -1888,6 +2732,28 @@ class ALIndividual(Individual):
 
         Returns:
             str: The appropriate possessive phrase, e.g., "her book", "their document".
+
+        Example:
+            With `users[0].pronouns = "they/them/theirs"`, an English interview,
+            and a third-person reference to `users[0]` (not the special `user` object):
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].pronoun_possessive("address", person=3) }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].pronoun_possessive("address", person=3) }}
+        ```
+
+            **Output**
+
+        ```text
+        their address
+        ```
         """
         person = str(kwargs.get("person", self.get_point_of_view()))
 
@@ -1963,7 +2829,8 @@ class ALIndividual(Individual):
         return output
 
     def pronoun_subjective(self, **kwargs) -> str:
-        """Returns a subjective pronoun, based on attributes.
+        """
+        Returns a subjective pronoun, based on attributes.
 
         The pronoun could be "you," "we", "she," "he," "it," or "they". It depends
         on the `gender` and `person_type` attributes and whether the individual
@@ -1975,6 +2842,28 @@ class ALIndividual(Individual):
                     - default (Optional[str]): The default word to use if the pronoun is not defined, e.g. "the agent". If not defined, the default term is the user's name.
         Returns:
             str: The appropriate subjective pronoun.
+
+        Example:
+            With `users[0].pronouns = "they/them/theirs"`, an English interview,
+            and a third-person reference to `users[0]` (not the special `user` object):
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].pronoun_subjective(person=3) }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].pronoun_subjective(person=3) }}
+        ```
+
+            **Output**
+
+        ```text
+        they
+        ```
         """
         person = str(kwargs.get("person", self.get_point_of_view()))
 
@@ -2044,7 +2933,8 @@ class ALIndividual(Individual):
         return output
 
     def pronoun_reflexive(self, **kwargs) -> str:
-        """Returns the appropriate reflexive pronoun ("herself", "themself", "myself"), based on the user's pronouns or gender and whether we are asked
+        """
+        Returns the appropriate reflexive pronoun ("herself", "themself", "myself"), based on the user's pronouns or gender and whether we are asked
         to return a 1st, 2nd, or 3rd person pronoun.
 
         Note that if the person has pronouns of they/them/theirs or a nonbinary gender, we return "themself" as the singular non-gendered
@@ -2058,6 +2948,28 @@ class ALIndividual(Individual):
 
         Returns:
             str: The appropriate reflexive pronoun.
+
+        Example:
+            With `users[0].pronouns = "they/them/theirs"`, an English interview,
+            and a third-person reference to `users[0]` (not the special `user` object):
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].pronoun_reflexive(person=3) }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].pronoun_reflexive(person=3) }}
+        ```
+
+            **Output**
+
+        ```text
+        themself
+        ```
         """
         person = str(kwargs.get("person", self.get_point_of_view()))
 
@@ -2148,7 +3060,8 @@ class ALIndividual(Individual):
         return output
 
     def name_full(self) -> str:
-        """Returns the individual's full name.
+        """
+        Returns the individual's full name.
 
         If the person has the attribute person_type and it is defined
         as either `business` or `organization`, it will only return
@@ -2156,6 +3069,28 @@ class ALIndividual(Individual):
 
         Returns:
             str: The individual or business's full name.
+
+        Example:
+            With `users[0].name.first = "Alex"`, `users[0].name.middle = "Morgan"`,
+            and `users[0].name.last = "Rivera"`, and no suffix or preferred name:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].name_full() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].name_full() }}
+        ```
+
+            **Output**
+
+        ```text
+        Alex Morgan Rivera
+        ```
         """
         if hasattr(self, "person_type") and self.person_type in [
             "business",
@@ -2176,6 +3111,28 @@ class ALIndividual(Individual):
 
         Returns:
             str: The individual's name with the middle name as an initial.
+
+        Example:
+            With `users[0].name.first = "Alex"`, `users[0].name.middle = "Morgan"`,
+            and `users[0].name.last = "Rivera"`, and no suffix or preferred name:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].name_initials() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].name_initials() }}
+        ```
+
+            **Output**
+
+        ```text
+        Alex M. Rivera
+        ```
         """
         if hasattr(self, "person_type") and self.person_type in [
             "business",
@@ -2196,6 +3153,28 @@ class ALIndividual(Individual):
 
         Returns:
             str: The individual'.
+
+        Example:
+            With `users[0].name.first = "Alex"`, `users[0].name.middle = "Morgan"`,
+            and `users[0].name.last = "Rivera"`, and no suffix or preferred name:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].name_short() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].name_short() }}
+        ```
+
+            **Output**
+
+        ```text
+        Alex Rivera
+        ```
         """
         if hasattr(self, "person_type") and self.person_type in [
             "business",
@@ -2237,9 +3216,43 @@ class ALIndividual(Individual):
             str: The individual's name in the most familiar form possible.
 
         Example:
-            ```mako
-            Who do you want to take care of ${ children.familiar(unique_names=parents + petitioners, default="the minor") }
-            ```
+            With `users[0].name.first = "Alex"`, `users[0].name.middle = "Morgan"`,
+            and `users[0].name.last = "Rivera"`, and no suffix or preferred name:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ users[0].familiar() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ users[0].familiar() }}
+        ```
+
+            **Output**
+
+        ```text
+        Alex
+        ```
+
+            When a child and a parent may share a first name, include the other
+            people to compare against. If `children[0]` is Alex Rivera and
+            `users[0]` is Alex Chen (neither has a middle name, suffix, or preferred
+            name), the method uses the child's last name to distinguish them:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ children[0].familiar(unique_names=users, default="the minor") }
+        ```
+
+            **Output**
+
+        ```text
+        Alex Rivera
+        ```
         """
         if hasattr(self, "person_type") and self.person_type in [
             "business",
@@ -2331,13 +3344,22 @@ class ALIndividual(Individual):
 
 # (DANav isn't in public DA API, but currently in functions.py)
 def section_links(nav) -> List[str]:  # type: ignore
-    """Returns a list of clickable navigation links without animation.
+    """
+    Returns a list of clickable navigation links without animation.
 
     Args:
         nav: The navigation object.
 
     Returns:
         List[str]: A list of clickable navigation links without animation.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      review_links = section_links(nav)
+    ```
     """
     sections = nav.get_sections()
     section_link = []
@@ -2353,26 +3375,134 @@ def section_links(nav) -> List[str]:  # type: ignore
 
 
 class Landlord(ALIndividual):
+    """
+    Landlord is a compatibility or role-specific subclass of ALIndividual.
+
+    Example:
+        This ALIndividual subclass uses the same name and address methods.
+        After gathering the list entry:
+
+    ```yaml
+    objects:
+      - landlords: DAList.using(object_type=Landlord)
+    ---
+    question: |
+      Check the name
+    subquestion: |
+      ${ landlords[0].name_full() }
+    ```
+    """
+
     pass
 
 
 class Tenant(ALIndividual):
+    """
+    Tenant is a compatibility or role-specific subclass of ALIndividual.
+
+    Example:
+        This ALIndividual subclass uses the same name and address methods.
+        After gathering the list entry:
+
+    ```yaml
+    objects:
+      - tenants: DAList.using(object_type=Tenant)
+    ---
+    question: |
+      Check the name
+    subquestion: |
+      ${ tenants[0].name_full() }
+    ```
+    """
+
     pass
 
 
 class HousingAuthority(Landlord):
+    """
+    HousingAuthority is a compatibility or role-specific subclass of Landlord.
+
+    Example:
+        This ALIndividual subclass uses the same name and address methods.
+        After gathering the list entry:
+
+    ```yaml
+    objects:
+      - housing_authorities: DAList.using(object_type=HousingAuthority)
+    ---
+    question: |
+      Check the name
+    subquestion: |
+      ${ housing_authorities[0].name_full() }
+    ```
+    """
+
     pass
 
 
 class Applicant(Tenant):
+    """
+    Applicant is a compatibility or role-specific subclass of Tenant.
+
+    Example:
+        This ALIndividual subclass uses the same name and address methods.
+        After gathering the list entry:
+
+    ```yaml
+    objects:
+      - applicants: DAList.using(object_type=Applicant)
+    ---
+    question: |
+      Check the name
+    subquestion: |
+      ${ applicants[0].name_full() }
+    ```
+    """
+
     pass
 
 
 class Abuser(ALIndividual):
+    """
+    Abuser is a compatibility or role-specific subclass of ALIndividual.
+
+    Example:
+        This ALIndividual subclass uses the same name and address methods.
+        After gathering the list entry:
+
+    ```yaml
+    objects:
+      - other_parties: DAList.using(object_type=Abuser)
+    ---
+    question: |
+      Check the name
+    subquestion: |
+      ${ other_parties[0].name_full() }
+    ```
+    """
+
     pass
 
 
 class Survivor(ALIndividual):
+    """
+    Survivor is a compatibility or role-specific subclass of ALIndividual.
+
+    Example:
+        This ALIndividual subclass uses the same name and address methods.
+        After gathering the list entry:
+
+    ```yaml
+    objects:
+      - survivors: ALPeopleList.using(object_type=Survivor)
+    ---
+    question: |
+      Check the name
+    subquestion: |
+      ${ survivors[0].name_full() }
+    ```
+    """
+
     pass
 
 
@@ -2383,14 +3513,56 @@ class Survivor(ALIndividual):
 
 
 class VCIndividual(ALIndividual):
+    """
+    VCIndividual is a compatibility or role-specific subclass of ALIndividual.
+
+    Example:
+        This ALIndividual subclass uses the same name and address methods.
+        After gathering the list entry:
+
+    ```yaml
+    objects:
+      - victims: ALPeopleList.using(object_type=VCIndividual)
+    ---
+    question: |
+      Check the name
+    subquestion: |
+      ${ victims[0].name_full() }
+    ```
+    """
+
     pass
 
 
 class AddressList(ALAddressList):
+    """
+    AddressList is a compatibility or role-specific subclass of ALAddressList.
+
+    Example:
+        Compatibility name for `ALAddressList`. Prefer `ALAddressList` in new interviews.
+
+    ```yaml
+    objects:
+      - previous_addresses: AddressList
+    ```
+    """
+
     pass
 
 
 class PeopleList(ALPeopleList):
+    """
+    PeopleList is a compatibility or role-specific subclass of ALPeopleList.
+
+    Example:
+        Compatibility name for `ALPeopleList`. Prefer `ALPeopleList` in new interviews.
+
+    ```yaml
+    objects:
+      - users: PeopleList
+    ```
+    """
+
     pass
 
 
@@ -2409,6 +3581,14 @@ def will_send_to_real_court() -> bool:
 
     Returns:
         bool: True if the form is being run on the dev, test, or production server.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      send_to_court = will_send_to_real_court()
+    ```
     """
     return not (
         get_config("debug")
@@ -2421,7 +3601,8 @@ def will_send_to_real_court() -> bool:
 # TODO: move to 209A package
 # This one is only used for 209A--should move there along with the combined_letters() method
 def filter_letters(letter_strings: Union[List[str], str]) -> str:
-    """Used to take a list of letters like ["A","ABC","AB"] and filter out any duplicate letters.
+    """
+    Used to take a list of letters like ["A","ABC","AB"] and filter out any duplicate letters.
 
     Avoid using, this is created for 209A.
 
@@ -2430,6 +3611,16 @@ def filter_letters(letter_strings: Union[List[str], str]) -> str:
 
     Returns:
         str: A string of unique letters.
+
+    Example:
+        Import `filter_letters` explicitly from
+        `docassemble.AssemblyLine.al_general` before using this example.
+        In an interview code block:
+
+    ```yaml
+    code: |
+      selected_letters = filter_letters(["ab", "bc"])
+    ```
     """
     # There is probably a cute one liner, but this is easy to follow and
     # probably same speed
@@ -2451,12 +3642,21 @@ def filter_letters(letter_strings: Union[List[str], str]) -> str:
 
 
 def is_sms_enabled() -> bool:
-    """Checks if SMS (Twilio) is enabled on the server. Does not verify that it works.
+    """
+    Checks if SMS (Twilio) is enabled on the server. Does not verify that it works.
 
     See https://docassemble.org/docs/config.html#twilio for more info.
 
     Returns:
         bool: True if there is a non-empty Twilio config on the server, False otherwise.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      offer_text_message = is_sms_enabled()
+    ```
     """
     twilio_config = get_config("twilio")
     if isinstance(twilio_config, list):
@@ -2489,6 +3689,22 @@ def is_phone_or_email(text: str) -> bool:
 
     Raises:
         DAValidationError if the string is neither a valid phone number nor a valid email address.
+
+    Example:
+        The value of `valid_contact` for an email address:
+
+        **Input (interview YAML)**
+
+    ```yaml
+    code: |
+      valid_contact = is_phone_or_email("alex@example.com")
+    ```
+
+        **Output**
+
+    ```text
+    True
+    ```
     """
     sms_enabled = is_sms_enabled()
     if re.match(r"\S+@\S+", text) or (sms_enabled and phone_number_is_valid(text)):
@@ -2531,6 +3747,14 @@ def github_modified_date(
 
     Returns:
         Union[DADateTime, None]: The date that the given GitHub repository was modified or None if API call fails.
+
+    Example:
+        In an interview code block:
+
+    ```yaml
+    code: |
+      last_updated = github_modified_date("SuffolkLITLab", "docassemble-AssemblyLine")
+    ```
     """
     if not auth:
         issue_config = get_config("github issues")
@@ -2555,7 +3779,8 @@ def github_modified_date(
 
 # TODO(qs): remove if https://github.com/jhpyle/docassemble/pull/520 is merged
 def language_name(language_code: str) -> str:
-    """Given a 2 digit language code abbreviation, returns the full
+    """
+    Given a 2 digit language code abbreviation, returns the full
     name of the language. The language name will be passed through the `word()`
     function.
 
@@ -2564,6 +3789,27 @@ def language_name(language_code: str) -> str:
 
     Returns:
         str: The full name of the language.
+
+    Example:
+        With `users[0].language = "es"`:
+
+        **Input (Mako)**
+
+    ```mako
+    ${ language_name(users[0].language) }
+    ```
+
+        **Input (Jinja2)**
+
+    ```jinja2
+    {{ language_name(users[0].language) }}
+    ```
+
+        **Output**
+
+    ```text
+    Spanish
+    ```
     """
     ensure_definition(language_code)
     try:
@@ -2576,7 +3822,8 @@ def language_name(language_code: str) -> str:
 
 
 def safe_states_list(country_code: str) -> List[Dict[str, str]]:
-    """Wrapper around states_list that doesn't error if passed
+    """
+    Wrapper around states_list that doesn't error if passed
     an invalid country_code (e.g., a country name spelled out)
 
     Args:
@@ -2584,6 +3831,16 @@ def safe_states_list(country_code: str) -> List[Dict[str, str]]:
 
     Returns:
         List[Dict[str, str]]: A list of dictionaries with field prompts for states.
+
+    Example:
+        Import `safe_states_list` explicitly from
+        `docassemble.AssemblyLine.al_general` before using this example.
+        In an interview code block:
+
+    ```yaml
+    code: |
+      state_choices = safe_states_list("US")
+    ```
     """
     try:
         return states_list(country_code=country_code)
@@ -2600,6 +3857,22 @@ def has_parsable_pronouns(pronouns: str) -> bool:
 
     Returns:
         True if the pronouns string can be parsed into a dictionary of pronouns, False otherwise
+
+    Example:
+        The value of `valid_pronouns` for a custom pronoun string:
+
+        **Input (interview YAML)**
+
+    ```yaml
+    code: |
+      valid_pronouns = has_parsable_pronouns("them/they/their")
+    ```
+
+        **Output**
+
+    ```text
+    True
+    ```
     """
     try:
         parse_custom_pronouns(pronouns)
@@ -2617,6 +3890,23 @@ def parse_custom_pronouns(pronouns: str) -> Dict[str, str]:
 
     Returns:
         a dictionary of pronouns in the format {"o": objective, "s": subjective, "p": possessive}.
+
+    Example:
+        The value of `pronoun_parts` uses objective, subjective, and possessive
+        pronouns in that order:
+
+        **Input (interview YAML)**
+
+    ```yaml
+    code: |
+      pronoun_parts = parse_custom_pronouns("them/they/their")
+    ```
+
+        **Output**
+
+    ```text
+    {'o': 'them', 's': 'they', 'p': 'their'}
+    ```
     """
     # test for presence of either 2 or 3 /'s
     if not (2 <= pronouns.count("/") <= 3):
@@ -2652,6 +3942,19 @@ def get_visible_al_nav_items(
 
     Returns:
         a list of nav items with hidden items removed
+
+    Example:
+        Build navigation sections from interview answers in a code block:
+
+    ```yaml
+    code: |
+      al_nav_sections = [
+          {"about_you": "About you"},
+          {"about_children": "Children", "hidden": not has_children},
+          {"review": "Review your answers"},
+      ]
+      nav.set_sections(get_visible_al_nav_items(al_nav_sections))
+    ```
     """
     new_list: List[Union[str, dict]] = []
 
