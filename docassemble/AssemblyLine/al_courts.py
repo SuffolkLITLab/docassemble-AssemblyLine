@@ -22,20 +22,51 @@ __all__ = [
 
 
 class ALCourt(Court):
-    """Object representing a court in Massachusetts. We use a function on the CourtList object that filters courts by
+    """
+    Object representing a court in Massachusetts. We use a function on the CourtList object that filters courts by
     address and can use any of those three features of the court to do the filtering.
 
     <!-- TODO: it could be interesting to store a jurisdiction on a court. But this is non-trivial. Should it be geo boundaries?
     A list of cities? A list of counties? Instead, we use a function on the CourtList object that filters courts by
     address and can use any of those three features of the court to do the filtering.-->
+
+    Example:
+        In an interview:
+
+    ```yaml
+    objects:
+      - trial_court: ALCourt
+    ---
+    code: |
+      trial_court.name = "Example District Court"
+      trial_court.address.address = "123 Main Street"
+      trial_court.address.city = "Boston"
+      trial_court.address.state = "MA"
+      trial_court.address.zip = "02108"
+    ---
+    question: |
+      Your court
+    subquestion: |
+      ${ trial_court.short_label_and_address() }
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Create a new court object.
+        """
+        Create a new court object.
 
         Args:
             *pargs: Standard DAObject positional arguments.
             **kwargs: Standard DAObject keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - trial_court: ALCourt
+        ```
         """
         super().init(*pargs, **kwargs)
         if "address" not in kwargs:
@@ -84,6 +115,29 @@ class ALCourt(Court):
 
         Returns:
             str: string representing the court's name, with city if needed to disambiguate.
+
+        Example:
+            With `trial_court.name = "District Court"` and
+            `trial_court.address.city = "Boston"`, the city is added because it is
+            not already part of the name:
+
+            **Input (Mako)**
+
+        ```mako
+        ${ trial_court.short_label() }
+        ```
+
+            **Input (Jinja2)**
+
+        ```jinja2
+        {{ trial_court.short_label() }}
+        ```
+
+            **Output**
+
+        ```text
+        District Court (Boston)
+        ```
         """
         # Avoid forcing the interview to define the court's address
         if hasattr(self, "address") and hasattr(self.address, "city"):
@@ -100,6 +154,19 @@ class ALCourt(Court):
 
         Returns:
             str: string representing the court's name and address.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ trial_court.short_label_and_address() }
+        ```
+
+            In a DOCX template (Jinja2):
+
+        ```jinja2
+        {{ trial_court.short_label_and_address() }}
+        ```
         """
         return f"**{ self.short_label() }**[BR]{ self.address.on_one_line() }"
 
@@ -111,6 +178,19 @@ class ALCourt(Court):
 
         Returns:
             str: string representing the court's name and description.
+
+        Example:
+            In question or Markdown attachment text (Mako):
+
+        ```mako
+        ${ trial_court.short_description() }
+        ```
+
+            In a DOCX template (Jinja2):
+
+        ```jinja2
+        {{ trial_court.short_description() }}
+        ```
         """
         all_info = f"**{ self.short_label() }**"
         if hasattr(self, "address"):
@@ -129,6 +209,14 @@ class ALCourt(Court):
         Args:
             df_row: Pandas Series object.
             ensure_lat_long: bool, whether to use Google Maps to geocode the address if we don't have coordinates.
+
+        Example:
+            Given a pandas DataFrame loaded from your court data:
+
+        ```yaml
+        code: |
+          trial_court.from_row(court_dataframe.iloc[0])
+        ```
         """
         # A few columns we expect to see:
         # name
@@ -193,12 +281,28 @@ class ALCourt(Court):
         Use Google Maps to geocode the court's address and store the result in the location attribute.
 
         Deprecated: use geocode() instead.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          trial_court.geolocate()
+        ```
         """
         self.geocode()
 
     def geocode(self) -> None:
         """
         Use Google Maps to geocode the court's address and store the result in the location attribute.
+
+        Example:
+            In an interview code block:
+
+        ```yaml
+        code: |
+          trial_court.geocode()
+        ```
         """
         self.address.geocode()
         self.location = self.address.location
@@ -213,14 +317,41 @@ class ALCourtLoader(DAObject):
     Attributes:
         filename (str): Path to the file containing court information.
         converters (Dict[str, Callable]): A dictionary of functions to apply to columns in the dataframe.
+
+    Example:
+        Place your court spreadsheet in the package’s `data/sources` directory:
+
+    ```yaml
+    objects:
+      - all_courts: ALCourtLoader.using(filename="courts.xlsx")
+    ---
+    question: |
+      Which court is handling your case?
+    fields:
+      - Court: selected_court_index
+        code: all_courts.all_courts()
+    ---
+    code: |
+      trial_court = all_courts.as_court("trial_court", selected_court_index)
+    ```
     """
 
     def init(self, *pargs, **kwargs) -> None:
-        """Create a new courtloader object.
+        """
+        Create a new courtloader object.
 
         Args:
             *pargs: Standard DAObject positional arguments.
             **kwargs: Standard DAObject keyword arguments.
+
+        Example:
+            Docassemble calls `init()` automatically during object creation.
+            See the class example for the rest of the setup.
+
+        ```yaml
+        objects:
+          - all_courts: ALCourtLoader.using(filename="courts.xlsx")
+        ```
         """
         super().init(*pargs, **kwargs)
         self.package = docassemble.base.functions.this_thread.current_question.package
@@ -242,6 +373,17 @@ class ALCourtLoader(DAObject):
 
         Returns:
             List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value). The dataframe_index (int) can be used with as_court() to retrieve the full court object. The display_value (str) is the court's name or other display column value.
+
+        Example:
+            With `all_courts` configured as an ALCourtLoader for your spreadsheet:
+
+        ```yaml
+        question: |
+          Which court is handling your case?
+        fields:
+          - Court: selected_court_index
+            code: all_courts.all_courts()
+        ```
         """
         return self.filter_courts(None)
 
@@ -256,6 +398,14 @@ class ALCourtLoader(DAObject):
             Set[str]:.
                 - A set containing unique values from the specified column.
                 - Returns an empty set if the column does not exist or an error occurs.
+
+        Example:
+            With `all_courts` configured as an ALCourtLoader for your spreadsheet:
+
+        ```yaml
+        code: |
+          court_departments = all_courts.unique_column_values("department")
+        ```
         """
         df = self._load_courts()
         try:
@@ -273,6 +423,14 @@ class ALCourtLoader(DAObject):
 
         Returns:
             Set[str]: A list of all unique values in the specified row in the given spreadsheet.
+
+        Example:
+            With `all_courts` configured as an ALCourtLoader for your spreadsheet:
+
+        ```yaml
+        code: |
+          court_counties = all_courts.county_list()
+        ```
         """
         return self.unique_column_values(column_name)
 
@@ -290,6 +448,14 @@ class ALCourtLoader(DAObject):
 
         Returns:
             bool: True if there is only one court associated with the specified county in the spreadsheet.
+
+        Example:
+            With `all_courts` configured as an ALCourtLoader for your spreadsheet:
+
+        ```yaml
+        code: |
+          has_one_court_in_county = all_courts.county_has_one_court(users[0].address.county)
+        ```
         """
         return (
             len(self.filter_courts(court_types=county_name, column=county_column)) == 1
@@ -314,6 +480,13 @@ class ALCourtLoader(DAObject):
         Returns:
             ALCourt: The first court matching the county name.
 
+        Example:
+            With `all_courts` configured as an ALCourtLoader for your spreadsheet:
+
+        ```yaml
+        code: |
+          trial_court = all_courts.county_court("trial_court", users[0].address.county)
+        ```
         """
         matches = self.filter_courts(court_types=county_name, column=county_column)
         if len(matches) > 0:
@@ -346,6 +519,17 @@ class ALCourtLoader(DAObject):
 
         Returns:
             List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value). The dataframe_index (int) can be used with as_court() to retrieve the full court object. The display_value (str) is the court's name or other display column value.
+
+        Example:
+            With `all_courts` configured as an ALCourtLoader for your spreadsheet:
+
+        ```yaml
+        question: |
+          Which court is handling your case?
+        fields:
+          - Court: selected_court_index
+            code: all_courts.matching_courts_in_county(users[0].address.county)
+        ```
         """
         return self.filter_courts(
             court_types=county_name,
@@ -380,6 +564,17 @@ class ALCourtLoader(DAObject):
 
         Returns:
             List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value). The dataframe_index (int) can be used with as_court() to retrieve the full court object. The display_value (str) is the court's name or other display column value.
+
+        Example:
+            With `all_courts` configured as an ALCourtLoader for your spreadsheet:
+
+        ```yaml
+        question: |
+          Which court is handling your case?
+        fields:
+          - Court: selected_court_index
+            code: all_courts.filter_courts("District")
+        ```
         """
         df = self._load_courts()
         if court_types:
@@ -413,6 +608,14 @@ class ALCourtLoader(DAObject):
 
         Returns:
             ALCourt: An ALCourt object initialized with data from the specified index.
+
+        Example:
+            With `all_courts` configured as an ALCourtLoader for your spreadsheet:
+
+        ```yaml
+        code: |
+          trial_court = all_courts.as_court("trial_court", selected_court_index)
+        ```
         """
         court = ALCourt(intrinsicName)
         df = self._load_courts()

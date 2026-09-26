@@ -5,6 +5,7 @@ import pickle
 import unittest
 from unittest.mock import Mock
 from html import unescape
+from unittest.mock import patch
 from docassemble.base.util import (
     DAFile,
     DAFileList,
@@ -12,13 +13,16 @@ from docassemble.base.util import (
     DAObject,
     DATemplate,
 )
+from docassemble.base.error import DAAttributeError
 from .al_document import (
     ALAddendumField,
     ALDocument,
     ALDocumentBundle,
     ALExhibit,
+    ALExhibitList,
     _javascript_href,
 )
+from docassemble.base.error import DAError
 
 
 class TestJavascriptHref(unittest.TestCase):
@@ -140,6 +144,119 @@ class FakeDocWithBrokenExhibits:
 
     def broken_exhibits(self):
         return [FakeExhibit(title) for title in self._broken_titles]
+
+
+class FakeEnabledDocument:
+    def __init__(self, events, enabled=True):
+        self.events = events
+        self.enabled = enabled
+
+    def is_enabled(self, refresh=True):
+        self.events.append(("is_enabled", refresh))
+        return self.enabled
+
+
+class GatheringProbeBundle(ALDocumentBundle):
+    """A real ALDocumentBundle with a small, observable gather implementation."""
+
+    def init(self, *pargs, **kwargs):
+        self.events = kwargs.pop("events")
+        self.gathered_document = kwargs.pop("gathered_document")
+        super().init(*pargs, **kwargs)
+
+    def gather(self, *pargs, **kwargs):
+        self.events.append("gather")
+        self.elements.append(self.gathered_document)
+        self.gathered = True
+        return True
+
+
+class TestBundleGatheringSemantics(unittest.TestCase):
+    def test_defined_false_does_not_trigger_gathering(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[],
+            auto_gather=False,
+            gathered=False,
+            enabled=True,
+        )
+
+        self.assertFalse(bundle.gathered)
+        self.assertEqual(bundle.enabled_documents(refresh=False), [])
+        self.assertFalse(bundle.gathered)
+
+    def test_missing_gathered_marker_is_requested_by_iteration(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[],
+            auto_gather=False,
+            gathered=False,
+            enabled=True,
+        )
+        bundle.reset_gathered()
+
+        self.assertFalse(hasattr(bundle, "gathered"))
+        with self.assertRaises(DAAttributeError):
+            bundle.has_enabled_documents(refresh=False)
+
+    def test_auto_gather_runs_before_document_filtering(self):
+        for method_name in ("has_enabled_documents", "enabled_documents"):
+            events = []
+            document = FakeEnabledDocument(events)
+            bundle = GatheringProbeBundle(
+                "bundle",
+                elements=[],
+                auto_gather=True,
+                gathered=False,
+                enabled=True,
+                events=events,
+                gathered_document=document,
+            )
+
+            result = getattr(bundle, method_name)(refresh=False)
+
+            if method_name == "has_enabled_documents":
+                self.assertTrue(result)
+            else:
+                self.assertEqual(result, [document])
+            self.assertEqual(events, ["gather", ("is_enabled", False)])
+
+    def test_disabled_nested_bundle_does_not_gather_during_enablement(self):
+        events = []
+        document = FakeEnabledDocument(events)
+        nested = GatheringProbeBundle(
+            "nested",
+            elements=[],
+            auto_gather=True,
+            gathered=False,
+            enabled=False,
+            events=events,
+            gathered_document=document,
+        )
+        outer = ALDocumentBundle(
+            "outer",
+            elements=[nested],
+            enabled=True,
+        )
+
+        self.assertFalse(outer.is_enabled(refresh=False))
+        self.assertEqual(events, [])
+
+    def test_membership_replacement_is_used_by_first_output(self):
+        first_pdf = FakePdf(filename="first.pdf")
+        second_pdf = FakePdf(filename="second.pdf")
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeSingleDoc(first_pdf)],
+            title="Bundle title",
+            filename="bundle-output.pdf",
+            enabled=True,
+        )
+        bundle.elements = [FakeSingleDoc(second_pdf)]
+
+        result = bundle.as_pdf()
+
+        self.assertIs(result, second_pdf)
 
 
 class TestSingleDocumentBundleFilename(unittest.TestCase):
@@ -372,9 +489,7 @@ class TestBundleWarnsOnBrokenDocuments(unittest.TestCase):
         )
 
         self.assertTrue(bundle.has_broken_documents())
-        self.assertIn(
-            "did not upload correctly", bundle.broken_documents_warning_html()
-        )
+        self.assertIn("could not be processed", bundle.broken_documents_warning_html())
 
     def test_bundle_all_valid_shows_no_warning(self):
         bundle = ALDocumentBundle(
@@ -420,6 +535,68 @@ class TestBundleWarnsOnBrokenDocuments(unittest.TestCase):
         warning = bundle.broken_documents_warning_html()
 
         self.assertIn("Pay Stub", warning)
+
+
+class TestExhibitBrokenAfterConcatenateFails(unittest.TestCase):
+    def test_marks_itself_broken(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        good_page = FakePdf(filename="good.jpg", title="page")
+        good_page.ok = True
+        exhibit.pages = DAFileList("exhibit.pages")
+        exhibit.pages.append(good_page)
+        exhibit.pages.gathered = True
+        exhibit.start_page = 1
+
+        with patch(
+            "docassemble.AssemblyLine.al_document.pdf_concatenate",
+            side_effect=DAError("concatenate_files: no valid files to concatenate"),
+        ):
+            exhibit.as_pdf(add_cover_page=False)
+
+        self.assertTrue(exhibit.is_broken())
+
+
+class TestBrokenExhibitShowsUpInList(unittest.TestCase):
+    def test_list_finds_it(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Pay Stub"
+        good_page = FakePdf(filename="good.jpg", title="page")
+        good_page.ok = True
+        exhibit.pages = DAFileList("exhibit.pages")
+        exhibit.pages.append(good_page)
+        exhibit.pages.gathered = True
+        exhibit.start_page = 1
+
+        with patch(
+            "docassemble.AssemblyLine.al_document.pdf_concatenate",
+            side_effect=DAError("concatenate_files: no valid files to concatenate"),
+        ):
+            exhibit.as_pdf(add_cover_page=False)
+
+        exhibits = ALExhibitList("exhibits")
+        exhibits.append(exhibit)
+        exhibits.gathered = True
+
+        self.assertIn(exhibit, exhibits.broken_exhibits())
+
+
+class test_concatenate_failure_after_valid_pages(unittest.TestCase):
+    def test_exhibit_returns_none_when_concatenate_raises(self):
+        exhibit = ALExhibit("exhibit")
+        exhibit.title = "Test Exhibit"
+        good_page = FakePdf(filename="good.jpg", title="page")
+        good_page.ok = True
+        exhibit.pages = [good_page]
+        exhibit.start_page = 1
+
+        with patch(
+            "docassemble.AssemblyLine.al_document.pdf_concatenate",
+            side_effect=DAError("concatenate_files: no valid files to concatenate"),
+        ):
+            result = exhibit.as_pdf(add_cover_page=False)
+
+        self.assertIsNone(result)
 
 
 class test_aladdendum(unittest.TestCase):

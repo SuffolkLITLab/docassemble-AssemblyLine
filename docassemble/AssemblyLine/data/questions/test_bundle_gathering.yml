@@ -1,0 +1,128 @@
+---
+include:
+  - assembly_line.yml
+---
+metadata:
+  title: Test bundle gathering semantics
+---
+objects:
+  - first_document: ALDocument.using(
+        title="First document",
+        filename="first_document",
+        enabled=True,
+        has_addendum=False,
+        complete=True,
+      )
+  - second_document: ALDocument.using(
+        title="Second document",
+        filename="second_document",
+        enabled=True,
+        has_addendum=False,
+      )
+  - defined_false_bundle: ALDocumentBundle.using(
+        elements=[],
+        title="Defined false bundle",
+        filename="defined_false_bundle",
+        enabled=True,
+        auto_gather=False,
+        gathered=False,
+      )
+  - missing_marker_bundle: ALDocumentBundle.using(
+        elements=[],
+        title="Missing marker bundle",
+        filename="missing_marker_bundle",
+        enabled=True,
+        auto_gather=False,
+        gathered=False,
+      )
+  - auto_gather_bundle: ALDocumentBundle.using(
+        elements=[first_document],
+        title="Automatic bundle",
+        filename="auto_gather_bundle",
+        enabled=True,
+        auto_gather=True,
+        gathered=False,
+        there_is_another=True,
+        object_type=ALDocument,
+        complete_attribute="complete",
+      )
+  - membership_bundle: ALDocumentBundle.using(
+        elements=[],
+        title="Membership bundle",
+        filename="membership_bundle",
+        enabled=True,
+      )
+---
+attachment:
+  variable name: first_document[i]
+  content: |
+    First document output
+---
+attachment:
+  variable name: second_document[i]
+  content: |
+    Second document output
+---
+id: build-missing-marker-bundle
+code: |
+  # The missing marker is intentionally resolved by this code block.  The
+  # iterator in the changed helpers must request missing_marker_bundle.gathered
+  # before the elements are inspected.
+  missing_marker_bundle.elements = [first_document]
+  missing_marker_bundle.gathered = True
+  missing_marker_builder_ran = True
+---
+code: |
+  missing_marker_bundle.reset_gathered()
+  missing_marker_probe_setup = True
+---
+mandatory: True
+code: |
+  include_second_document
+  missing_marker_probe_setup
+  membership_bundle_setup
+  bundle_gathering_results
+---
+id: include-second-document
+question: Include the second document in the membership-changing output?
+fields:
+  - no label: include_second_document
+    datatype: yesno
+---
+id: membership_bundle_setup
+code: |
+  if include_second_document:
+    membership_bundle.elements = [first_document, second_document]
+  else:
+    membership_bundle.elements = [first_document]
+  membership_bundle.gathered = True
+  membership_bundle_setup = True
+---
+code: |
+  auto_gather_bundle[1].complete = auto_gather_complete
+  auto_gather_bundle[1].enabled = True
+  auto_gather_builder_ran = True
+---
+id: auto-gather-complete
+question: Automatic gathering needs one more document
+subquestion: |
+  This question must appear before the bundle-gathering results screen.
+fields:
+  - no label: auto_gather_complete
+    datatype: yesno
+---
+id: bundle-gathering-results
+question: Bundle gathering results
+subquestion: |
+  Defined False count: ${ len(defined_false_bundle.enabled_documents(refresh=False)) }
+
+  Missing marker count: ${ len(missing_marker_bundle.enabled_documents(refresh=False)) }
+
+  Automatic gather count: ${ len(auto_gather_bundle.enabled_documents(refresh=False)) }
+
+  Automatic gather marker: ${ auto_gather_bundle.gathered }
+
+  Membership count: ${ len(membership_bundle.enabled_documents(refresh=False)) }
+
+  Membership output: ${ membership_bundle.as_pdf(key="membership_check") }
+continue button field: bundle_gathering_results
