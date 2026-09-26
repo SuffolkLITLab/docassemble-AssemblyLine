@@ -1108,7 +1108,11 @@ def pascal_to_zwspace(text: str) -> str:
     return re_outer.sub(r"\1​\2", re_inner.sub(r"​\1\2", text))
 
 
-def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True) -> str:
+def nice_interview_subtitle(
+    answer: Dict[str, str],
+    exclude_identical: bool = True,
+    add_zero_width_spaces: bool = True,
+) -> str:
     """
     Return first defined of the "title" metadata, the "auto_title" metadata, or empty string.
 
@@ -1117,6 +1121,9 @@ def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True) -> s
     Args:
         answer (Dict[str, str]): The answer dictionary to get the interview subtitle from.
         exclude_identical (bool, optional): If True, excludes the subtitle if it is identical to the title. Defaults to True.
+        add_zero_width_spaces (bool, optional): If True, adds word-break opportunities
+            for display. Set to False when using the subtitle as an editable value.
+            Defaults to True.
 
     Returns:
         str: The human readable interview subtitle.
@@ -1131,14 +1138,22 @@ def nice_interview_subtitle(answer: Dict[str, str], exclude_identical=True) -> s
     ```
     """
     if answer.get("title"):
-        return pascal_to_zwspace(answer["title"])
+        return (
+            pascal_to_zwspace(answer["title"])
+            if add_zero_width_spaces
+            else answer["title"]
+        )
     elif answer.get("auto_title") and (
         not exclude_identical
         or not (
             answer.get("auto_title", "").lower() == nice_interview_title(answer).lower()
         )
     ):
-        return pascal_to_zwspace(answer["auto_title"])
+        return (
+            pascal_to_zwspace(answer["auto_title"])
+            if add_zero_width_spaces
+            else answer["auto_title"]
+        )
     return ""
 
 
@@ -1311,6 +1326,13 @@ def session_list_html(
         # Never display the current interview session
         if answer.get("key") == current_context().session:
             continue
+        # Use the displayed name's precedence without inserting layout characters
+        # into the editable value that will be saved back to metadata. Also
+        # remove zero-width spaces saved by earlier versions.
+        session_name = (
+            nice_interview_subtitle(answer, add_zero_width_spaces=False)
+            or nice_interview_title(answer)
+        ).replace("\u200b", "")
         url_ask_rename = url_ask(
             [
                 {"undefine": ["al_sessions_snapshot_new_label"]},
@@ -1319,8 +1341,7 @@ def session_list_html(
                     "arguments": {
                         "session": answer.get("key"),
                         "filename": answer.get("filename"),
-                        "title": nice_interview_subtitle(answer)
-                        or nice_interview_title(answer),
+                        "title": session_name,
                     },
                 },
             ]
@@ -1333,7 +1354,7 @@ def session_list_html(
                     "arguments": {
                         "session": answer.get("key"),
                         "filename": answer.get("filename"),
-                        "title": answer.get("title") or "",
+                        "title": session_name,
                         "original_interview_filename": nice_interview_title(answer),
                     },
                 },
