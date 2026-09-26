@@ -139,8 +139,30 @@ code: |
 ---
 ############## Background document assembly #################
 ---
+# Use these saved completion variables in interview order blocks. Celery's
+# task.ready() becomes False again when its result expires (normally one day).
 generic object: ALDocumentBundle
 code: |
+  x.generate_downloads_task
+  if not defined(x.attr_name("_downloadable_files")):
+    al_download_waiting_screen
+  x.downloads_ready = True
+---
+generic object: ALDocumentBundle
+code: |
+  x.generate_downloads_with_docx_task
+  if not defined(x.attr_name("_downloadable_files")):
+    al_download_waiting_screen
+  x.downloads_with_docx_ready = True
+---
+generic object: ALDocumentBundle
+code: |
+  undefine(
+    x.attr_name("_downloadable_files"),
+    x.attr_name("downloads_ready"),
+    x.attr_name("downloads_with_docx_ready"),
+    x.attr_name("generate_downloads_with_docx_task"),
+  )
   x.generate_downloads_task = background_action(x.attr_name("create_downloads"))
 ---
 generic object: ALDocumentBundle
@@ -155,6 +177,12 @@ code: |
 ---
 generic object: ALDocumentBundle
 code: |
+  undefine(
+    x.attr_name("_downloadable_files"),
+    x.attr_name("downloads_ready"),
+    x.attr_name("downloads_with_docx_ready"),
+    x.attr_name("generate_downloads_task"),
+  )
   x.generate_downloads_with_docx_task = background_action(
     x.attr_name("create_downloads_with_docx")
   )
@@ -192,6 +220,14 @@ reload: True
 ---
 generic object: ALDocumentBundle
 code: |
+  x.generate_preview_task
+  if not defined(x.attr_name("_preview_file")):
+    al_preview_waiting_screen
+  x.preview_ready = True
+---
+generic object: ALDocumentBundle
+code: |
+  undefine(x.attr_name("_preview_file"), x.attr_name("preview_ready"))
   x.generate_preview_task = background_action(x.attr_name("generate_preview_event"))
 ---
 generic object: ALDocumentBundle
