@@ -91,6 +91,8 @@ def test_raw_subtitle_suppresses_case_only_auto_title():
     [
         ({"title": "McDonaldCase", "auto_title": "Automatic"}, [], "McDonaldCase"),
         ({"auto_title": "AutoCase"}, [], "AutoCase"),
+        ({"title": "\u200bMc\u200bDonald\u200bCase\u200b"}, [], "McDonaldCase"),
+        ({"auto_title": "Auto\u200bCase"}, [], "AutoCase"),
         ({}, [], "Form"),
         ({"title": "", "auto_title": ""}, [], "Form"),
         ({"auto_title": "fORM"}, [], "Form"),
@@ -103,6 +105,16 @@ def test_raw_subtitle_suppresses_case_only_auto_title():
                 }
             ],
             "Dispatch Form",
+        ),
+        (
+            {},
+            [
+                {
+                    "filename": "docassemble.demo:data/questions/form.yml",
+                    "title": "Dispatch\u200bForm",
+                }
+            ],
+            "DispatchForm",
         ),
     ],
 )

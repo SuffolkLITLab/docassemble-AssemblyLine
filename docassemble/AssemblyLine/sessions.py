@@ -1327,10 +1327,12 @@ def session_list_html(
         if answer.get("key") == current_context().session:
             continue
         # Use the displayed name's precedence without inserting layout characters
-        # into the editable value that will be saved back to metadata.
-        session_name = nice_interview_subtitle(
-            answer, add_zero_width_spaces=False
-        ) or nice_interview_title(answer)
+        # into the editable value that will be saved back to metadata. Also
+        # remove zero-width spaces saved by earlier versions.
+        session_name = (
+            nice_interview_subtitle(answer, add_zero_width_spaces=False)
+            or nice_interview_title(answer)
+        ).replace("\u200b", "")
         url_ask_rename = url_ask(
             [
                 {"undefine": ["al_sessions_snapshot_new_label"]},
