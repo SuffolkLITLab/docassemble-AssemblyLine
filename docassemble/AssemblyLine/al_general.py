@@ -3494,12 +3494,12 @@ class Survivor(ALIndividual):
 
     ```yaml
     objects:
-      - users: DAList.using(object_type=Survivor)
+      - survivors: ALPeopleList.using(object_type=Survivor)
     ---
     question: |
       Check the name
     subquestion: |
-      ${ users[0].name_full() }
+      ${ survivors[0].name_full() }
     ```
     """
 
@@ -3522,12 +3522,12 @@ class VCIndividual(ALIndividual):
 
     ```yaml
     objects:
-      - users: DAList.using(object_type=VCIndividual)
+      - victims: ALPeopleList.using(object_type=VCIndividual)
     ---
     question: |
       Check the name
     subquestion: |
-      ${ users[0].name_full() }
+      ${ victims[0].name_full() }
     ```
     """
 

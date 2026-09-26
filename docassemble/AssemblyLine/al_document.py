@@ -274,8 +274,7 @@ def table_row(title: str, button_htmls: List[str] = []) -> str:
     Example:
         Import `table_row` explicitly from
         `docassemble.AssemblyLine.al_document` before using this example.
-        With `table_row` imported from `docassemble.AssemblyLine.al_document`,
-        add a row with a download button in question text (Mako):
+        Add a row with a download button in question text (Mako):
 
     ```mako
     ${ table_row("Petition", [action_button_html(petition.as_pdf().url_for(attachment=True), label="Download", icon="download")]) }
@@ -1555,7 +1554,7 @@ class ALDocument(DADict):
             DAFile: Assembled document in DOCX or PDF format.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ petition.as_docx() }
@@ -2012,7 +2011,7 @@ class ALStaticDocument(DAStaticFile):
             Union[DAStaticFile, DAFile]: The document in PDF format.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ instructions.as_pdf() }
@@ -2040,7 +2039,7 @@ class ALStaticDocument(DAStaticFile):
             Union[DAStaticFile, DAFile]: The document in DOCX or PDF format.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ instructions.as_docx() }
@@ -2087,7 +2086,7 @@ class ALStaticDocument(DAStaticFile):
             DAFile: Displayable version of the document.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ instructions.show() }
@@ -2519,7 +2518,7 @@ class ALDocumentBundle(DAList):
             Optional[DAFile]: Preview PDF file or None if no documents are enabled.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ al_user_bundle.preview() }
@@ -2931,7 +2930,7 @@ class ALDocumentBundle(DAList):
             str: The warning HTML, or an empty string if nothing is broken.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ al_user_bundle.broken_documents_warning_html() }
@@ -3270,7 +3269,7 @@ class ALDocumentBundle(DAList):
             str: The generated HTML string for the table row.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ al_user_bundle.send_email_table_row() }
@@ -3670,7 +3669,7 @@ class ALDocumentBundle(DAList):
             DAFile: A DAFile object containing the concatenated DOCX or PDF file.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ al_user_bundle.as_docx() }
@@ -3913,7 +3912,7 @@ class ALExhibit(DAObject):
             DAFile: PDF representation of the exhibit.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ exhibit_attachment.exhibits[0].as_pdf() }
@@ -4044,7 +4043,7 @@ def ocrmypdf_task(
     If the source file is an image (e.g., png, jpg, jpeg, gif), this function sets the image DPI to 300.
     For non-image files, the text in the file is skipped during OCR.
 
-    This function is designed to be executed as a background task (id: al_exhibit_ocr_pages_bg).
+    This function is designed to be executed as a background task (the `al_exhibit_ocr_pages` event in `al_document.yml`).
 
     Args:
         from_file (Union[DAFile, DAFileList]): The source file or list of files to be OCR-processed.
@@ -4061,7 +4060,7 @@ def ocrmypdf_task(
         `background_action()`; `to_pdf` must be an initialized DAFile:
 
     ```yaml
-    event: al_exhibit_ocr_pages_bg
+    event: al_exhibit_ocr_pages
     code: |
       from_file = action_argument("from_file")
       to_pdf = action_argument("to_pdf")
@@ -4119,7 +4118,7 @@ class ALExhibitList(DAList):
         After gathering the exhibits on an ALExhibitDocument named
         `exhibit_attachment`, display the combined file:
 
-        In question or Markdown attachment text (Mako):
+        In question text (Mako):
 
     ```mako
     ${ exhibit_attachment.exhibits.as_pdf() }
@@ -4198,7 +4197,7 @@ class ALExhibitList(DAList):
             DAFile: A single PDF containing all exhibits.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ exhibit_attachment.exhibits.as_pdf() }
@@ -4606,7 +4605,7 @@ class ALExhibitDocument(ALDocument):
             DAFile: The document rendered as a PDF.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ exhibit_attachment.as_pdf() }
@@ -4709,7 +4708,7 @@ class ALExhibitDocument(ALDocument):
             DAFile: The document rendered as a PDF.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ exhibit_attachment.as_docx() }
@@ -4851,7 +4850,7 @@ class ALTableDocument(ALDocument):
             DAFile: The table rendered as an XLSX spreadsheet.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ people_table.as_pdf() }
@@ -4887,7 +4886,7 @@ class ALTableDocument(ALDocument):
             DAFile: The table rendered as an XLSX spreadsheet.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ people_table.as_docx() }
@@ -5006,7 +5005,7 @@ class ALUntransformedDocument(ALDocument):
             DAFile: The original, untransformed document.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ supporting_document.as_pdf() }
@@ -5034,7 +5033,7 @@ class ALUntransformedDocument(ALDocument):
             DAFile: The original, untransformed document.
 
         Example:
-            In question or Markdown attachment text (Mako):
+            In question text (Mako):
 
         ```mako
         ${ supporting_document.as_docx() }

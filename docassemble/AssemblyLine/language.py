@@ -147,7 +147,7 @@ def get_language_list_dropdown(
       A string containing the HTML for a dropdown menu for language selection.
 
     Example:
-        In question or Markdown attachment text (Mako):
+        In question text (Mako):
 
     ```mako
     ${ get_language_list_dropdown(lang_codes=["en", "es"], current=get_language()) }
@@ -197,7 +197,7 @@ def get_language_list_dropdown_item(
     Example:
         Use inside the corresponding HTML list or dropdown menu:
 
-        In question or Markdown attachment text (Mako):
+        In question text (Mako):
 
     ```mako
     ${ get_language_list_dropdown_item(("Español", "es")) }
@@ -235,7 +235,7 @@ def get_language_list(
         A string containing the HTML for an unordered inline list of language selection.
 
     Example:
-        In question or Markdown attachment text (Mako):
+        In question text (Mako):
 
     ```mako
     ${ get_language_list(lang_codes=["en", "es"], current=get_language()) }
@@ -277,7 +277,7 @@ def get_language_list_item(language, link=True, event_name="al_change_language")
     Example:
         Use inside the corresponding HTML list or dropdown menu:
 
-        In question or Markdown attachment text (Mako):
+        In question text (Mako):
 
     ```mako
     ${ get_language_list_item(("Español", "es")) }

@@ -298,8 +298,12 @@ def set_interview_metadata(
     filename: str, session_id: str, data: Dict, metadata_key_name="metadata"
 ) -> None:
     """
-    Add searchable interview metadata for the specified filename and session ID.
+    Set searchable interview metadata for the specified filename and session ID.
     Intended to be used to add an interview title, etc.
+
+    This replaces all metadata already stored under `metadata_key_name`, including keys
+    such as `steps` and `original_interview_filename` that you do not include in `data`.
+    To change only some keys, use `update_session_metadata()`.
     Standardized metadata dictionary:
     - title
     - subtitle
@@ -314,11 +318,13 @@ def set_interview_metadata(
 
     Example:
         With `saved_filename` and `saved_session_id` identifying the saved
-        session selected by the user, in an interview code block:
+        session selected by the user, keep the existing metadata and change the title:
 
     ```yaml
     code: |
-      set_interview_metadata(saved_filename, saved_session_id, {"title": "Housing forms"})
+      saved_metadata = get_interview_metadata(saved_filename, saved_session_id)
+      saved_metadata["title"] = "Housing forms"
+      set_interview_metadata(saved_filename, saved_session_id, saved_metadata)
     ```
     """
     _write_answer_json(
@@ -957,7 +963,7 @@ def interview_list_html(
     Example:
         On a signed-in user’s interview screen:
 
-        In question or Markdown attachment text (Mako):
+        In question text (Mako):
 
     ```mako
     ${ interview_list_html(user_id=user_info().id) }
@@ -1151,7 +1157,7 @@ def radial_progress(answer: Dict[str, Union[str, int]]) -> str:
         `docassemble.AssemblyLine.sessions` before using this example.
         Given a nonempty `saved_sessions` list returned by `get_saved_interview_list()`:
 
-        In question or Markdown attachment text (Mako):
+        In question text (Mako):
 
     ```mako
     ${ radial_progress(saved_sessions[0]) }
@@ -1264,7 +1270,7 @@ def session_list_html(
     Example:
         On a signed-in user’s interview screen:
 
-        In question or Markdown attachment text (Mako):
+        In question text (Mako):
 
     ```mako
     ${ session_list_html(user_id=user_info().id) }
@@ -1445,6 +1451,9 @@ def set_current_session_metadata(
 ) -> None:
     """
     Set metadata for the current session, such as the title, in an unencrypted database entry.
+
+    This replaces all metadata already stored for the current session under `metadata_key_name`.
+    To change only some keys, use `update_current_session_metadata()`.
 
     Args:
         data (Dict[str, Any]): The metadata to set.
@@ -1869,14 +1878,19 @@ def is_valid_json(json_string: str) -> bool:
         json_string (str): The string to be checked for JSON validity.
 
     Returns:
-        bool: True if the string is a valid JSON, otherwise it raises a validation error and returns False.
+        bool: True if the string is valid JSON. Otherwise it calls `validation_error()`, which raises
+            an exception, so it never returns False.
 
     Example:
-        In an interview code block:
+        Use it as a field validator, so invalid JSON shows an error message on the field:
 
     ```yaml
-    code: |
-      valid_answers = is_valid_json(answers_json)
+    question: |
+      Paste your saved answers
+    fields:
+      - Answers: answers_json
+        datatype: area
+        validate: is_valid_json
     ```
     """
     try:
@@ -1949,8 +1963,7 @@ def get_filenames_having_sessions(
         List[str]: List of filenames that have sessions saved for the user.
 
     Example:
-        With `saved_filename` and `saved_session_id` identifying the saved
-        session selected by the user, in an interview code block:
+        In an interview code block:
 
     ```yaml
     code: |

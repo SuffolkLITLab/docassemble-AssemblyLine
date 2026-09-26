@@ -118,8 +118,8 @@ class ALCourt(Court):
 
         Example:
             With `trial_court.name = "District Court"` and
-            `trial_court.address.city = "Boston"`, the city is added to distinguish
-            this court from others with the same name:
+            `trial_court.address.city = "Boston"`, the city is added because it is
+            not already part of the name:
 
             **Input (Mako)**
 
