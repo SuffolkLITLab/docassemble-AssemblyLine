@@ -3887,6 +3887,7 @@ class ALExhibit(DAObject):
         add_cover_page: bool = True,
         filename: Optional[str] = None,
         append_matching_suffix: bool = True,
+        refresh_cover_page: Optional[bool] = None,
     ) -> Optional[DAFile]:
         """
         Generates a PDF version of the exhibit, with optional features like Bates numbering or a cover page.
@@ -3896,7 +3897,7 @@ class ALExhibit(DAObject):
         Note that these are keyword only parameters, not positional.
 
         Args:
-            refresh (bool): If True, forces the exhibit to refresh before generating the PDF. (unused, provided for signature compatibility).
+            refresh (bool): If True, rebuilds the cover page and bypasses the cached exhibit PDF.
             pdfa (bool): If True, the generated PDF will be in PDF/A format.
             add_page_numbers (bool): If True, apply Bates numbering starting from 'self.start_page'.
             page_number_prefix (str): If add_page_numbers is True, this gets added to the beginning on the bates number each page (e.g. `EX-`).
@@ -3908,6 +3909,8 @@ class ALExhibit(DAObject):
             add_cover_page (bool): If True, prepend the exhibit with a cover page.
             filename (Optional[str]): Custom filename for the generated PDF. Default is "exhibits.pdf".
             append_matching_suffix (bool): If True, appends a suffix to the filename based on certain matching criteria.
+            refresh_cover_page (Optional[bool]): Whether to rebuild the cover page. Defaults to the value of `refresh`;
+                pass False when the caller has already refreshed it.
 
         Returns:
             DAFile: PDF representation of the exhibit.
@@ -3925,7 +3928,7 @@ class ALExhibit(DAObject):
         if add_page_numbers:
             safe_key = safe_key + "_page_nums"
 
-        if hasattr(self._cache, safe_key):
+        if not refresh and hasattr(self._cache, safe_key):
             self._failed_during_processing = False
             return getattr(self._cache, safe_key)
         if not filename:
@@ -3936,6 +3939,10 @@ class ALExhibit(DAObject):
                 f"ALExhibit.as_pdf(): no valid pages for exhibit '{self.title}', skipping"
             )
             return None
+        if refresh_cover_page is None:
+            refresh_cover_page = refresh
+        if refresh_cover_page and add_cover_page:
+            self.getattr_fresh("cover_page")
         try:
             if add_cover_page:
                 concatenated_pages = pdf_concatenate(
@@ -4184,6 +4191,7 @@ class ALExhibitList(DAList):
         page_number_offset_vertical: float = 15,
         toc_pages: int = 0,
         append_matching_suffix: bool = True,
+        refresh: bool = False,
     ) -> Optional[DAFile]:
         """
         Compiles all exhibits in the list into a single PDF.
@@ -4202,6 +4210,8 @@ class ALExhibitList(DAList):
             page_number_offset_vertical (float): The number of pixels that the bates page number is offset from the top / bottom of the page.
             toc_pages (int): Expected number of pages in the table of contents.
             append_matching_suffix (bool): If True, appends matching suffix to the filename.
+            refresh (bool): If True, recalculates auto-generated labels and page offsets, then rebuilds
+                exhibit cover pages and rendered files.
 
         Returns:
             DAFile: A single PDF containing all exhibits.
@@ -4213,17 +4223,31 @@ class ALExhibitList(DAList):
         ${ exhibit_attachment.exhibits.as_pdf() }
         ```
         """
-        if self.include_exhibit_cover_pages:
-            for exhibit in self:
-                exhibit.cover_page
-        if self.include_table_of_contents and toc_pages != 1:
+        if refresh:
+            # List edits can leave old labels and page offsets defined, and the
+            # cover pages depend on both.
+            if self.auto_label:
+                self._update_labels()
             self._update_page_numbers(toc_guess_pages=toc_pages)
+        elif self.include_table_of_contents and toc_pages != 1:
+            self._update_page_numbers(toc_guess_pages=toc_pages)
+        if self.include_exhibit_cover_pages:
+            # Resolve every refreshed attachment before beginning expensive PDF
+            # rendering: dependency gathering can restart this method.
+            for exhibit in self:
+                if refresh:
+                    exhibit.getattr_fresh("cover_page")
+                else:
+                    exhibit.cover_page
         if not page_number_prefix and self.bates_prefix:
             page_number_prefix = self.bates_prefix
         exhibit_pdfs = [
             pdf
             for pdf in (
                 exhibit.as_pdf(
+                    refresh=refresh,
+                    # Already refreshed above
+                    refresh_cover_page=False,
                     add_cover_page=self.include_exhibit_cover_pages,
                     add_page_numbers=add_page_numbers,
                     page_number_prefix=page_number_prefix,
@@ -4636,7 +4660,15 @@ class ALExhibitDocument(ALDocument):
 
         if len(self.exhibits):
             self._set_default_attributes()
+            # List edits can leave old labels, page offsets and attachment
+            # objects defined. Refresh their dependencies before rendering.
+            self.exhibits._update_page_numbers()
+            if self.exhibits.auto_label:
+                self.exhibits._update_labels()
+            if refresh and self.include_table_of_contents:
+                self.getattr_fresh("table_of_contents")
             exhibits_pdf = self.exhibits.as_pdf(
+                refresh=refresh,
                 add_page_numbers=self.add_page_numbers,
                 page_number_prefix=self.page_number_prefix,
                 page_number_digits=self.page_number_digits,
