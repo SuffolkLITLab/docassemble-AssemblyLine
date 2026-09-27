@@ -687,10 +687,6 @@ class TestOriginalOrOverflowMessage(unittest.TestCase):
         )  # Original value exceeds the overflow_trigger, but preserve_newlines is True
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
 class TestExhibitReviewRefresh(unittest.TestCase):
     def test_changed_order_updates_labels_offsets_and_table_of_contents(self):
         document = ALExhibitDocument("appendix", title="Appendix", filename="appendix")
@@ -751,6 +747,9 @@ class TestExhibitReviewRefresh(unittest.TestCase):
         exhibits = []
         for index in range(2):
             exhibit = Mock()
+            exhibit.num_pages.return_value = 2
+            exhibit.label = "stale"
+            exhibit.start_page = 99
             exhibit.getattr_fresh.side_effect = lambda name, i=index: events.append(
                 ("refresh", i)
             )
@@ -770,3 +769,36 @@ class TestExhibitReviewRefresh(unittest.TestCase):
             events,
             [("refresh", 0), ("refresh", 1), ("render", 0), ("render", 1)],
         )
+        # A direct list-level refresh recalculates labels and offsets itself
+        self.assertEqual([item.label for item in exhibits], ["A", "B"])
+        self.assertEqual([item.start_page for item in exhibits], [1, 4])
+        # Covers refreshed in the first pass are not rebuilt again per exhibit
+        for exhibit in exhibits:
+            exhibit.getattr_fresh.assert_called_once_with("cover_page")
+            self.assertTrue(exhibit.as_pdf.call_args.kwargs["refresh"])
+            self.assertIs(exhibit.as_pdf.call_args.kwargs["refresh_cover_page"], False)
+
+    def test_refresh_cover_page_false_keeps_cover_but_bypasses_cache(self):
+        exhibit = ALExhibit("exhibit", title="Exhibit", start_page=2)
+        exhibit.cover_page = "refreshed cover"
+        exhibit._cache._file = "old rendered exhibit"
+        new_pdf = Mock()
+        with (
+            patch.object(exhibit, "getattr_fresh") as cover,
+            patch.object(exhibit, "ocr_pages", return_value=[Mock(ok=True)]),
+            patch(
+                __package__ + ".al_document.pdf_concatenate", return_value=new_pdf
+            ) as combine,
+        ):
+            self.assertIs(
+                exhibit.as_pdf(
+                    refresh=True, refresh_cover_page=False, add_page_numbers=False
+                ),
+                new_pdf,
+            )
+        cover.assert_not_called()
+        self.assertEqual(combine.call_args.args[0], "refreshed cover")
+
+
+if __name__ == "__main__":
+    unittest.main()
