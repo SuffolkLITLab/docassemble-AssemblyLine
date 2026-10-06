@@ -94,6 +94,7 @@ def get_font(
     # Also try these when a requested font is missing or cannot be loaded.
     candidate_font_names: List[str] = [
         "BadScript-Regular",
+        "segoesc",  # Segoe Script Regular in recent default Docker images.
         "arial",
         "times",
         "DejaVuSans",

@@ -25,7 +25,9 @@ class TestSignatureFontFallback(unittest.TestCase):
             patch.object(
                 sign,
                 "find_font_file_by_name",
-                side_effect=[None, None, None, None, "/fonts/DejaVuSans.ttf"],
+                side_effect=lambda name, dirs: (
+                    "/fonts/DejaVuSans.ttf" if name == "DejaVuSans" else None
+                ),
             ),
             patch.object(sign.ImageFont, "truetype") as load,
             patch.object(sign.ImageFont, "load_default") as default,
@@ -33,6 +35,20 @@ class TestSignatureFontFallback(unittest.TestCase):
             self.assertIs(sign.get_font("MissingFont", 96), load.return_value)
             load.assert_called_once_with("/fonts/DejaVuSans.ttf", 96)
             default.assert_not_called()
+
+    def test_missing_configured_font_prefers_available_script(self):
+        with (
+            patch.object(
+                sign,
+                "find_font_file_by_name",
+                side_effect=lambda name, dirs: (
+                    "/fonts/segoesc.ttf" if name == "segoesc" else None
+                ),
+            ),
+            patch.object(sign.ImageFont, "truetype") as load,
+        ):
+            self.assertIs(sign.get_font("MissingFont", 96), load.return_value)
+            load.assert_called_once_with("/fonts/segoesc.ttf", 96)
 
     def test_unreadable_configured_font_uses_scalable_fallback(self):
         fallback = object()
