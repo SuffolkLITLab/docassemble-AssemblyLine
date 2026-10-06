@@ -84,6 +84,10 @@ subquestion: |
 
   Filled PDF template: ${ signature_pdf.as_pdf(key="final") }
 
+  PDF signature images keep their proportions. Compare the narrow and
+  wide-but-shallow fields: increasing only the width can leave the signature
+  the same size. Increase the field height too to make it larger.
+
   ### Unsigned previews
 
   These should have blank signature spaces for every signing choice.
