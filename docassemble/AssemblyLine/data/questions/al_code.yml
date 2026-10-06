@@ -164,6 +164,7 @@ code: |
           signature_prefix=al_typed_signature_prefix,
           font_name=al_typed_signature_font,
         )
+        value(signature).commit()
         del(typed_signature)
       else:
         log(
