@@ -227,6 +227,7 @@ code: |
 ---
 generic object: ALDocumentBundle
 event: x.downloads_error_screen
+id: background downloads error screen
 question: |
   We could not make your documents
 subquestion: |
@@ -299,6 +300,7 @@ code: |
 ---
 generic object: ALDocumentBundle
 event: x.preview_error_screen
+id: background preview error screen
 question: |
   We could not generate a preview of your document
 subquestion: |
