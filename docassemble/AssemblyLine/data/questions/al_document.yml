@@ -141,10 +141,17 @@ code: |
 ---
 # Use these saved completion variables in interview order blocks. Celery's
 # task.ready() becomes False again when its result expires (normally one day).
+# Error callbacks also save durable state. While waiting, check completed tasks
+# for failures from before these callbacks existed. failed() can block, so it
+# must only be called after ready(). Neither is needed when a saved result exists.
 generic object: ALDocumentBundle
 code: |
   x.generate_downloads_task
   if not defined(x.attr_name("_downloadable_files")):
+    if defined(x.attr_name("_download_error")) or (
+      x.generate_downloads_task.ready() and x.generate_downloads_task.failed()
+    ):
+      x.downloads_error_screen
     al_download_waiting_screen
   x.downloads_ready = True
 ---
@@ -152,6 +159,10 @@ generic object: ALDocumentBundle
 code: |
   x.generate_downloads_with_docx_task
   if not defined(x.attr_name("_downloadable_files")):
+    if defined(x.attr_name("_download_error")) or (
+      x.generate_downloads_with_docx_task.ready() and x.generate_downloads_with_docx_task.failed()
+    ):
+      x.downloads_error_screen
     al_download_waiting_screen
   x.downloads_with_docx_ready = True
 ---
@@ -159,6 +170,7 @@ generic object: ALDocumentBundle
 code: |
   undefine(
     x.attr_name("_downloadable_files"),
+    x.attr_name("_download_error"),
     x.attr_name("downloads_ready"),
     x.attr_name("downloads_with_docx_ready"),
     x.attr_name("generate_downloads_with_docx_task"),
@@ -168,6 +180,7 @@ code: |
 generic object: ALDocumentBundle
 event: x.create_downloads
 code: |
+  background_error_action(x.attr_name("save_download_error"))
   download_response = x.get_cacheable_documents(
     key="final", pdf=True, include_full_pdf=True
   )
@@ -179,6 +192,7 @@ generic object: ALDocumentBundle
 code: |
   undefine(
     x.attr_name("_downloadable_files"),
+    x.attr_name("_download_error"),
     x.attr_name("downloads_ready"),
     x.attr_name("downloads_with_docx_ready"),
     x.attr_name("generate_downloads_task"),
@@ -190,6 +204,7 @@ code: |
 generic object: ALDocumentBundle
 event: x.create_downloads_with_docx
 code: |
+  background_error_action(x.attr_name("save_download_error"))
   download_response = x.get_cacheable_documents(
     key="final", pdf=True, docx=True, include_full_pdf=True
   )
@@ -203,6 +218,29 @@ code: |
   x._downloadable_files = action_argument("download_response")
 
   background_response()
+---
+generic object: ALDocumentBundle
+event: x.save_download_error
+code: |
+  x._download_error = True
+  background_response()
+---
+generic object: ALDocumentBundle
+event: x.downloads_error_screen
+question: |
+  We could not make your documents
+subquestion: |
+  Your answers have been saved. You can try again.
+
+  ${ action_button_html(url_action(x.attr_name('retry_downloads')), label='Try again') }
+---
+generic object: ALDocumentBundle
+event: x.retry_downloads
+code: |
+  if defined(x.attr_name("generate_downloads_with_docx_task")):
+    reconsider(x.attr_name("generate_downloads_with_docx_task"))
+  else:
+    reconsider(x.attr_name("generate_downloads_task"))
 ---
 id: waiting screen
 question: |
@@ -222,17 +260,26 @@ generic object: ALDocumentBundle
 code: |
   x.generate_preview_task
   if not defined(x.attr_name("_preview_file")):
+    if defined(x.attr_name("_preview_error")) or (
+      x.generate_preview_task.ready() and x.generate_preview_task.failed()
+    ):
+      x.preview_error_screen
     al_preview_waiting_screen
   x.preview_ready = True
 ---
 generic object: ALDocumentBundle
 code: |
-  undefine(x.attr_name("_preview_file"), x.attr_name("preview_ready"))
+  undefine(
+    x.attr_name("_preview_file"),
+    x.attr_name("_preview_error"),
+    x.attr_name("preview_ready"),
+  )
   x.generate_preview_task = background_action(x.attr_name("generate_preview_event"))
 ---
 generic object: ALDocumentBundle
 event: x.generate_preview_event
 code: |
+  background_error_action(x.attr_name("save_preview_error"))
   preview_response = x.as_pdf(key="preview")
   background_response_action(
     x.attr_name("save_preview"), preview_response=preview_response
@@ -243,6 +290,26 @@ event: x.save_preview
 code: |
   x._preview_file = action_argument("preview_response")
   background_response()
+---
+generic object: ALDocumentBundle
+event: x.save_preview_error
+code: |
+  x._preview_error = True
+  background_response()
+---
+generic object: ALDocumentBundle
+event: x.preview_error_screen
+question: |
+  We could not generate a preview of your document
+subquestion: |
+  Your answers have been saved. You can try again.
+
+  ${ action_button_html(url_action(x.attr_name('retry_preview')), label='Try again') }
+---
+generic object: ALDocumentBundle
+event: x.retry_preview
+code: |
+  reconsider(x.attr_name("generate_preview_task"))
 ---
 id: preview waiting screen
 question: |
