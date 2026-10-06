@@ -1,0 +1,95 @@
+---
+# Run docassemble.AssemblyLine:test_signature_output.yml on a docassemble server.
+# Choose typed, drawn (this device or phone), or sign after printing, then
+# compare the final and unsigned preview documents. Restart for another choice.
+include:
+  - assembly_line.yml
+---
+metadata:
+  title: Signature output preview
+  short title: Signature output
+---
+objects:
+  - signature_docx: ALDocument.using(title="DOCX signature fixture", filename="signature_docx", enabled=True, has_addendum=False)
+  - signature_pdf: ALDocument.using(title="PDF signature fixture", filename="signature_pdf", enabled=True, has_addendum=False)
+  - al_court_bundle: ALDocumentBundle.using(elements=[signature_docx, signature_pdf], title="Signature fixtures", filename="signature_fixtures", enabled=True)
+---
+code: |
+  signature_fields = ["users[0].signature"]
+---
+mandatory: True
+code: |
+  signature_fixture_setup
+  users.there_are_any = True
+  users.there_is_another = False
+  basic_questions_signature_flow
+  signature_fixture_output
+---
+id: signature fixture setup
+question: |
+  Preview signature output
+subquestion: |
+  Use a sample name, then choose how to sign on the next screen.
+  Choose **With a typed signature** to preview the **/s/** style signature
+  in both DOCX and PDF output.
+  The fixtures show the same signature in a DOCX paragraph, a DOCX table,
+  and two sizes of PDF fields.
+
+  Leave digital signatures optional to try signing after printing.
+fields:
+  - First name: users[0].name.first
+    default: Alex
+  - Last name: users[0].name.last
+    default: Example
+  - Require a digital signature: al_form_requires_digital_signature
+    datatype: yesno
+    default: False
+continue button field: signature_fixture_setup
+---
+attachment:
+  variable name: signature_docx[i]
+  docx template file: test_signature_output.docx
+---
+attachment:
+  variable name: signature_pdf[i]
+  pdf template file: test_signature_output.pdf
+  fields:
+    - signer_name: ${ users[0].name_full() }
+    - document_version: ${ i }
+    - signature_wide: ${ users[0].signature_if_final(i) }
+    - signature_narrow: ${ users[0].signature_if_final(i) }
+---
+id: signature fixture output
+event: signature_fixture_output
+question: |
+  Compare your signature output
+subquestion: |
+  Signing choice: **${ signature_choice }**.
+
+  % if signature_choice == "sign_after_printing":
+  The final documents should leave the signature spaces blank for a pen signature.
+  % else:
+  The final documents should contain your signature. Here is the signature image:
+
+  ${ users[0].signature }
+  % endif
+
+  ### Final documents
+
+  DOCX template, rendered as PDF: ${ signature_docx.as_pdf(key="final") }
+
+  Editable Word document: ${ signature_docx.as_docx(key="final") }
+
+  Filled PDF template: ${ signature_pdf.as_pdf(key="final") }
+
+  ### Unsigned previews
+
+  These should have blank signature spaces for every signing choice.
+
+  DOCX template, rendered as PDF: ${ signature_docx.as_pdf(key="preview") }
+
+  Editable Word preview: ${ signature_docx.as_docx(key="preview") }
+
+  Filled PDF preview: ${ signature_pdf.as_pdf(key="preview") }
+buttons:
+  - Try another signing choice: restart
