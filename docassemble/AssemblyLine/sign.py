@@ -52,7 +52,9 @@ def get_font(
     If `font_name` is provided, it may be either a full path to a font file or a font
     name (without a path). In the latter case, the function will search for the font in
     `/var/www/.fonts` and `/usr/share/fonts/truetype/`, automatically appending '.ttf'
-    if necessary. If no font is found, the function falls back to the default Pillow font.
+    if necessary. If the requested font is missing or cannot be loaded, the
+    function tries common scalable fonts at `font_size`, then Pillow's default
+    font at that size (when supported by the installed Pillow version).
 
     Args:
         font_name (Optional[str]): The desired font's full path or name. Defaults to None.
@@ -78,7 +80,7 @@ def get_font(
             try:
                 return ImageFont.truetype(font_name, font_size)
             except Exception as e:
-                print(f"Error loading provided font {font_name}: {e}")
+                log(f"Error loading provided font {font_name}: {e}")
         else:
             # Try to find the font by name in the candidate directories.
             found_font = find_font_file_by_name(font_name, search_dirs)
@@ -89,25 +91,29 @@ def get_font(
                     log(f"Error loading font {found_font} found for {font_name}: {e}")
             else:
                 log(f"Font '{font_name}' not found in candidate directories.")
-    else:
-        # No font specified; try default candidate font names.
-        candidate_font_names: List[str] = [
-            "BadScript-Regular",
-            "arial",
-            "times",
-            "DejaVuSans",
-        ]
-        for candidate in candidate_font_names:
-            found_font = find_font_file_by_name(candidate, search_dirs)
-            if found_font:
-                try:
-                    return ImageFont.truetype(found_font, font_size)
-                except Exception as e:
-                    log(f"Error loading candidate font {found_font}: {e}")
+    # Also try these when a requested font is missing or cannot be loaded.
+    candidate_font_names: List[str] = [
+        "BadScript-Regular",
+        "arial",
+        "times",
+        "DejaVuSans",
+    ]
+    for candidate in candidate_font_names:
+        found_font = find_font_file_by_name(candidate, search_dirs)
+        if found_font:
+            try:
+                return ImageFont.truetype(found_font, font_size)
+            except Exception as e:
+                log(f"Error loading candidate font {found_font}: {e}")
 
     # Final fallback to Pillow's default font.
     log("Falling back to the default Pillow font.")
-    return ImageFont.load_default()
+    try:
+        return ImageFont.load_default(size=font_size)
+    except TypeError:
+        # Pillow before 10.1 does not accept a size for the default font.
+        log("This Pillow version cannot size the default font.")
+        return ImageFont.load_default()
 
 
 def create_signature(
