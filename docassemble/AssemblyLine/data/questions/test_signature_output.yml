@@ -33,7 +33,8 @@ subquestion: |
   Choose **With a typed signature** to preview the **/s/** style signature
   in both DOCX and PDF output.
   The fixtures show the same signature in a DOCX paragraph, a DOCX table,
-  and two sizes of PDF fields.
+  and three sizes of PDF fields. The wide and wide-but-shallow boxes let
+  you check how field height affects scaling.
 
   Leave digital signatures optional to try signing after printing.
 fields:
@@ -58,6 +59,7 @@ attachment:
     - document_version: ${ i }
     - signature_wide: ${ users[0].signature_if_final(i) }
     - signature_narrow: ${ users[0].signature_if_final(i) }
+    - signature_wide_shallow: ${ users[0].signature_if_final(i) }
 ---
 id: signature fixture output
 event: signature_fixture_output
