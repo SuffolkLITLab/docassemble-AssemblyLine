@@ -20,7 +20,7 @@ try:
 except (ModuleNotFoundError, ImportError):
     # docassemble < 1.10 keeps user_interviews in the legacy server module.
     from docassemble.webapp.server import user_interviews
-from docassemble.base.functions import this_thread, interview_url, log, get_config
+from docassemble.base.functions import this_thread, interview_url, log, get_config, word
 from docassemble.AssemblyLine.sessions import (
     get_saved_interview_list,
     find_matching_sessions,
@@ -221,6 +221,7 @@ if "al_interview_list" not in app.view_functions:
             active_tab=active_tab,
             search_submitted=search_submitted,
             package_name=_package_name(),
+            loading_message=word("Loading…"),
         )
 
     @app.route("/al_interview_list/delete", methods=["POST"])

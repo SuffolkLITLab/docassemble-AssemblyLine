@@ -38,6 +38,7 @@
 {% endmacro %}
 
 <link rel="stylesheet" href="/packagestatic/{{ package_name }}/interview_list.css">
+<script src="/packagestatic/{{ package_name }}/interview_list.js" defer></script>
 {% if cfg.logo_url %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -117,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
         {% if active_tab == 'answer_sets' %}
         <span class="al-session-form-title">{{ s.title }}</span>
         {% else %}
-        <a class="al-session-form-title" href="{{ s.url }}">{{ s.title }}</a>
+        <a class="al-session-form-title" data-loading-message="{{ loading_message }}" href="{{ s.url }}">{{ s.title }}</a>
         {% endif %}
         {% if s.subtitle %}<br/><span class="al-session-form-subtitle">{{ s.subtitle }}</span>{% endif %}
     </td>
