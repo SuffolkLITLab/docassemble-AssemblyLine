@@ -25,6 +25,15 @@
   font-weight: bolder;
 }
 
+.al-session-loading {
+  cursor: wait;
+}
+
+.al-session-loading-status {
+  display: inline-block;
+  margin-inline-start: 0.5rem;
+}
+
 .al-icon-btn {
   background: none;
   border: none;
