@@ -105,6 +105,7 @@ features:
   navigation back button: False
   javascript:
     - al_audio.js
+    - interview_list.js
   css:
     - styles.css
     - al_audio.css
