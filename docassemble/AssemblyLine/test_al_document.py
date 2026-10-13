@@ -20,6 +20,7 @@ from .al_document import (
     ALDocumentBundle,
     ALExhibit,
     ALExhibitList,
+    ALExhibitDocument,
     _javascript_href,
 )
 from docassemble.base.error import DAError
@@ -684,6 +685,119 @@ class TestOriginalOrOverflowMessage(unittest.TestCase):
         self.assertEqual(
             result, "Overflow occurred."
         )  # Original value exceeds the overflow_trigger, but preserve_newlines is True
+
+
+class TestExhibitReviewRefresh(unittest.TestCase):
+    def test_changed_order_updates_labels_offsets_and_table_of_contents(self):
+        document = ALExhibitDocument("appendix", title="Appendix", filename="appendix")
+        for title in ["Renamed beta", "Gamma"]:
+            exhibit = document.exhibits.appendObject(title=title)
+            exhibit.pages = Mock()
+            exhibit.pages.num_pages.return_value = 1
+            exhibit.label = "stale"
+            exhibit.start_page = 99
+        document.exhibits.gathered = True
+        toc = Mock()
+        toc.num_pages.return_value = 1
+        document.table_of_contents = toc
+        with (
+            patch.object(document, "getattr_fresh", return_value=toc) as refresh,
+            patch.object(
+                document.exhibits, "as_pdf", return_value="exhibits"
+            ) as render,
+            patch(
+                __package__ + ".al_document.pdf_concatenate", return_value="combined"
+            ) as combine,
+        ):
+            self.assertEqual(document.as_pdf(), "combined")
+        self.assertEqual([item.label for item in document.exhibits], ["A", "B"])
+        self.assertEqual([item.start_page for item in document.exhibits], [2, 4])
+        refresh.assert_called_once_with("table_of_contents")
+        self.assertTrue(render.call_args.kwargs["refresh"])
+        combine.assert_called_once()
+
+    def test_refresh_bypasses_old_exhibit_pdf_and_regenerates_cover(self):
+        exhibit = ALExhibit("exhibit", title="Renamed exhibit", start_page=2)
+        exhibit.cover_page = "old cover"
+        exhibit._cache._file = "old rendered exhibit"
+        new_pdf = Mock()
+        with (
+            patch.object(
+                exhibit,
+                "getattr_fresh",
+                side_effect=lambda name: setattr(exhibit, name, "new cover"),
+            ) as cover,
+            patch.object(exhibit, "ocr_pages", return_value=[Mock(ok=True)]),
+            patch(
+                __package__ + ".al_document.pdf_concatenate", return_value=new_pdf
+            ) as combine,
+        ):
+            self.assertEqual(
+                exhibit.as_pdf(refresh=False, add_page_numbers=False),
+                "old rendered exhibit",
+            )
+            combine.assert_not_called()
+            self.assertIs(exhibit.as_pdf(refresh=True, add_page_numbers=False), new_pdf)
+        cover.assert_called_once_with("cover_page")
+        combine.assert_called_once()
+        self.assertEqual(combine.call_args.args[0], "new cover")
+
+    def test_refresh_resolves_all_covers_before_rendering_any_pdf(self):
+        events = []
+        exhibits = []
+        for index in range(2):
+            exhibit = Mock()
+            exhibit.num_pages.return_value = 2
+            exhibit.label = "stale"
+            exhibit.start_page = 99
+            exhibit.getattr_fresh.side_effect = lambda name, i=index: events.append(
+                ("refresh", i)
+            )
+            exhibit.as_pdf.side_effect = lambda i=index, **kwargs: (
+                events.append(("render", i)) or "rendered"
+            )
+            exhibits.append(exhibit)
+        collection = ALExhibitList(
+            "exhibits",
+            elements=exhibits,
+            gathered=True,
+            include_table_of_contents=False,
+        )
+        with patch(__package__ + ".al_document.pdf_concatenate"):
+            collection.as_pdf(refresh=True)
+        self.assertEqual(
+            events,
+            [("refresh", 0), ("refresh", 1), ("render", 0), ("render", 1)],
+        )
+        # A direct list-level refresh recalculates labels and offsets itself
+        self.assertEqual([item.label for item in exhibits], ["A", "B"])
+        self.assertEqual([item.start_page for item in exhibits], [1, 4])
+        # Covers refreshed in the first pass are not rebuilt again per exhibit
+        for exhibit in exhibits:
+            exhibit.getattr_fresh.assert_called_once_with("cover_page")
+            self.assertTrue(exhibit.as_pdf.call_args.kwargs["refresh"])
+            self.assertIs(exhibit.as_pdf.call_args.kwargs["refresh_cover_page"], False)
+
+    def test_refresh_cover_page_false_keeps_cover_but_bypasses_cache(self):
+        exhibit = ALExhibit("exhibit", title="Exhibit", start_page=2)
+        exhibit.cover_page = "refreshed cover"
+        exhibit._cache._file = "old rendered exhibit"
+        new_pdf = Mock()
+        with (
+            patch.object(exhibit, "getattr_fresh") as cover,
+            patch.object(exhibit, "ocr_pages", return_value=[Mock(ok=True)]),
+            patch(
+                __package__ + ".al_document.pdf_concatenate", return_value=new_pdf
+            ) as combine,
+        ):
+            self.assertIs(
+                exhibit.as_pdf(
+                    refresh=True, refresh_cover_page=False, add_page_numbers=False
+                ),
+                new_pdf,
+            )
+        cover.assert_not_called()
+        self.assertEqual(combine.call_args.args[0], "refreshed cover")
 
 
 if __name__ == "__main__":
