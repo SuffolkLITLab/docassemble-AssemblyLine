@@ -230,7 +230,16 @@ code: |
   github_about_user = github_user
 ---
 code: |
+  from docassemble.base.functions import package_question_filename
+  from os.path import isfile
+
   feedback_form = "docassemble.AssemblyLine:feedback.yml"
+  # Playground questions use a separate file store. Authors can still override
+  # package_name with an installed package, or set feedback_form explicitly.
+  if package_name and not package_name.startswith("docassemble.playground"):
+    _al_local_feedback = f"{package_name}:feedback.yml"
+    if isfile(package_question_filename(_al_local_feedback) or ""):
+      feedback_form = _al_local_feedback
 ---
 default screen parts:
   under: |
