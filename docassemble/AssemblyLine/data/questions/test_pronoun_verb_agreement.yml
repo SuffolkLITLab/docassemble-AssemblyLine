@@ -1,0 +1,250 @@
+---
+metadata:
+  title: Test pronoun and verb agreement
+  short title: Pronoun agreement
+comment: |
+  Demonstrates ALIndividual / ALPeopleList verb agreement and the pronoun
+  fallbacks:
+
+  * does_verb() / did_verb() agree with the name by default ("Alex Smith lives")
+  * pronoun=True agrees with the pronoun ("they live", "she lives")
+  * past tense works for every `person`, including "1p" and "2p"
+  * a list of one agrees with the name, or with the person's pronoun when
+    pronoun=True
+  * pronoun_possessive() keeps a possessive default as-is ("their fish")
+  * pronoun_reflexive() falls back to "themself" when no pronoun is usable
+
+  The first screen checks fixed examples against expected output. The second
+  lets you describe a person and read the resulting sentences.
+---
+include:
+  - assembly_line.yml
+---
+objects:
+  - demo_they: ALIndividual
+  - demo_she: ALIndividual
+  - demo_he: ALIndividual
+  - demo_none: ALIndividual
+  - demo_nonbinary: ALIndividual
+  - demo_business: ALIndividual
+  - demo_custom_they: ALIndividual
+  - demo_custom_xe: ALIndividual
+  - demo_self_described: ALIndividual
+  - demo_unusable: ALIndividual
+  - demo_list_they: ALPeopleList.using(auto_gather=False, gathered=True)
+  - demo_list_she: ALPeopleList.using(auto_gather=False, gathered=True)
+  - demo_list_two: ALPeopleList.using(auto_gather=False, gathered=True)
+  - subject: ALIndividual
+  - subject_alone: ALPeopleList.using(auto_gather=False, gathered=True)
+  - subject_and_jordan: ALPeopleList.using(auto_gather=False, gathered=True)
+---
+mandatory: True
+code: |
+  demo_people_ready
+  show_fixed_checks
+  subject_ready
+  subject_lists_ready
+  show_subject_results
+---
+code: |
+  demo_they.name.first = "Alex"
+  demo_they.name.last = "Smith"
+  demo_they.pronouns = "they/them/theirs"
+
+  demo_she.name.first = "Jordan"
+  demo_she.name.last = "Chen"
+  demo_she.pronouns = "she/her/hers"
+
+  demo_he.name.first = "Sam"
+  demo_he.name.last = "Lee"
+  demo_he.pronouns = "he/him/his"
+
+  # No pronouns, gender, or person_type: falls back to the name
+  demo_none.name.first = "Riley"
+  demo_none.name.last = "Park"
+
+  demo_nonbinary.name.first = "Casey"
+  demo_nonbinary.name.last = "Diaz"
+  demo_nonbinary.gender = "nonbinary"
+
+  demo_business.name.first = "Acme Housing LLC"
+  demo_business.person_type = "business"
+
+  # Custom pronouns are written objective/subjective/possessive
+  demo_custom_they.name.first = "Morgan"
+  demo_custom_they.name.last = "Rivera"
+  demo_custom_they.pronouns = "them/they/their"
+
+  demo_custom_xe.name.first = "Quinn"
+  demo_custom_xe.name.last = "Brooks"
+  demo_custom_xe.pronouns = "xem/xe/xyr"
+
+  # Self-described, but pronouns_self_described is never defined. Agreeing
+  # with the name must not ask for it.
+  demo_self_described.name.first = "Drew"
+  demo_self_described.name.last = "Kim"
+  demo_self_described.initializeAttribute(
+      "pronouns", DADict.using(auto_gather=False, gathered=True)
+  )
+  demo_self_described.pronouns["self-described"] = True
+
+  # Pronouns are set, but none can be used
+  demo_unusable.name.first = "Avery"
+  demo_unusable.name.last = "Stone"
+  demo_unusable.pronouns = "not a pronoun"
+
+  # docassemble re-runs this block when it first creates each list object,
+  # so clear before appending
+  demo_list_they.clear()
+  demo_list_they.append(demo_they)
+  demo_list_she.clear()
+  demo_list_she.append(demo_she)
+  demo_list_two.clear()
+  demo_list_two.append(demo_she)
+  demo_list_two.append(demo_they)
+
+  demo_people_ready = True
+---
+id: fixed pronoun agreement checks
+event: show_fixed_checks
+question: |
+  Fixed pronoun and verb agreement checks
+subquestion: |
+  <%
+    checks = [
+      ("Verb after a name (they/them)", "demo_they.does_verb('live')", demo_they.does_verb('live'), "lives"),
+      ("Past verb after a name (they/them)", "demo_they.did_verb('be')", demo_they.did_verb('be'), "was"),
+      ("past=True after a name", "demo_they.does_verb('be', past=True)", demo_they.does_verb('be', past=True), "was"),
+      ("Verb after a name, no pronouns or gender", "demo_none.does_verb('live')", demo_none.does_verb('live'), "lives"),
+      ("Verb after a name, self-described not yet answered", "demo_self_described.does_verb('live')", demo_self_described.does_verb('live'), "lives"),
+      ("Verb after 'they'", "demo_they.does_verb('live', pronoun=True)", demo_they.does_verb('live', pronoun=True), "live"),
+      ("'be' after 'they'", "demo_they.does_verb('be', pronoun=True)", demo_they.does_verb('be', pronoun=True), "are"),
+      ("Past 'be' after 'they'", "demo_they.did_verb('be', pronoun=True)", demo_they.did_verb('be', pronoun=True), "were"),
+      ("past=True after 'they'", "demo_they.does_verb('be', pronoun=True, past=True)", demo_they.does_verb('be', pronoun=True, past=True), "were"),
+      ("Verb after 'she'", "demo_she.does_verb('live', pronoun=True)", demo_she.does_verb('live', pronoun=True), "lives"),
+      ("Past 'be' after 'he'", "demo_he.did_verb('be', pronoun=True)", demo_he.did_verb('be', pronoun=True), "was"),
+      ("No pronouns: pronoun is the name", "demo_none.does_verb('live', pronoun=True)", demo_none.does_verb('live', pronoun=True), "lives"),
+      ("Nonbinary gender, no pronouns: 'they'", "demo_nonbinary.does_verb('live', pronoun=True)", demo_nonbinary.does_verb('live', pronoun=True), "live"),
+      ("Business: 'it'", "demo_business.does_verb('live', pronoun=True)", demo_business.does_verb('live', pronoun=True), "lives"),
+      ("Custom them/they/their", "demo_custom_they.does_verb('be', pronoun=True)", demo_custom_they.does_verb('be', pronoun=True), "are"),
+      ("Custom xem/xe/xyr", "demo_custom_xe.does_verb('be', pronoun=True)", demo_custom_xe.does_verb('be', pronoun=True), "is"),
+      ("person='2p', past", "demo_they.does_verb('be', person='2p', past=True)", demo_they.does_verb('be', person='2p', past=True), "were"),
+      ("person='1p', past", "demo_they.does_verb('be', person='1p', past=True)", demo_they.does_verb('be', person='1p', past=True), "were"),
+      ("person='1' after a pronoun", "demo_they.does_verb('be', person='1', pronoun=True)", demo_they.does_verb('be', person='1', pronoun=True), "am"),
+      ("List of one (they/them), after the name", "demo_list_they.does_verb('live')", demo_list_they.does_verb('live'), "lives"),
+      ("List of one (they/them), after 'they'", "demo_list_they.does_verb('live', pronoun=True)", demo_list_they.does_verb('live', pronoun=True), "live"),
+      ("List of one (they/them), past after 'they'", "demo_list_they.did_verb('be', pronoun=True)", demo_list_they.did_verb('be', pronoun=True), "were"),
+      ("List of one (she/her), after 'she'", "demo_list_she.does_verb('live', pronoun=True)", demo_list_she.does_verb('live', pronoun=True), "lives"),
+      ("List of two", "demo_list_two.does_verb('live')", demo_list_two.does_verb('live'), "live"),
+      ("List of two, after 'they'", "demo_list_two.does_verb('live', pronoun=True)", demo_list_two.does_verb('live', pronoun=True), "live"),
+      ("Possessive default 'their'", "demo_none.pronoun_possessive('fish', default='their')", demo_none.pronoun_possessive('fish', default='their'), "their fish"),
+      ("Possessive default 'our'", "demo_none.pronoun_possessive('fish', default='our')", demo_none.pronoun_possessive('fish', default='our'), "our fish"),
+      ("Possessive default 'zir'", "demo_none.pronoun_possessive('fish', default='zir')", demo_none.pronoun_possessive('fish', default='zir'), "zir fish"),
+      ("Possessive default that is a name", "demo_none.pronoun_possessive('fish', default='the tenant')", demo_none.pronoun_possessive('fish', default='the tenant'), "the tenant's fish"),
+      ("Possessive with no pronouns", "demo_none.pronoun_possessive('fish')", demo_none.pronoun_possessive('fish'), "Riley Park's fish"),
+      ("Possessive, custom pronouns", "demo_custom_xe.pronoun_possessive('fish')", demo_custom_xe.pronoun_possessive('fish'), "xyr fish"),
+      ("Reflexive, no usable pronouns", "demo_unusable.pronoun_reflexive()", demo_unusable.pronoun_reflexive(), "themself"),
+      ("Reflexive, custom pronouns", "demo_custom_xe.pronoun_reflexive()", demo_custom_xe.pronoun_reflexive(), "xemself"),
+      ("Subjective, nonbinary gender", "demo_nonbinary.pronoun_subjective()", demo_nonbinary.pronoun_subjective(), "they"),
+      ("Objective, business", "demo_business.pronoun()", demo_business.pronoun(), "it"),
+    ]
+    failures = [check for check in checks if check[2] != check[3]]
+  %>
+  % if failures:
+  **${ len(failures) } of ${ len(checks) } checks failed.**
+  % else:
+  **All ${ len(checks) } checks passed.**
+  % endif
+
+  | | Scenario | Code | Result | Expected |
+  |---|---|---|---|---|
+  % for label, code, result, expected in checks:
+  | ${ "✅" if result == expected else "❌" } | ${ label } | `${ code }` | ${ result } | ${ expected } |
+  % endfor
+
+  #### As sentences
+
+  * ${ demo_they } ${ demo_they.does_verb('live') } in Boston. ${ demo_they.pronoun_subjective(capitalize=True) } ${ demo_they.does_verb('live', pronoun=True) } near the park.
+  * ${ demo_they } ${ demo_they.did_verb('be') } late. ${ demo_they.pronoun_subjective(capitalize=True) } ${ demo_they.did_verb('be', pronoun=True) } sorry.
+  * ${ demo_she } ${ demo_she.does_verb('rent') } an apartment. ${ demo_she.pronoun_subjective(capitalize=True) } ${ demo_she.does_verb('pay', pronoun=True) } on time.
+  * ${ demo_none } ${ demo_none.does_verb('live') } here. ${ demo_none.pronoun_subjective(capitalize=True) } ${ demo_none.does_verb('work', pronoun=True) } nearby.
+  * ${ demo_list_they } ${ demo_list_they.does_verb('be') } the tenant. ${ demo_they.pronoun_subjective(capitalize=True) } ${ demo_list_they.does_verb('be', pronoun=True) } the tenant.
+  * ${ demo_list_two } ${ demo_list_two.does_verb('be') } the tenants.
+continue button field: show_fixed_checks
+---
+id: describe a person
+question: |
+  Describe a person
+subquestion: |
+  The next screen shows sentences about this person, with verbs after
+  their name and after their pronoun.
+
+  For self-described pronouns, write them objective/subjective/possessive,
+  for example `them/they/their` or `xem/xe/xyr`.
+fields:
+  - code: |
+      subject.name_fields()
+  - How should the interview refer to this person?: subject_source
+    datatype: radio
+    choices:
+      - By the pronouns they choose: pronouns
+      - By gender only, with no pronouns: gender
+      - As a business ("it"): business
+      - Nothing to go on (falls back to the name): none
+  - code: |
+      subject.pronoun_fields(show_if={"variable": "subject_source", "is": "pronouns"}, show_unknown=False)
+  - code: |
+      subject.gender_fields(show_if={"variable": "subject_source", "is": "gender"})
+continue button field: subject_details_entered
+---
+code: |
+  subject_details_entered
+  subject.person_type = "business" if subject_source == "business" else "individual"
+  subject_ready = True
+---
+code: |
+  subject_alone.clear()
+  subject_alone.append(subject)
+  subject_and_jordan.clear()
+  subject_and_jordan.append(subject)
+  subject_and_jordan.append(demo_she)
+  subject_lists_ready = True
+---
+id: subject agreement results
+event: show_subject_results
+question: |
+  Sentences about ${ subject }
+subquestion: |
+  A verb after the name agrees with the name. A verb after a pronoun agrees
+  with the pronoun, so singular "they" takes a plural verb.
+
+  #### After the name
+
+  * ${ subject } ${ subject.does_verb('live') } in Boston.
+  * ${ subject } ${ subject.did_verb('be') } at the hearing.
+  * ${ subject } ${ subject.does_verb('have', past=True) } a lease.
+
+  #### After the pronoun
+
+  * ${ subject.pronoun_subjective(capitalize=True) } ${ subject.does_verb('live', pronoun=True) } in Boston.
+  * ${ subject.pronoun_subjective(capitalize=True) } ${ subject.did_verb('be', pronoun=True) } at the hearing.
+  * ${ subject.pronoun_subjective(capitalize=True) } ${ subject.does_verb('have', pronoun=True, past=True) } a lease.
+  * ${ subject.pronoun_subjective(capitalize=True) } ${ subject.did_verb('sign', pronoun=True) } ${ subject.pronoun_possessive('lease') } ${ subject.pronoun_reflexive() }.
+  * The landlord called ${ subject.pronoun() }.
+
+  #### As a list of one
+
+  * ${ subject_alone } ${ subject_alone.does_verb('be') } the tenant.
+  * ${ subject.pronoun_subjective(capitalize=True) } ${ subject_alone.does_verb('be', pronoun=True) } the tenant.
+
+  #### As a list of two
+
+  * ${ subject_and_jordan } ${ subject_and_jordan.does_verb('be') } the tenants.
+  * They ${ subject_and_jordan.does_verb('be', pronoun=True) } the tenants.
+
+  #### Fallbacks
+
+  * Possessive with default "their" (used only when there is no pronoun): ${ subject.pronoun_possessive('fish', default='their') }
+  * Reflexive: ${ subject.pronoun_reflexive() }
+buttons:
+  - Start over: restart
