@@ -51,6 +51,10 @@ jobs:
           SERVER_URL: "${{ steps.github_server.outputs.SERVER_URL }}"
           DOCASSEMBLE_DEVELOPER_API_KEY: "${{ steps.github_server.outputs.DOCASSEMBLE_DEVELOPER_API_KEY }}"
           INSTALL_METHOD: "server"
+          # Pinned: ALKiln 5.17.1 fails file uploads on our docassemble image
+          # (test_aldocument.feature @e1) and treats expected invalid answers as
+          # failures (test_question_library.feature @ql3). Unpin once fixed upstream.
+          ALKILN_VERSION: "5.17.0"
           # To learn more, see https://assemblyline.suffolklitlab.org/docs/alkiln/writing/#optional-inputs
           ALKILN_TAG_EXPRESSION: "${{ env.ALKILN_TAG_EXPRESSION }}"
       - run: echo "Finished running ALKiln tests"
