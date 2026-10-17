@@ -30,6 +30,8 @@ from docassemble.base.util import (
     their,
     url_action,
     validation_error,
+    verb_past,
+    verb_present,
     word,
     your,
     log,
@@ -1341,6 +1343,27 @@ class ALPeopleList(DAList):
         if kwargs.get("capitalize"):
             return output.capitalize()
         return output
+
+    def does_verb(self, the_verb: str, **kwargs) -> str:
+        """Return the correctly conjugated present-tense form of a verb for the list.
+
+        If the list contains exactly 1 person, conjugates the verb according to that
+        person's subjective pronouns (so singular 'they' receives plural agreement).
+        """
+        if self.number() == 1 and len(self) > 0 and hasattr(self[0], "does_verb"):
+            return self[0].does_verb(the_verb, **kwargs)
+        return super().does_verb(the_verb, **kwargs)
+
+    def did_verb(self, the_verb: str, **kwargs) -> str:
+        """Return the correctly conjugated past-tense form of a verb for the list.
+
+        If the list contains exactly 1 person, conjugates the verb according to that
+        person's subjective pronouns (so singular 'they' receives plural agreement).
+        """
+        if self.number() == 1 and len(self) > 0 and hasattr(self[0], "did_verb"):
+            return self[0].did_verb(the_verb, **kwargs)
+        return super().did_verb(the_verb, **kwargs)
+
 
 
 class ALIndividual(Individual):
@@ -2808,7 +2831,10 @@ class ALIndividual(Individual):
             if len(pronouns_to_use) > 0:
                 output = "/".join(pronouns_to_use)
             else:
-                output = f"{default}'s {target}"
+                if str(default).lower() in ("their", "his", "her", "its", "my", "your"):
+                    output = f"{default} {target}"
+                else:
+                    output = f"{default}'s {target}"
         elif hasattr(self, "person_type") and self.person_type in [
             "business",
             "organization",
@@ -2822,7 +2848,10 @@ class ALIndividual(Individual):
             else:
                 output = their(target, **kwargs)
         else:
-            output = f"{default}'s {target}"
+            if str(default).lower() in ("their", "his", "her", "its", "my", "your"):
+                output = f"{default} {target}"
+            else:
+                output = f"{default}'s {target}"
 
         if "capitalize" in kwargs and kwargs["capitalize"]:
             return capitalize(output)
@@ -3058,6 +3087,79 @@ class ALIndividual(Individual):
         if kwargs.get("capitalize"):
             return capitalize(output)
         return output
+
+    def does_verb(self, the_verb: str, **kwargs) -> str:
+        """Return the correctly conjugated present-tense form of a verb for this individual.
+
+        Takes into account the individual's subjective pronouns, so that singular 'they'
+        receives plural verb agreement (e.g. "they survive", "they do", "they are"),
+        while singular pronouns receive singular agreement (e.g. "she survives", "he does").
+
+        Args:
+            the_verb (str): The infinitive verb, e.g. ``'eat'`` or ``'survive'``.
+            **kwargs: Accepts ``capitalize`` (bool), ``person`` (str), and
+                ``past`` (bool) to use past tense instead.
+
+        Returns:
+            str: Conjugated verb, e.g. "survives" for he/she or "survive" for they.
+        """
+        person = str(kwargs.pop("person", self.get_point_of_view()))
+        if person == "2":
+            tense = "2sg"
+        elif person == "2p":
+            tense = "2pl"
+        elif person == "1":
+            tense = "1sg"
+        elif person == "1p":
+            tense = "1pl"
+        elif person in ("3p", "3pl"):
+            tense = "3pl"
+        else:
+            subj = self.pronoun_subjective(default="they")
+            if "they" in [p.strip().lower() for p in str(subj).split("/")]:
+                tense = "3pl"
+            else:
+                tense = "3sg"
+
+        if ("past" in kwargs and kwargs["past"] is True) or (
+            "present" in kwargs and kwargs["present"] is False
+        ):
+            past_tense = "3ppl" if tense == "3pl" else (tense + "p")
+            return verb_past(the_verb, past_tense, **kwargs)
+        return verb_present(the_verb, tense, **kwargs)
+
+    def did_verb(self, the_verb: str, **kwargs) -> str:
+        """Return the correctly conjugated past-tense form of a verb for this individual.
+
+        Takes into account the individual's subjective pronouns, so that singular 'they'
+        receives plural verb agreement (e.g. "they were"), while singular pronouns
+        receive singular agreement (e.g. "she was").
+
+        Args:
+            the_verb (str): The infinitive verb, e.g. ``'be'`` or ``'eat'``.
+            **kwargs: Accepts ``capitalize`` (bool) and ``person`` (str).
+
+        Returns:
+            str: Conjugated verb.
+        """
+        person = str(kwargs.pop("person", self.get_point_of_view()))
+        if person == "2":
+            tense = "2sgp"
+        elif person == "2p":
+            tense = "2ppl"
+        elif person == "1":
+            tense = "1sgp"
+        elif person == "1p":
+            tense = "1ppl"
+        elif person in ("3p", "3pl"):
+            tense = "3ppl"
+        else:
+            subj = self.pronoun_subjective(default="they")
+            if "they" in [p.strip().lower() for p in str(subj).split("/")]:
+                tense = "3ppl"
+            else:
+                tense = "3sgp"
+        return verb_past(the_verb, tense, **kwargs)
 
     def name_full(self) -> str:
         """

@@ -1,7 +1,7 @@
 # do not pre-load
 
 import unittest
-from .al_general import ALIndividual, ALAddress, get_visible_al_nav_items
+from .al_general import ALIndividual, ALAddress, ALPeopleList, get_visible_al_nav_items
 from unittest.mock import Mock, patch
 from docassemble.base.util import DADict
 from docassemble.base.functions import value as da_value
@@ -9,7 +9,21 @@ from docassemble.base.functions import value as da_value
 
 class test_aladdress(unittest.TestCase):
     def setUp(self):
+        self.this_thread = Mock()
+        self.this_thread.country = "US"
+        self._control_thread_patcher = patch(
+            "docassemble.base.language.control.this_thread", self.this_thread
+        )
+        self._get_config_patcher = patch(
+            "docassemble.AssemblyLine.al_general.get_config", return_value={}
+        )
+        self._control_thread_patcher.start()
+        self._get_config_patcher.start()
         self.addr = ALAddress()
+
+    def tearDown(self):
+        self._control_thread_patcher.stop()
+        self._get_config_patcher.stop()
 
     def test_empty_is_empty(self):
         addr = ALAddress(address="", city="")
@@ -79,12 +93,25 @@ class TestALIndividual(unittest.TestCase):
 
         # Creating a mock object for this_thread
         self.this_thread = Mock()
+        self.this_thread.language = "en"
+        self.this_thread.country = "US"
+        self.this_thread.gathering_mode = {}
+        self.this_thread.evaluation_context = None
+        self.this_thread.misc = {}
 
         # Mocking this_thread.global_vars.user as a distinct object
         self.this_thread.global_vars.user = Mock()
 
-        # Assigning this_thread to self.individual
+        # Assigning this_thread to self.individual and modules
         self.individual.this_thread = self.this_thread
+        self._fn_thread_patcher = patch("docassemble.base.functions.this_thread", self.this_thread)
+        self._util_thread_patcher = patch("docassemble.base.util.this_thread", self.this_thread)
+        self._core_thread_patcher = patch("docassemble.base.language.core.this_thread", self.this_thread)
+        self._control_thread_patcher = patch("docassemble.base.language.control.this_thread", self.this_thread)
+        self._fn_thread_patcher.start()
+        self._util_thread_patcher.start()
+        self._core_thread_patcher.start()
+        self._control_thread_patcher.start()
 
         self.individual.name.first = "John"
 
@@ -140,6 +167,10 @@ class TestALIndividual(unittest.TestCase):
         self._al_general_value_patcher.stop()
         self._util_value_patcher.stop()
         self._functions_value_patcher.stop()
+        self._control_thread_patcher.stop()
+        self._core_thread_patcher.stop()
+        self._util_thread_patcher.stop()
+        self._fn_thread_patcher.stop()
 
     def _mock_value_with_defaults(self, variable_name, *args, **kwargs):
         if variable_name == "al_name_suffixes":
@@ -434,6 +465,98 @@ class TestALIndividual(unittest.TestCase):
             self.individual.pronoun_possessive(item, capitalize=True),
             "John Smith's fish",
         )
+
+        # When default is a possessive pronoun, should NOT append apostrophe-s (e.g. "their fish", not "their's fish")
+        self.assertEqual(
+            self.individual.pronoun_possessive(item, default="their"),
+            "their fish",
+        )
+        self.assertEqual(
+            self.individual.pronoun_possessive(item, default="their", capitalize=True),
+            "Their fish",
+        )
+
+    def test_does_verb_and_did_verb(self):
+        self.individual.name.first = "Alex"
+        self.individual.name.last = "Smith"
+
+        # Singular they receives plural agreement (they survive / they do / they are / they were)
+        self.individual.pronouns = DADict(
+            auto_gather=False,
+            gathered=True,
+            elements={"they/them/theirs": True, "he/him/his": False, "she/her/hers": False},
+        )
+        self.assertEqual(self.individual.does_verb("survive"), "survive")
+        self.assertEqual(self.individual.does_verb("do"), "do")
+        self.assertEqual(self.individual.does_verb("be"), "are")
+        self.assertEqual(self.individual.did_verb("be"), "were")
+        self.assertEqual(self.individual.did_verb("survive"), "survived")
+
+        # He/him/his receives singular agreement (he survives / he does / he is / he was)
+        self.individual.pronouns = DADict(
+            auto_gather=False,
+            gathered=True,
+            elements={"they/them/theirs": False, "he/him/his": True, "she/her/hers": False},
+        )
+        self.assertEqual(self.individual.does_verb("survive"), "survives")
+        self.assertEqual(self.individual.does_verb("do"), "does")
+        self.assertEqual(self.individual.does_verb("be"), "is")
+        self.assertEqual(self.individual.did_verb("be"), "was")
+        self.assertEqual(self.individual.did_verb("survive"), "survived")
+
+        # She/her/hers receives singular agreement
+        self.individual.pronouns = DADict(
+            auto_gather=False,
+            gathered=True,
+            elements={"they/them/theirs": False, "he/him/his": False, "she/her/hers": True},
+        )
+        self.assertEqual(self.individual.does_verb("survive"), "survives")
+        self.assertEqual(self.individual.does_verb("do"), "does")
+        self.assertEqual(self.individual.does_verb("be"), "is")
+        self.assertEqual(self.individual.did_verb("be"), "was")
+
+    def test_alpeoplelist_does_verb(self):
+        p1 = ALIndividual()
+        p1.this_thread = self.this_thread
+        p1.name.first = "Taylor"
+        p1.pronouns = DADict(
+            auto_gather=False,
+            gathered=True,
+            elements={"they/them/theirs": True, "he/him/his": False, "she/her/hers": False},
+        )
+
+        p2 = ALIndividual()
+        p2.this_thread = self.this_thread
+        p2.name.first = "Jordan"
+        p2.pronouns = DADict(
+            auto_gather=False,
+            gathered=True,
+            elements={"they/them/theirs": False, "he/him/his": False, "she/her/hers": True},
+        )
+
+        # Single person with they/them pronouns in list
+        plist1 = ALPeopleList(auto_gather=False, gathered=True)
+        plist1.this_thread = self.this_thread
+        plist1.append(p1)
+        self.assertEqual(plist1.does_verb("survive"), "survive")
+        self.assertEqual(plist1.does_verb("do"), "do")
+        self.assertEqual(plist1.did_verb("be"), "were")
+
+        # Single person with she/her pronouns in list
+        plist2 = ALPeopleList(auto_gather=False, gathered=True)
+        plist2.this_thread = self.this_thread
+        plist2.append(p2)
+        self.assertEqual(plist2.does_verb("survive"), "survives")
+        self.assertEqual(plist2.does_verb("do"), "does")
+        self.assertEqual(plist2.did_verb("be"), "was")
+
+        # Multiple people in list always plural
+        plist3 = ALPeopleList(auto_gather=False, gathered=True)
+        plist3.this_thread = self.this_thread
+        plist3.append(p2)
+        plist3.append(p1)
+        self.assertEqual(plist3.does_verb("survive"), "survive")
+        self.assertEqual(plist3.did_verb("be"), "were")
 
     def test_pronoun_subjective(self):
         self.individual.pronouns = None
