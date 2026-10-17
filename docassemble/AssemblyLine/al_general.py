@@ -1374,7 +1374,16 @@ class ALPeopleList(DAList):
         return super().does_verb(the_verb, **kwargs)
 
     def did_verb(self, the_verb: str, **kwargs) -> str:
-        """Like `does_verb()`, except it returns the past tense of the verb."""
+        """Like `does_verb()`, except it returns the past tense of the verb.
+
+        Args:
+            the_verb (str): The infinitive verb, e.g. `'live'`.
+            **kwargs: Accepts `pronoun` (bool) plus the upstream `person` and
+                `capitalize` arguments.
+
+        Returns:
+            str: The conjugated verb.
+        """
         return self.does_verb(the_verb, past=True, **kwargs)
 
 
@@ -3013,6 +3022,14 @@ class ALIndividual(Individual):
 
         By default, the verb agrees with the individual's name (e.g., "Alex Smith
         was"). Pass `pronoun=True` to agree with the pronoun (e.g., "they were").
+
+        Args:
+            the_verb (str): The infinitive verb, e.g. `'live'`.
+            **kwargs: Accepts `pronoun` (bool) plus the upstream `person` and
+                `capitalize` arguments.
+
+        Returns:
+            str: The conjugated verb.
         """
         return self.does_verb(the_verb, past=True, **kwargs)
 
