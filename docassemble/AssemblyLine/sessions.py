@@ -1,4 +1,5 @@
 from typing import List, Dict, Any, Set, Union, Optional, Tuple
+from html import escape
 from docassemble.base.util import (
     all_variables,
     as_datetime,
@@ -1376,7 +1377,7 @@ def session_list_html(
         if show_title:
             table += f"""
             <td class="text-break">
-            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_title(answer) }</a>
+            <a class="al-session-form-title" data-loading-message="{ escape(word("Loading…"), quote=True) }" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_title(answer) }</a>
             {"<br/>" if nice_interview_subtitle(answer) else ""}
             <span class="al-session-form-subtitle">{ nice_interview_subtitle(answer) if nice_interview_subtitle(answer) else "" }</span>
             </td>
@@ -1384,7 +1385,7 @@ def session_list_html(
         else:
             table += f"""
             <td class="text-break">
-            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a>
+            <a class="al-session-form-title" data-loading-message="{ escape(word("Loading…"), quote=True) }" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a>
             </td>
             """
         table += f"""
