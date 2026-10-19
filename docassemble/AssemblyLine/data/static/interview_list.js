@@ -2,6 +2,18 @@
 (function () {
   "use strict";
 
+  function resetLink(link) {
+    window.clearTimeout(link.alSessionLoadingTimer);
+    delete link.alSessionLoadingTimer;
+    link.classList.remove("al-session-loading");
+    link.removeAttribute("aria-disabled");
+    link.removeAttribute("aria-busy");
+    var status = link.nextElementSibling;
+    if (status && status.classList.contains("al-session-loading-status")) {
+      status.remove();
+    }
+  }
+
   document.addEventListener("click", function (event) {
     var link = event.target.closest("a.al-session-form-title");
     if (!link || event.defaultPrevented || event.button !== 0 ||
@@ -28,18 +40,17 @@
     status.appendChild(document.createTextNode(" " +
       (link.dataset.loadingMessage || "Loading…")));
     link.insertAdjacentElement("afterend", status);
+    // Stop/Escape or a cancelled navigation may leave this document in place
+    // without another pageshow event. Allow retrying after the initial wait.
+    link.alSessionLoadingTimer = window.setTimeout(function () {
+      resetLink(link);
+    }, 15000);
   });
 
   // Back/forward cache can restore the page exactly as it was while loading.
   window.addEventListener("pageshow", function () {
     document.querySelectorAll("a.al-session-loading").forEach(function (link) {
-      link.classList.remove("al-session-loading");
-      link.removeAttribute("aria-disabled");
-      link.removeAttribute("aria-busy");
-      var status = link.nextElementSibling;
-      if (status && status.classList.contains("al-session-loading-status")) {
-        status.remove();
-      }
+      resetLink(link);
     });
   });
 }());

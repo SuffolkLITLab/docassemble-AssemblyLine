@@ -178,7 +178,7 @@ def test_answer_set_tab_uses_custom_title_and_hides_copy_action():
 
     assert "Reusable answers" in html
     assert "Copy to answer set" not in html
-    assert 'class="al-session-form-title" href=' not in html
+    assert '<a class="al-session-form-title"' not in html
 
 
 def test_custom_logo_settings_are_rendered_and_escaped():

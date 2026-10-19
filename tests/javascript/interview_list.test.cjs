@@ -15,7 +15,7 @@ before(async () => {
   browser = await chromium.launch({ headless: true,
     channel: process.env.AL_TEST_BROWSER_CHANNEL || undefined });
 });
-after(async () => { await browser.close(); });
+after(async () => { await browser?.close(); });
 
 async function fixture(t) {
   const page = await browser.newPage();
@@ -87,5 +87,30 @@ test("Back restores the links and keyboard activation can start another navigati
   assert.equal(await page.locator("a").first().getAttribute("aria-busy"), null);
   await page.locator("a").first().focus();
   await page.keyboard.press("Enter");
+  assert.equal(await page.locator(".al-session-loading-status").count(), 1);
+});
+
+
+test("cancelled navigation unlocks the saved form so it can be retried", async (t) => {
+  const page = await fixture(t);
+  await page.clock.install();
+  let clicks = 0;
+  await page.exposeFunction("recordNavigation", () => { clicks++; });
+  await page.evaluate(() => {
+    document.addEventListener("click", event => {
+      event.preventDefault(); // e.g. a dismissed beforeunload/navigation guard
+      window.recordNavigation();
+    });
+    document.querySelector("a").click();
+    document.querySelector("a").click();
+  });
+  assert.equal(clicks, 1);
+  await page.clock.fastForward(15000);
+  assert.equal(await page.locator(".al-session-loading-status").count(), 0);
+  assert.equal(await page.locator("a").first().getAttribute("aria-disabled"), null);
+  assert.equal(await page.locator("a").first().getAttribute("aria-busy"), null);
+  await page.locator("a").first().focus();
+  await page.keyboard.press("Enter");
+  assert.equal(clicks, 2);
   assert.equal(await page.locator(".al-session-loading-status").count(), 1);
 });
