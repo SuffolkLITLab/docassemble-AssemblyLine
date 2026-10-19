@@ -40,9 +40,8 @@ jobs:
         with:
           SHOW_DOCKER_OUTPUT: "${{ github.event.inputs.show_docker_output }}"
           DOCASSEMBLECLI_VERSION: "0.0.25"
-          # Docassemble 1.10.12, also used for localhost browser verification.
-          # The older Suffolk fork loses the second generic exhibit upload.
-          DOCASSEMBLE_IMAGE: "jhpyle/docassemble@sha256:c0b0a707a6cd2149d5777ee83af1ea1de544210e597371eac93e67a1503c395c"
+          # Match the Docassemble release used for localhost browser verification.
+          DOCASSEMBLE_IMAGE: "jhpyle/docassemble:1.10.12"
       - run: echo "ALKiln finished starting the isolated GitHub docassemble server"
         shell: bash
       - name: Use ALKiln to run tests
