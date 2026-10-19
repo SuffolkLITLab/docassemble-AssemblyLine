@@ -630,6 +630,7 @@ class ALAddress(Address):
         language: Optional[str] = None,
         long_state: bool = False,
         show_impounded: bool = False,
+        show_country: Optional[bool] = None,
     ) -> str:
         """
         Returns the second line of the address, including city, state, and postal code.
@@ -638,6 +639,7 @@ class ALAddress(Address):
             language (str, optional): Language for the address format.
             long_state (bool): If True, uses the full state name. Defaults to False.
             show_impounded (bool): If True, shows the address even if impounded. Defaults to False.
+            show_country (bool, optional): If True, shows the country. If None, uses the default behavior.
 
         Returns:
             str: The second line of the address.
@@ -688,6 +690,10 @@ class ALAddress(Address):
                 output += " " + str(self.zip)
         elif hasattr(self, "postal_code") and self.postal_code:
             output += " " + str(self.postal_code)
+        if show_country is None:
+            show_country = hasattr(self, "country") and self.country
+        if show_country:
+            output += " " + str(self.country)
         return output
 
     def on_one_line(
