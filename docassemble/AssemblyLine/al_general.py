@@ -690,10 +690,15 @@ class ALAddress(Address):
                 output += " " + str(self.zip)
         elif hasattr(self, "postal_code") and self.postal_code:
             output += " " + str(self.postal_code)
-        if show_country is None:
-            show_country = hasattr(self, "country") and self.country
+        if (
+            show_country is None
+            and hasattr(self, "country")
+            and self.country
+            and get_country() != self.country
+        ):
+            show_country = True
         if show_country:
-            output += " " + str(self.country)
+            output += ", " + country_name(self._get_country())
         return output
 
     def on_one_line(
