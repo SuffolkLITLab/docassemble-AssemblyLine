@@ -2135,7 +2135,9 @@ class ALDocumentBundle(DAList):
         title (str): The title of the bundle.
         enabled (bool, optional): Determines if the bundle is active. Defaults to True.
         auto_gather (bool, optional): Automatically gathers attributes. Defaults to False.
-        gathered (bool, optional): Specifies if attributes have been gathered. Defaults to True.
+        gathered (Optional[bool], optional): Specifies if attributes have been gathered.
+            Defaults to True. Set to None to leave undefined so docassemble will lazily
+            trigger a code block that populates the bundle.
         default_parity (Optional[Literal["even", "odd"]]): Default parity to enforce on the PDF.
             When set, :meth:`as_pdf` will append a blank page if necessary to reach the desired.
             parity. Defaults to `None` (no enforcement).
@@ -2236,7 +2238,10 @@ class ALDocumentBundle(DAList):
         super().init(*pargs, **kwargs)
         if "auto_gather" not in kwargs:
             self.auto_gather = False
-        if "gathered" not in kwargs:
+        if kwargs.get("gathered") is None and "gathered" in kwargs:
+            if hasattr(self, "gathered"):
+                delattr(self, "gathered")
+        elif "gathered" not in kwargs:
             self.gathered = True
         self._set_default_attributes()
         self.initializeAttribute("cache", DALazyAttribute)

@@ -1,0 +1,69 @@
+---
+include:
+  - assembly_line.yml
+---
+metadata:
+  title: Test lazy bundle gathering with gathered=None
+---
+objects:
+  - children: ALPeopleList.using(ask_number=True)
+  - petition: ALDocument.using(
+        title="Petition",
+        filename="petition",
+        enabled=True,
+        has_addendum=False,
+      )
+  # One affidavit per child
+  - children[i].affidavit: ALDocument.using(
+        title="Affidavit about " + str(children[i]),
+        filename=f"child_{i+1}_affidavit",
+        enabled=True,
+        has_addendum=False,
+      )
+  - al_court_bundle: ALDocumentBundle.using(
+        title="Forms to file with the court",
+        filename="court_forms",
+        enabled=True,
+        gathered=None,
+      )
+---
+attachment:
+  variable name: petition[i]
+  content: |
+    Petition for ${ children.number() } children.
+---
+attachment:
+  variable name: children[i].affidavit[j]
+  content: |
+    Affidavit about ${ children[i] }
+---
+id: al_court_bundle elements
+code: |
+  al_court_bundle.elements = [petition] + [child.affidavit for child in children]
+  al_court_bundle.gathered = True
+---
+mandatory: True
+id: interview_order
+code: |
+  download_screen
+---
+id: download_screen
+event: download_screen
+question: Download forms
+subquestion: |
+  Number of documents: ${ len(al_court_bundle.enabled_documents()) }
+
+  Titles: ${ comma_and_list(al_court_bundle.get_titles()) }
+
+  ${ al_court_bundle.download_list_html() }
+---
+id: children_count
+question: How many children?
+fields:
+  - Number: children.target_number
+    datatype: integer
+---
+id: child_name
+question: Child ${ ordinal(i) }
+fields:
+  - First name: children[i].name.first

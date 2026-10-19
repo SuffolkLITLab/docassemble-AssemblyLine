@@ -8,12 +8,10 @@ metadata:
 mandatory: True
 code: |
   intro_screen
-  if not al_user_bundle.generate_preview_task.ready():
-    al_preview_waiting_screen
+  al_user_bundle.preview_ready
   preview_screen
-  # if not al_user_bundle.generate_downloads_task.ready(): # Without DOCX
-  if not al_user_bundle.generate_downloads_with_docx_task.ready():  # With DOCX
-    al_download_waiting_screen
+  # Use al_user_bundle.downloads_ready for PDF-only downloads.
+  al_user_bundle.downloads_with_docx_ready
   download_screen
 ---
 id: intro-screen
@@ -40,6 +38,15 @@ subquestion: |
   Your documents are ready for download.
 
   ${ al_user_bundle.download_list_html(use_previously_cached_files=True, include_full_pdf=True) }
+
+  ${ action_button_html(url_action('regenerate_downloads'), label='Regenerate documents') }
+---
+# Use this action after collecting any changed attachment inputs. Starting the
+# task clears its old saved files and completion gate; the order block waits for
+# the replacement files. Do not reconsider the task on every mandatory pass.
+event: regenerate_downloads
+code: |
+  reconsider("al_user_bundle.generate_downloads_with_docx_task")
 ---
 objects:
   - al_user_bundle: ALDocumentBundle.using(
