@@ -161,6 +161,7 @@ code: |
     "Search term (optional)",
     "Search {heading}",
     "Send",
+    "Loading…",
     "Sending...",
     "Sent",
     "Signature of {name}",

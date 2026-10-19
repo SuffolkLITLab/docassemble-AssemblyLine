@@ -918,4 +918,5 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
   "Signature of {name}": "Firma de {name}",
   "Page {number}": "Página {number}",
   "{title} documents": "Documentos de {title}",
-  "Email address for document": "Dirección de correo electrónico para el documento"}
+  "Email address for document": "Dirección de correo electrónico para el documento",
+  "Loading…": "Cargando…"}

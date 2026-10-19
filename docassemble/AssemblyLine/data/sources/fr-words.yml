@@ -932,4 +932,5 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
   "Signature of {name}": "Signature de {name}",
   "Page {number}": "Page {number}",
   "{title} documents": "Documents de {title}",
-  "Email address for document": "Adresse e-mail pour le document"}
+  "Email address for document": "Adresse e-mail pour le document",
+  "Loading…": "Chargement…"}

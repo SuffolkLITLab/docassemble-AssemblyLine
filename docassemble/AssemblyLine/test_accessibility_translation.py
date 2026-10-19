@@ -37,6 +37,8 @@ def test_page_translates_and_serializes_confirmation():
     env = Environment(autoescape=True)
     html = env.from_string(source).render(
         word=word,
+        package_name="docassemble.AssemblyLine",
+        loading_message=word("Loading…"),
         url_for=lambda *a, **kw: "#",
         cfg={"enable_answer_sets": True},
         active_tab="in_progress",
@@ -45,7 +47,19 @@ def test_page_translates_and_serializes_confirmation():
         page_size=1,
     )
     tags = Tags(html).tags
-    assert not any(tag == "script" for tag, attrs in tags)
+    # PR #1117 adds this external script. Continue rejecting injected scripts.
+    scripts = [attrs for tag, attrs in tags if tag == "script"]
+    assert all(
+        attrs
+        == {
+            "src": "/packagestatic/docassemble.AssemblyLine/interview_list.js",
+            "defer": None,
+        }
+        for attrs in scripts
+    )
+    for tag, attrs in tags:
+        if "data-loading-message" in attrs:
+            assert attrs["data-loading-message"] == translated + "Loading…"
     assert all(
         attrs["aria-label"].startswith(translated)
         for tag, attrs in tags
@@ -122,15 +136,24 @@ def test_signature_alt_text_uses_current_language(monkeypatch):
     ]:
         monkeypatch.setattr(functions.this_thread, "language", language)
         from docassemble.base import filter as da_filter
+        from importlib import import_module
 
+        # Newer Docassemble versions split filter into submodules. Patch the
+        # function's defining module, where its image_url global is resolved.
+        image_url_string = getattr(da_filter, "image_url_string", None)
+        if image_url_string is None:
+            image_url_string = import_module(
+                "docassemble.base.filter.html"
+            ).image_url_string
+        image_filter = import_module(image_url_string.__module__)
         monkeypatch.setattr(
-            da_filter,
+            image_filter,
             "image_url",
             lambda reference, alt, width, **kwargs: f"<img {alt}>",
         )
         markup = f"[FILE 1, 300px, {person.signature.get_alt_text()}]"
         match = re.match(r"\[FILE ([^,\]]+), *([0-9A-Za-z.%]+), *([^\]]*)\]", markup)
-        rendered = da_filter.image_url_string(match)
+        rendered = image_url_string(match)
         assert Tags(rendered).tags == [("img", {"alt": prefix + ' Ana " & García'})]
 
 
@@ -156,6 +179,7 @@ def test_catalogs_cover_runtime_phrases_and_preserve_placeholders(monkeypatch):
 
     root = Path(__file__).parent
     keys = {
+        "Loading…",
         "Sending...",
         "Sent",
         "Signature of {name}",

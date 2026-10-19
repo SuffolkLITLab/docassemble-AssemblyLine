@@ -806,4 +806,5 @@ ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير مو�
   "Signature of {name}": "توقيع {name}",
   "Page {number}": "الصفحة {number}",
   "{title} documents": "مستندات {title}",
-  "Email address for document": "عنوان البريد الإلكتروني للمستند"}
+  "Email address for document": "عنوان البريد الإلكتروني للمستند",
+  "Loading…": "جارٍ التحميل…"}
