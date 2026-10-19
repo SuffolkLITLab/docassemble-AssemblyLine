@@ -550,3 +550,27 @@ def test_get_combined_filename_list_applies_exclusions():
         )
 
     assert result == [{"docassemble.playground1:test.yml": "Test Interview"}]
+
+
+def test_loading_message_preserves_translation_and_escapes_attribute():
+    from html.parser import HTMLParser
+
+    class LoadingLinks(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.links = []
+
+        def handle_starttag(self, tag, attrs):
+            attributes = dict(attrs)
+            if tag == "a" and attributes.get("class") == "al-session-form-title":
+                self.links.append(attributes)
+
+    translated = 'Cargando… " <script> &'
+    html = render_page(
+        **base_context(sessions=[make_view_model()], loading_message=translated)
+    )
+    parser = LoadingLinks()
+    parser.feed(html)
+    assert len(parser.links) == 1
+    assert parser.links[0]["data-loading-message"] == translated
+    assert "<script>" not in html
