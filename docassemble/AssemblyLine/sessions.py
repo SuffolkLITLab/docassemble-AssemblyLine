@@ -1,3 +1,4 @@
+from html import escape
 from typing import List, Dict, Any, Set, Union, Optional, Tuple
 from docassemble.base.util import (
     all_variables,
@@ -906,17 +907,22 @@ def delete_interview_sessions(
         )
 
 
+def _translated_label(value: Optional[str], default: str) -> str:
+    """Resolve a plain-text label at render time and escape it for HTML."""
+    return escape(str(word(default) if value is None else value))
+
+
 def interview_list_html(
     filename: str = al_session_store_default_filename,
     user_id: Union[int, str, None] = None,
     metadata_key_name: str = "metadata",
     exclude_newly_started_sessions=False,
     # name_label: str = word("Title"),
-    date_label: str = word("Date"),
-    details_label: str = word("Details"),
-    actions_label: str = word("Actions"),
-    delete_label: str = word("Delete"),
-    view_label: str = word("View"),
+    date_label: Optional[str] = None,
+    details_label: Optional[str] = None,
+    actions_label: Optional[str] = None,
+    delete_label: Optional[str] = None,
+    view_label: Optional[str] = None,
     load_action: str = "al_sessions_fast_forward_session",
     delete_action: str = "al_sessions_delete_session",
     view_only: bool = False,
@@ -971,6 +977,12 @@ def interview_list_html(
     """
     # TODO: Currently, using the `word()` function for translation, but templates
     # might be more flexible
+    date_label = _translated_label(date_label, "Date")
+    details_label = _translated_label(details_label, "Details")
+    actions_label = _translated_label(actions_label, "Actions")
+    delete_label = _translated_label(delete_label, "Delete")
+    view_label = _translated_label(view_label, "View")
+
     if not answers:
         answers = get_saved_interview_list(
             filename=filename,
@@ -1015,7 +1027,7 @@ def interview_list_html(
             """
         table += f"""
         <td>{ as_datetime(answer.get("modtime")) }</td>
-        <td>{word("Page")} { answer.get("steps") or answer.get("num_keys") }</td>
+        <td>{escape(word("Page {number}").format(number=answer.get("steps") or answer.get("num_keys")))}</td>
         """
         if display_interview_title:
             table += f"""
@@ -1179,7 +1191,11 @@ def radial_progress(answer: Dict[str, Union[str, int]]) -> str:
     ```
     """
     if not answer.get("progress"):
-        return f"{word('Page')} {answer.get('steps') or answer.get('num_keys') or 1}"
+        return escape(
+            word("Page {number}").format(
+                number=answer.get("steps") or answer.get("num_keys") or 1
+            )
+        )
 
     # For simulation purposes, assume a form is complete at page 30
     progress: int = (
@@ -1233,16 +1249,16 @@ def session_list_html(
     exclude_current_filename: bool = True,
     exclude_filenames: Optional[List[str]] = None,
     exclude_newly_started_sessions: bool = False,
-    name_label: str = word("Title"),
-    date_label: str = word("Date modified"),
-    details_label: str = word("Progress"),
-    actions_label: str = word("Actions"),
-    delete_label: str = word("Delete"),
-    rename_label: str = word("Rename"),
+    name_label: Optional[str] = None,
+    date_label: Optional[str] = None,
+    details_label: Optional[str] = None,
+    actions_label: Optional[str] = None,
+    delete_label: Optional[str] = None,
+    rename_label: Optional[str] = None,
     rename_action: str = "interview_list_rename_action",
     delete_action: str = "interview_list_delete_session",
     copy_action: str = "interview_list_copy_action",
-    clone_label: str = word("Copy as answer set"),
+    clone_label: Optional[str] = None,
     show_title: bool = True,
     show_copy_button: bool = True,
     limit: int = 50,
@@ -1291,6 +1307,14 @@ def session_list_html(
     ${ session_list_html(user_id=user_info().id) }
     ```
     """
+    name_label = _translated_label(name_label, "Title")
+    date_label = _translated_label(date_label, "Date modified")
+    details_label = _translated_label(details_label, "Progress")
+    actions_label = _translated_label(actions_label, "Actions")
+    delete_label = _translated_label(delete_label, "Delete")
+    rename_label = _translated_label(rename_label, "Rename")
+    clone_label = _translated_label(clone_label, "Copy as answer set")
+
     if not answers:
         answers = get_saved_interview_list(
             filename=filename,

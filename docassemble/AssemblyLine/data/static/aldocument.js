@@ -50,18 +50,37 @@ function aldocument_send_action(event_name, wants_editable_id, email_id, templat
  */
 function aldocument_send_to_action(event_name, editable, email, button_id, template_name="", key="final", preferred_formats="pdf") {
   var button = $('#' + button_id);
-  button.html('Sending...');
+  if (button.attr('data-al-email-state')) { return; }
+  var originalLabel = button.html();
+  button.attr('aria-disabled', 'true');
+  button.attr('data-al-email-state', 'Sending...');
+  aldocument_translate_email_status(button);
   button.addClass('disabled');    // to visually disable button
   da_action_call(event_name, {editable: editable, email: email, template_name: template_name, key:key, preferred_formats: preferred_formats}, function (results) {
     if (results.success) {
       console.log("Email sent")
       button.prop('disabled', true);
-      button.html('Sent');
+      button.attr('data-al-email-state', 'Sent');
+      aldocument_translate_email_status(button);
     } else {
       console.log("Email failed")
       button.prop('disabled', false);
-      button.html('Send');
+      button.removeAttr('data-al-email-state');
+      button.removeAttr('aria-disabled');
+      button.html(originalLabel);
       button.removeClass('disabled'); // to visually enable
     }
   });
 };
+// Revisit pending/success labels if the translation catalog loads after rendering.
+function aldocument_translate_email_status(button) {
+  var state = button.attr('data-al-email-state');
+  if (state) {
+    button.text(typeof alTranslate === 'function' ? alTranslate(state) : state);
+  }
+}
+window.addEventListener('alTranslationsLoaded', function () {
+  $('[data-al-email-state]').each(function () {
+    aldocument_translate_email_status($(this));
+  });
+});

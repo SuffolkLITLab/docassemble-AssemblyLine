@@ -1,7 +1,8 @@
 # coding=utf-8
 import os
+from html import escape
 from typing import List, Optional, Tuple
-from docassemble.base.util import url_action, path_and_mimetype
+from docassemble.base.util import url_action, path_and_mimetype, word
 import yaml
 import pycountry
 
@@ -154,7 +155,7 @@ def get_language_list_dropdown(
     ```
     """
     list_start = f"""<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle { extra_class }" href="#" id="languageSelector" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="Language selection">
+    <a class="nav-link dropdown-toggle { extra_class }" href="#" id="languageSelector" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-label="{escape(word("Language selection"), quote=True)}">
       <i class="{ icon }"></i>
     </a>
     <div class="dropdown-menu" aria-labelledby="languageSelector">
@@ -249,7 +250,9 @@ def get_language_list(
         languages = get_tuples(lang_codes, languages_path=languages_path)
 
     list_start = '<ul class="list-inline">'
-    list_start += '<li class="list-inline-item"><b>Language</b>:</li>'
+    list_start += (
+        f'<li class="list-inline-item"><b>{escape(word("Language"))}</b>:</li>'
+    )
     list_end = "</ul>"
     for language in languages:
         if language[1] == current:
