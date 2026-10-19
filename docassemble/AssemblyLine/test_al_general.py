@@ -72,6 +72,35 @@ class test_aladdress(unittest.TestCase):
         self.addr.room = "101"
         self.assertEqual(self.addr.formatted_unit(), "Room 101")
 
+    @patch("docassemble.AssemblyLine.al_general.get_country", return_value="US")
+    @patch("docassemble.base.util.get_country", return_value="US")
+    def test_line_two_show_country(self, mock_base_get_country, mock_al_get_country):
+        addr = ALAddress(city="Boston", state="MA", zip="02108")
+        # No country attribute set: omitted by default, falls back to default country when show_country=True
+        self.assertEqual(addr.line_two(), "Boston, MA 02108")
+        self.assertEqual(
+            addr.line_two(show_country=True), "Boston, MA 02108, United States"
+        )
+        self.assertEqual(addr.line_two(show_country=False), "Boston, MA 02108")
+
+        # Country matches server default ("US"): omitted when show_country is None
+        addr.country = "US"
+        self.assertEqual(addr.line_two(), "Boston, MA 02108")
+        self.assertEqual(
+            addr.line_two(show_country=True), "Boston, MA 02108, United States"
+        )
+        self.assertEqual(addr.line_two(show_country=False), "Boston, MA 02108")
+
+        # Non-default country ("CA"): included when show_country is None or True, omitted when False
+        intl_addr = ALAddress(
+            city="Toronto", state="ON", postal_code="M5V 2T6", country="CA"
+        )
+        self.assertEqual(intl_addr.line_two(), "Toronto, ON M5V 2T6, Canada")
+        self.assertEqual(
+            intl_addr.line_two(show_country=True), "Toronto, ON M5V 2T6, Canada"
+        )
+        self.assertEqual(intl_addr.line_two(show_country=False), "Toronto, ON M5V 2T6")
+
 
 class TestALIndividual(unittest.TestCase):
     def setUp(self):
