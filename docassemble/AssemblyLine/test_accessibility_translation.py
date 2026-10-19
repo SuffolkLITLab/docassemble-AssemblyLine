@@ -181,6 +181,19 @@ def test_catalogs_cover_runtime_phrases_and_preserve_placeholders(monkeypatch):
     for call in template.find_all(nodes.Call):
         if isinstance(call.node, nodes.Name) and call.node.name == "word":
             keys.add(call.args[0].value)
+    # Keep the interactive review gallery in sync with runtime phrase discovery.
+    import yaml
+
+    blocks = yaml.safe_load_all(
+        (root / "data/questions/test_accessibility_translation.yml").read_text()
+    )
+    gallery_block = next(
+        block
+        for block in blocks
+        if block and "translation_test_phrases =" in block.get("code", "")
+    )
+    gallery = ast.literal_eval(ast.parse(gallery_block["code"]).body[0].value)
+    assert keys <= set(gallery), keys - set(gallery)
     fields = lambda text: sorted(
         field for _, field, _, _ in Formatter().parse(text) if field is not None
     )
