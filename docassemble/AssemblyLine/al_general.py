@@ -1464,7 +1464,11 @@ class ALIndividual(Individual):
             self.initializeAttribute("preferred_name", IndividualName)
 
     def signature_alt_text(self) -> _SignatureAltText:
-        """Return a persistent alt label that follows the current language."""
+        """Return a persistent alt label that follows the current language.
+
+        Returns:
+            _SignatureAltText: A serializable label resolved in the active language.
+        """
         return _SignatureAltText(self.name_full())
 
     def signature_if_final(self, i: str) -> Union[DAFile, str]:

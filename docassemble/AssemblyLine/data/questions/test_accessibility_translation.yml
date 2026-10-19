@@ -32,6 +32,7 @@ code: |
   users[0].signature
   fixture_output
 ---
+id: translation test output
 event: fixture_output
 question: |
   Review translated controls

@@ -1,3 +1,4 @@
+# do not pre-load
 """Translation and escaping regressions that do not require a web server."""
 
 from pathlib import Path
@@ -175,7 +176,7 @@ def test_catalogs_cover_runtime_phrases_and_preserve_placeholders(monkeypatch):
                     arg = node.args[index]
                     if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
                         keys.add(arg.value)
-    template = Environment().parse(
+    template = Environment(autoescape=True).parse(
         (root / "data/templates/al_interview_list_page.html").read_text()
     )
     for call in template.find_all(nodes.Call):

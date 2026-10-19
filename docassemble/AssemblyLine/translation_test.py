@@ -1,5 +1,6 @@
 # do not pre-load
 """Fixtures for test_accessibility_translation.yml; never sends email."""
+
 from docassemble.AssemblyLine.al_document import ALDocumentBundle
 
 
