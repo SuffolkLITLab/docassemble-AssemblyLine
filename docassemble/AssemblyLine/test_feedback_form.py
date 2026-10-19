@@ -9,24 +9,34 @@ from unittest.mock import Mock, patch
 import yaml
 
 
+class FakeDAInvalidFilename(Exception):
+    pass
+
+
 class TestFeedbackForm(unittest.TestCase):
     def setUp(self):
         visual = Path(__file__).parent / "data" / "questions" / "al_visual.yml"
         blocks = yaml.safe_load_all(visual.read_text(encoding="utf-8"))
         self.code = next(
-            block["code"] for block in blocks
+            block["code"]
+            for block in blocks
             if isinstance(block, dict) and "feedback_form =" in block.get("code", "")
         )
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.path = Path(self.tmp.name) / "feedback.yml"
 
-    def select(self, package, resolved_path):
-        resolver = Mock(return_value=resolved_path)
+    def select(self, package, resolved_path, resolver_error=None):
+        resolver = Mock(return_value=resolved_path, side_effect=resolver_error)
         functions = ModuleType("docassemble.base.functions")
         functions.package_question_filename = resolver
+        error = ModuleType("docassemble.base.error")
+        error.DAInvalidFilename = FakeDAInvalidFilename
         namespace = {"package_name": package}
-        with patch.dict("sys.modules", {"docassemble.base.functions": functions}):
+        with patch.dict(
+            "sys.modules",
+            {"docassemble.base.functions": functions, "docassemble.base.error": error},
+        ):
             exec(compile(self.code, "al_visual.yml feedback_form", "exec"), namespace)
         return namespace["feedback_form"], resolver
 
@@ -48,8 +58,22 @@ class TestFeedbackForm(unittest.TestCase):
         self.assertEqual(chosen, "docassemble.AssemblyLine:feedback.yml")
 
     def test_playground_and_empty_package_keep_fallback(self):
-        for package in (None, "", "docassemble.playground12", "docassemble.playground12Project"):
+        for package in (
+            None,
+            "",
+            "docassemble.playground12",
+            "docassemble.playground12Project",
+        ):
             with self.subTest(package=package):
                 chosen, resolver = self.select(package, str(self.path))
                 self.assertEqual(chosen, "docassemble.AssemblyLine:feedback.yml")
                 resolver.assert_not_called()
+
+    def test_invalid_package_name_keeps_fallback(self):
+        for package in ("None", "MassAccess", "docassemble.bad/name"):
+            with self.subTest(package=package):
+                chosen, resolver = self.select(
+                    package, None, FakeDAInvalidFilename("Invalid filename")
+                )
+                self.assertEqual(chosen, "docassemble.AssemblyLine:feedback.yml")
+                resolver.assert_called_once_with(f"{package}:feedback.yml")
