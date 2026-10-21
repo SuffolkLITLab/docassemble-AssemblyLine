@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Run ALKiln tests
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: "ALKiln - Start the isolated temporary docassemble server on GitHub"
         id: github_server
         uses: suffolkLITLab/ALKiln/action_for_github_server@v5
