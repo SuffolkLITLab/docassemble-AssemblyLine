@@ -8,4 +8,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: SuffolkLITLab/ALActions/valid_jinja2@main
+      - uses: SuffolkLITLab/ALActions/valid_jinja2@bump_more_action_versions

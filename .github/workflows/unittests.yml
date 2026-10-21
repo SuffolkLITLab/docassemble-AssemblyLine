@@ -11,5 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     name: Run python only unit tests
     steps:
-      - uses: SuffolkLITLab/ALActions/pythontests@main
+      - uses: SuffolkLITLab/ALActions/pythontests@bump_more_action_versions
       

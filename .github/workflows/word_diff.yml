@@ -6,4 +6,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: SuffolkLITLab/ALActions/word_diff@main
+      - uses: SuffolkLITLab/ALActions/word_diff@bump_more_action_versions

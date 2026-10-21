@@ -15,7 +15,7 @@ jobs:
     name: Deploy to the Development server
     runs-on: ubuntu-latest
     steps:
-    - uses: SuffolkLITLab/ALActions/da_package@main
+    - uses: SuffolkLITLab/ALActions/da_package@bump_more_action_versions
       with:
         SERVER_URL: ${{ vars.DEV_SERVER_URL }}
         DOCASSEMBLE_DEVELOPER_API_KEY: ${{ secrets.DOCASSEMBLE_DEV_SERVER_API_KEY }}
