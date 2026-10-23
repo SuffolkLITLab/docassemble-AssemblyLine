@@ -28,7 +28,7 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
     copiada al portapapeles., API keys: Claves API, Access organizational repositories: Acceso
     a los repositorios organizacionales, Access shared repositories: Acceso a repositorios
     compartidos, Account did not exist.: La cuenta no existía., Account disabled: Cuenta
-    deshabilitada, Action: Acción, Actions: Comportamiento, Activate chat: Activar
+    deshabilitada, Action: Acción, Actions: "Acciones", Activate chat: Activar
     chat, Active: Activo, Active File: Archivo activo, Actual: Actual, Add: Añadir,
   Add Email: Agregar correo electrónico, Add Privilege: Añadir privilegio, Add User: Agregar
     usuario, Add a New API Key: Agregar una nueva clave API, Add a New Project: Agregar
@@ -440,7 +440,7 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
     en Keycloak, Register with Zitadel: Regístrate en Zitadel, Register with miniOrange: Regístrate
     en miniOrange, Register with your mobile phone: Regístrate con tu teléfono móvil,
   Registration attempt: intento de registro, Registration is invite only: El registro
-    es solo por invitación, Remember me: Acuérdate de mí, Remove: retirar, Rename: Rebautizar,
+    es solo por invitación, Remember me: Acuérdate de mí, Remove: retirar, Rename: "Cambiar nombre",
   Rename project: Proyecto de cambio de nombre, Reorder by moving down: Reordenar
     moviéndose hacia abajo, Reorder by moving up: Reordenar moviendo hacia arriba,
   Replace each instance of Null with a quoted translation.: Reemplace cada instancia
@@ -459,7 +459,7 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
   Saint Lucia: Santa Lucía, Saint Martin (French part): San Martín (parte francesa),
   Saint Pierre and Miquelon: San Pedro y Miquelón, Saint Vincent and the Grenadines: San
     Vicente y las Granadinas, Samoa: Samoa, San Marino: San Marino, Sao Tome and Principe: Santo
-    Tomé y Príncipe, Saudi Arabia: Arabia Saudita, Save: Salvar, Save and Run: Guardar
+    Tomé y Príncipe, Saudi Arabia: Arabia Saudita, Save: "Guardar", Save and Run: Guardar
     y correr, Save changes: Guardar cambios, Save your changes: Guarda tus cambios,
   Save your changes to the package information: Guarda los cambios en la información
     del paquete., Saved: Guardado, Saved at: Guardado en, Scan: Escanear, Scan the barcode with your phone's authenticator app and enter the verification code.: Escanee
@@ -868,4 +868,55 @@ es: {'%(username_or_email)s does not exist': '%(username_or_email)s no existe', 
   to proceed.: para proceder., 'true': cierto, unavailable: indisponible, us: a nosotros,
   v.: v., was saved at: fue guardado en, we: nosotros, x: X, y: y, year: año, yes: sí,
   you: tú, yourself: tú mismo, yourselves: vosotros, Pause: Pausar, Stop: Detener,
-  Åland Islands: Islas Åland}
+  Åland Islands: Islas Åland,
+  # Accessible controls and saved-form messages
+  "All forms": "Todos los formularios",
+  "Answer set name": "Nombre del conjunto de respuestas",
+  "Answer sets": "Conjuntos de respuestas",
+  "Choose a form title or enter a search term to find saved forms.": "Elija el título de un formulario o ingrese un término de búsqueda para encontrar formularios guardados.",
+  "Copied to answer set.": "Se copió al conjunto de respuestas.",
+  "Copy as answer set": "Copiar como conjunto de respuestas",
+  "Copy to answer set": "Copiar a un conjunto de respuestas",
+  "Could not delete sessions.": "No se pudieron eliminar las sesiones.",
+  "Could not delete that item.": "No se pudo eliminar ese elemento.",
+  "Could not rename that item.": "No se pudo cambiar el nombre de ese elemento.",
+  "Date": "Fecha",
+  "Date modified": "Fecha de modificación",
+  "Delete all your sessions? This cannot be undone.": "¿Eliminar todas sus sesiones? Esta acción no se puede deshacer.",
+  "Delete this item?": "¿Eliminar este elemento?",
+  "Deleted all saved sessions.": "Se eliminaron todas las sesiones guardadas.",
+  "Deleted.": "Se eliminó.",
+  "Details": "Detalles",
+  "In progress forms": "Formularios en curso",
+  "Language selection": "Selección de idioma",
+  "Limit by form title (optional)": "Limitar por título del formulario (opcional)",
+  "Missing information, could not copy.": "Falta información. No se pudo copiar.",
+  "Missing information, could not delete.": "Falta información. No se pudo eliminar.",
+  "Missing information, could not rename.": "Falta información. No se pudo cambiar el nombre.",
+  "New name": "Nuevo nombre",
+  "No saved forms yet.": "Todavía no hay formularios guardados.",
+  "Page": "Página",
+  "Page navigation": "Navegación de páginas",
+  "Previous": "Anterior",
+  "Progress": "Progreso",
+  "Renamed.": "Se cambió el nombre.",
+  "Saved form views": "Vistas de formularios guardados",
+  "Saves these answers so you can reuse them to start a different form later.": "Guarda estas respuestas para que pueda reutilizarlas al iniciar otro formulario más adelante.",
+  "Search term (optional)": "Término de búsqueda (opcional)",
+  "Search {heading}": "Buscar en {heading}",
+  "Sending...": "Enviando...",
+  "Sent": "Enviado",
+  "Sorry, these answers couldn't be copied right now. Try starting a new form instead.": "Lo sentimos, no se pudieron copiar estas respuestas en este momento. Intente iniciar un formulario nuevo.",
+  "Start a new form": "Iniciar un formulario nuevo",
+  "Untitled interview": "Entrevista sin título",
+  "Use a keyword to find results that match the title or description of a form.": "Use una palabra clave para encontrar resultados que coincidan con el título o la descripción de un formulario.",
+  "View": "Ver",
+  "View, delete, or rename your answer sets below. Start a new form to reuse an answer set.": "Vea, elimine o cambie el nombre de sus conjuntos de respuestas a continuación. Inicie un formulario nuevo para reutilizar un conjunto de respuestas.",
+  "an exhibit": "una prueba documental",
+  "{documents} could not be processed and won't be included. Please try uploading it again before you continue.": "No se pudo procesar {documents} y no se incluirá. Intente cargarlo de nuevo antes de continuar.",
+  "{documents} could not be processed and won't be included. Please try uploading them again before you continue.": "No se pudieron procesar {documents} y no se incluirán. Intente cargarlos de nuevo antes de continuar.",
+  "Signature of {name}": "Firma de {name}",
+  "Page {number}": "Página {number}",
+  "{title} documents": "Documentos de {title}",
+  "Email address for document": "Dirección de correo electrónico para el documento",
+  "Loading…": "Cargando…"}

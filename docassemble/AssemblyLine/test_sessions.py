@@ -151,3 +151,61 @@ def test_session_list_actions_use_raw_display_name(
     assert expected in html.replace("\u200b", "")
     assert actions[0][1]["arguments"]["title"] == expected
     assert actions[1][1]["arguments"]["title"] == expected
+
+
+@pytest.mark.parametrize(
+    "helper", [sessions.session_list_html, sessions.interview_list_html]
+)
+def test_labels_follow_language_and_escape_quotes(monkeypatch, helper):
+    from html import escape
+
+    monkeypatch.setattr(sessions, "url_ask", lambda *a, **kw: "#")
+    monkeypatch.setattr(sessions, "url_action", lambda *a, **kw: "#")
+    monkeypatch.setattr(sessions, "interview_url", lambda **kw: "#")
+    monkeypatch.setattr(
+        sessions, "current_context", lambda: SimpleNamespace(session=None)
+    )
+    monkeypatch.setattr(sessions, "get_config", lambda *a, **kw: {})
+    monkeypatch.setattr(
+        sessions, "local_date", lambda value: SimpleNamespace(time=lambda: "00:00")
+    )
+    monkeypatch.setattr(sessions, "format_time", lambda *a, **kw: "00:00")
+    answer = {
+        "key": "test",
+        "filename": "form.yml",
+        "modtime": "2025-01-01",
+        "steps": 2,
+    }
+    from docassemble.base import functions
+
+    labels = {"en": 'Delete " < > &', "es": 'Borrar " < > &'}
+    for language, label in labels.items():
+        monkeypatch.setitem(
+            functions.word_collection,
+            language,
+            {**functions.word_collection.get(language, {}), "Delete": label},
+        )
+    for language in ["en", "es", "en"]:
+        monkeypatch.setattr(functions.this_thread, "language", language)
+        label = labels[language]
+        html = helper(answers=[answer])
+        assert f'title="{escape(label)}"' in html
+        assert label not in html
+        html = helper(answers=[answer], delete_label="Custom & label")
+        assert 'title="Custom &amp; label"' in html
+        html = helper(answers=[answer], delete_label="")
+        assert 'title=""' in html
+
+
+def test_page_number_uses_catalog_word_order(monkeypatch):
+    from pathlib import Path
+    from html import escape
+    from docassemble.base import functions
+
+    for path in (Path(__file__).parent / "data/sources").glob("*-words.yml"):
+        for language, catalog in functions.safeyaml.load(path.read_text()).items():
+            monkeypatch.setitem(functions.word_collection, language, catalog)
+            monkeypatch.setattr(functions.this_thread, "language", language)
+            assert sessions.radial_progress({"steps": 3}) == escape(
+                catalog["Page {number}"].format(number=3)
+            )

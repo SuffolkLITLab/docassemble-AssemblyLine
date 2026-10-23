@@ -1,0 +1,185 @@
+# Run docassemble.AssemblyLine:test_accessibility_translation.yml.
+# Like test_signature_output.yml, this uses the actual generic signature question.
+# Test instructions stay in English; the controls and phrase gallery use word().
+# Email delivery is simulated by TranslationTestBundle; no email is sent.
+---
+include:
+  - assembly_line.yml
+---
+modules:
+  - .translation_test
+  - .sessions
+---
+metadata:
+  title: Accessibility translation test
+  short title: Translation test
+---
+code: |
+  al_interview_languages = ['en', 'es', 'fr', 'ht', 'pt', 'ar', 'ne', 'km', 'vi', 'zh-Hans', 'zh-Hant']
+---
+objects:
+  - fixture_doc: ALDocument.using(title='Example document', filename='translation_example', enabled=True, has_addendum=False)
+  - success_bundle: TranslationTestBundle.using(title='Fixture bundle', filename='fixture_bundle', elements=[fixture_doc], test_email_success=True)
+  - failure_bundle: TranslationTestBundle.using(title='Fixture bundle', filename='fixture_bundle', elements=[fixture_doc], test_email_success=False)
+  - singular_bundle: TranslationTestBundle.using(title='Fixture bundle', filename='fixture_bundle', test_broken_titles=['One " < & exhibit'])
+  - plural_bundle: TranslationTestBundle.using(title='Fixture bundle', filename='fixture_bundle', test_broken_titles=['One " < & exhibit', 'Two exhibit'])
+---
+mandatory: True
+code: |
+  translation_test_intro
+  users[0].name.first = 'Ana'
+  users[0].name.last = 'García'
+  users[0].signature
+  fixture_output
+---
+id: translation test output
+event: fixture_output
+question: |
+  Review translated controls
+subquestion: |
+  Switch languages with the navigation menu, then reload this page. The signature
+  image's accessible name should follow the selected language, including García.
+  Inspect accessible names with browser developer tools or a screen reader.
+
+  ### Signature and document warnings
+
+  The quoted title below must appear as text. The plural warning should use the
+  selected language's conjunction.
+
+  <div id="fixture-signature">${ users[0].signature }</div>
+  <div id="fixture-singular">${ singular_bundle.broken_documents_warning_html() }</div>
+  <div id="fixture-plural">${ plural_bundle.broken_documents_warning_html() }</div>
+
+  ### Email controls
+
+  Success and failure buttons use real AJAX events with simulated delivery.
+  Check the pending label, then the success label or restored custom failure label.
+  Try a double click: only one request should run. Reload to reset the buttons.
+
+  <div id="fixture-success">${ success_bundle.send_button_to_html('nobody@example.invalid', label='Custom success') }</div>
+  <div id="fixture-failure">${ failure_bundle.send_button_to_html('nobody@example.invalid', label='Custom failure') }</div>
+  <div id="fixture-email">${ success_bundle.send_email_table_row() }</div>
+
+  ### Documents
+
+  ${ success_bundle.download_list_html() }
+
+  ### Saved-session previews
+
+  These rows use sample data to show translated headings, actions, and page numbers.
+  Their sample resume/delete links are not functional. To test actual actions,
+  [open Saved forms in another tab](/al_interview_list){:target="_blank"} while
+  signed in with a test account. Rename a disposable session, copy it to an
+  answer set, and cancel then accept its delete confirmation. Also check search,
+  pagination, and the empty state. That page follows your account language.
+
+  <div id="fixture-sessions">${ session_list_html(answers=[{'filename': 'fixture.yml', 'key': 'fixture-key', 'title': 'Quoted " < & title', 'modtime': '2026-10-19', 'steps': 3}]) }</div>
+  <div id="fixture-interviews">${ interview_list_html(answers=[{'filename': 'fixture.yml', 'key': 'fixture-key', 'title': 'Quoted " < & title', 'modtime': '2026-10-19', 'steps': 3}]) }</div>
+  <div id="fixture-language-list">${ get_language_list(lang_codes=['en', 'es']) }</div>
+
+
+  ### All runtime phrases
+
+  This gallery includes saved-form confirmations, empty states, and error flashes.
+  The left column is the source phrase; the right uses the current language and
+  sample placeholder values. Test wording remains English intentionally.
+
+  <div class="table-responsive">
+  <table class="table" id="translation-phrase-gallery">
+  <thead><tr><th scope="col">Source phrase</th><th scope="col">Current translation</th></tr></thead>
+  <tbody>
+  % for phrase in translation_test_phrases:
+  <tr><th scope="row">${ phrase | h }</th><td>${ word(phrase).format(name='Ana García', number=3, title='Example " < & title', heading='Example heading', documents='One " < & exhibit') | h }</td></tr>
+  % endfor
+  </tbody>
+  </table>
+  </div>
+buttons:
+  - Start again: restart
+---
+id: translation test instructions
+question: |
+  Test accessibility translations
+subquestion: |
+  Prerequisite: load this package's ten `*-words.yml` files in the server's
+  `words` configuration, and configure Babel locales for the enabled languages.
+  The JavaScript translation endpoint also reads that server configuration.
+
+  Draw a sample signature on the next screen. Then switch among English and the
+  ten bundled translations to review controls, accessible names, and all phrases
+  used by the affected features. No email will be sent.
+
+  Test both a desktop window and a narrow mobile window. Long translations should
+  remain readable, and tables should scroll without making the whole page wider.
+continue button field: translation_test_intro
+---
+code: |
+  translation_test_phrases = [
+    "Actions",
+    "All forms",
+    "Answer set name",
+    "Answer sets",
+    "Choose a form title or enter a search term to find saved forms.",
+    "Copied to answer set.",
+    "Copy as answer set",
+    "Copy to answer set",
+    "Could not delete sessions.",
+    "Could not delete that item.",
+    "Could not rename that item.",
+    "Date",
+    "Date modified",
+    "Delete",
+    "Delete All",
+    "Delete all your sessions? This cannot be undone.",
+    "Delete this item?",
+    "Deleted all saved sessions.",
+    "Deleted.",
+    "Details",
+    "Download",
+    "Email",
+    "Email address for document",
+    "In progress forms",
+    "Language",
+    "Language selection",
+    "Limit by form title (optional)",
+    "Missing information, could not copy.",
+    "Missing information, could not delete.",
+    "Missing information, could not rename.",
+    "New name",
+    "Next",
+    "No saved forms yet.",
+    "Page navigation",
+    "Page {number}",
+    "Previous",
+    "Progress",
+    "Rename",
+    "Renamed.",
+    "Save",
+    "Saved form views",
+    "Saves these answers so you can reuse them to start a different form later.",
+    "Search",
+    "Search term (optional)",
+    "Search {heading}",
+    "Send",
+    "Loading…",
+    "Sending...",
+    "Sent",
+    "Signature of {name}",
+    "Sorry, these answers couldn't be copied right now. Try starting a new form instead.",
+    "Start a new form",
+    "Title",
+    "Untitled interview",
+    "Use a keyword to find results that match the title or description of a form.",
+    "View",
+    "View, delete, or rename your answer sets below. Start a new form to reuse an answer set.",
+    "an exhibit",
+    "and",
+    "{documents} could not be processed and won't be included. Please try uploading it again before you continue.",
+    "{documents} could not be processed and won't be included. Please try uploading them again before you continue.",
+    "{title} documents",
+  ]
+---
+attachment:
+  variable name: fixture_doc[i]
+  content: |
+    This is a sample document for the accessibility translation test.

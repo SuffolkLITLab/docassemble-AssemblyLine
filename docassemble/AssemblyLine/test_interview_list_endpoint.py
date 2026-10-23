@@ -23,6 +23,7 @@ except (SystemExit, ModuleNotFoundError) as ex:
 
 
 class FakeUser:
+    language = "en"
     id = 1
     email = "test@example.com"
     first_name = "Test"
@@ -72,6 +73,7 @@ def render_page(**context):
     template_source += "\n{{ page_title }}"
     env = Environment(autoescape=True)
     env.globals["url_for"] = fake_url_for
+    env.globals["word"] = lambda text: text
     return env.from_string(template_source).render(**context)
 
 
