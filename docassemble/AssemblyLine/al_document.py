@@ -2277,6 +2277,7 @@ class ALDocumentBundle(DAList):
         pdfa: bool = False,
         append_matching_suffix: bool = True,
         ensure_parity: Optional[Literal["even", "odd"]] = None,
+        use_previously_cached_files: bool = False,
     ) -> Optional[DAFile]:
         """
         Returns a consolidated PDF of all enabled documents in the bundle.
@@ -2289,6 +2290,10 @@ class ALDocumentBundle(DAList):
                                             Used primarily to enhance automated tests.
             ensure_parity (Optional[Literal["even", "odd"]]): Ensures the number of pages in the PDF is even or odd. If omitted,.
                 no parity is enforced. Defaults to None.
+            use_previously_cached_files (bool): Reuse a final bundled PDF previously
+                assembled in the background, if available. Defaults to False. Custom
+                keys, PDF/A, and page parity requests use the normal assembly path,
+                because the background cache does not identify those options.
 
         Returns:
             Optional[DAFile]: Combined PDF file or None if no documents are enabled.
@@ -2306,6 +2311,18 @@ class ALDocumentBundle(DAList):
         ${ al_user_bundle.as_pdf(key="preview") }
         ```
         """
+        if (
+            use_previously_cached_files
+            and key == "final"
+            and not pdfa
+            and ensure_parity is None
+            and not getattr(self, "default_parity", None)
+            and hasattr(self, "_downloadable_files")
+        ):
+            _, _, bundled_pdf = self._downloadable_files
+            if bundled_pdf is not None:
+                return bundled_pdf
+
         safe_key = space_to_underscore(key)
         if pdfa:
             safe_key = safe_key + "-pdfa"
