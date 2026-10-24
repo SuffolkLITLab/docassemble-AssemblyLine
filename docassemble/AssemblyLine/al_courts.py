@@ -541,11 +541,12 @@ class ALCourtLoader(DAObject):
 
     def filter_courts(
         self,
-        court_types: Optional[Union[List[str], str]],
+        court_types: Optional[Union[List[str], str]] = None,
         column: str = "department",
         display_column: str = "name",
         search_string: Optional[str] = None,
         search_columns: Optional[Union[List[str], str]] = None,
+        filters: Optional[Dict[str, Union[List[str], str]]] = None,
     ) -> List[Tuple[int, str]]:
         """
         Return a filtered subset of courts represented as a list of tuples.
@@ -562,6 +563,9 @@ class ALCourtLoader(DAObject):
             search_columns (Optional[Union[List[str], str]], optional): Columns to aggregate and search across with.
                 the search_string in a case-insensitive manner. Defaults to None.
 
+            filters (Optional[Dict[str, Union[List[str], str]]]): Additional exact matches by
+                column. All columns must match; a list matches any value in that column.
+
         Returns:
             List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value). The dataframe_index (int) can be used with as_court() to retrieve the full court object. The display_value (str) is the court's name or other display column value.
 
@@ -573,7 +577,10 @@ class ALCourtLoader(DAObject):
           Which court is handling your case?
         fields:
           - Court: selected_court_index
-            code: all_courts.filter_courts("District")
+            code: |
+              all_courts.filter_courts(
+                filters={"division_abbr": division, "address_county": county}
+              )
         ```
         """
         df = self._load_courts()
@@ -584,9 +591,14 @@ class ALCourtLoader(DAObject):
             filtered = df[df[column].isin(court_types)]
         else:
             filtered = df
+        for filter_column, matches in (filters or {}).items():
+            if isinstance(matches, str):
+                matches = [matches]
+            filtered = filtered[filtered[filter_column].isin(matches)]
         if search_string and search_columns:
             if isinstance(search_columns, str):
                 search_columns = [search_columns]
+            filtered = filtered.copy()
             filtered["__search_col"] = (
                 filtered[search_columns].fillna("").agg(" ".join, axis=1)
             )
