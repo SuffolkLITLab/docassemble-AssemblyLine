@@ -2,6 +2,9 @@
 
 import json
 import pickle
+import tempfile
+
+import pikepdf
 import unittest
 from unittest.mock import Mock
 from html import unescape
@@ -701,3 +704,60 @@ class TestOriginalOrOverflowMessage(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestBackgroundBundlePdf(unittest.TestCase):
+    def make_bundle(self):
+        pdf = FakePdf()
+        bundle = ALDocumentBundle(
+            "bundle", elements=[FakeSingleDoc(pdf)], title="Bundle", filename="bundle"
+        )
+        return bundle, pdf
+
+    def test_opt_in_returns_background_pdf_without_evaluating_documents(self):
+        bundle, _ = self.make_bundle()
+        cached_pdf = FakePdf("cached.pdf")
+        bundle._downloadable_files = ([], None, cached_pdf)
+        with patch.object(
+            bundle, "enabled_documents", side_effect=AssertionError("regenerated")
+        ):
+            self.assertIs(bundle.as_pdf(use_previously_cached_files=True), cached_pdf)
+
+    def test_default_keeps_foreground_behavior(self):
+        bundle, foreground = self.make_bundle()
+        bundle._downloadable_files = ([], None, FakePdf("cached.pdf"))
+        self.assertIs(bundle.as_pdf(), foreground)
+
+    def test_absent_or_missing_background_pdf_falls_back(self):
+        for cached in [None, ([], None, None)]:
+            with self.subTest(cached=cached):
+                bundle, foreground = self.make_bundle()
+                if cached is not None:
+                    bundle._downloadable_files = cached
+                self.assertIs(
+                    bundle.as_pdf(use_previously_cached_files=True), foreground
+                )
+
+    def test_custom_versions_and_pdfa_do_not_reuse_unknown_cache_options(self):
+        for options in [{"key": "preview"}, {"pdfa": True}]:
+            with self.subTest(options=options):
+                bundle, foreground = self.make_bundle()
+                bundle._downloadable_files = ([], None, FakePdf("cached.pdf"))
+                self.assertIs(
+                    bundle.as_pdf(use_previously_cached_files=True, **options),
+                    foreground,
+                )
+
+    def test_parity_request_uses_foreground_pdf(self):
+        bundle, foreground = self.make_bundle()
+        bundle._downloadable_files = ([], None, FakePdf("cached.pdf"))
+        with tempfile.NamedTemporaryFile(suffix=".pdf") as pdf_file:
+            with pikepdf.Pdf.new() as pdf:
+                pdf.add_blank_page()
+                pdf.add_blank_page()
+                pdf.save(pdf_file.name)
+            foreground.path = lambda: pdf_file.name
+            self.assertIs(
+                bundle.as_pdf(use_previously_cached_files=True, ensure_parity="even"),
+                foreground,
+            )
