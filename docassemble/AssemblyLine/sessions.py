@@ -1248,6 +1248,7 @@ def session_list_html(
     limit: int = 50,
     offset: int = 0,
     answers: Optional[List[Dict[str, Any]]] = None,
+    open_in_new_tab: bool = False,
 ) -> str:
     """
     Return a string containing an HTML-formatted table with the list of user sessions.
@@ -1277,6 +1278,7 @@ def session_list_html(
         limit (int, optional): Limit for the number of sessions returned. Defaults to 50.
         offset (int, optional): Offset for the session list. Defaults to 0.
         answers (Optional[List[Dict[str, Any]]], optional): A list of answers to format and display. Defaults to showing all sessions for the current user.
+        open_in_new_tab (bool, optional): If True, session title links open in a new tab. Defaults to False.
 
 
     Returns:
@@ -1320,6 +1322,8 @@ def session_list_html(
     </thead>
     <tbody>
 """
+
+    link_target = ' target="_blank" rel="noopener"' if open_in_new_tab else ""
 
     for answer in answers:
         answer = dict(answer)
@@ -1376,7 +1380,7 @@ def session_list_html(
         if show_title:
             table += f"""
             <td class="text-break">
-            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_title(answer) }</a>
+            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }"{ link_target }>{ nice_interview_title(answer) }</a>
             {"<br/>" if nice_interview_subtitle(answer) else ""}
             <span class="al-session-form-subtitle">{ nice_interview_subtitle(answer) if nice_interview_subtitle(answer) else "" }</span>
             </td>
@@ -1384,7 +1388,7 @@ def session_list_html(
         else:
             table += f"""
             <td class="text-break">
-            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a>
+            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }"{ link_target }>{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a>
             </td>
             """
         table += f"""

@@ -151,3 +151,41 @@ def test_session_list_actions_use_raw_display_name(
     assert expected in html.replace("\u200b", "")
     assert actions[0][1]["arguments"]["title"] == expected
     assert actions[1][1]["arguments"]["title"] == expected
+
+
+@pytest.mark.parametrize("show_title", [True, False])
+@pytest.mark.parametrize("open_in_new_tab", [True, False])
+def test_session_links_can_open_in_new_tab(monkeypatch, show_title, open_in_new_tab):
+    from bs4 import BeautifulSoup
+
+    answer = {
+        "key": "session-1",
+        "filename": "docassemble.demo:data/questions/form.yml",
+        "title": "Saved interview",
+        "modtime": "2025-01-01T00:00:00",
+        "steps": 2,
+    }
+    monkeypatch.setattr(sessions, "url_ask", lambda steps: "#action")
+    monkeypatch.setattr(
+        sessions, "current_context", lambda: SimpleNamespace(session=None)
+    )
+    monkeypatch.setattr(sessions, "get_config", lambda *args, **kwargs: {})
+    monkeypatch.setattr(sessions, "interview_url", lambda **kwargs: "#interview")
+    monkeypatch.setattr(
+        sessions, "local_date", lambda value: SimpleNamespace(time=lambda: "00:00")
+    )
+    monkeypatch.setattr(sessions, "format_time", lambda *args, **kwargs: "00:00")
+    html = sessions.session_list_html(
+        answers=[answer], show_title=show_title, open_in_new_tab=open_in_new_tab
+    )
+    links = BeautifulSoup(html, "html.parser")
+    title = links.select_one("a.al-session-form-title")
+    assert title["href"] == "#interview"
+    if open_in_new_tab:
+        assert title["target"] == "_blank"
+        assert "noopener" in title["rel"]
+    else:
+        assert not title.has_attr("target")
+    assert all(
+        not action.has_attr("target") for action in links.select('a[href="#action"]')
+    )
