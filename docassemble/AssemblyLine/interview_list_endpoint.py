@@ -224,6 +224,7 @@ if "al_interview_list" not in app.view_functions:
             active_tab=active_tab,
             search_submitted=search_submitted,
             package_name=_package_name(),
+            loading_message=word("Loading…"),
         )
 
     @app.route("/al_interview_list/delete", methods=["POST"])
