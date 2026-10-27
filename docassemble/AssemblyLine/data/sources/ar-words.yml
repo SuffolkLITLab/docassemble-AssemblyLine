@@ -101,8 +101,7 @@ ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير مو�
     مشروع جديد, Create an interview with the wizard: إنشاء مقابلة مع المعالج, 'Created new Markdown file called ': 'تم
     إنشاء ملف Markdown جديد يسمى ', Croatia: كرواتيا, Cuba: كوبا, Curaçao: كوراساو,
   Current: حاضِر, Cyprus: قبرص, Czechia: جمهورية التشيك, Decorations: الزخارف, Default Playground: ملعب
-    افتراضي, Defined in: مُعرَّف في, Delete: يمسح, Delete Account: حذف الحساب, Delete All: حذف
-    الكل, Delete account and shared sessions: حذف الحساب والجلسات المشتركة, Delete account but keep shared sessions: حذف
+    افتراضي, Defined in: مُعرَّف في, Delete: "حذف", Delete Account: حذف الحساب, Delete All: "حذف الكل", Delete account and shared sessions: حذف الحساب والجلسات المشتركة, Delete account but keep shared sessions: حذف
     الحساب ولكن الاحتفاظ بالجلسات المشتركة, Delete project: حذف المشروع, Delete this package from the Playground: حذف
     هذه الحزمة من الملعب, 'Deleted file: ': 'الملف المحذوف: ', Deleted interview: مقابلة
     محذوفة, Deleted interviews: المقابلات المحذوفة, Deleted package: الحزمة المحذوفة,
@@ -404,7 +403,7 @@ ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير مو�
     لوسيا, Saint Martin (French part): سان مارتن (الجزء الفرنسي), Saint Pierre and Miquelon: سان
     بيير وميكلون, Saint Vincent and the Grenadines: سانت فنسنت وجزر غرينادين, Samoa: ساموا,
   San Marino: سان مارينو, Sao Tome and Principe: ساو تومي وبرينسيبي, Saudi Arabia: المملكة
-    العربية السعودية, Save: يحفظ, Save and Run: حفظ وتشغيل, Save changes: حفظ التغييرات,
+    العربية السعودية, Save: "حفظ", Save and Run: حفظ وتشغيل, Save changes: حفظ التغييرات,
   Save your changes: احفظ التغييرات, Save your changes to the package information: احفظ
     التغييرات التي أجريتها على معلومات الحزمة, Saved: أنقذ, Saved at: تم الحفظ في,
   Scan: مسح ضوئي, Scan the barcode with your phone's authenticator app and enter the verification code.: قم
@@ -415,14 +414,14 @@ ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير مو�
   "${count} results found": "تم العثور على ${count} نتيجة",
   'This phone number doesn''t look right. Note that a non-US number needs a "+" before the number.': 'يبدو أن رقم الهاتف هذا غير صحيح. لاحظ أن الرقم غير الأمريكي يحتاج إلى "+" قبل الرقم.',
   "You have entered %d character.": "لقد أدخلت %d حرفًا.", "You have entered %d characters.": "لقد أدخلت %d أحرف.",
-  Search: يبحث, Second Subdivision: القسم الفرعي الثاني, Second factor authentication: المصادقة
+  Search: "بحث", Second Subdivision: القسم الفرعي الثاني, Second factor authentication: المصادقة
     بالعامل الثاني, Second subdivision: القسم الفرعي الثاني, Section: قسم, Sections: الأقسام,
   Security Method: طريقة الأمان, Select a package: اختر الباقة, Select a value between: حدد
     قيمة بين, Select file: حدد الملف, Select one: اختر واحدا, Select the folder from your OneDrive that you want to be synchronized with the Playground.: حدد
     المجلد من OneDrive الذي تريد مزامنته مع Playground., Select the project: حدد المشروع,
   Select which files to include in the commit: حدد الملفات التي تريد تضمينها في الالتزام,
   Select zero or more files: حدد صفرًا أو أكثر من الملفات, Select zero or more packages: حدد
-    صفرًا أو أكثر من الحزم, Select...: يختار..., Send: يرسل, Send Confirmation E-mail: إرسال
+    صفرًا أو أكثر من الحزم, Select...: يختار..., Send: "إرسال", Send Confirmation E-mail: إرسال
     بريد إلكتروني للتأكيد, Send confirmation email: إرسال بريد إلكتروني للتأكيد, Send reset password email: إرسال
     بريد إلكتروني لإعادة تعيين كلمة المرور, Senegal: السنغال, Serbia: صربيا, Server did not respond to request for update.: لم
     يستجب الخادم لطلب التحديث., Sessions: الجلسات, Setup key: مفتاح الإعداد, Seychelles: سيشل,
@@ -757,4 +756,55 @@ ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير مو�
   'true': حقيقي, unavailable: غير متاح, us: نحن, v.: فعل, was saved at: تم حفظه في,
   we: نحن, x: س, y: ي, year: سنة, yes: نعم, you: أنت, yourself: نفسك, yourselves: أنفسكم,
   Pause: إيقاف مؤقت, Stop: إيقاف,
-  Åland Islands: جزر آلاند, Month: شهر, Day: يوم, Year: سنة}
+  Åland Islands: جزر آلاند, Month: شهر, Day: يوم, Year: سنة,
+  # Accessible controls and saved-form messages
+  "All forms": "كل النماذج",
+  "Answer set name": "اسم مجموعة الإجابات",
+  "Answer sets": "مجموعات الإجابات",
+  "Choose a form title or enter a search term to find saved forms.": "اختر عنوان نموذج أو أدخل عبارة بحث للعثور على النماذج المحفوظة.",
+  "Copied to answer set.": "تم النسخ إلى مجموعة إجابات.",
+  "Copy as answer set": "نسخ كمجموعة إجابات",
+  "Copy to answer set": "نسخ إلى مجموعة إجابات",
+  "Could not delete sessions.": "تعذّر حذف الجلسات.",
+  "Could not delete that item.": "تعذّر حذف هذا العنصر.",
+  "Could not rename that item.": "تعذّر تغيير اسم هذا العنصر.",
+  "Date": "التاريخ",
+  "Date modified": "تاريخ التعديل",
+  "Delete all your sessions? This cannot be undone.": "هل تريد حذف جميع جلساتك؟ لا يمكن التراجع عن هذا الإجراء.",
+  "Delete this item?": "هل تريد حذف هذا العنصر؟",
+  "Deleted all saved sessions.": "تم حذف جميع الجلسات المحفوظة.",
+  "Deleted.": "تم الحذف.",
+  "Details": "التفاصيل",
+  "In progress forms": "النماذج قيد العمل",
+  "Language selection": "اختيار اللغة",
+  "Limit by form title (optional)": "التصفية حسب عنوان النموذج (اختياري)",
+  "Missing information, could not copy.": "هناك معلومات ناقصة. تعذّر النسخ.",
+  "Missing information, could not delete.": "هناك معلومات ناقصة. تعذّر الحذف.",
+  "Missing information, could not rename.": "هناك معلومات ناقصة. تعذّر تغيير الاسم.",
+  "New name": "الاسم الجديد",
+  "No saved forms yet.": "لا توجد نماذج محفوظة حتى الآن.",
+  "Page": "صفحة",
+  "Page navigation": "التنقل بين الصفحات",
+  "Previous": "السابق",
+  "Progress": "التقدم",
+  "Renamed.": "تم تغيير الاسم.",
+  "Saved form views": "طرق عرض النماذج المحفوظة",
+  "Saves these answers so you can reuse them to start a different form later.": "يحفظ هذه الإجابات لتتمكن من استخدامها مجددًا عند بدء نموذج آخر لاحقًا.",
+  "Search term (optional)": "عبارة البحث (اختياري)",
+  "Search {heading}": "البحث في {heading}",
+  "Sending...": "جارٍ الإرسال...",
+  "Sent": "تم الإرسال",
+  "Sorry, these answers couldn't be copied right now. Try starting a new form instead.": "عذرًا، تعذّر نسخ هذه الإجابات الآن. جرّب بدء نموذج جديد بدلًا من ذلك.",
+  "Start a new form": "بدء نموذج جديد",
+  "Untitled interview": "مقابلة بلا عنوان",
+  "Use a keyword to find results that match the title or description of a form.": "استخدم كلمة مفتاحية للعثور على نتائج تطابق عنوان النموذج أو وصفه.",
+  "View": "عرض",
+  "View, delete, or rename your answer sets below. Start a new form to reuse an answer set.": "يمكنك أدناه عرض مجموعات إجاباتك أو حذفها أو تغيير أسمائها. ابدأ نموذجًا جديدًا لاستخدام مجموعة إجابات مجددًا.",
+  "an exhibit": "مستند إثبات",
+  "{documents} could not be processed and won't be included. Please try uploading it again before you continue.": "تعذّرت معالجة {documents} ولن يتم تضمينه. يرجى محاولة رفعه مجددًا قبل المتابعة.",
+  "{documents} could not be processed and won't be included. Please try uploading them again before you continue.": "تعذّرت معالجة {documents} ولن يتم تضمينها. يرجى محاولة رفعها مجددًا قبل المتابعة.",
+  "Signature of {name}": "توقيع {name}",
+  "Page {number}": "الصفحة {number}",
+  "{title} documents": "مستندات {title}",
+  "Email address for document": "عنوان البريد الإلكتروني للمستند",
+  "Loading…": "جارٍ التحميل…"}

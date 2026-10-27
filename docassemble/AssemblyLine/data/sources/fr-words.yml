@@ -28,7 +28,7 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
     dans le presse-papiers., API keys: Clés API, Access organizational repositories: Accéder
     aux référentiels organisationnels, Access shared repositories: Accéder aux référentiels
     partagés, Account did not exist.: Ce compte n'existait pas., Account disabled: Compte
-    désactivé, Action: Action, Actions: Actes, Activate chat: Activer le chat, Active: Actif,
+    désactivé, Action: Action, Actions: "Actions", Activate chat: Activer le chat, Active: Actif,
   Active File: Fichier actif, Actual: Réel, Add: Ajouter, Add Email: Ajouter un e-mail,
   Add Privilege: Ajouter un privilège, Add User: Ajouter un utilisateur, Add a New API Key: Ajouter
     une nouvelle clé API, Add a New Project: Ajouter un nouveau projet, Add a new privilege: Ajouter
@@ -450,7 +450,7 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
     auprès de miniOrange, Register with your mobile phone: Inscrivez-vous avec votre
     téléphone portable, Registration attempt: tentative d'inscription, Registration is invite only: L'inscription
     se fait uniquement sur invitation., Remember me: Souviens-toi de moi, Remove: Retirer,
-  Rename: Rebaptiser, Rename project: Renommer le projet, Reorder by moving down: Réorganiser
+  Rename: "Renommer", Rename project: Renommer le projet, Reorder by moving down: Réorganiser
     en descendant, Reorder by moving up: Réorganiser en remontant, Replace each instance of Null with a quoted translation.: Remplacez
     chaque occurrence de Null par une traduction entre guillemets., Request Developer Account: Demander
     un compte développeur, Resend Confirmation Email: Renvoyer l'e-mail de confirmation,
@@ -882,4 +882,55 @@ fr: {'%(username_or_email)s does not exist': '%(nom_utilisateur_ou_email)s n''ex
   themself: eux-mêmes, themselves: eux-mêmes, they: ils, to proceed.: pour continuer.,
   'true': vrai, unavailable: indisponible, us: nous, v.: v., was saved at: a été sauvé
     à, we: nous, x: x, y: et, year: année, yes: Oui, you: toi, yourself: toi-même,
-  yourselves: vous-mêmes, Pause: Pause, Stop: Arrêter, Åland Islands: Îles Åland}
+  yourselves: vous-mêmes, Pause: Pause, Stop: Arrêter, Åland Islands: Îles Åland,
+  # Accessible controls and saved-form messages
+  "All forms": "Tous les formulaires",
+  "Answer set name": "Nom du jeu de réponses",
+  "Answer sets": "Jeux de réponses",
+  "Choose a form title or enter a search term to find saved forms.": "Choisissez un titre de formulaire ou saisissez un terme de recherche pour trouver des formulaires enregistrés.",
+  "Copied to answer set.": "Copié dans un jeu de réponses.",
+  "Copy as answer set": "Copier comme jeu de réponses",
+  "Copy to answer set": "Copier dans un jeu de réponses",
+  "Could not delete sessions.": "Impossible de supprimer les sessions.",
+  "Could not delete that item.": "Impossible de supprimer cet élément.",
+  "Could not rename that item.": "Impossible de renommer cet élément.",
+  "Date": "Date",
+  "Date modified": "Date de modification",
+  "Delete all your sessions? This cannot be undone.": "Supprimer toutes vos sessions ? Cette action est irréversible.",
+  "Delete this item?": "Supprimer cet élément ?",
+  "Deleted all saved sessions.": "Toutes les sessions enregistrées ont été supprimées.",
+  "Deleted.": "Supprimé.",
+  "Details": "Détails",
+  "In progress forms": "Formulaires en cours",
+  "Language selection": "Sélection de la langue",
+  "Limit by form title (optional)": "Limiter par titre de formulaire (facultatif)",
+  "Missing information, could not copy.": "Informations manquantes. Impossible de copier.",
+  "Missing information, could not delete.": "Informations manquantes. Impossible de supprimer.",
+  "Missing information, could not rename.": "Informations manquantes. Impossible de renommer.",
+  "New name": "Nouveau nom",
+  "No saved forms yet.": "Aucun formulaire enregistré pour le moment.",
+  "Page": "Page",
+  "Page navigation": "Navigation entre les pages",
+  "Previous": "Précédent",
+  "Progress": "Progression",
+  "Renamed.": "Renommé.",
+  "Saved form views": "Vues des formulaires enregistrés",
+  "Saves these answers so you can reuse them to start a different form later.": "Enregistre ces réponses pour vous permettre de les réutiliser plus tard dans un autre formulaire.",
+  "Search term (optional)": "Terme de recherche (facultatif)",
+  "Search {heading}": "Rechercher dans {heading}",
+  "Sending...": "Envoi en cours...",
+  "Sent": "Envoyé",
+  "Sorry, these answers couldn't be copied right now. Try starting a new form instead.": "Ces réponses n’ont pas pu être copiées pour le moment. Essayez plutôt de commencer un nouveau formulaire.",
+  "Start a new form": "Commencer un nouveau formulaire",
+  "Untitled interview": "Entretien sans titre",
+  "Use a keyword to find results that match the title or description of a form.": "Utilisez un mot-clé pour trouver des résultats correspondant au titre ou à la description d’un formulaire.",
+  "View": "Voir",
+  "View, delete, or rename your answer sets below. Start a new form to reuse an answer set.": "Consultez, supprimez ou renommez vos jeux de réponses ci-dessous. Commencez un nouveau formulaire pour réutiliser un jeu de réponses.",
+  "an exhibit": "une pièce justificative",
+  "{documents} could not be processed and won't be included. Please try uploading it again before you continue.": "Le document {documents} n’a pas pu être traité et ne sera pas inclus. Essayez de le téléverser à nouveau avant de continuer.",
+  "{documents} could not be processed and won't be included. Please try uploading them again before you continue.": "Les documents {documents} n’ont pas pu être traités et ne seront pas inclus. Essayez de les téléverser à nouveau avant de continuer.",
+  "Signature of {name}": "Signature de {name}",
+  "Page {number}": "Page {number}",
+  "{title} documents": "Documents de {title}",
+  "Email address for document": "Adresse e-mail pour le document",
+  "Loading…": "Chargement…"}

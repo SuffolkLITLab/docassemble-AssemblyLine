@@ -40,7 +40,8 @@ jobs:
         with:
           SHOW_DOCKER_OUTPUT: "${{ github.event.inputs.show_docker_output }}"
           DOCASSEMBLECLI_VERSION: "0.0.25"
-          DOCASSEMBLE_IMAGE: "ghcr.io/suffolklitlab/docassemble:latest"
+          # Match the Docassemble release used for localhost browser verification.
+          DOCASSEMBLE_IMAGE: "jhpyle/docassemble:1.10.12"
       - run: echo "ALKiln finished starting the isolated GitHub docassemble server"
         shell: bash
       - name: Use ALKiln to run tests

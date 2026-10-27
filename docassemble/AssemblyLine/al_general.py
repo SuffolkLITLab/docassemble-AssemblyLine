@@ -1398,6 +1398,31 @@ class ALPeopleList(DAList):
         return self.does_verb(the_verb, past=True, **kwargs)
 
 
+class _SignatureAltText:
+    """Pickle-safe signature label, translated when the file is displayed.
+
+    A DALazyTemplate loses its rendering state between requests and cannot be
+    assigned to a DAFile during signature validation after that round trip.
+    """
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def __str__(self) -> str:
+        label = word("Signature of {name}").format(name=self.name)
+        # Docassemble inserts this into [FILE ...] markup, then JSON-quotes
+        # the alt attribute. Numeric entities keep Unicode, quotes, brackets,
+        # and backslashes intact through both parsers and decode in the DOM.
+        return "".join(
+            (
+                f"&#{ord(char)};"
+                if not char.isascii() or char in '"&<>\\[]\n\r\t'
+                else char
+            )
+            for char in label
+        )
+
+
 class ALIndividual(Individual):
     """
     Used to represent an Individual on the assembly line project.
@@ -1492,6 +1517,14 @@ class ALIndividual(Individual):
             self.initializeAttribute("aliases", ALNameList)
         if not hasattr(self, "preferred_name"):
             self.initializeAttribute("preferred_name", IndividualName)
+
+    def signature_alt_text(self) -> _SignatureAltText:
+        """Return a persistent alt label that follows the current language.
+
+        Returns:
+            _SignatureAltText: A serializable label resolved in the active language.
+        """
+        return _SignatureAltText(self.name_full())
 
     def signature_if_final(self, i: str) -> Union[DAFile, str]:
         """
