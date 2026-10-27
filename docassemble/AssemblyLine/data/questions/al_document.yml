@@ -1,4 +1,7 @@
 ---
+include:
+  - docassemble.ALToolbox:translation_strings.yml
+---
 features:
   javascript:
     - aldocument.js

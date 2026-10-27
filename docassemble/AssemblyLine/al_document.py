@@ -32,6 +32,7 @@ from docassemble.base.util import (
     alpha,
     showifdef,
     word,
+    comma_and_list,
 )
 from docassemble.base.error import DAError
 from docassemble.base.pdfa import pdf_to_pdfa
@@ -2918,7 +2919,7 @@ class ALDocumentBundle(DAList):
         for document in self.enabled_documents():
             if hasattr(document, "broken_exhibits"):
                 for exhibit in document.broken_exhibits():
-                    titles.append(getattr(exhibit, "title", None) or "an exhibit")
+                    titles.append(getattr(exhibit, "title", None) or word("an exhibit"))
             if isinstance(document, ALDocumentBundle):
                 titles.extend(document.broken_exhibit_titles())
         return titles
@@ -2941,12 +2942,16 @@ class ALDocumentBundle(DAList):
         broken_titles = self.broken_exhibit_titles()
         if not broken_titles:
             return ""
-        quoted = [f'"{escape(title)}"' for title in broken_titles]
+        quoted = [f'"{title}"' for title in broken_titles]
         if len(quoted) == 1:
-            message = f"{quoted[0]} could not be processed and won't be included. Please try uploading it again before you continue."
+            message = word(
+                "{documents} could not be processed and won't be included. Please try uploading it again before you continue."
+            ).format(documents=quoted[0])
         else:
-            message = f"{', '.join(quoted[:-1])} and {quoted[-1]} could not be processed and won't be included. Please try uploading them again before you continue."
-        return f'<div class="alert alert-warning" role="alert">{message}</div>'
+            message = word(
+                "{documents} could not be processed and won't be included. Please try uploading them again before you continue."
+            ).format(documents=comma_and_list(quoted))
+        return f'<div class="alert alert-warning" role="alert">{escape(message)}</div>'
 
     def download_list_html(
         self,
@@ -3298,8 +3303,8 @@ class ALDocumentBundle(DAList):
         # Label "email" and input field for the 1st column of the table row
         input_html = f"""
         <span class="al_email_input_container {name} form-group da-field-container da-field-container-datatype-email">
-          <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">Email</label>
-          <input value="{user_info().email if user_logged_in() else ''}" alt="{str(self.email_alt_text)}" class="form-control al_doc_email_field al_button" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
+          <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">{escape(str(self.email_input_label) or word("Email"))}</label>
+          <input value="{user_info().email if user_logged_in() else ''}" alt="{escape(str(self.email_alt_text), quote=True)}" class="form-control al_doc_email_field al_button" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
         </span>
         """
 
@@ -3423,7 +3428,7 @@ class ALDocumentBundle(DAList):
             preferred_formats (Optional[Union[str,List[str]]], optional): A list of allowed formats for the document. Defaults to "pdf" if not specified.
             email_legend_class (str, optional): CSS class applied to the email.
                 section legend. Defaults to "h4".
-            email_label (str, optional): The label for the email input. Defaults to "Email".
+            email_label (str, optional): The plain-text label for the email input (HTML is escaped). Defaults to "Email".
 
         Returns:
             str: The generated HTML string for the input box and button.
@@ -3493,8 +3498,8 @@ class ALDocumentBundle(DAList):
   <div class="al_email_container">
   
     <span class="al_email_address {html_safe_str(self.instanceName)} container form-group row da-field-container da-field-container-datatype-email">
-      <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">{email_label}</label>
-      <input value="{user_info().email if user_logged_in() else ''}" alt="{str(self.email_alt_text)}" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
+      <label for="{al_email_input_id}" class="col-form-label da-form-label datext-right">{escape(str(email_label))}</label>
+      <input value="{user_info().email if user_logged_in() else ''}" alt="{escape(str(self.email_alt_text), quote=True)}" class="form-control" type="email" size="35" name="{al_email_input_id}" id="{al_email_input_id}">
     </span>
     
     {action_button_html(javascript_string, label=label, icon=icon, color="primary", size="md", classname="al_send_email_button", id_tag=al_send_button_id)}

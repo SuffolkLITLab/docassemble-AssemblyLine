@@ -23,6 +23,7 @@ except (SystemExit, ModuleNotFoundError) as ex:
 
 
 class FakeUser:
+    language = "en"
     id = 1
     email = "test@example.com"
     first_name = "Test"
@@ -72,6 +73,7 @@ def render_page(**context):
     template_source += "\n{{ page_title }}"
     env = Environment(autoescape=True)
     env.globals["url_for"] = fake_url_for
+    env.globals["word"] = lambda text: text
     return env.from_string(template_source).render(**context)
 
 
@@ -108,7 +110,13 @@ def base_context(**overrides):
 
 
 # what the template itself does with the data it's handed
-def test_session_view_model_wraps_progress_as_markup():
+@pytest.mark.parametrize(
+    "language", ["en", "es", "spanish", "ht", "zh-Hans", "zh-Hant"]
+)
+def test_session_view_model_wraps_progress_as_markup(monkeypatch, language):
+    from docassemble.base import functions
+
+    monkeypatch.setattr(functions.this_thread, "language", language)
     fake_session = {
         "filename": "docassemble.playground1:test.yml",
         "key": "abc123",
@@ -125,6 +133,8 @@ def test_session_view_model_wraps_progress_as_markup():
     ):
         view_model = endpoint._session_view_model(fake_session)
 
+    assert view_model["date_str"] == "September 14, 2026"
+    assert view_model["time_str"] == "3:05 AM"
     assert view_model["title"] == "Test Interview"
     assert isinstance(view_model["progress_html"], Markup)
     assert str(view_model["progress_html"]) == "<div>30%</div>"
@@ -178,7 +188,7 @@ def test_answer_set_tab_uses_custom_title_and_hides_copy_action():
 
     assert "Reusable answers" in html
     assert "Copy to answer set" not in html
-    assert 'class="al-session-form-title" href=' not in html
+    assert '<a class="al-session-form-title"' not in html
 
 
 def test_custom_logo_settings_are_rendered_and_escaped():
@@ -550,3 +560,27 @@ def test_get_combined_filename_list_applies_exclusions():
         )
 
     assert result == [{"docassemble.playground1:test.yml": "Test Interview"}]
+
+
+def test_loading_message_preserves_translation_and_escapes_attribute():
+    from html.parser import HTMLParser
+
+    class LoadingLinks(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.links = []
+
+        def handle_starttag(self, tag, attrs):
+            attributes = dict(attrs)
+            if tag == "a" and attributes.get("class") == "al-session-form-title":
+                self.links.append(attributes)
+
+    translated = 'Cargando… " <script> &'
+    html = render_page(
+        **base_context(sessions=[make_view_model()], loading_message=translated)
+    )
+    parser = LoadingLinks()
+    parser.feed(html)
+    assert len(parser.links) == 1
+    assert parser.links[0]["data-loading-message"] == translated
+    assert "<script>" not in html
