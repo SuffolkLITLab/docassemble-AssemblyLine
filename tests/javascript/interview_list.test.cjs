@@ -45,7 +45,7 @@ test("first click navigates once while repeated clicks show one waiting message"
       link.click();
       return { busy: link.getAttribute("aria-busy"), disabled: link.getAttribute("aria-disabled"),
         statuses: document.querySelectorAll('[role="status"]').length,
-        message: link.nextElementSibling.textContent.trim() };
+        message: document.querySelector("dialog:modal").textContent.trim() };
     });
     assert.deepEqual(state, { busy: "true", disabled: "true", statuses: 1, message: "Cargando…" });
     await page.waitForURL("https://example.test/form");
@@ -113,4 +113,17 @@ test("cancelled navigation unlocks the saved form so it can be retried", async (
   await page.keyboard.press("Enter");
   assert.equal(clicks, 2);
   assert.equal(await page.locator(".al-session-loading-status").count(), 1);
+});
+
+
+test("Escape dismisses the modal and restores keyboard focus for retry", async (t) => {
+  const page = await fixture(t);
+  await page.evaluate(() => document.addEventListener("click", event => event.preventDefault()));
+  await page.locator("a").first().focus();
+  await page.keyboard.press("Enter");
+  assert.equal(await page.locator("dialog:modal").count(), 1);
+  await page.keyboard.press("Escape");
+  assert.equal(await page.locator("dialog").count(), 0);
+  assert.equal(await page.locator("a").first().getAttribute("aria-busy"), null);
+  assert.equal(await page.locator("a").first().evaluate(el => el === document.activeElement), true);
 });

@@ -8,9 +8,10 @@
     link.classList.remove("al-session-loading");
     link.removeAttribute("aria-disabled");
     link.removeAttribute("aria-busy");
-    var status = link.nextElementSibling;
-    if (status && status.classList.contains("al-session-loading-status")) {
-      status.remove();
+    if (link.alSessionLoadingDialog) {
+      link.alSessionLoadingDialog.close();
+      link.alSessionLoadingDialog.remove();
+      delete link.alSessionLoadingDialog;
     }
   }
 
@@ -30,7 +31,10 @@
     link.classList.add("al-session-loading");
     link.setAttribute("aria-disabled", "true");
     link.setAttribute("aria-busy", "true");
-    var status = document.createElement("span");
+    var dialog = document.createElement("dialog");
+    dialog.className = "al-session-loading-dialog";
+    dialog.setAttribute("aria-label", link.dataset.loadingMessage || "Loading…");
+    var status = document.createElement("div");
     status.className = "al-session-loading-status";
     status.setAttribute("role", "status");
     var spinner = document.createElement("i");
@@ -39,7 +43,11 @@
     status.appendChild(spinner);
     status.appendChild(document.createTextNode(" " +
       (link.dataset.loadingMessage || "Loading…")));
-    link.insertAdjacentElement("afterend", status);
+    dialog.appendChild(status);
+    document.body.appendChild(dialog);
+    link.alSessionLoadingDialog = dialog;
+    dialog.addEventListener("cancel", function () { resetLink(link); });
+    dialog.showModal();
     // Stop/Escape or a cancelled navigation may leave this document in place
     // without another pageshow event. Allow retrying after the initial wait.
     link.alSessionLoadingTimer = window.setTimeout(function () {
