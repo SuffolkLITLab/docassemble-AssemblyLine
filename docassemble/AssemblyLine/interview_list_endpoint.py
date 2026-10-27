@@ -6,7 +6,6 @@ from flask import request, redirect, url_for, flash, render_template_string
 from flask_login import login_required, current_user
 from flask_wtf.csrf import generate_csrf
 from markupsafe import Markup
-from docassemble.base.util import format_date, format_time
 from docassemble.webapp.translations import setup_translation
 
 try:
@@ -131,8 +130,9 @@ def _session_view_model(s):
         "filename": s["filename"],
         "session_key": s["key"],
         "url": interview_url(i=s["filename"], session=s["key"], style="full"),
-        "date_str": format_date(modtime, format="long"),
-        "time_str": format_time(modtime, format="short"),
+        # Account language is free text and may not identify a Babel locale.
+        "date_str": modtime.strftime("%B %-d, %Y"),
+        "time_str": modtime.strftime("%-I:%M %p"),
         # radial_progress() returns HTML we generate ourselves, so it's
         # wrapped in Markup to skip escaping. Everything else here is plain text and gets Jinja's normal autoescaping.
         "progress_html": Markup(radial_progress(s)),

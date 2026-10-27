@@ -13,7 +13,6 @@ from docassemble.base.util import (
     DAList,
     DAObject,
     DASet,
-    format_time,
     get_config,
     get_language,
     get_default_timezone,
@@ -1016,6 +1015,8 @@ def interview_list_html(
         # Never display the current interview session
         if answer.get("key") == current_context().session:
             continue
+        # Avoid Babel locale lookup for free-text or unsupported languages.
+        modtime = as_datetime(answer.get("modtime"))
         table += """<tr class="al-saved-answer-table-row">"""
         if view_only:
             table += f"""
@@ -1026,7 +1027,7 @@ def interview_list_html(
             <td class="text-break"><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a></td>
             """
         table += f"""
-        <td>{ as_datetime(answer.get("modtime")) }</td>
+        <td>{ modtime.strftime("%B %-d, %Y") }</td>
         <td>{escape(word("Page {number}").format(number=answer.get("steps") or answer.get("num_keys")))}</td>
         """
         if display_interview_title:
@@ -1396,6 +1397,8 @@ def session_list_html(
             ]
         )
 
+        # Avoid Babel locale lookup for free-text or unsupported languages.
+        modtime = local_date(answer.get("modtime"))
         table += """<tr class="al-saved-answer-table-row">"""
         if show_title:
             table += f"""
@@ -1413,8 +1416,8 @@ def session_list_html(
             """
         table += f"""
         <td>
-            <span class="al-session-date-modified">{ local_date(answer.get("modtime")) }</span> <br/>
-            <span class="al-session-time-modified">{ format_time(local_date(answer.get("modtime")).time(), format="h:mm a") }</span>
+            <span class="al-session-date-modified">{ modtime.strftime("%B %-d, %Y") }</span> <br/>
+            <span class="al-session-time-modified">{ modtime.strftime("%-I:%M %p") }</span>
         </td>
         <td class="al-progress-box">{ radial_progress(answer) }
         </td>

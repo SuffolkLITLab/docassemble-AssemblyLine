@@ -110,7 +110,13 @@ def base_context(**overrides):
 
 
 # what the template itself does with the data it's handed
-def test_session_view_model_wraps_progress_as_markup():
+@pytest.mark.parametrize(
+    "language", ["en", "es", "spanish", "ht", "zh-Hans", "zh-Hant"]
+)
+def test_session_view_model_wraps_progress_as_markup(monkeypatch, language):
+    from docassemble.base import functions
+
+    monkeypatch.setattr(functions.this_thread, "language", language)
     fake_session = {
         "filename": "docassemble.playground1:test.yml",
         "key": "abc123",
@@ -127,6 +133,8 @@ def test_session_view_model_wraps_progress_as_markup():
     ):
         view_model = endpoint._session_view_model(fake_session)
 
+    assert view_model["date_str"] == "September 14, 2026"
+    assert view_model["time_str"] == "3:05 AM"
     assert view_model["title"] == "Test Interview"
     assert isinstance(view_model["progress_html"], Markup)
     assert str(view_model["progress_html"]) == "<div>30%</div>"
