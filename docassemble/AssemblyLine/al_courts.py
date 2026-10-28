@@ -564,7 +564,10 @@ class ALCourtLoader(DAObject):
                 the search_string in a case-insensitive manner. Defaults to None.
 
             filters (Optional[Dict[str, Union[List[str], str]]]): Additional exact matches by
-                column. All columns must match; a list matches any value in that column.
+                column. Values must be strings or lists of strings. All columns must
+                match; a list matches any value in that column. An empty list matches
+                no courts. An empty mapping adds no restrictions. Unlike court_types,
+                an empty string is an exact match, not an omitted filter.
 
         Returns:
             List[Tuple[int, str]]: List of tuples where each tuple contains (dataframe_index, display_value). The dataframe_index (int) can be used with as_court() to retrieve the full court object. The display_value (str) is the court's name or other display column value.
@@ -595,16 +598,11 @@ class ALCourtLoader(DAObject):
             if isinstance(matches, str):
                 matches = [matches]
             filtered = filtered[filtered[filter_column].isin(matches)]
-        if search_string and search_columns:
+        if search_string and search_columns and not filtered.empty:
             if isinstance(search_columns, str):
                 search_columns = [search_columns]
-            filtered = filtered.copy()
-            filtered["__search_col"] = (
-                filtered[search_columns].fillna("").agg(" ".join, axis=1)
-            )
-            filtered = filtered[
-                filtered["__search_col"].str.contains(search_string, case=False)
-            ]
+            search_values = filtered[search_columns].fillna("").agg(" ".join, axis=1)
+            filtered = filtered[search_values.str.contains(search_string, case=False)]
         return list(filtered[display_column].items())  # type: ignore
 
     def as_court(
