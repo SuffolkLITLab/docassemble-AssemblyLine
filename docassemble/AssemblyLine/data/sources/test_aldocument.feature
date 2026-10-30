@@ -4,6 +4,7 @@ Feature: ALDocument classes
 @aldocs @d1
 Scenario: No ALDocument page errors
   And the max seconds for each step is 200
+  And I log in with "DA_ADMIN_EMAIL" and "DA_ADMIN_PASSWORD"
   Given I start the interview at "test_aldocument"
   And I get to "end aldocument tests" with this data:
     | var | value | trigger |
@@ -21,6 +22,7 @@ Scenario: No ALDocument page errors
 @alexhibits @e1
 Scenario: User can upload exhibits
   And the max seconds for each step is 200
+  And I log in with "DA_ADMIN_EMAIL" and "DA_ADMIN_PASSWORD"
   Given I start the interview at "test_alexhibit"
   And I get to "exhibit i" with this data:
     | var | value | trigger |
@@ -61,6 +63,7 @@ Scenario: User can upload exhibits
 @alexhibits @e2
 Scenario: User adds only a docx exhibit
   And the max seconds for each step is 200
+  And I log in with "DA_ADMIN_EMAIL" and "DA_ADMIN_PASSWORD"
   Given I start the interview at "test_alexhibit"
   And I get to "end alexhibit tests" with this data:
     | var | value | trigger |
@@ -78,6 +81,7 @@ Scenario: User adds only a docx exhibit
 @alexhibits @e3
 Scenario: User uploads 0 files
   And the max seconds for each step is 200
+  And I log in with "DA_ADMIN_EMAIL" and "DA_ADMIN_PASSWORD"
   Given I start the interview at "test_alexhibit"
   And I get to "end alexhibit tests" with this data:
     | var | value | trigger |

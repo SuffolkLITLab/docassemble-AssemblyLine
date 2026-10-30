@@ -4,6 +4,7 @@ Feature: AL question library
 @alql @ql1
 Scenario: Can enter all parts of address
   Given the max seconds for each step is 50
+  And I log in with "DA_ADMIN_EMAIL" and "DA_ADMIN_PASSWORD"
   And I start the interview at "test_question_library"
   Then I set the variable "which_to_test" to "address"
   And I tap to continue
@@ -20,6 +21,7 @@ Scenario: Can enter all parts of address
 @alql @ql2
 Scenario: Can say no address available
   Given the max seconds for each step is 50
+  And I log in with "DA_ADMIN_EMAIL" and "DA_ADMIN_PASSWORD"
   And I start the interview at "test_question_library"
   Then I set the variable "which_to_test" to "address_no_address"
   And I tap to continue
@@ -33,6 +35,7 @@ Scenario: Can say no address available
 @alq1 @ql3
 Scenario: Can enter all parts of contact info
   Given the max seconds for each step is 50
+  And I log in with "DA_ADMIN_EMAIL" and "DA_ADMIN_PASSWORD"
   And I start the interview at "test_question_library"
   Then I set the variable "which_to_test" to "contact"
   And I tap to continue
