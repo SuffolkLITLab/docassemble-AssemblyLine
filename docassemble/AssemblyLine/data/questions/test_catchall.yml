@@ -1,4 +1,9 @@
 ---
+metadata:
+  required privileges:
+    - admin
+    - developer
+---
 include:
   - assembly_line.yml
   - ql_catchall.yml

@@ -3,6 +3,11 @@
 # Test instructions stay in English; the controls and phrase gallery use word().
 # Email delivery is simulated by TranslationTestBundle; no email is sent.
 ---
+metadata:
+  required privileges:
+    - admin
+    - developer
+---
 include:
   - assembly_line.yml
 ---
