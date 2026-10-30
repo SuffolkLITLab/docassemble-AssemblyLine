@@ -24,7 +24,7 @@ description so reviewers can distinguish them from the implementation change.
    A locally running server is ideal. Automated unit tests or AI assurances alone
    are not enough. Describe the environment, steps, expected behavior, and actual
    result in your PR, including any relevant generated documents.
-3. **Include detailed screenshot evidence.** Show the affected steps and final
+3. **Include detailed screenshot evidence that uses fictional test data.** Show the affected steps and final
    result, with captions explaining what each screenshot demonstrates. For a bug
    fix or visual change, include before-and-after screenshots where practical.
    Prefer a linked secret gist to keep the PR readable; screenshots attached to
