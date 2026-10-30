@@ -1,4 +1,9 @@
 ---
+metadata:
+  required privileges:
+    - admin
+    - developer
+---
 include:
   - al_package.yml
 ---
