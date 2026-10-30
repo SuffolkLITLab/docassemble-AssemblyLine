@@ -93,6 +93,7 @@ __all__ = [
     "get_saved_interview_list",
     "interview_list_html",
     "is_session_owned_by_user",
+    "current_user_can_use_session",
     "is_file_like",
     "is_valid_json",
     "load_interview_answers",
@@ -438,6 +439,15 @@ def is_session_owned_by_user(filename: str, session_id: str, user_id: int) -> bo
             ).fetchone()
             is not None
         )
+
+
+def current_user_can_use_session(filename: str, session_id: str) -> bool:
+    """Admins and developers can use any session, everyone else only their own"""
+    if user_has_privilege(["admin", "developer"]):
+        return True
+    if not user_logged_in():
+        return False
+    return is_session_owned_by_user(filename, session_id, user_info().id)
 
 
 def get_saved_interview_list(
