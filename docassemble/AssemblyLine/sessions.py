@@ -1021,11 +1021,11 @@ def interview_list_html(
         table += """<tr class="al-saved-answer-table-row">"""
         if view_only:
             table += f"""
-            <td>{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</td>
+            <td>{ escape(nice_interview_subtitle(answer) or nice_interview_title(answer)) }</td>
             """
         else:
             table += f"""
-            <td class="text-break"><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a></td>
+            <td class="text-break"><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }">{ escape(nice_interview_subtitle(answer) or nice_interview_title(answer)) }</a></td>
             """
         table += f"""
         <td>{ modtime.strftime("%B %-d, %Y") }</td>
@@ -1404,15 +1404,15 @@ def session_list_html(
         if show_title:
             table += f"""
             <td class="text-break">
-            <a class="al-session-form-title" data-loading-message="{ escape(word("Loading…"), quote=True) }" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_title(answer) }</a>
+            <a class="al-session-form-title" data-loading-message="{ escape(word("Loading…"), quote=True) }" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ escape(nice_interview_title(answer)) }</a>
             {"<br/>" if nice_interview_subtitle(answer) else ""}
-            <span class="al-session-form-subtitle">{ nice_interview_subtitle(answer) if nice_interview_subtitle(answer) else "" }</span>
+            <span class="al-session-form-subtitle">{ escape(nice_interview_subtitle(answer)) }</span>
             </td>
             """
         else:
             table += f"""
             <td class="text-break">
-            <a class="al-session-form-title" data-loading-message="{ escape(word("Loading…"), quote=True) }" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a>
+            <a class="al-session-form-title" data-loading-message="{ escape(word("Loading…"), quote=True) }" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ escape(nice_interview_subtitle(answer) or nice_interview_title(answer)) }</a>
             </td>
             """
         table += f"""
