@@ -603,6 +603,9 @@ def get_saved_interview_list(
     return sessions
 
 
+_ALLOWED_FILTER_OPERATORS = {"=", "!=", "<", "<=", ">", ">=", "LIKE", "ILIKE"}
+
+
 def find_matching_sessions(
     keyword: str,
     metadata_column_names: Optional[Union[Set[str], List[str]]] = None,
@@ -671,6 +674,10 @@ def find_matching_sessions(
     """
     if not metadata_column_names:
         metadata_column_names = {"title", "auto_title", "description"}
+    # Column names are written into the query text, so only allow plain names
+    for column in set(metadata_column_names) | set(metadata_filters or {}):
+        if not re.fullmatch(r"[A-Za-z0-9_]+", str(column)):
+            raise ValueError(f"Not a valid metadata column name: {column!r}")
     if not global_search_allowed_roles:
         global_search_allowed_roles = {"admin", "developer", "advocate"}
     global_search_allowed_roles = set(global_search_allowed_roles).union(
@@ -695,6 +702,10 @@ def find_matching_sessions(
                 cast_type = None
             else:
                 value, operator, cast_type = val_tuple
+            if operator.upper() not in _ALLOWED_FILTER_OPERATORS:
+                raise ValueError(f"Not a valid filter operator: {operator!r}")
+            if cast_type not in (None, "int", "float"):
+                raise ValueError(f"Not a valid filter type: {cast_type!r}")
             if cast_type:
                 column_expr = f"CAST(jsonstorage.data->>{repr(column)} AS {cast_type})"
             else:
