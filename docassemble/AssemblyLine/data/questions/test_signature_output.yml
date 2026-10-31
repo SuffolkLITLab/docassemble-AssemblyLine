@@ -1,4 +1,9 @@
 ---
+metadata:
+  required privileges:
+    - admin
+    - developer
+---
 # Run docassemble.AssemblyLine:test_signature_output.yml on a docassemble server.
 # Choose typed, drawn (this device or phone), or sign after printing, then
 # compare the final and unsigned preview documents. Restart for another choice.

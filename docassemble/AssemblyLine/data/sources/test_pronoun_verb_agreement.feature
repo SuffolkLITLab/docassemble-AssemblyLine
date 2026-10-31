@@ -4,6 +4,7 @@ Feature: Pronoun and verb agreement
 @pronouns @pronouns1
 Scenario: Fixed pronoun and verb agreement checks all pass
   Given the max seconds for each step is 50
+  And I log in with "DA_ADMIN_EMAIL" and "DA_ADMIN_PASSWORD"
   And I start the interview at "test_pronoun_verb_agreement"
   Then I should see the phrase "All 35 checks passed."
   And I should see the phrase "Alex Smith lives in Boston. They live near the park."
@@ -12,6 +13,7 @@ Scenario: Fixed pronoun and verb agreement checks all pass
 @pronouns @pronouns2
 Scenario: A they/them person agrees with the name or the pronoun
   Given the max seconds for each step is 50
+  And I log in with "DA_ADMIN_EMAIL" and "DA_ADMIN_PASSWORD"
   And I start the interview at "test_pronoun_verb_agreement"
   And I tap to continue
   And I set the variable "subject.name.first" to "Taylor"
@@ -29,6 +31,7 @@ Scenario: A they/them person agrees with the name or the pronoun
 @pronouns @pronouns3
 Scenario: A person with nothing to go on agrees with the name
   Given the max seconds for each step is 50
+  And I log in with "DA_ADMIN_EMAIL" and "DA_ADMIN_PASSWORD"
   And I start the interview at "test_pronoun_verb_agreement"
   And I tap to continue
   And I set the variable "subject.name.first" to "Riley"

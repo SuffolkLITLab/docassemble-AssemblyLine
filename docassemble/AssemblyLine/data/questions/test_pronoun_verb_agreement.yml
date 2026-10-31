@@ -1,5 +1,10 @@
 ---
 metadata:
+  required privileges:
+    - admin
+    - developer
+---
+metadata:
   title: Test pronoun and verb agreement
   short title: Pronoun agreement
 comment: |

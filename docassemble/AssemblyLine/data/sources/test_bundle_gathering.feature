@@ -4,6 +4,7 @@ Feature: ALDocument bundle gathering
 @bundle-gathering
 Scenario: Bundle helpers respect gathering state and current membership
   And the max seconds for each step is 200
+  And I log in with "DA_ADMIN_EMAIL" and "DA_ADMIN_PASSWORD"
   Given I start the interview at "test_bundle_gathering"
   And I set the variable "include_second_document" to "True"
   And I tap to continue

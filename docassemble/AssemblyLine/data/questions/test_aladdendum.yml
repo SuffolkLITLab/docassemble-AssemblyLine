@@ -1,4 +1,9 @@
 ---
+metadata:
+  required privileges:
+    - admin
+    - developer
+---
 comment: |
   File to informally test the addendum class interactively. Does not have full coverage.
 ---
