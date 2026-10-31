@@ -109,7 +109,6 @@ def test_copy_action_prompts_saves_and_can_be_repeated(nested_assembly):
         user_dict.update(
             save_interview_answers=save_answers,
             action_argument=arguments.get,
-            current_user_can_use_session=lambda filename, session_id: True,
         )
         for title in ["First copy", "Second copy"]:
             user_dict.pop("al_sessions_copy_as_answer_set_label", None)
