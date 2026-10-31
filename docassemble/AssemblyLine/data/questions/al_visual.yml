@@ -230,7 +230,22 @@ code: |
   github_about_user = github_user
 ---
 code: |
+  from docassemble.base.functions import package_question_filename
+  from docassemble.base.error import DAInvalidFilename
+  from os.path import isfile
+
   feedback_form = "docassemble.AssemblyLine:feedback.yml"
+  # Playground questions use a separate file store. Authors can still override
+  # package_name with an installed package, or set feedback_form explicitly.
+  if package_name and not package_name.startswith("docassemble.playground"):
+    _al_local_feedback = f"{package_name}:feedback.yml"
+    try:
+      _al_feedback_path = package_question_filename(_al_local_feedback)
+    except DAInvalidFilename:
+      # package_name may be overridden or be "None" for unpackaged interviews.
+      _al_feedback_path = None
+    if isfile(_al_feedback_path or ""):
+      feedback_form = _al_local_feedback
 ---
 default screen parts:
   under: |
