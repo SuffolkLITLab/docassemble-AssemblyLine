@@ -39,8 +39,8 @@ description so reviewers can distinguish them from the implementation change.
 
 ## Make the change easy to reproduce
 
-Prefer including a small, runnable **docassemble test interview YAML file** that
-demonstrates the affected behavior. Include any required supporting files,
+In your PR comment, include a small, runnable **docassemble test interview YAML** code snippet that
+demonstrates the affected behavior if possible. Include any code from required supporting files,
 instructions for launching the interview, sample inputs, and the expected result.
 For a bug fix, explain how the interview exposes the original problem and confirms
 the fix. Include relevant automated tests and their results as well.
