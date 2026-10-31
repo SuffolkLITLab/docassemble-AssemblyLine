@@ -1108,3 +1108,51 @@ class test_get_visible_al_nav_items(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestNameAndAddressBlock(unittest.TestCase):
+    def test_both_rendering_contexts_and_confidentiality(self):
+        import docassemble.base.functions
+
+        person = ALIndividual("person")
+        person.name.first = "Alex"
+        person.name.middle = ""
+        person.name.last = "Rivera"
+        person.name.suffix = ""
+        person.address.address = "123 Main Street"
+        person.address.unit = ""
+        person.address.city = "Boston"
+        person.address.state = "MA"
+        person.address.zip = "02108"
+        person.address.country = "US"
+        for context, separator in [("docx", "<w:br/>"), ("pdf", "[NEWLINE]")]:
+            with self.subTest(context=context), patch.object(
+                docassemble.base.functions.this_thread, "evaluation_context", context
+            ):
+                result = person.address_block()
+                self.assertIn("Alex Rivera", result)
+                self.assertIn("123 Main Street", result)
+                self.assertIn(separator, result)
+                self.assertNotIn("Alex Rivera", person.address.block())
+                person.address.impounded = True
+                person.address.impounded_output_label = "Confidential"
+                self.assertIn("Confidential", person.address_block())
+                self.assertNotIn("123 Main Street", person.address_block())
+                self.assertIn(
+                    "123 Main Street", person.address_block(show_impounded=True)
+                )
+                person.address.impounded = False
+
+    def test_plain_address_does_not_receive_al_options(self):
+        from docassemble.base.util import Address
+
+        person = ALIndividual("person")
+        person.name_full = Mock(return_value="Alex Rivera")
+        person.address = Address("plain_address")
+        person.address.block = Mock(return_value="123 Main Street")
+        self.assertIn(
+            "Alex Rivera", person.address_block(bare=True, show_impounded=True)
+        )
+        person.address.block.assert_called_once_with(
+            language=None, international=False, show_country=False
+        )
