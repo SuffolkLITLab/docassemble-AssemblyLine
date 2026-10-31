@@ -442,7 +442,15 @@ def is_session_owned_by_user(filename: str, session_id: str, user_id: int) -> bo
 
 
 def current_user_can_use_session(filename: str, session_id: str) -> bool:
-    """Admins and developers can use any session, everyone else only their own"""
+    """Admins and developers can use any session, everyone else only their own.
+
+    Args:
+        filename (str): The interview filename the session belongs to.
+        session_id (str): The id of the session.
+
+    Returns:
+        bool: True if the current user may use that session.
+    """
     if user_has_privilege(["admin", "developer"]):
         return True
     if not user_logged_in():
