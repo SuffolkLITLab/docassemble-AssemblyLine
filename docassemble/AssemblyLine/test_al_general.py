@@ -1,14 +1,68 @@
 # do not pre-load
 
+import importlib
 import unittest
-from .al_general import ALIndividual, ALAddress, get_visible_al_nav_items
+from .al_general import ALIndividual, ALAddress, ALPeopleList, get_visible_al_nav_items
 from unittest.mock import Mock, patch
 from docassemble.base.util import DADict
 from docassemble.base.functions import value as da_value
 
 
+def _patch_this_thread(testcase, thread, *targets):
+    """Patch `this_thread` wherever the installed docassemble version defines it;
+    newer versions moved some of it into `docassemble.base.language`. Fails if
+    none of the targets exist, so a docassemble upgrade can't silently skip it."""
+    patched = 0
+    for target in targets:
+        module_name, attribute = target.rsplit(".", 1)
+        try:
+            module = importlib.import_module(module_name)
+        except ImportError:
+            continue
+        if not hasattr(module, attribute):
+            continue
+        patcher = patch(target, thread)
+        patcher.start()
+        testcase.addCleanup(patcher.stop)
+        patched += 1
+    if not patched:
+        raise AssertionError(f"None of {targets} exist to patch")
+
+
+def _mock_thread():
+    """A stand-in for docassemble's `this_thread` with an English, US context."""
+    thread = Mock()
+    thread.language = "en"
+    thread.country = "US"
+    thread.gathering_mode = {}
+    thread.evaluation_context = None
+    thread.misc = {}
+    # A distinct user object, so test individuals aren't treated as the user
+    thread.global_vars.user = Mock()
+    return thread
+
+
+_THIS_THREAD_TARGETS = (
+    "docassemble.base.functions.this_thread",
+    "docassemble.base.util.this_thread",
+    "docassemble.base.language.core.this_thread",
+    "docassemble.base.language.control.this_thread",
+    "docassemble.base.language.currency.this_thread",
+    "docassemble.base.language.language_en.this_thread",
+    "docassemble.base.language.numbers.this_thread",
+    "docassemble.base.language.words.this_thread",
+)
+
+
 class test_aladdress(unittest.TestCase):
     def setUp(self):
+        self.this_thread = _mock_thread()
+        _patch_this_thread(self, self.this_thread, *_THIS_THREAD_TARGETS)
+        get_config_patcher = patch(
+            "docassemble.AssemblyLine.al_general.get_config", return_value={}
+        )
+        get_config_patcher.start()
+        self.addCleanup(get_config_patcher.stop)
         self.addr = ALAddress()
 
     def test_empty_is_empty(self):
@@ -72,19 +126,42 @@ class test_aladdress(unittest.TestCase):
         self.addr.room = "101"
         self.assertEqual(self.addr.formatted_unit(), "Room 101")
 
+    @patch("docassemble.AssemblyLine.al_general.get_country", return_value="US")
+    @patch("docassemble.base.util.get_country", return_value="US")
+    def test_line_two_show_country(self, mock_base_get_country, mock_al_get_country):
+        addr = ALAddress(city="Boston", state="MA", zip="02108")
+        # No country attribute set: omitted by default, falls back to default country when show_country=True
+        self.assertEqual(addr.line_two(), "Boston, MA 02108")
+        self.assertEqual(
+            addr.line_two(show_country=True), "Boston, MA 02108, United States"
+        )
+        self.assertEqual(addr.line_two(show_country=False), "Boston, MA 02108")
+
+        # Country matches server default ("US"): omitted when show_country is None
+        addr.country = "US"
+        self.assertEqual(addr.line_two(), "Boston, MA 02108")
+        self.assertEqual(
+            addr.line_two(show_country=True), "Boston, MA 02108, United States"
+        )
+        self.assertEqual(addr.line_two(show_country=False), "Boston, MA 02108")
+
+        # Non-default country ("CA"): included when show_country is None or True, omitted when False
+        intl_addr = ALAddress(
+            city="Toronto", state="ON", postal_code="M5V 2T6", country="CA"
+        )
+        self.assertEqual(intl_addr.line_two(), "Toronto, ON M5V 2T6, Canada")
+        self.assertEqual(
+            intl_addr.line_two(show_country=True), "Toronto, ON M5V 2T6, Canada"
+        )
+        self.assertEqual(intl_addr.line_two(show_country=False), "Toronto, ON M5V 2T6")
+
 
 class TestALIndividual(unittest.TestCase):
     def setUp(self):
         self.individual = ALIndividual()
 
-        # Creating a mock object for this_thread
-        self.this_thread = Mock()
-
-        # Mocking this_thread.global_vars.user as a distinct object
-        self.this_thread.global_vars.user = Mock()
-
-        # Assigning this_thread to self.individual
-        self.individual.this_thread = self.this_thread
+        self.this_thread = _mock_thread()
+        _patch_this_thread(self, self.this_thread, *_THIS_THREAD_TARGETS)
 
         self.individual.name.first = "John"
 
@@ -434,6 +511,162 @@ class TestALIndividual(unittest.TestCase):
             self.individual.pronoun_possessive(item, capitalize=True),
             "John Smith's fish",
         )
+
+        # When default is a possessive pronoun, should NOT append apostrophe-s (e.g. "their fish", not "their's fish")
+        self.assertEqual(
+            self.individual.pronoun_possessive(item, default="their"),
+            "their fish",
+        )
+        self.assertEqual(
+            self.individual.pronoun_possessive(item, default="their", capitalize=True),
+            "Their fish",
+        )
+        self.assertEqual(
+            self.individual.pronoun_possessive(item, default="our"),
+            "our fish",
+        )
+
+    def _pronouns(self, *selected):
+        return DADict(
+            auto_gather=False,
+            gathered=True,
+            elements={
+                key: key in selected
+                for key in ("they/them/theirs", "he/him/his", "she/her/hers")
+            },
+        )
+
+    def test_does_verb_and_did_verb(self):
+        self.individual.name.first = "Alex"
+        self.individual.name.last = "Smith"
+
+        # By default the verb agrees with the name, which is singular
+        self.individual.pronouns = self._pronouns("they/them/theirs")
+        self.assertEqual(self.individual.does_verb("survive"), "survives")
+        self.assertEqual(self.individual.does_verb("be"), "is")
+        self.assertEqual(self.individual.did_verb("be"), "was")
+        self.assertEqual(self.individual.does_verb("be", past=True), "was")
+
+        # After a pronoun, singular they takes a plural verb
+        self.assertEqual(self.individual.does_verb("survive", pronoun=True), "survive")
+        self.assertEqual(self.individual.does_verb("do", pronoun=True), "do")
+        self.assertEqual(self.individual.does_verb("be", pronoun=True), "are")
+        self.assertEqual(
+            self.individual.does_verb("be", pronoun=True, capitalize=True), "Are"
+        )
+        self.assertEqual(self.individual.did_verb("be", pronoun=True), "were")
+        self.assertEqual(
+            self.individual.does_verb("be", pronoun=True, past=True), "were"
+        )
+        self.assertEqual(self.individual.did_verb("survive", pronoun=True), "survived")
+
+        # He and she stay singular after the pronoun
+        for selected in ("he/him/his", "she/her/hers"):
+            self.individual.pronouns = self._pronouns(selected)
+            self.assertEqual(
+                self.individual.does_verb("survive", pronoun=True), "survives"
+            )
+            self.assertEqual(self.individual.does_verb("do", pronoun=True), "does")
+            self.assertEqual(self.individual.does_verb("be", pronoun=True), "is")
+            self.assertEqual(self.individual.did_verb("be", pronoun=True), "was")
+
+        # Custom pronouns use the subjective form
+        self.individual.pronouns = "them/they/their"
+        self.assertEqual(self.individual.does_verb("be", pronoun=True), "are")
+        self.individual.pronouns = "xem/xe/xyr"
+        self.assertEqual(self.individual.does_verb("be", pronoun=True), "is")
+
+    def test_does_verb_without_pronouns(self):
+        # No pronouns or gender: pronoun_subjective() falls back to the name
+        self.individual.pronouns = None
+        self.assertEqual(self.individual.does_verb("live"), "lives")
+        self.assertEqual(self.individual.does_verb("live", pronoun=True), "lives")
+        self.assertEqual(self.individual.did_verb("be", pronoun=True), "was")
+
+        # Gender without pronouns
+        self.individual.gender = "nonbinary"
+        self.assertEqual(self.individual.does_verb("live", pronoun=True), "live")
+        self.assertEqual(self.individual.does_verb("live"), "lives")
+        self.individual.gender = "female"
+        self.assertEqual(self.individual.does_verb("live", pronoun=True), "lives")
+
+    def test_does_verb_self_described_not_needed_by_default(self):
+        self.individual.pronouns = DADict(
+            auto_gather=False,
+            gathered=True,
+            elements={"self-described": True},
+        )
+        # pronouns_self_described is undefined; name agreement must not read it
+        self.assertEqual(self.individual.does_verb("live"), "lives")
+
+    def test_does_verb_explicit_person(self):
+        self.individual.pronouns = self._pronouns("they/them/theirs")
+        self.assertEqual(
+            self.individual.does_verb("be", person="2p", past=True), "were"
+        )
+        self.assertEqual(
+            self.individual.does_verb("be", person="1p", past=True), "were"
+        )
+        self.assertEqual(
+            self.individual.does_verb("be", person="1", pronoun=True), "am"
+        )
+        self.assertEqual(
+            self.individual.did_verb("be", person="1", pronoun=True), "was"
+        )
+
+    def _person(self, first, *pronouns):
+        person = ALIndividual()
+        person.name.first = first
+        person.pronouns = self._pronouns(*pronouns)
+        return person
+
+    def _people(self, *people):
+        plist = ALPeopleList(auto_gather=False, gathered=True)
+        for person in people:
+            plist.append(person)
+        return plist
+
+    def test_does_verb_business_and_point_of_view(self):
+        # A business is "it", which takes a singular verb
+        self.individual.pronouns = None
+        self.individual.person_type = "business"
+        self.assertEqual(self.individual.does_verb("live", pronoun=True), "lives")
+
+        # The user is "you" after a pronoun, whatever their pronouns
+        self.this_thread.global_vars.user = self.individual
+        self.individual.person_type = "individual"
+        self.individual.pronouns = self._pronouns("they/them/theirs")
+        self.assertEqual(self.individual.does_verb("be", pronoun=True), "are")
+        self.assertEqual(self.individual.did_verb("be", pronoun=True), "were")
+
+    def test_pronoun_reflexive_without_usable_pronouns(self):
+        # Pronouns are set, but none of them can be used
+        self.individual.pronouns = "not a pronoun"
+        self.assertEqual(self.individual.pronoun_reflexive(), "themself")
+
+    def test_alpeoplelist_does_verb(self):
+        taylor = self._person("Taylor", "they/them/theirs")
+        jordan = self._person("Jordan", "she/her/hers")
+
+        # Single person with they/them pronouns: name agreement by default
+        plist = self._people(taylor)
+        self.assertEqual(plist.does_verb("survive"), "survives")
+        self.assertEqual(plist.did_verb("be"), "was")
+        self.assertEqual(plist.does_verb("survive", pronoun=True), "survive")
+        self.assertEqual(plist.does_verb("do", pronoun=True), "do")
+        self.assertEqual(plist.did_verb("be", pronoun=True), "were")
+
+        # Single person with she/her pronouns in list
+        plist = self._people(jordan)
+        self.assertEqual(plist.does_verb("survive"), "survives")
+        self.assertEqual(plist.does_verb("survive", pronoun=True), "survives")
+        self.assertEqual(plist.did_verb("be", pronoun=True), "was")
+
+        # Multiple people in list always plural
+        plist = self._people(jordan, taylor)
+        self.assertEqual(plist.does_verb("survive"), "survive")
+        self.assertEqual(plist.does_verb("survive", pronoun=True), "survive")
+        self.assertEqual(plist.did_verb("be"), "were")
 
     def test_pronoun_subjective(self):
         self.individual.pronouns = None

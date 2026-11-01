@@ -33,14 +33,15 @@ jobs:
     runs-on: ubuntu-latest
     name: Run ALKiln tests
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
       - name: "ALKiln - Start the isolated temporary docassemble server on GitHub"
         id: github_server
         uses: suffolkLITLab/ALKiln/action_for_github_server@v5
         with:
           SHOW_DOCKER_OUTPUT: "${{ github.event.inputs.show_docker_output }}"
           DOCASSEMBLECLI_VERSION: "0.0.25"
-          DOCASSEMBLE_IMAGE: "ghcr.io/suffolklitlab/docassemble:latest"
+          # Match the Docassemble release used for localhost browser verification.
+          DOCASSEMBLE_IMAGE: "jhpyle/docassemble:1.10.12"
       - run: echo "ALKiln finished starting the isolated GitHub docassemble server"
         shell: bash
       - name: Use ALKiln to run tests
@@ -51,6 +52,10 @@ jobs:
           SERVER_URL: "${{ steps.github_server.outputs.SERVER_URL }}"
           DOCASSEMBLE_DEVELOPER_API_KEY: "${{ steps.github_server.outputs.DOCASSEMBLE_DEVELOPER_API_KEY }}"
           INSTALL_METHOD: "server"
+          # Pinned: ALKiln 5.17.1 fails file uploads on our docassemble image
+          # (test_aldocument.feature @e1) and treats expected invalid answers as
+          # failures (test_question_library.feature @ql3). Unpin once fixed upstream.
+          ALKILN_VERSION: "5.17.0"
           # To learn more, see https://assemblyline.suffolklitlab.org/docs/alkiln/writing/#optional-inputs
           ALKILN_TAG_EXPRESSION: "${{ env.ALKILN_TAG_EXPRESSION }}"
       - run: echo "Finished running ALKiln tests"

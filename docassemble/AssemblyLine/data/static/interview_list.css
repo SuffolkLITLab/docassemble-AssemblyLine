@@ -25,6 +25,40 @@
   font-weight: bolder;
 }
 
+.al-session-loading {
+  cursor: wait;
+}
+
+.al-session-loading-dialog {
+  width: min(22rem, calc(100% - 2rem));
+  padding: 2rem;
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  border-radius: 0.75rem;
+  background: var(--bs-body-bg, #fff);
+  color: var(--bs-body-color, #212529);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.al-session-loading-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.al-session-loading-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .al-session-loading-status .fa-spin {
+    animation: none;
+  }
+}
+
 .al-icon-btn {
   background: none;
   border: none;

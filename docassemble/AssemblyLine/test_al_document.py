@@ -199,6 +199,19 @@ class TestBundleGatheringSemantics(unittest.TestCase):
         with self.assertRaises(DAAttributeError):
             bundle.has_enabled_documents(refresh=False)
 
+    def test_gathered_none_leaves_marker_missing_for_lazy_gathering(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[],
+            auto_gather=False,
+            gathered=None,
+            enabled=True,
+        )
+
+        self.assertFalse(hasattr(bundle, "gathered"))
+        with self.assertRaises(DAAttributeError):
+            bundle.has_enabled_documents(refresh=False)
+
     def test_auto_gather_runs_before_document_filtering(self):
         for method_name in ("has_enabled_documents", "enabled_documents"):
             events = []

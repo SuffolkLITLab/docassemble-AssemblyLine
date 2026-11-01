@@ -1251,7 +1251,8 @@ signature: x.signature
 under: |
   ${x}
 validation code: |
-  x.signature.alt_text = f"Signature of {x.name_full()}"
+  # Resolve the label at display time, including after a session is restored.
+  x.signature.alt_text = x.signature_alt_text()
 ---
 id: signature date
 question: |
@@ -2665,30 +2666,35 @@ data:
 ---
 generic object: ALDocumentBundle
 template: x.view_label
-content: "View"
+content: |
+  ${ word("View") }
 ---
 generic object: ALDocumentBundle
 template: x.download_label
-content: "Download"
+content: |
+  ${ word("Download") }
 ---
 generic object: ALDocumentBundle
 template: x.send_label
 content: |
-  Send <span class="visually-hidden">${ x.title } documents</span>
+  ${ word("Send") } <span class="visually-hidden">${ word("{title} documents").format(title=x.title) | h }</span>
 ---
 generic object: ALDocumentBundle
 template: x.send_button_to_label
 content: |
-  Send <span class="visually-hidden">${ x.title } documents</span>
+  ${ word("Send") } <span class="visually-hidden">${ word("{title} documents").format(title=x.title) | h }</span>
 ---
 generic object: ALDocumentBundle
 template: x.email_input_label
-content: "Email"
+content: |
+  ${ word("Email") }
 ---
 generic object: ALDocumentBundle
 template: x.email_alt_text
-content: "Email address for document"
+content: |
+  ${ word("Email address for document") }
 ---
 generic object: ALDocument
 template: x.email_alt_text
-content: "Email address for document"
+content: |
+  ${ word("Email address for document") }

@@ -1,4 +1,6 @@
+from html import escape
 from typing import List, Dict, Any, Set, Union, Optional, Tuple
+from html import escape
 from docassemble.base.util import (
     all_variables,
     as_datetime,
@@ -12,7 +14,6 @@ from docassemble.base.util import (
     DAList,
     DAObject,
     DASet,
-    format_time,
     get_config,
     get_language,
     get_default_timezone,
@@ -92,6 +93,7 @@ __all__ = [
     "get_saved_interview_list",
     "interview_list_html",
     "is_session_owned_by_user",
+    "current_user_can_use_session",
     "is_file_like",
     "is_valid_json",
     "load_interview_answers",
@@ -439,6 +441,23 @@ def is_session_owned_by_user(filename: str, session_id: str, user_id: int) -> bo
         )
 
 
+def current_user_can_use_session(filename: str, session_id: str) -> bool:
+    """Admins and developers can use any session, everyone else only their own.
+
+    Args:
+        filename (str): The interview filename the session belongs to.
+        session_id (str): The id of the session.
+
+    Returns:
+        bool: True if the current user may use that session.
+    """
+    if user_has_privilege(["admin", "developer"]):
+        return True
+    if not user_logged_in():
+        return False
+    return is_session_owned_by_user(filename, session_id, user_info().id)
+
+
 def get_saved_interview_list(
     filename: Optional[str] = al_session_store_default_filename,
     user_id: Union[int, str, None] = None,
@@ -602,6 +621,9 @@ def get_saved_interview_list(
     return sessions
 
 
+_ALLOWED_FILTER_OPERATORS = {"=", "!=", "<", "<=", ">", ">=", "LIKE", "ILIKE"}
+
+
 def find_matching_sessions(
     keyword: str,
     metadata_column_names: Optional[Union[Set[str], List[str]]] = None,
@@ -670,6 +692,10 @@ def find_matching_sessions(
     """
     if not metadata_column_names:
         metadata_column_names = {"title", "auto_title", "description"}
+    # Column names are written into the query text, so only allow plain names
+    for column in set(metadata_column_names) | set(metadata_filters or {}):
+        if not re.fullmatch(r"[A-Za-z0-9_]+", str(column)):
+            raise ValueError(f"Not a valid metadata column name: {column!r}")
     if not global_search_allowed_roles:
         global_search_allowed_roles = {"admin", "developer", "advocate"}
     global_search_allowed_roles = set(global_search_allowed_roles).union(
@@ -694,6 +720,10 @@ def find_matching_sessions(
                 cast_type = None
             else:
                 value, operator, cast_type = val_tuple
+            if operator.upper() not in _ALLOWED_FILTER_OPERATORS:
+                raise ValueError(f"Not a valid filter operator: {operator!r}")
+            if cast_type not in (None, "int", "float"):
+                raise ValueError(f"Not a valid filter type: {cast_type!r}")
             if cast_type:
                 column_expr = f"CAST(jsonstorage.data->>{repr(column)} AS {cast_type})"
             else:
@@ -906,17 +936,22 @@ def delete_interview_sessions(
         )
 
 
+def _translated_label(value: Optional[str], default: str) -> str:
+    """Resolve a plain-text label at render time and escape it for HTML."""
+    return escape(str(word(default) if value is None else value))
+
+
 def interview_list_html(
     filename: str = al_session_store_default_filename,
     user_id: Union[int, str, None] = None,
     metadata_key_name: str = "metadata",
     exclude_newly_started_sessions=False,
     # name_label: str = word("Title"),
-    date_label: str = word("Date"),
-    details_label: str = word("Details"),
-    actions_label: str = word("Actions"),
-    delete_label: str = word("Delete"),
-    view_label: str = word("View"),
+    date_label: Optional[str] = None,
+    details_label: Optional[str] = None,
+    actions_label: Optional[str] = None,
+    delete_label: Optional[str] = None,
+    view_label: Optional[str] = None,
     load_action: str = "al_sessions_fast_forward_session",
     delete_action: str = "al_sessions_delete_session",
     view_only: bool = False,
@@ -971,6 +1006,12 @@ def interview_list_html(
     """
     # TODO: Currently, using the `word()` function for translation, but templates
     # might be more flexible
+    date_label = _translated_label(date_label, "Date")
+    details_label = _translated_label(details_label, "Details")
+    actions_label = _translated_label(actions_label, "Actions")
+    delete_label = _translated_label(delete_label, "Delete")
+    view_label = _translated_label(view_label, "View")
+
     if not answers:
         answers = get_saved_interview_list(
             filename=filename,
@@ -1004,18 +1045,20 @@ def interview_list_html(
         # Never display the current interview session
         if answer.get("key") == current_context().session:
             continue
+        # Avoid Babel locale lookup for free-text or unsupported languages.
+        modtime = as_datetime(answer.get("modtime"))
         table += """<tr class="al-saved-answer-table-row">"""
         if view_only:
             table += f"""
-            <td>{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</td>
+            <td>{ escape(nice_interview_subtitle(answer) or nice_interview_title(answer)) }</td>
             """
         else:
             table += f"""
-            <td class="text-break"><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a></td>
+            <td class="text-break"><a href="{ url_action(load_action, i=answer.get("filename"), session=answer.get("key")) }">{ escape(nice_interview_subtitle(answer) or nice_interview_title(answer)) }</a></td>
             """
         table += f"""
-        <td>{ as_datetime(answer.get("modtime")) }</td>
-        <td>{word("Page")} { answer.get("steps") or answer.get("num_keys") }</td>
+        <td>{ modtime.strftime("%B %-d, %Y") }</td>
+        <td>{escape(word("Page {number}").format(number=answer.get("steps") or answer.get("num_keys")))}</td>
         """
         if display_interview_title:
             table += f"""
@@ -1179,7 +1222,11 @@ def radial_progress(answer: Dict[str, Union[str, int]]) -> str:
     ```
     """
     if not answer.get("progress"):
-        return f"{word('Page')} {answer.get('steps') or answer.get('num_keys') or 1}"
+        return escape(
+            word("Page {number}").format(
+                number=answer.get("steps") or answer.get("num_keys") or 1
+            )
+        )
 
     # For simulation purposes, assume a form is complete at page 30
     progress: int = (
@@ -1233,16 +1280,16 @@ def session_list_html(
     exclude_current_filename: bool = True,
     exclude_filenames: Optional[List[str]] = None,
     exclude_newly_started_sessions: bool = False,
-    name_label: str = word("Title"),
-    date_label: str = word("Date modified"),
-    details_label: str = word("Progress"),
-    actions_label: str = word("Actions"),
-    delete_label: str = word("Delete"),
-    rename_label: str = word("Rename"),
+    name_label: Optional[str] = None,
+    date_label: Optional[str] = None,
+    details_label: Optional[str] = None,
+    actions_label: Optional[str] = None,
+    delete_label: Optional[str] = None,
+    rename_label: Optional[str] = None,
     rename_action: str = "interview_list_rename_action",
     delete_action: str = "interview_list_delete_session",
     copy_action: str = "interview_list_copy_action",
-    clone_label: str = word("Copy as answer set"),
+    clone_label: Optional[str] = None,
     show_title: bool = True,
     show_copy_button: bool = True,
     limit: int = 50,
@@ -1291,6 +1338,14 @@ def session_list_html(
     ${ session_list_html(user_id=user_info().id) }
     ```
     """
+    name_label = _translated_label(name_label, "Title")
+    date_label = _translated_label(date_label, "Date modified")
+    details_label = _translated_label(details_label, "Progress")
+    actions_label = _translated_label(actions_label, "Actions")
+    delete_label = _translated_label(delete_label, "Delete")
+    rename_label = _translated_label(rename_label, "Rename")
+    clone_label = _translated_label(clone_label, "Copy as answer set")
+
     if not answers:
         answers = get_saved_interview_list(
             filename=filename,
@@ -1372,25 +1427,27 @@ def session_list_html(
             ]
         )
 
+        # Avoid Babel locale lookup for free-text or unsupported languages.
+        modtime = local_date(answer.get("modtime"))
         table += """<tr class="al-saved-answer-table-row">"""
         if show_title:
             table += f"""
             <td class="text-break">
-            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_title(answer) }</a>
+            <a class="al-session-form-title" data-loading-message="{ escape(word("Loading…"), quote=True) }" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ escape(nice_interview_title(answer)) }</a>
             {"<br/>" if nice_interview_subtitle(answer) else ""}
-            <span class="al-session-form-subtitle">{ nice_interview_subtitle(answer) if nice_interview_subtitle(answer) else "" }</span>
+            <span class="al-session-form-subtitle">{ escape(nice_interview_subtitle(answer)) }</span>
             </td>
             """
         else:
             table += f"""
             <td class="text-break">
-            <a class="al-session-form-title" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ nice_interview_subtitle(answer) or nice_interview_title(answer) }</a>
+            <a class="al-session-form-title" data-loading-message="{ escape(word("Loading…"), quote=True) }" href="{ interview_url(i=answer.get("filename"), session=answer.get("key")) }">{ escape(nice_interview_subtitle(answer) or nice_interview_title(answer)) }</a>
             </td>
             """
         table += f"""
         <td>
-            <span class="al-session-date-modified">{ local_date(answer.get("modtime")) }</span> <br/>
-            <span class="al-session-time-modified">{ format_time(local_date(answer.get("modtime")).time(), format="h:mm a") }</span>
+            <span class="al-session-date-modified">{ modtime.strftime("%B %-d, %Y") }</span> <br/>
+            <span class="al-session-time-modified">{ modtime.strftime("%-I:%M %p") }</span>
         </td>
         <td class="al-progress-box">{ radial_progress(answer) }
         </td>
