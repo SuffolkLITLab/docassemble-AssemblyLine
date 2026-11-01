@@ -230,7 +230,16 @@ code: |
   github_about_user = github_user
 ---
 code: |
+  import os
   feedback_form = "docassemble.AssemblyLine:feedback.yml"
+  # Same local-override pattern as get_local_languages_yaml()
+  if not "playground" in package_name:
+    try:
+      _al_local_feedback = path_and_mimetype(f"{package_name}:data/questions/feedback.yml")[0]
+    except:
+      _al_local_feedback = None
+    if _al_local_feedback and os.path.isfile(_al_local_feedback):
+      feedback_form = f"{package_name}:feedback.yml"
 ---
 default screen parts:
   under: |
