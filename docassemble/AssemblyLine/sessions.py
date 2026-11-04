@@ -1,7 +1,6 @@
 from html import escape
 from typing import List, Dict, Any, Set, Union, Optional, Tuple
 from html import escape
-from docassemble.base.interview_cache import get_interview
 from docassemble.base.util import (
     all_variables,
     as_datetime,
@@ -48,7 +47,6 @@ import re
 import hashlib
 import struct
 import time
-import traceback
 
 try:
     from docassemble.base.hooks import write_answer_json as _write_answer_json
@@ -238,38 +236,29 @@ al_sessions_variables_to_remove_from_new_interview = [
     "user_ask_role",
 ]
 
-# This used to be built right here, when the file is imported. But the file gets imported while the server is still starting up,
-# before every package has loaded, a dispatch interview can still fail to read and keep its file name as its title until
-# the next restart. Now the list is built the first time something asks for it
 system_interviews: List[Dict[str, Any]] = []
-_dispatch_checked_at: Optional[float] = None
-_dispatch_had_errors = False
-_RETRY_AFTER_SECONDS = 60
+_system_interviews_expires_at = float("-inf")
 
 
-def _load_system_interviews() -> None:
-    global _dispatch_checked_at, _dispatch_had_errors
-    if _dispatch_checked_at is not None and (
-        not _dispatch_had_errors
-        or time.monotonic() - _dispatch_checked_at < _RETRY_AFTER_SECONDS
-    ):
-        return
-    menu = interview_menu()
-    broken = [
-        item for item in menu if item.get("status_class") == "dainterviewhaserror"
-    ]
-    for item in broken:
-        # interview_menu() hides the error, load it again to log it
-        try:
-            get_interview(item["filename"])
-        except Exception:
-            log(
-                f"Could not load dispatch interview {item['filename']}: "
-                f"{traceback.format_exc()}"
-            )
-    system_interviews[:] = menu
-    _dispatch_checked_at = time.monotonic()
-    _dispatch_had_errors = bool(broken)
+def _get_system_interviews() -> List[Dict[str, Any]]:
+    """Cache the logged-in dispatch menu for a day, retrying errors sooner.
+
+    This shared cache assumes logged-in users have the same menu visibility.
+    Anonymous requests use their own menu and never populate the shared cache.
+    """
+    global system_interviews, _system_interviews_expires_at
+    if not user_logged_in():
+        return interview_menu()
+    if time.monotonic() >= _system_interviews_expires_at:
+        menu = interview_menu()
+        has_errors = any(
+            item.get("status_class") == "dainterviewhaserror" for item in menu
+        )
+        system_interviews = menu
+        _system_interviews_expires_at = time.monotonic() + (
+            60 if has_errors else 24 * 60 * 60
+        )
+    return system_interviews
 
 
 def _package_name(package_name: Optional[str] = None):
@@ -1147,12 +1136,12 @@ def nice_interview_title(
     ```
     """
     if answer.get("filename"):
-        _load_system_interviews()
-        for interview in system_interviews:
+        for interview in _get_system_interviews():
             if (
                 answer.get("filename") == interview.get("filename")
                 and interview.get("title")
                 and interview.get("title") != interview.get("filename")
+                and interview.get("status_class") != "dainterviewhaserror"
             ):
                 return interview["title"]
         filename = os.path.splitext(os.path.basename(answer.get("filename", "")))[0]
