@@ -24,6 +24,7 @@ from docassemble.AssemblyLine import sessions
 @pytest.fixture(autouse=True)
 def empty_system_interviews(monkeypatch):
     monkeypatch.setattr(sessions, "system_interviews", [])
+    monkeypatch.setattr(sessions, "_load_system_interviews", lambda: None)
 
 
 def test_raw_subtitle_preserves_raw_manual_title():
