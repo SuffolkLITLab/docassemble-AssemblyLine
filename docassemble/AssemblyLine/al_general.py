@@ -2591,7 +2591,11 @@ class ALIndividual(Individual):
         show_impounded=False,
     ) -> str:
         """
-        Generate a formatted address block for mailings.
+        Generate a mailing block containing the full name followed by the address.
+
+        Uses Word line breaks in DOCX output and Docassemble line-break markers
+        elsewhere. Address confidentiality and formatting are delegated to the
+        address object. Use ``person.address.block()`` for an address without a name.
 
         Args:
             language (Optional): The language in which the address is written.
@@ -2616,49 +2620,18 @@ class ALIndividual(Individual):
         {{ users[0].address_block() }}
         ```
         """
+        name = self.name_full()
+        options = dict(
+            language=language,
+            international=international,
+            show_country=show_country,
+        )
+        if isinstance(self.address, ALAddress):
+            options.update(bare=bare, show_impounded=show_impounded)
+        address = self.address.block(**options)
         if docassemble.base.functions.this_thread.evaluation_context == "docx":
-            if isinstance(self.address, ALAddress):
-                return self.address.block(
-                    language=language,
-                    international=international,
-                    show_country=show_country,
-                    bare=bare,
-                    show_impounded=show_impounded,
-                )
-            else:
-                # bare parameter is ignored for plain Address objects
-                return self.address.block(
-                    language=language,
-                    international=international,
-                    show_country=show_country,
-                )
-        else:
-            if isinstance(self.address, ALAddress):
-                return (
-                    "[FLUSHLEFT] " + self.name_full()
-                    if isinstance(self, ALIndividual)
-                    else self.name.full(middle="full")
-                    + " [NEWLINE] "
-                    + self.address.block(
-                        language=language,
-                        international=international,
-                        show_country=show_country,
-                        bare=bare,
-                        show_impounded=show_impounded,
-                    )
-                )
-            else:
-                return (
-                    "[FLUSHLEFT] " + self.name_full()
-                    if isinstance(self, ALIndividual)
-                    else self.name.full(middle="full")
-                    + " [NEWLINE] "
-                    + self.address.block(
-                        language=language,
-                        international=international,
-                        show_country=show_country,
-                    )
-                )
+            return name + '</w:t><w:br/><w:t xml:space="preserve">' + address
+        return "[FLUSHLEFT] " + name + " [NEWLINE] " + address
 
     def pronoun(self, **kwargs) -> str:
         """
