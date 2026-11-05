@@ -46,6 +46,7 @@ import os
 import re
 import hashlib
 import struct
+import time
 
 try:
     from docassemble.base.hooks import write_answer_json as _write_answer_json
@@ -235,7 +236,29 @@ al_sessions_variables_to_remove_from_new_interview = [
     "user_ask_role",
 ]
 
-system_interviews: List[Dict[str, Any]] = interview_menu()
+system_interviews: List[Dict[str, Any]] = []
+_system_interviews_expires_at = float("-inf")
+
+
+def _get_system_interviews() -> List[Dict[str, Any]]:
+    """Cache the logged-in dispatch menu for a day, retrying errors sooner.
+
+    This shared cache assumes logged-in users have the same menu visibility.
+    Anonymous requests use their own menu and never populate the shared cache.
+    """
+    global system_interviews, _system_interviews_expires_at
+    if not user_logged_in():
+        return interview_menu()
+    if time.monotonic() >= _system_interviews_expires_at:
+        menu = interview_menu()
+        has_errors = any(
+            item.get("status_class") == "dainterviewhaserror" for item in menu
+        )
+        system_interviews = menu
+        _system_interviews_expires_at = time.monotonic() + (
+            60 if has_errors else 24 * 60 * 60
+        )
+    return system_interviews
 
 
 def _package_name(package_name: Optional[str] = None):
@@ -1113,9 +1136,12 @@ def nice_interview_title(
     ```
     """
     if answer.get("filename"):
-        for interview in system_interviews:
-            if answer.get("filename") == interview.get("filename") and interview.get(
-                "title"
+        for interview in _get_system_interviews():
+            if (
+                answer.get("filename") == interview.get("filename")
+                and interview.get("title")
+                and interview.get("title") != interview.get("filename")
+                and interview.get("status_class") != "dainterviewhaserror"
             ):
                 return interview["title"]
         filename = os.path.splitext(os.path.basename(answer.get("filename", "")))[0]
