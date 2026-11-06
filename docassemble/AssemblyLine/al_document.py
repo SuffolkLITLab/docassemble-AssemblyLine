@@ -2278,6 +2278,7 @@ class ALDocumentBundle(DAList):
         pdfa: bool = False,
         append_matching_suffix: bool = True,
         ensure_parity: Optional[Literal["even", "odd"]] = None,
+        use_previously_cached_files: bool = False,
     ) -> Optional[DAFile]:
         """
         Returns a consolidated PDF of all enabled documents in the bundle.
@@ -2290,6 +2291,13 @@ class ALDocumentBundle(DAList):
                                             Used primarily to enhance automated tests.
             ensure_parity (Optional[Literal["even", "odd"]]): Ensures the number of pages in the PDF is even or odd. If omitted,.
                 no parity is enforced. Defaults to None.
+            use_previously_cached_files (bool): Flag to return the bundled PDF already
+                saved by background assembly, when one exists. Defaults to False.
+                That file is stored for a multi-document bundle whose background
+                run included the full PDF. ``refresh`` does not skip it.
+                A custom key, PDF/A, or explicit page-parity request is assembled
+                normally, because the saved file is the standard final PDF.
+                Background assembly already applied ``default_parity`` to it.
 
         Returns:
             Optional[DAFile]: Combined PDF file or None if no documents are enabled.
@@ -2306,7 +2314,24 @@ class ALDocumentBundle(DAList):
         ```mako
         ${ al_user_bundle.as_pdf(key="preview") }
         ```
+
+            After background assembly, reuse the saved combined PDF instead of building it again:
+
+        ```mako
+        ${ al_user_bundle.as_pdf(use_previously_cached_files=True) }
+        ```
         """
+        if (
+            use_previously_cached_files
+            and key == "final"
+            and not pdfa
+            and ensure_parity is None
+            and hasattr(self, "_downloadable_files")
+        ):
+            _, _, bundled_pdf = self._downloadable_files
+            if bundled_pdf is not None:
+                return bundled_pdf
+
         safe_key = space_to_underscore(key)
         if pdfa:
             safe_key = safe_key + "-pdfa"
