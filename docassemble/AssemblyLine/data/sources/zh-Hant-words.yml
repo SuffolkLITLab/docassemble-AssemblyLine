@@ -1,4 +1,5 @@
 zh-Hant:
+  "Help": "幫助"
   "Loading…": "正在載入…"
   "{title} documents": "{title}的文件"
   "Email address for document": "用於接收文件的電子郵件地址"
@@ -80,6 +81,7 @@ zh-Hant:
 
 # Keep the common regional code working as an alias.
 zh-TW:
+  "Help": "幫助"
   "Loading…": "正在載入…"
   "{title} documents": "{title}的文件"
   "Email address for document": "用於接收文件的電子郵件地址"

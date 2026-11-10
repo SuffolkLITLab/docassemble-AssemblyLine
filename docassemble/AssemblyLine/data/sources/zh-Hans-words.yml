@@ -1,4 +1,5 @@
 zh-Hans:
+  "Help": "帮助"
   "Loading…": "正在加载…"
   "{title} documents": "{title}的文件"
   "Email address for document": "用于接收文件的电子邮箱地址"
@@ -80,6 +81,7 @@ zh-Hans:
 
 # Keep the common regional code working as an alias.
 zh-CN:
+  "Help": "帮助"
   "Loading…": "正在加载…"
   "{title} documents": "{title}的文件"
   "Email address for document": "用于接收文件的电子邮箱地址"

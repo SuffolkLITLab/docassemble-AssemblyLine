@@ -186,7 +186,7 @@ ar: {'%(username_or_email)s does not exist': '%(username_or_email)s غير مو�
     Google Drive, Greece: اليونان, Greenland: جرينلاند, Grenada: غرينادا, Guadeloupe: غوادلوب,
   Guam: غوام, Guatemala: غواتيمالا, Guernsey: غيرنزي, Guinea: غينيا, Guinea-Bissau: غينيا
     بيساو, Guyana: غيانا, Haiti: هايتي, Heard Island and McDonald Islands: جزيرة هيرد
-    وجزر ماكدونالد, Help: يساعد, Help is available: المساعدة متاحة, Help is available for this question: المساعدة
+    وجزر ماكدونالد, Help: مساعدة, Help is available: المساعدة متاحة, Help is available for this question: المساعدة
     متاحة لهذا السؤال, Help with this question: مساعدة في هذا السؤال, Here is some content after the interview.: وهنا
     بعض المحتوى بعد المقابلة., Here is some content before the interview.: وهنا بعض
     المحتوى قبل المقابلة., Here is the start of a YAML file you can import with a 'words' directive in your Configuration.: هذه
