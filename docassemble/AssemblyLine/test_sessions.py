@@ -9,16 +9,14 @@ from types import SimpleNamespace
 
 import pytest
 
-# Importing sessions initializes docassemble's database configuration. Supply
-# an isolated empty config when the test runner has not provided one.
-_test_config_dir = None
-if not os.environ.get("DA_CONFIG_FILE"):
-    _test_config_dir = tempfile.TemporaryDirectory(prefix="assemblyline-test-config-")
-    os.environ["DA_CONFIG_FILE"] = os.path.join(_test_config_dir.name, "config.yml")
-    with open(os.environ["DA_CONFIG_FILE"], "w", encoding="utf-8") as config:
-        config.write("{}\n")
-
 from docassemble.AssemblyLine import sessions
+
+from .test_helpers import ContextForTests
+
+
+@pytest.fixture(autouse=True)
+def thread_fixture():
+    return ContextForTests("docassemble.AssemblyLine").__enter__()
 
 
 @pytest.fixture(autouse=True)

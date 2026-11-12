@@ -3,6 +3,7 @@
 import re
 from datetime import datetime
 from unittest.mock import MagicMock, patch
+from .test_helpers import ContextForTests, set_empty_thread, ExitStack
 
 import pytest
 from jinja2 import Environment
@@ -20,6 +21,11 @@ except (SystemExit, ModuleNotFoundError) as ex:
         f"requires a running docassemble server: {ex}",
         allow_module_level=True,
     )
+
+
+@pytest.fixture(autouse=True)
+def thread_fixture():
+    return ContextForTests("docassemble.AssemblyLine").__enter__()
 
 
 class FakeUser:
@@ -388,7 +394,10 @@ def test_mutation_routes_reject_sessions_not_owned_by_current_user(
     ) as mock_set_info, patch.object(
         endpoint, "log"
     ):
+        stack = ExitStack()
+        set_empty_thread(stack)
         call_post_route(route, data)
+        stack.close()
 
     mock_owned.assert_called_once_with(
         filename=data["filename"], session_id=data["session"], user_id=FakeUser.id

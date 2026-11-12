@@ -1,16 +1,21 @@
 # do not pre-load
 
-from types import SimpleNamespace
-
 from docassemble.base import functions
 import pandas as pd
 import pytest
+from .test_helpers import ContextForTests, set_thread_package, ExitStack
 
 from .al_courts import ALCourtLoader
 
+@pytest.fixture(autouse=True)
+def thread_fixture():
+    return ContextForTests("docassemble.AssemblyLine").__enter__()
+
 
 @pytest.fixture
-def courts(monkeypatch):
+def courts(monkeypatch, thread_fixture):
+    stack = ExitStack()
+    set_thread_package(stack, "docassemble.AssemblyLine")
     frame = pd.DataFrame(
         {
             "name": ["North Court", "South Court", "Other Court"],
@@ -19,11 +24,6 @@ def courts(monkeypatch):
             "address_county": ["Essex", "Essex", "Middlesex"],
         },
         index=[4, 8, 12],
-    )
-    monkeypatch.setattr(
-        functions.this_thread,
-        "current_question",
-        SimpleNamespace(package="docassemble.AssemblyLine"),
     )
     loader = ALCourtLoader("courts", filename="courts.xlsx")
     monkeypatch.setattr(loader, "_load_courts", lambda: frame)
@@ -68,7 +68,7 @@ def test_existing_single_column_and_unfiltered_calls(courts):
     ],
 )
 @pytest.mark.parametrize("search_columns", ["name", ["name", "department"]])
-def test_no_matches_with_search(courts, filters, search_columns):
+def test_no_matches_with_search(courts, filters, search_columns, thread_fixture):
     loader, frame = courts
     assert (
         loader.filter_courts(
