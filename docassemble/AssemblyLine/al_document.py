@@ -1455,7 +1455,7 @@ class ALDocument(DADict):
         refresh: bool = True,
         pdfa: bool = False,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Generates a PDF version of the assembled document.
 
@@ -1543,7 +1543,7 @@ class ALDocument(DADict):
         key: str = "final",
         refresh: bool = True,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Generates a DOCX version of the assembled document, if possible. Falls back to PDF if not.
 
@@ -2075,7 +2075,7 @@ class ALStaticDocument(DAStaticFile):
             return True
         return False
 
-    def show(self, **kwargs) -> DAFile:
+    def show(self, width: Any = None, alt_text: Any = None, **kwargs) -> DAFile:
         """
         Display the document.
 
@@ -2096,7 +2096,7 @@ class ALStaticDocument(DAStaticFile):
         """
         # TODO: this explicit conversion shouldn't be needed
         # Workaround for problem generating thumbnails without it
-        return pdf_concatenate(self).show(**kwargs)
+        return pdf_concatenate(self).show(width=width, alt_text=alt_text, **kwargs)
 
     def is_enabled(self, **kwargs) -> bool:
         """
@@ -4586,7 +4586,7 @@ class ALExhibitDocument(ALDocument):
         """
         return self
 
-    def as_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
+    def as_list(self, key: str = "final", refresh: bool = True) -> List[Any]:
         """
         Retrieve the document as a list.
 

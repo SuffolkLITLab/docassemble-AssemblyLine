@@ -7,6 +7,7 @@ from .test_helpers import ContextForTests, set_thread_package, ExitStack
 
 from .al_courts import ALCourtLoader
 
+
 @pytest.fixture(autouse=True)
 def thread_fixture():
     return ContextForTests("docassemble.AssemblyLine").__enter__()

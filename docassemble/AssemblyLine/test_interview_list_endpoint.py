@@ -13,7 +13,7 @@ try:
     try:
         from docassemble.webapp.flask_app import flaskapp as app
     except ModuleNotFoundError:
-        from docassemble.webapp.app_object import app
+        from docassemble.webapp.app_object import app  # type: ignore
     from docassemble.AssemblyLine import interview_list_endpoint as endpoint
     from docassemble.AssemblyLine import sessions as session_helpers
 except (SystemExit, ModuleNotFoundError) as ex:

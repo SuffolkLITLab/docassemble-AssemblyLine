@@ -27,20 +27,17 @@ from docassemble.base.thread_context import (
 
 
 class ContextForTests:
+    """Partial recreation of docassemble.webapp.testing.TestContext"""
 
     def __init__(self, package):
         self.package = package
         self.stack = ExitStack()
 
     def __enter__(self):
-        # url_root = daconfig.get('url root', 'http://localhost') + daconfig.get('root', '/')
-        # url = url_root + 'interview'
-        # self.app_context = self.stack.enter_context(app.app_context())
-        # self.test_context = self.stack.enter_context(app.test_request_context(base_url=url_root, path=url))
-        # app.preprocess_request()
-        # login_as_admin(url, url_root)
+        url_root = "http://localhost/"
+        url = url_root + "interview"
         set_empty_thread(self.stack)
-        # self.stack.enter_context(user_dict_context(fresh_dictionary()))
+        self.stack.enter_context(user_dict_context({}))
         this_thread.current_package = self.package
         this_thread.current_info.update(
             {"yaml_filename": self.package + ":data/questions/test.yml"}
@@ -48,7 +45,6 @@ class ContextForTests:
         return self
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        # app.login_manager._update_request_context_with_user()  # pylint: disable=no-member
         self.stack.close()
 
 

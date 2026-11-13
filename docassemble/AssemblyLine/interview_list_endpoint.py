@@ -14,13 +14,13 @@ except ModuleNotFoundError as err:
     if err.name not in {"docassemble.webapp.flask_app"}:
         raise
     # docassemble < 1.10 exposes app from the legacy module.
-    from docassemble.webapp.app_object import app
+    from docassemble.webapp.app_object import app  # type: ignore
 
 try:
     from docassemble.base.hooks import user_interviews
 except (ModuleNotFoundError, ImportError):
     # docassemble < 1.10 keeps user_interviews in the legacy server module.
-    from docassemble.webapp.server import user_interviews
+    from docassemble.webapp.server import user_interviews  # type: ignore
 from docassemble.base.functions import this_thread, interview_url, log, get_config, word
 from docassemble.AssemblyLine.sessions import (
     get_saved_interview_list,
