@@ -10,16 +10,32 @@ hookimpl = pluggy.HookimplMarker("docassemble")
 class Mocks:
     @hookimpl
     def get_configuration() -> dict:  # type: ignore
-        """Get configuration"""
+        """
+        Get configuration
+
+        Returns:
+            An empty dictionary
+        """
         return {}
 
     @hookimpl
-    def file_finder(file_reference):
-        return {"fullpath": file_reference.replace(".", "/").replace(":", "/")}
+    def file_finder(file_reference) -> dict:
+        """
+        Default file finder
+
+        Returns:
+            Easiest implementation of files in a package.
+        """
+        return {"fullpath": file_reference.replace(".", "/").replace(":", "/")}  # type: ignore
 
     @hookimpl
     def get_default_timezone() -> str:  # type: ignore
-        """Default timezone"""
+        """
+        Default timezone
+
+        Returns:
+            String for NYC timezone.
+        """
         return "America/New_York"
 
 

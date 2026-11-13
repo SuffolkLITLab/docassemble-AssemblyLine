@@ -2082,6 +2082,8 @@ class ALStaticDocument(DAStaticFile):
         This method provides a workaround for problems generating thumbnails.
 
         Args:
+            width: the width of the thumbnail of the document.
+            alt_text (str): the accessible alt text that should be used for the document's thumbnail.
             **kwargs: Args to pass to DAFile's show function.
 
         Returns:
