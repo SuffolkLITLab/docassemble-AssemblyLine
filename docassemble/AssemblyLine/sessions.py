@@ -6,6 +6,7 @@ from docassemble.base.util import (
     as_datetime,
     create_session,
     current_context,
+    current_datetime,
     DADateTime,
     DAFile,
     DAFileCollection,
@@ -54,9 +55,9 @@ except ModuleNotFoundError as err:
     if err.name != "docassemble.base.hooks":
         raise
     # docassemble < 1.10 exposes webapp hooks through the legacy server object.
-    from docassemble.base.functions import server as _legacy_server
+    from docassemble.base.functions import server as _legacy_server  # type: ignore
 
-    def _write_answer_json(*args, **kwargs):
+    def _write_answer_json(*args, **kwargs):  # type: ignore
         return _legacy_server.write_answer_json(*args, **kwargs)
 
 
@@ -1290,7 +1291,7 @@ def local_date(utcstring: Optional[str]) -> DADateTime:
     ```
     """
     if not utcstring:
-        return DADateTime()
+        return current_datetime()
     return (
         as_datetime(utcstring)
         .replace(tzinfo=zoneinfo.ZoneInfo("UTC"))
@@ -1933,7 +1934,7 @@ def export_interview_variables(
     filename: Optional[str] = None,
     session_id: Optional[str] = None,
     variables_to_filter: Union[Set, List[str], None] = None,
-    output: DAFile = None,
+    output: Optional[DAFile] = None,
     additional_variables_to_filter: Union[Set, List[str], None] = None,
 ) -> DAFile:
     """

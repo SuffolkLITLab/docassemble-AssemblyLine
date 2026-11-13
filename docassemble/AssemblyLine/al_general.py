@@ -3832,9 +3832,13 @@ def language_name(language_code: str) -> str:
     ensure_definition(language_code)
     try:
         if len(language_code) == 2:
-            return word(pycountry.languages.get(alpha_2=language_code).name)
+            lang_obj = pycountry.languages.get(alpha_2=language_code)
         else:
-            return word(pycountry.languages.get(alpha_3=language_code).name)
+            lang_obj = pycountry.languages.get(alpha_3=language_code)
+        if lang_obj:
+            return word(lang_obj.name)
+        else:
+            return language_code
     except:
         return language_code
 

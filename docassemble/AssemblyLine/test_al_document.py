@@ -6,6 +6,8 @@ import unittest
 from unittest.mock import Mock
 from html import unescape
 from unittest.mock import patch
+from .test_helpers import ContextForTests, set_user_dict, ExitStack
+import pytest
 from docassemble.base.util import (
     DAFile,
     DAFileList,
@@ -23,6 +25,11 @@ from .al_document import (
     _javascript_href,
 )
 from docassemble.base.error import DAError
+
+
+@pytest.fixture(autouse=True)
+def thread_fixture():
+    return ContextForTests("docassemble.AssemblyLine").__enter__()
 
 
 class TestJavascriptHref(unittest.TestCase):
@@ -77,7 +84,7 @@ class test_dont_assume_pdf(unittest.TestCase):
             filename="multi_bundle_1",
             enabled=True,
         )
-        new_list = al_doc_bundle.as_editable_list()
+        new_list = al_doc_bundle.as_editable_list(refresh=False)
         self.assertEqual(len(new_list), 2)
         pass
 
@@ -629,24 +636,28 @@ I confess that my heart beat fast in giving my name to the lackey commissioned t
 “I came from him,” I replied, “to talk over the affair with Madame d’Ionis.”
         """
         testcase1 = text_testcase1
+        stack = ExitStack()
+        set_user_dict(stack, {"testcase1": testcase1})
         myfield = ALAddendumField(field_name="testcase1")
         myfield.overflow_trigger = 160
         self.assertLessEqual(
             len(myfield.safe_value(overflow_message=" [See addendum]")),
             160,
         )
-        # print(myfield.safe_value(overflow_message=""))
         safe_value = myfield.safe_value(overflow_message="")
         self.assertTrue(safe_value.endswith("in the"))
         overflow_value = myfield.overflow_value(overflow_message="")
         self.assertTrue(overflow_value.startswith("lands"))
         self.assertEqual(len(myfield.safe_value(overflow_message="")), 158)
+        stack.close()
 
         with_weird_spaces = """Testing here
 
 
 with some very short words, but a whole lot of them, so it'll be over the overflow, over the flow yah know?"""
 
+        stack2 = ExitStack()
+        set_user_dict(stack2, {"with_weird_spaces": with_weird_spaces})
         field_with_weird_spaces = ALAddendumField(
             field_name="with_weird_spaces", overflow_trigger=23
         )
@@ -654,11 +665,14 @@ with some very short words, but a whole lot of them, so it'll be over the overfl
         self.assertTrue(safe_value.endswith("some"), msg=f"{ safe_value }")
         overflow_value = field_with_weird_spaces.overflow_value(overflow_message="")
         self.assertTrue(overflow_value.startswith("very"), msg=f"{ overflow_value }")
+        stack2.close()
 
 
 class TestOriginalOrOverflowMessage(unittest.TestCase):
     def test_original_value_shorter_than_trigger(self):
         testcase2 = "Short text"
+        stack = ExitStack()
+        set_user_dict(stack, {"testcase2": testcase2})
         test_instance = ALAddendumField(field_name="testcase2")
         test_instance.overflow_trigger = 10
 
@@ -668,9 +682,12 @@ class TestOriginalOrOverflowMessage(unittest.TestCase):
         self.assertEqual(
             result, "Short text"
         )  # Original value shorter than overflow_trigger
+        stack.close()
 
     def test_original_value_exceeds_trigger(self):
         testcase3 = "A very long text that exceeds the overflow trigger"
+        stack = ExitStack()
+        set_user_dict(stack, {"testcase3": testcase3})
         test_instance = ALAddendumField(field_name="testcase3")
         test_instance.overflow_trigger = 10
 
@@ -681,11 +698,14 @@ class TestOriginalOrOverflowMessage(unittest.TestCase):
         self.assertEqual(
             result, "Overflow occurred."
         )  # Original value exceeds the overflow_trigger
+        stack.close()
 
     def test_original_value_exceeds_trigger_with_newlines(self):
         testcase4 = (
             "A medium\n length text\nthat exceeds\nthe overflow trigger with newlines"
         )
+        stack = ExitStack()
+        set_user_dict(stack, {"testcase4": testcase4})
         test_instance = ALAddendumField(field_name="testcase4")
         test_instance.overflow_trigger = 80
 
@@ -697,6 +717,7 @@ class TestOriginalOrOverflowMessage(unittest.TestCase):
         self.assertEqual(
             result, "Overflow occurred."
         )  # Original value exceeds the overflow_trigger, but preserve_newlines is True
+        stack.close()
 
 
 if __name__ == "__main__":
