@@ -964,6 +964,14 @@ class ALAddressList(DAList):
         """
         return comma_and_list([item.on_one_line() for item in self])
 
+    def _edit_button(self, url, classes, item):  # pylint: disable=unused-argument
+        """Overrides the DAList edit button function to include the address being edited in the label"""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Edit")} {str(item.on_one_line())}"><span class="text-nowrap"><i class="fa-solid fa-pencil-alt"></i> {word("Edit")}</span></a> '
+
+    def _delete_button(self, url, classes, item):  # pylint: disable=unused-argument
+        """Overrides the DAList delete button function to include the address being deleted in the label"""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Delete")} {str(item.on_one_line())}"><span class="text-nowrap"><i class="fa-solid fa-trash"></i> {word("Delete")}</span></a>'
+
 
 class ALNameList(DAList):
     """
@@ -1014,6 +1022,14 @@ class ALNameList(DAList):
             str: Formatted string of all names in the list.
         """
         return comma_list(self)
+
+    def _edit_button(self, url, classes, item):  # pylint: disable=unused-argument
+        """Overrides the DAList edit button function to include the name being edited in the label"""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Edit")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-pencil-alt"></i> {word("Edit")}</span></a> '
+
+    def _delete_button(self, url, classes, item):  # pylint: disable=unused-argument
+        """Overrides the DAList delete button function to include the name being deleted in the label"""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Delete")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-trash"></i> {word("Delete")}</span></a>'
 
 
 class ALPeopleList(DAList):
@@ -1396,6 +1412,15 @@ class ALPeopleList(DAList):
             str: The conjugated verb.
         """
         return self.does_verb(the_verb, past=True, **kwargs)
+
+    def _edit_button(self, url, classes, item):  # pylint: disable=unused-argument
+        """Overrides the DAList edit button function to include the name of the individual being edited in the label"""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Edit")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-pencil-alt"></i> {word("Edit")}</span></a> '
+
+    def _delete_button(self, url, classes, item):  # pylint: disable=unused-argument
+        """Overrides the DAList delete button function to include the name of the individual being deleted in the label"""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Delete")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-trash"></i> {word("Delete")}</span></a>'
+
 
 
 class _SignatureAltText:
