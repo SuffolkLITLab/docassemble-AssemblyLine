@@ -1455,7 +1455,7 @@ class ALDocument(DADict):
         refresh: bool = True,
         pdfa: bool = False,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Generates a PDF version of the assembled document.
 
@@ -1543,7 +1543,7 @@ class ALDocument(DADict):
         key: str = "final",
         refresh: bool = True,
         append_matching_suffix: bool = True,
-    ) -> DAFile:
+    ) -> Optional[DAFile]:
         """
         Generates a DOCX version of the assembled document, if possible. Falls back to PDF if not.
 
@@ -2075,13 +2075,15 @@ class ALStaticDocument(DAStaticFile):
             return True
         return False
 
-    def show(self, **kwargs) -> DAFile:
+    def show(self, width: Any = None, alt_text: Any = None, **kwargs) -> DAFile:
         """
         Display the document.
 
         This method provides a workaround for problems generating thumbnails.
 
         Args:
+            width: the width of the thumbnail of the document.
+            alt_text (str): the accessible alt text that should be used for the document's thumbnail.
             **kwargs: Args to pass to DAFile's show function.
 
         Returns:
@@ -2096,7 +2098,7 @@ class ALStaticDocument(DAStaticFile):
         """
         # TODO: this explicit conversion shouldn't be needed
         # Workaround for problem generating thumbnails without it
-        return pdf_concatenate(self).show(**kwargs)
+        return pdf_concatenate(self).show(width=width, alt_text=alt_text, **kwargs)
 
     def is_enabled(self, **kwargs) -> bool:
         """
@@ -4435,6 +4437,18 @@ class ALExhibitList(DAList):
             if self.auto_ocr:
                 self._start_ocr()
 
+    def _edit_button(self, url, classes, item=None):
+        """Overrides the DAList edit button function to include the name of the individual being edited in the label"""
+        if not item:
+            item = ""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Edit")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-pencil-alt"></i> {word("Edit")}</span></a> '
+
+    def _delete_button(self, url, classes, item=None):
+        """Overrides the DAList delete button function to include the name of the individual being deleted in the label"""
+        if not item:
+            item = ""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Delete")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-trash"></i> {word("Delete")}</span></a>'
+
 
 class ALExhibitDocument(ALDocument):
     """
@@ -4611,7 +4625,7 @@ class ALExhibitDocument(ALDocument):
         """
         return self
 
-    def as_list(self, key: str = "final", refresh: bool = True) -> List[DAFile]:
+    def as_list(self, key: str = "final", refresh: bool = True) -> List[Any]:
         """
         Retrieve the document as a list.
 

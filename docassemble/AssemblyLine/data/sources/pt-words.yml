@@ -1,4 +1,5 @@
 pt:
+  "Help": "Ajuda"
   "Loading…": "Carregando…"
   "{title} documents": "Documentos de {title}"
   "Email address for document": "Endereço de e-mail para o documento"
@@ -43,6 +44,7 @@ pt:
   "Deleted.": "Excluído."
   "Details": "Detalhes"
   "Download": "Baixar"
+  "Edit": "Editar"
   "Email": "E-mail"
   "In progress forms": "Formulários em andamento"
   "Language selection": "Seleção de idioma"

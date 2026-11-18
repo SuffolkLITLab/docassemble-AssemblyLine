@@ -73,8 +73,8 @@ ignore_missing_imports = true
 
 [dependency-groups]
 dev = [
-    "docassemble.base==1.9.8",
-    "docassemble.webapp==1.9.8",
+    "docassemble.base==1.10.15",
+    "docassemble.webapp==1.10.15",
     "pytest>=7.0",
     "mypy",
     "pandas-stubs",

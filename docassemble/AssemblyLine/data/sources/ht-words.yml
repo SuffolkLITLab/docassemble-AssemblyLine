@@ -1,4 +1,5 @@
 ht:
+  "Help": "Èd"
   "Loading…": "Ap chaje…"
   "{title} documents": "Dokiman {title}"
   "Email address for document": "Adrès imèl pou dokiman an"
@@ -43,6 +44,7 @@ ht:
   "Deleted.": "Yo efase l."
   "Details": "Detay"
   "Download": "Telechaje"
+  "Edit": "Edit"
   "Email": "Imèl"
   "In progress forms": "Fòm ki an kou yo"
   "Language selection": "Chwazi lang"

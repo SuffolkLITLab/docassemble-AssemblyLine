@@ -964,6 +964,22 @@ class ALAddressList(DAList):
         """
         return comma_and_list([item.on_one_line() for item in self])
 
+    def _edit_button(self, url, classes, item=None):
+        """Overrides the DAList edit button function to include the address being edited in the label"""
+        if item:
+            one_line = str(item.on_one_line())
+        else:
+            one_line = ""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Edit")} {one_line}"><span class="text-nowrap"><i class="fa-solid fa-pencil-alt"></i> {word("Edit")}</span></a> '
+
+    def _delete_button(self, url, classes, item=None):
+        """Overrides the DAList delete button function to include the address being deleted in the label"""
+        if item:
+            one_line = str(item.on_one_line())
+        else:
+            one_line = ""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Delete")} {one_line}"><span class="text-nowrap"><i class="fa-solid fa-trash"></i> {word("Delete")}</span></a>'
+
 
 class ALNameList(DAList):
     """
@@ -1014,6 +1030,18 @@ class ALNameList(DAList):
             str: Formatted string of all names in the list.
         """
         return comma_list(self)
+
+    def _edit_button(self, url, classes, item=None):
+        """Overrides the DAList edit button function to include the name being edited in the label"""
+        if not item:
+            item = ""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Edit")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-pencil-alt"></i> {word("Edit")}</span></a> '
+
+    def _delete_button(self, url, classes, item=None):
+        """Overrides the DAList delete button function to include the name being deleted in the label"""
+        if not item:
+            item = ""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Delete")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-trash"></i> {word("Delete")}</span></a>'
 
 
 class ALPeopleList(DAList):
@@ -1396,6 +1424,18 @@ class ALPeopleList(DAList):
             str: The conjugated verb.
         """
         return self.does_verb(the_verb, past=True, **kwargs)
+
+    def _edit_button(self, url, classes, item=None):
+        """Overrides the DAList edit button function to include the name of the individual being edited in the label"""
+        if not item:
+            item = ""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Edit")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-pencil-alt"></i> {word("Edit")}</span></a> '
+
+    def _delete_button(self, url, classes, item=None):
+        """Overrides the DAList delete button function to include the name of the individual being deleted in the label"""
+        if not item:
+            item = ""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Delete")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-trash"></i> {word("Delete")}</span></a>'
 
 
 class _SignatureAltText:
@@ -3832,9 +3872,13 @@ def language_name(language_code: str) -> str:
     ensure_definition(language_code)
     try:
         if len(language_code) == 2:
-            return word(pycountry.languages.get(alpha_2=language_code).name)
+            lang_obj = pycountry.languages.get(alpha_2=language_code)
         else:
-            return word(pycountry.languages.get(alpha_3=language_code).name)
+            lang_obj = pycountry.languages.get(alpha_3=language_code)
+        if lang_obj:
+            return word(lang_obj.name)
+        else:
+            return language_code
     except:
         return language_code
 

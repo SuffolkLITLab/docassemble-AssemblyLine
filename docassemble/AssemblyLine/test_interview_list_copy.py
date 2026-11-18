@@ -14,6 +14,13 @@ import yaml
 
 from docassemble.base import functions, parse
 
+from .test_helpers import ContextForTests
+
+
+@pytest.fixture(autouse=True)
+def thread_fixture():
+    return ContextForTests("docassemble.AssemblyLine").__enter__()
+
 
 @contextmanager
 def nested_interview_context():

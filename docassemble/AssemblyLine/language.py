@@ -106,7 +106,11 @@ def get_tuples(
         for lang in lang_codes:
             # English name
             try:
-                english_name = pycountry.languages.get(alpha_2=lang).name
+                lang_obj = pycountry.languages.get(alpha_2=lang)
+                if lang_obj:
+                    english_name = lang_obj.name
+                else:
+                    english_name = lang
             except:
                 english_name = lang
             tuples.append((languages[lang].get("native_name", english_name), lang))

@@ -2,6 +2,10 @@
 
 import unittest
 from unittest.mock import patch
+
+import pytest
+from .test_helpers import ContextForTests
+
 from .language import (
     get_language_list_dropdown,
     get_language_list_dropdown_item,
@@ -10,6 +14,11 @@ from .language import (
     get_language_list_item,
 )
 import os
+
+
+@pytest.fixture
+def thread_fixture():
+    return ContextForTests("docassemble.AssemblyLine").__enter__()
 
 
 class TestLanguage(unittest.TestCase):

@@ -1,4 +1,5 @@
 zh-Hans:
+  "Help": "帮助"
   "Loading…": "正在加载…"
   "{title} documents": "{title}的文件"
   "Email address for document": "用于接收文件的电子邮箱地址"
@@ -43,6 +44,7 @@ zh-Hans:
   "Deleted.": "已删除。"
   "Details": "详细信息"
   "Download": "下载"
+  "Edit": "编辑"
   "Email": "电子邮箱"
   "In progress forms": "进行中的表格"
   "Language selection": "选择语言"
@@ -80,6 +82,7 @@ zh-Hans:
 
 # Keep the common regional code working as an alias.
 zh-CN:
+  "Help": "帮助"
   "Loading…": "正在加载…"
   "{title} documents": "{title}的文件"
   "Email address for document": "用于接收文件的电子邮箱地址"
@@ -124,6 +127,7 @@ zh-CN:
   "Deleted.": "已删除。"
   "Details": "详细信息"
   "Download": "下载"
+  "Edit": "编辑"
   "Email": "电子邮箱"
   "In progress forms": "进行中的表格"
   "Language selection": "选择语言"

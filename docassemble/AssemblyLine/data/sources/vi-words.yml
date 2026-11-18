@@ -1,4 +1,5 @@
 vi:
+  "Help": "Trợ giúp"
   "Loading…": "Đang tải…"
   "{title} documents": "Tài liệu {title}"
   "Email address for document": "Địa chỉ email nhận tài liệu"
@@ -43,6 +44,7 @@ vi:
   "Deleted.": "Đã xóa."
   "Details": "Chi tiết"
   "Download": "Tải xuống"
+  "Edit": "Chỉnh sửa"
   "Email": "Email"
   "In progress forms": "Biểu mẫu đang thực hiện"
   "Language selection": "Chọn ngôn ngữ"

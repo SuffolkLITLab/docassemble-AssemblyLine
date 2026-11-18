@@ -11,6 +11,13 @@ from jinja2 import Environment
 import pytest
 from docassemble.AssemblyLine import al_document
 
+from .test_helpers import ContextForTests, set_thread_lang, ExitStack
+
+
+@pytest.fixture(autouse=True)
+def thread_fixture():
+    return ContextForTests("docassemble.AssemblyLine").__enter__()
+
 
 class Tags(HTMLParser):
     def __init__(self, source):
@@ -134,7 +141,8 @@ def test_signature_alt_text_uses_current_language(monkeypatch):
         ("es", "Firma de"),
         ("en", "Signature of"),
     ]:
-        monkeypatch.setattr(functions.this_thread, "language", language)
+        stack = ExitStack()
+        set_thread_lang(stack, language)
         from docassemble.base import filter as da_filter
         from importlib import import_module
 
@@ -223,12 +231,14 @@ def test_catalogs_cover_runtime_phrases_and_preserve_placeholders(monkeypatch):
         field for _, field, _, _ in Formatter().parse(text) if field is not None
     )
     for path in (root / "data/sources").glob("*-words.yml"):
+        stack = ExitStack()
+        set_thread_lang(stack, "en")
         catalogs = safeyaml.load(path.read_text())  # Rejects duplicate YAML keys.
         for language, catalog in catalogs.items():
             from docassemble.base import functions
 
+            set_thread_lang(stack, language)
             monkeypatch.setitem(functions.word_collection, language, catalog)
-            monkeypatch.setattr(functions.this_thread, "language", language)
             bundle = SimpleNamespace(broken_exhibit_titles=lambda: ["First", "Second"])
             warning = al_document.ALDocumentBundle.broken_documents_warning_html(bundle)
             assert " and " not in warning
@@ -240,6 +250,7 @@ def test_catalogs_cover_runtime_phrases_and_preserve_placeholders(monkeypatch):
                     key,
                 )
                 assert fields(key) == fields(catalog[key]), (language, key)
+        stack.close()
         if len(catalogs) == 2:
             assert list(catalogs.values())[0] == list(catalogs.values())[1]
 

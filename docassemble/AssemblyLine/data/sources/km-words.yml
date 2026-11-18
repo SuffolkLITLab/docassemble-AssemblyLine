@@ -1,4 +1,5 @@
 km:
+  "Help": "ជំនួយ"
   "Loading…": "កំពុងផ្ទុក…"
   "{title} documents": "ឯកសារ {title}"
   "Email address for document": "អាសយដ្ឋានអ៊ីមែលសម្រាប់ឯកសារ"
@@ -43,6 +44,7 @@ km:
   "Deleted.": "បានលុប។"
   "Details": "ព័ត៌មានលម្អិត"
   "Download": "ទាញយក"
+  "Edit": "កែសម្រួល"
   "Email": "អ៊ីមែល"
   "In progress forms": "ទម្រង់កំពុងបំពេញ"
   "Language selection": "ការជ្រើសរើសភាសា"
