@@ -4412,6 +4412,18 @@ class ALExhibitList(DAList):
             if self.auto_ocr:
                 self._start_ocr()
 
+    def _edit_button(self, url, classes, item=None):
+        """Overrides the DAList edit button function to include the name of the individual being edited in the label"""
+        if not item:
+            item = ""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Edit")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-pencil-alt"></i> {word("Edit")}</span></a> '
+
+    def _delete_button(self, url, classes, item=None):
+        """Overrides the DAList delete button function to include the name of the individual being deleted in the label"""
+        if not item:
+            item = ""
+        return f'<a href="{url}" role="button" class="{classes}" aria-label="{word("Delete")} {str(item)}"><span class="text-nowrap"><i class="fa-solid fa-trash"></i> {word("Delete")}</span></a>'
+
 
 class ALExhibitDocument(ALDocument):
     """
