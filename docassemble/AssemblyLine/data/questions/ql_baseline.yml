@@ -63,6 +63,7 @@ subquestion: |
   legal aid provider](https://www.lsc.gov/what-legal-aid/find-legal-aid).
   
   Tap the {green words} in any screen for a definition or more information.
+  Depending on the answers you select, additional options may appear.
   
   % if chat_partners_available().help:
   Live help is currently available in this interview. Click the speech bubble
