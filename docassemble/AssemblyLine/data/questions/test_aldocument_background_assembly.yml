@@ -44,6 +44,10 @@ subquestion: |
 
   ${ al_user_bundle.download_list_html(use_previously_cached_files=True, include_full_pdf=True) }
 
+  Combined PDF from the background cache:
+
+  ${ al_user_bundle.as_pdf(use_previously_cached_files=True) }
+
   ${ action_button_html(url_action('regenerate_downloads'), label='Regenerate documents') }
 ---
 # Use this action after collecting any changed attachment inputs. Starting the
