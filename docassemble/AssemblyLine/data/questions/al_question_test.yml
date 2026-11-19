@@ -17,6 +17,9 @@ code: |
 code: |
   interview_short_title = "AL Question Test"
 ---
+code: |
+  al_interview_languages = ["en", "es", "ht", "pt"]
+---
 metadata:
   title: |
     AL Question Test    
