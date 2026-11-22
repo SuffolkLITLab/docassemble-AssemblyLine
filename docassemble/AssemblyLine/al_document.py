@@ -1527,7 +1527,11 @@ class ALDocument(DADict):
             if isinstance(main_doc, DAFileCollection):
                 addendum_doc = addendum_doc.pdf
             concatenated = pdf_concatenate(
-                main_doc, addendum_doc, filename=filename, pdfa=pdfa
+                main_doc,
+                addendum_doc,
+                filename=filename,
+                pdfa=pdfa,
+                title=str(self.title),
             )
             concatenated.title = str(self.title)
             setattr(self.cache, safe_key, concatenated)
@@ -2404,6 +2408,7 @@ class ALDocumentBundle(DAList):
                     document_pdfs,
                     filename=f"{base_name(self.filename)}{append_suffix}.pdf",
                     pdfa=pdfa,
+                    title=str(self.title),
                 )
         if hasattr(self, "add_page_numbers") and self.add_page_numbers:
             self._set_default_attributes()
