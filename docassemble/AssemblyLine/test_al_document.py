@@ -279,6 +279,24 @@ class TestBundleGatheringSemantics(unittest.TestCase):
         self.assertIs(result, second_pdf)
 
 
+class TestBundlePdfMetadata(unittest.TestCase):
+    def test_merge_passes_rendered_bundle_title_to_pdf_metadata(self):
+        bundle = ALDocumentBundle(
+            "bundle",
+            elements=[FakeSingleDoc(FakePdf()), FakeSingleDoc(FakePdf())],
+            title="Motion and filing instructions",
+            filename="packet",
+            enabled=True,
+        )
+        with patch(
+            f"{ALDocumentBundle.__module__}.pdf_concatenate", return_value=FakePdf()
+        ) as merge:
+            bundle.as_pdf()
+        self.assertEqual(
+            merge.call_args.kwargs["title"], "Motion and filing instructions"
+        )
+
+
 class TestSingleDocumentBundleFilename(unittest.TestCase):
     def test_bundle_as_pdf_renames_single_document_to_bundle_filename(self):
         child_pdf = FakePdf()
